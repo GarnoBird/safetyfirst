@@ -74,7 +74,7 @@ export function getRequiredEnv(name) {
 export function handleApiError(res, error) {
   const statusCode = error.statusCode || 500;
   const message =
-    statusCode >= 500
+    statusCode >= 500 && !error.exposeMessage
       ? "The server could not complete the request."
       : error.message;
   sendJson(res, statusCode, { error: message });

@@ -53,6 +53,8 @@ export async function sendSignInReportEmail({ date, recipientEmail, kind, staffI
   const report = await buildSignInReport(date);
   if (!report.rows.length) return { skipped: true, rowCount: 0 };
 
+  assertEmailConfig();
+
   const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
   const from = getRequiredEnv("REPORT_FROM_EMAIL");
   const subject = `Worker sign-ins - ${date}`;
@@ -103,6 +105,20 @@ export async function sendSignInReportEmail({ date, recipientEmail, kind, staffI
   });
 
   return { skipped: false, rowCount: report.rows.length, emailId: data?.id };
+}
+
+function assertEmailConfig() {
+  const missing = ["RESEND_API_KEY", "REPORT_FROM_EMAIL"].filter(
+    (name) => !process.env[name],
+  );
+  if (!missing.length) return;
+
+  const error = new Error(
+    `Email reports are not configured yet. Missing: ${missing.join(", ")}.`,
+  );
+  error.statusCode = 503;
+  error.exposeMessage = true;
+  throw error;
 }
 
 export async function hasSentAutoReport(date) {
