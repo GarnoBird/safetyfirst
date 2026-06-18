@@ -71,11 +71,13 @@ export async function sendSignInReportEmail({ date, recipientEmail, kind, staffI
     attachments: [
       {
         filename: `worker-sign-ins-${date}.csv`,
-        content: report.csv,
+        content: encodeAttachment(report.csv),
+        contentType: "text/csv; charset=utf-8",
       },
       {
         filename: `worker-sign-ins-${date}.xml`,
-        content: report.xml,
+        content: encodeAttachment(report.xml),
+        contentType: "application/xml; charset=utf-8",
       },
     ],
   });
@@ -119,6 +121,10 @@ function assertEmailConfig() {
   error.statusCode = 503;
   error.exposeMessage = true;
   throw error;
+}
+
+function encodeAttachment(content) {
+  return Buffer.from(content, "utf8").toString("base64");
 }
 
 export async function hasSentAutoReport(date) {
