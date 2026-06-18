@@ -130,7 +130,7 @@ export function WorkerSignInPage() {
       setForm({ name: "", phone: "", trade: "", otherTrade: "", company: "" });
       setStatus({
         type: "success",
-        message: "Sign-in submitted.",
+        message: `Sign-in submitted - ${formatShortDate(responsePayload.signIn)}`,
       });
     } catch (error) {
       setStatus({ type: "error", message: error.message });
@@ -518,6 +518,27 @@ function formatDateTime(value) {
     timeStyle: "short",
     timeZone: "America/Vancouver",
   }).format(new Date(value));
+}
+
+function formatShortDate(signIn) {
+  if (signIn?.sign_in_date_vancouver) {
+    return formatDateString(signIn.sign_in_date_vancouver);
+  }
+  if (signIn?.signed_in_at) {
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Vancouver",
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    }).format(new Date(signIn.signed_in_at));
+  }
+  return formatDateString(todayInVancouver());
+}
+
+function formatDateString(value) {
+  const [year, month, day] = value.slice(0, 10).split("-");
+  if (!year || !month || !day) return value;
+  return `${month}/${day}/${year}`;
 }
 
 function sortLabel(field) {

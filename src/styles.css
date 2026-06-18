@@ -814,6 +814,7 @@ p {
 
 .form-message.success {
   color: #1d5f45;
+  text-align: center;
   background: #e5f4ec;
 }
 
