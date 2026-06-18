@@ -922,20 +922,52 @@ p {
   border-radius: 0;
 }
 
-.staff-table th button {
-  min-height: 30px;
-  border: 0;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-  font-weight: 850;
-  text-transform: uppercase;
-  background: transparent;
-}
-
 .staff-table td,
 .staff-table th {
   min-width: 150px;
+}
+
+.staff-sort-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.staff-sort-header > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sort-chip {
+  flex: 0 0 auto;
+  min-width: 46px;
+  min-height: 28px;
+  border-color: #c6d2cf;
+  border-radius: 6px;
+  padding: 0 8px;
+  color: #43514e;
+  font-size: 0.68rem;
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+  background: #fff;
+}
+
+.sort-chip:hover {
+  border-color: #7f9992;
+  background: #f7faf9;
+}
+
+.sort-chip-active {
+  border-color: #245f5b;
+  color: #fff;
+  background: #245f5b;
+}
+
+.sort-chip-active:hover {
+  border-color: #194845;
+  background: #194845;
 }
 
 .grouped-signins {

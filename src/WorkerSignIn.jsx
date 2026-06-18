@@ -379,11 +379,26 @@ function SignInsTable({ rows, sort, dir, onSort }) {
         <thead>
           <tr>
             {SORTABLE_FIELDS.map((column) => (
-              <th key={column.field}>
-                <button type="button" onClick={() => onSort(column.field)}>
-                  {column.label}
-                  {sort === column.field ? ` ${dir.toUpperCase()}` : ""}
-                </button>
+              <th
+                key={column.field}
+                aria-sort={sortAriaValue(column.field, sort, dir)}
+              >
+                <div className="staff-sort-header">
+                  <span>{column.label}</span>
+                  <button
+                    aria-label={`Sort by ${column.label}`}
+                    aria-pressed={sort === column.field}
+                    className={
+                      sort === column.field
+                        ? "sort-chip sort-chip-active"
+                        : "sort-chip"
+                    }
+                    type="button"
+                    onClick={() => onSort(column.field)}
+                  >
+                    {sort === column.field ? dir.toUpperCase() : "Sort"}
+                  </button>
+                </div>
               </th>
             ))}
           </tr>
@@ -429,4 +444,9 @@ function formatDateTime(value) {
 
 function sortLabel(field) {
   return SORTABLE_FIELDS.find((item) => item.field === field)?.label || field;
+}
+
+function sortAriaValue(field, sort, dir) {
+  if (field !== sort) return "none";
+  return dir === "asc" ? "ascending" : "descending";
 }
