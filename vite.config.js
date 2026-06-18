@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 
-// GitHub Pages serves this project from /safetyfirst/.
-// Local Vite dev keeps / so http://127.0.0.1:5173/ still works.
-export default defineConfig(({ command }) => ({
-  base: command === "build" ? "/safetyfirst/" : "/",
+// Vercel serves this app from /. Set VITE_BASE_PATH only for alternate static hosts.
+export default defineConfig(() => ({
+  base: process.env.VITE_BASE_PATH || "/",
 }));

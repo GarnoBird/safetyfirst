@@ -13,6 +13,12 @@ import {
 } from "./data.js";
 import { loadSafetyData, resetSafetyData, saveSafetyData } from "./storage.js";
 import {
+  StaffLoginPage,
+  StaffSignInsPage,
+  WorkerSignInPage,
+  WorkerSignInQr,
+} from "./WorkerSignIn.jsx";
+import {
   csvFieldsFor,
   daysUntil,
   downloadCsv,
@@ -37,6 +43,28 @@ const VIEWS = [
 ];
 
 export default function App() {
+  const routePath = useRoutePath();
+
+  if (routePath === "/worker-sign-in-qr") {
+    return <WorkerSignInQr navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/worker-sign-in") {
+    return <WorkerSignInPage />;
+  }
+
+  if (routePath === "/staff-login") {
+    return <StaffLoginPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/sign-ins") {
+    return <StaffSignInsPage navigateTo={navigateTo} />;
+  }
+
+  return <SafetyFirstApp navigateTo={navigateTo} />;
+}
+
+function SafetyFirstApp({ navigateTo }) {
   const [data, setData] = useState(loadSafetyData);
   const [activeView, setActiveView] = useState("dashboard");
 
@@ -123,11 +151,52 @@ export default function App() {
             {view.label}
           </button>
         ))}
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => navigateTo("/worker-sign-in-qr")}
+        >
+          Worker QR
+        </button>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => navigateTo("/staff-login")}
+        >
+          Staff
+        </button>
       </nav>
 
       <main className="app-main">{renderActiveView()}</main>
     </div>
   );
+}
+
+function useRoutePath() {
+  const [path, setPath] = useState(getRoutePath);
+
+  useEffect(() => {
+    const handlePopState = () => setPath(getRoutePath());
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  return path;
+}
+
+function getRoutePath() {
+  if (typeof window === "undefined") return "/";
+  const path = window.location.pathname.replace(/\/$/, "") || "/";
+  return path.startsWith("/safetyfirst")
+    ? path.replace(/^\/safetyfirst/, "") || "/"
+    : path;
+}
+
+function navigateTo(path) {
+  const prefix =
+    window.location.pathname.startsWith("/safetyfirst") ? "/safetyfirst" : "";
+  window.history.pushState({}, "", `${prefix}${path}`);
+  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function Dashboard({ data, metrics }) {
