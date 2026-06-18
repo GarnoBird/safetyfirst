@@ -10,6 +10,12 @@ const SORTABLE_FIELDS = [
   { field: "signed_out_at", label: "Signed Out" },
 ];
 
+const STATUS_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "signedIn", label: "Currently signed in" },
+  { id: "signedOut", label: "Signed out" },
+];
+
 const OTHER_TRADE = "Other";
 const WORKER_TRADE_OPTIONS = [
   "General contractor",
@@ -146,7 +152,7 @@ export function WorkerSignInPage() {
 
     const payload = {
       name: form.name,
-      phone: form.phone,
+      phone: formatPhoneNumber(form.phone),
       trade,
       company: form.company,
     };
@@ -441,9 +447,29 @@ export function StaffSignInsPage({ navigateTo }) {
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+
+  const statusCounts = useMemo(
+    () => ({
+      all: records.rows.length,
+      signedIn: records.rows.filter(isSignedIn).length,
+      signedOut: records.rows.filter(isSignedOut).length,
+    }),
+    [records.rows],
+  );
+
+  const visibleRows = useMemo(
+    () => filterRowsByStatus(records.rows, statusFilter),
+    [records.rows, statusFilter],
+  );
+
+  const visibleGroups = useMemo(
+    () => groupSignInRows(visibleRows, group),
+    [group, visibleRows],
+  );
 
   useEffect(() => {
     let active = true;
@@ -576,19 +602,36 @@ export function StaffSignInsPage({ navigateTo }) {
 
       <section className="staff-table-panel">
         <div className="staff-table-heading">
-          <strong>{loading ? "Loading..." : `${records.rows.length} sign-ins`}</strong>
+          <strong>{loading ? "Loading..." : `${visibleRows.length} sign-ins`}</strong>
           <span>Sort: {sortLabel(sort)} {dir}</span>
+        </div>
+        <div className="staff-status-filters" aria-label="Sign-in status filter">
+          {STATUS_FILTERS.map((filter) => (
+            <button
+              className={
+                statusFilter === filter.id
+                  ? "status-filter-chip active"
+                  : "status-filter-chip"
+              }
+              key={filter.id}
+              type="button"
+              onClick={() => setStatusFilter(filter.id)}
+            >
+              <span>{filter.label}</span>
+              <strong>{statusCounts[filter.id]}</strong>
+            </button>
+          ))}
         </div>
         {group === "none" ? (
           <SignInsTable
             dir={dir}
-            rows={records.rows}
+            rows={visibleRows}
             sort={sort}
             onSort={changeSort}
           />
         ) : (
           <div className="grouped-signins">
-            {records.groups.map((section) => (
+            {visibleGroups.map((section) => (
               <section className="signin-group" key={section.label}>
                 <h2>{section.label} <span>{section.count}</span></h2>
                 <SignInsTable
@@ -599,7 +642,7 @@ export function StaffSignInsPage({ navigateTo }) {
                 />
               </section>
             ))}
-            {!records.groups.length && !loading ? (
+            {!visibleGroups.length && !loading ? (
               <p className="empty-state">No sign-ins for this date.</p>
             ) : null}
           </div>
@@ -644,11 +687,24 @@ function SignInsTable({ rows, sort, dir, onSort }) {
           {rows.map((row) => (
             <tr key={row.id}>
               <td>{row.name}</td>
-              <td>{row.phone}</td>
+              <td>{formatPhoneNumber(row.phone)}</td>
               <td>{row.trade}</td>
               <td>{row.company}</td>
               <td>{formatDateTime(row.signed_in_at)}</td>
-              <td>{row.signed_out_at ? formatDateTime(row.signed_out_at) : "Open"}</td>
+              <td>
+                {row.signed_out_at ? (
+                  <div className="signin-status-cell">
+                    <span className="signin-status-badge signed-out">
+                      Signed out
+                    </span>
+                    <span>{formatDateTime(row.signed_out_at)}</span>
+                  </div>
+                ) : (
+                  <span className="signin-status-badge signed-in">
+                    Signed in
+                  </span>
+                )}
+              </td>
             </tr>
           ))}
           {!rows.length ? (
@@ -699,6 +755,48 @@ function formatDateString(value) {
   const [year, month, day] = value.slice(0, 10).split("-");
   if (!year || !month || !day) return value;
   return `${month}/${day}/${year}`;
+}
+
+function formatPhoneNumber(value) {
+  const raw = String(value || "").trim().replace(/\s+/g, " ");
+  const digits = raw.replace(/\D/g, "");
+
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+
+  return raw;
+}
+
+function isSignedIn(row) {
+  return !row.signed_out_at;
+}
+
+function isSignedOut(row) {
+  return Boolean(row.signed_out_at);
+}
+
+function filterRowsByStatus(rows, statusFilter) {
+  if (statusFilter === "signedIn") return rows.filter(isSignedIn);
+  if (statusFilter === "signedOut") return rows.filter(isSignedOut);
+  return rows;
+}
+
+function groupSignInRows(rows, group) {
+  if (group === "none") return [];
+  const groups = new Map();
+  rows.forEach((row) => {
+    const label = row[group] || "Unassigned";
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(row);
+  });
+  return [...groups.entries()]
+    .map(([label, items]) => ({ label, count: items.length, items }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 function sortLabel(field) {
