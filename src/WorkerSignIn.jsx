@@ -117,6 +117,7 @@ export function WorkerSignInPage() {
   });
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
+  const submitted = status.type === "success";
 
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -164,7 +165,11 @@ export function WorkerSignInPage() {
       setForm({ name: "", phone: "", trade: "", otherTrade: "", company: "" });
       setStatus({
         type: "success",
-        message: `Sign-in submitted - ${formatShortDate(responsePayload.signIn)}`,
+        message: `Sign-in submitted - ${formatShortDate(
+          responsePayload.signIn,
+          "sign_in_date_vancouver",
+          "signed_in_at",
+        )}`,
       });
     } catch (error) {
       setStatus({ type: "error", message: error.message });
@@ -177,67 +182,82 @@ export function WorkerSignInPage() {
     <main className="public-page worker-page">
       <section className="worker-card">
         <div className="brand-mark">APPIA</div>
-        <form className="worker-form" onSubmit={submitSignIn}>
-          <label>
-            <span>Name</span>
-            <input
-              required
-              autoComplete="name"
-              value={form.name}
-              onChange={(event) => updateField("name", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Phone</span>
-            <input
-              required
-              autoComplete="tel"
-              inputMode="tel"
-              type="tel"
-              value={form.phone}
-              onChange={(event) => updateField("phone", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Trade</span>
-            <select
-              required
-              value={form.trade}
-              onChange={(event) => updateTrade(event.target.value)}
-            >
-              <option value="" disabled>
-                Select trade
-              </option>
-              {WORKER_TRADE_OPTIONS.map((trade) => (
-                <option key={trade} value={trade}>
-                  {trade}
-                </option>
-              ))}
-            </select>
-          </label>
-          {form.trade === OTHER_TRADE ? (
-            <label>
-              <span>Specific trade</span>
-              <input
-                required
-                value={form.otherTrade}
-                onChange={(event) =>
-                  updateField("otherTrade", event.target.value)
-                }
-              />
-            </label>
-          ) : null}
-          <label>
-            <span>Company</span>
-            <input
-              required
-              value={form.company}
-              onChange={(event) => updateField("company", event.target.value)}
-            />
-          </label>
-          <button className="primary-button" disabled={submitting} type="submit">
-            {submitting ? "Submitting..." : "Submit"}
-          </button>
+        <form
+          className={submitted ? "worker-form submitted" : "worker-form"}
+          onSubmit={submitSignIn}
+        >
+          {submitted ? (
+            <div className="worker-thank-you" role="status">
+              <h1>Thank you</h1>
+            </div>
+          ) : (
+            <>
+              <label>
+                <span>Name</span>
+                <input
+                  required
+                  autoComplete="name"
+                  value={form.name}
+                  onChange={(event) => updateField("name", event.target.value)}
+                />
+              </label>
+              <label>
+                <span>Phone</span>
+                <input
+                  required
+                  autoComplete="tel"
+                  inputMode="tel"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => updateField("phone", event.target.value)}
+                />
+              </label>
+              <label>
+                <span>Trade</span>
+                <select
+                  required
+                  value={form.trade}
+                  onChange={(event) => updateTrade(event.target.value)}
+                >
+                  <option value="" disabled>
+                    Select trade
+                  </option>
+                  {WORKER_TRADE_OPTIONS.map((trade) => (
+                    <option key={trade} value={trade}>
+                      {trade}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {form.trade === OTHER_TRADE ? (
+                <label>
+                  <span>Specific trade</span>
+                  <input
+                    required
+                    value={form.otherTrade}
+                    onChange={(event) =>
+                      updateField("otherTrade", event.target.value)
+                    }
+                  />
+                </label>
+              ) : null}
+              <label>
+                <span>Company</span>
+                <input
+                  required
+                  value={form.company}
+                  onChange={(event) => updateField("company", event.target.value)}
+                />
+              </label>
+              <button
+                className="primary-button"
+                disabled={submitting}
+                type="submit"
+              >
+                {submitting ? "Submitting..." : "Submit"}
+              </button>
+            </>
+          )}
           {status.message ? (
             <p className={`form-message ${status.type}`}>{status.message}</p>
           ) : null}
@@ -291,7 +311,11 @@ export function WorkerSignOutPage({ navigateTo }) {
       setSignIn(null);
       setStatus({
         type: "success",
-        message: `Signed out - ${formatDateTime(payload.signIn.signed_out_at)}`,
+        message: `Signed out - ${formatShortDate(
+          payload.signIn,
+          "sign_out_date_vancouver",
+          "signed_out_at",
+        )}`,
       });
     } catch (error) {
       setStatus({ type: "error", message: error.message });
@@ -656,17 +680,17 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
-function formatShortDate(signIn) {
-  if (signIn?.sign_in_date_vancouver) {
-    return formatDateString(signIn.sign_in_date_vancouver);
+function formatShortDate(record, dateField, timestampField) {
+  if (record?.[dateField]) {
+    return formatDateString(record[dateField]);
   }
-  if (signIn?.signed_in_at) {
+  if (record?.[timestampField]) {
     return new Intl.DateTimeFormat("en-US", {
       timeZone: "America/Vancouver",
       month: "2-digit",
       day: "2-digit",
       year: "numeric",
-    }).format(new Date(signIn.signed_in_at));
+    }).format(new Date(record[timestampField]));
   }
   return formatDateString(todayInVancouver());
 }

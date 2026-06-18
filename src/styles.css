@@ -795,6 +795,24 @@ p {
   gap: 14px;
 }
 
+.worker-form.submitted {
+  gap: 16px;
+}
+
+.worker-thank-you {
+  display: grid;
+  place-items: center;
+  min-height: 136px;
+  animation: collapse-in 220ms ease-out;
+}
+
+.worker-thank-you h1 {
+  color: #111;
+  font-size: clamp(2.4rem, 10vw, 4rem);
+  line-height: 1;
+  text-align: center;
+}
+
 .worker-confirmation {
   display: grid;
   gap: 16px;
@@ -854,6 +872,18 @@ p {
 .form-message.error {
   color: #8c2f28;
   background: #fdecea;
+}
+
+@keyframes collapse-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .staff-shell {
