@@ -39,4 +39,4 @@ Change this password before using real production data.
 
 ## Reports
 
-The Vercel cron runs hourly and the API sends the automatic report only during the 8am Vancouver hour. It skips if there are no sign-ins or if the automatic report already sent for that date.
+The Vercel cron runs once daily at 15:00 UTC, which is 8am Vancouver during daylight time. It skips if there are no sign-ins or if the automatic report already sent for that date. Exact year-round 8am Vancouver scheduling requires Vercel Pro hourly cron or an external scheduler.

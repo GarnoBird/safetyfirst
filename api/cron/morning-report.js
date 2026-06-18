@@ -1,4 +1,4 @@
-import { getVancouverDate, getVancouverHour } from "../_lib/date.js";
+import { getVancouverDate } from "../_lib/date.js";
 import { handleApiError, sendJson, sendMethodNotAllowed } from "../_lib/http.js";
 import {
   buildSignInReport,
@@ -13,12 +13,7 @@ export default async function handler(req, res) {
   try {
     assertCronAuthorized(req);
 
-    const localHour = getVancouverHour();
     const date = getVancouverDate();
-    if (localHour !== 8) {
-      return sendJson(res, 200, { skipped: true, reason: "outside_8am_hour", date });
-    }
-
     if (await hasSentAutoReport(date)) {
       return sendJson(res, 200, { skipped: true, reason: "already_sent", date });
     }
