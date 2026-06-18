@@ -7,6 +7,7 @@ const SORTABLE_FIELDS = [
   { field: "trade", label: "Trade" },
   { field: "company", label: "Company" },
   { field: "signed_in_at", label: "Signed In" },
+  { field: "signed_out_at", label: "Signed Out" },
 ];
 
 const OTHER_TRADE = "Other";
@@ -66,6 +67,39 @@ export function WorkerSignInQr({ navigateTo }) {
         <h1>Worker Sign-In</h1>
         {qrDataUrl ? <img alt="Worker sign-in QR code" src={qrDataUrl} /> : null}
         <button type="button" onClick={() => navigateTo("/worker-sign-in")}>
+          Open form
+        </button>
+      </section>
+    </main>
+  );
+}
+
+export function WorkerSignOutQr({ navigateTo }) {
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const formUrl = useMemo(() => {
+    if (typeof window === "undefined") return "/worker-sign-out";
+    return new URL("/worker-sign-out", window.location.origin).href;
+  }, []);
+
+  useEffect(() => {
+    QRCode.toDataURL(formUrl, {
+      errorCorrectionLevel: "M",
+      margin: 2,
+      scale: 8,
+      width: 280,
+      color: {
+        dark: "#111111",
+        light: "#ffffff",
+      },
+    }).then(setQrDataUrl);
+  }, [formUrl]);
+
+  return (
+    <main className="public-page qr-page">
+      <section className="qr-card" aria-label="Worker sign-out QR code">
+        <h1>Worker Sign-Out</h1>
+        {qrDataUrl ? <img alt="Worker sign-out QR code" src={qrDataUrl} /> : null}
+        <button type="button" onClick={() => navigateTo("/worker-sign-out")}>
           Open form
         </button>
       </section>
@@ -208,6 +242,107 @@ export function WorkerSignInPage() {
             <p className={`form-message ${status.type}`}>{status.message}</p>
           ) : null}
         </form>
+      </section>
+    </main>
+  );
+}
+
+export function WorkerSignOutPage({ navigateTo }) {
+  const [signIn, setSignIn] = useState(null);
+  const [signedOut, setSignedOut] = useState(null);
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+
+    fetch("/api/worker-signout", { credentials: "include" })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Sign-out failed.");
+        if (active) setSignIn(payload.signIn || null);
+      })
+      .catch((error) => {
+        if (active) setStatus({ type: "error", message: error.message });
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const submitSignOut = async () => {
+    setSubmitting(true);
+    setStatus({ type: "", message: "" });
+
+    try {
+      const response = await fetch("/api/worker-signout", {
+        method: "POST",
+        credentials: "include",
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Sign-out failed.");
+      setSignedOut(payload.signIn);
+      setSignIn(null);
+      setStatus({
+        type: "success",
+        message: `Signed out - ${formatDateTime(payload.signIn.signed_out_at)}`,
+      });
+    } catch (error) {
+      setStatus({ type: "error", message: error.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="public-page worker-page">
+      <section className="worker-card">
+        <div className="brand-mark">APPIA</div>
+        <div className="worker-confirmation">
+          <h1>Worker Sign-Out</h1>
+          {loading ? <p className="muted">Loading...</p> : null}
+          {!loading && signIn ? (
+            <>
+              <p className="worker-summary">
+                {signIn.name} / {signIn.company} / {signIn.trade}
+              </p>
+              <p className="worker-detail">Sign out for today?</p>
+              <button
+                className="primary-button"
+                disabled={submitting}
+                type="button"
+                onClick={submitSignOut}
+              >
+                {submitting ? "Signing out..." : "Sign out"}
+              </button>
+            </>
+          ) : null}
+          {!loading && !signIn && !signedOut ? (
+            <div className="worker-status-panel">
+              <p>No open sign-in was found on this phone for today.</p>
+              <button type="button" onClick={() => navigateTo("/worker-sign-in")}>
+                Open sign-in
+              </button>
+            </div>
+          ) : null}
+          {signedOut ? (
+            <div className="worker-status-panel">
+              <p className="worker-summary">
+                {signedOut.name} / {signedOut.company} / {signedOut.trade}
+              </p>
+              <p>Signed out.</p>
+            </div>
+          ) : null}
+          {status.message ? (
+            <p className={`form-message ${status.type}`}>{status.message}</p>
+          ) : null}
+        </div>
       </section>
     </main>
   );
@@ -489,11 +624,12 @@ function SignInsTable({ rows, sort, dir, onSort }) {
               <td>{row.trade}</td>
               <td>{row.company}</td>
               <td>{formatDateTime(row.signed_in_at)}</td>
+              <td>{row.signed_out_at ? formatDateTime(row.signed_out_at) : "Open"}</td>
             </tr>
           ))}
           {!rows.length ? (
             <tr>
-              <td colSpan="5">No sign-ins for this date.</td>
+              <td colSpan={SORTABLE_FIELDS.length}>No sign-ins for this date.</td>
             </tr>
           ) : null}
         </tbody>

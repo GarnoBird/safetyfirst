@@ -17,6 +17,8 @@ import {
   StaffSignInsPage,
   WorkerSignInPage,
   WorkerSignInQr,
+  WorkerSignOutPage,
+  WorkerSignOutQr,
 } from "./WorkerSignIn.jsx";
 import {
   csvFieldsFor,
@@ -51,6 +53,14 @@ export default function App() {
 
   if (routePath === "/worker-sign-in") {
     return <WorkerSignInPage />;
+  }
+
+  if (routePath === "/worker-sign-out-qr") {
+    return <WorkerSignOutQr navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/worker-sign-out") {
+    return <WorkerSignOutPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff-login") {
@@ -156,7 +166,14 @@ function SafetyFirstApp({ navigateTo }) {
           type="button"
           onClick={() => navigateTo("/worker-sign-in-qr")}
         >
-          Worker QR
+          Sign-In QR
+        </button>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => navigateTo("/worker-sign-out-qr")}
+        >
+          Sign-Out QR
         </button>
         <button
           className="tab-button"
