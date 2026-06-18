@@ -9,6 +9,37 @@ const SORTABLE_FIELDS = [
   { field: "signed_in_at", label: "Signed In" },
 ];
 
+const OTHER_TRADE = "Other";
+const WORKER_TRADE_OPTIONS = [
+  "General contractor",
+  "Construction labourer",
+  "Carpentry",
+  "Concrete forming",
+  "Concrete finishing",
+  "Rebar / ironworker",
+  "Crane / rigging",
+  "Equipment operator",
+  "Electrical",
+  "Mechanical",
+  "Plumbing",
+  "HVAC",
+  "Sprinkler fitting",
+  "Sheet metal",
+  "Drywall",
+  "Insulation",
+  "Painting",
+  "Flooring",
+  "Tile setting",
+  "Glazing",
+  "Roofing",
+  "Waterproofing",
+  "Masonry",
+  "Elevator",
+  "Traffic control",
+  "Safety",
+  OTHER_TRADE,
+];
+
 export function WorkerSignInQr({ navigateTo }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const formUrl = useMemo(() => {
@@ -47,6 +78,7 @@ export function WorkerSignInPage() {
     name: "",
     phone: "",
     trade: "",
+    otherTrade: "",
     company: "",
   });
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -56,21 +88,46 @@ export function WorkerSignInPage() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
+  const updateTrade = (value) => {
+    setForm((current) => ({
+      ...current,
+      trade: value,
+      otherTrade: value === OTHER_TRADE ? current.otherTrade : "",
+    }));
+  };
+
   const submitSignIn = async (event) => {
     event.preventDefault();
     setSubmitting(true);
     setStatus({ type: "", message: "" });
 
+    const trade =
+      form.trade === OTHER_TRADE ? form.otherTrade.trim() : form.trade;
+    if (!trade) {
+      setSubmitting(false);
+      setStatus({ type: "error", message: "Trade is required." });
+      return;
+    }
+
+    const payload = {
+      name: form.name,
+      phone: form.phone,
+      trade,
+      company: form.company,
+    };
+
     try {
       const response = await fetch("/api/worker-signins", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Sign-in failed.");
+      const responsePayload = await response.json();
+      if (!response.ok) {
+        throw new Error(responsePayload.error || "Sign-in failed.");
+      }
 
-      setForm({ name: "", phone: "", trade: "", company: "" });
+      setForm({ name: "", phone: "", trade: "", otherTrade: "", company: "" });
       setStatus({
         type: "success",
         message: "Sign-in submitted.",
@@ -109,12 +166,33 @@ export function WorkerSignInPage() {
           </label>
           <label>
             <span>Trade</span>
-            <input
+            <select
               required
               value={form.trade}
-              onChange={(event) => updateField("trade", event.target.value)}
-            />
+              onChange={(event) => updateTrade(event.target.value)}
+            >
+              <option value="" disabled>
+                Select trade
+              </option>
+              {WORKER_TRADE_OPTIONS.map((trade) => (
+                <option key={trade} value={trade}>
+                  {trade}
+                </option>
+              ))}
+            </select>
           </label>
+          {form.trade === OTHER_TRADE ? (
+            <label>
+              <span>Specific trade</span>
+              <input
+                required
+                value={form.otherTrade}
+                onChange={(event) =>
+                  updateField("otherTrade", event.target.value)
+                }
+              />
+            </label>
+          ) : null}
           <label>
             <span>Company</span>
             <input
