@@ -22,6 +22,12 @@ const STAFF_NAV_ITEMS = [
   { id: "settings", label: "Settings", path: "/staff/settings" },
 ];
 
+const STAFF_MOBILE_NAV_ITEMS = [
+  { id: "home", label: "HOME", path: "/staff/home" },
+  { id: "sign-ins", label: "ON SITE", path: "/staff/sign-ins" },
+  { id: "settings", label: "SETTINGS", path: "/staff/settings" },
+];
+
 const DEFAULT_SITE_SETTINGS = {
   site_name: "Safety First",
   site_location: "Vancouver condo tower site",
@@ -1156,6 +1162,8 @@ export function StaffSignInsPage({ navigateTo }) {
 }
 
 function StaffShell({ active, children, contentWide = false, navigateTo }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const logout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
@@ -1167,6 +1175,46 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
   return (
     <main className="staff-shell">
       <div className="brand-mark staff-shell-brand">APPIA</div>
+      <div className="staff-mobile-menu">
+        <button
+          aria-expanded={mobileMenuOpen}
+          className="staff-mobile-menu-trigger"
+          type="button"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          <span className="brand-mark">APPIA</span>
+          <span aria-hidden="true">|</span>
+          <strong>HOME</strong>
+        </button>
+        {mobileMenuOpen ? (
+          <div className="staff-mobile-menu-panel" role="menu">
+            {STAFF_MOBILE_NAV_ITEMS.map((item) => (
+              <button
+                className={active === item.id ? "active" : ""}
+                key={item.id}
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigateTo(item.path);
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              role="menuitem"
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                logout();
+              }}
+            >
+              LOGOUT
+            </button>
+          </div>
+        ) : null}
+      </div>
       <nav className="staff-nav-actions" aria-label="Staff navigation">
         {STAFF_NAV_ITEMS.map((item) => (
           <button
