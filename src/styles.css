@@ -1335,31 +1335,30 @@ p {
 .staff-report-actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
-  border: 1px solid #d9e3de;
-  border-radius: 999px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.94);
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .staff-action-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  border: 0;
+  min-height: 38px;
+  border: 1px solid #d9e3de;
   border-radius: 999px;
-  padding: 0 10px;
+  padding: 0 14px;
   color: #34423f;
   font-size: 0.78rem;
   font-weight: 900;
   text-align: center;
   text-decoration: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .staff-action-chip:hover {
-  border: 0;
+  border-color: #245f5b;
   color: #fff;
   background: #245f5b;
 }
