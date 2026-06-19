@@ -1,19 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 
-const SORTABLE_FIELDS = [
-  { field: "name", label: "Name" },
-  { field: "phone", label: "Phone" },
-  { field: "trade", label: "Trade" },
-  { field: "company", label: "Company" },
-  { field: "signed_in_at", label: "Signed In" },
-  { field: "signed_out_at", label: "Signed Out" },
-];
-
 const STATUS_FILTERS = [
   { id: "all", label: "All" },
-  { id: "signedIn", label: "On site" },
-  { id: "signedOut", label: "Signed out" },
+  { id: "signedIn", label: "In" },
+  { id: "signedOut", label: "Out" },
 ];
 
 const OTHER_TRADE = "Other";
@@ -458,6 +449,7 @@ export function StaffSignInsPage({ navigateTo }) {
   const [group, setGroup] = useState("none");
   const [statusFilter, setStatusFilter] = useState("signedIn");
   const [search, setSearch] = useState("");
+  const [selectedSignIn, setSelectedSignIn] = useState(null);
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -526,6 +518,10 @@ export function StaffSignInsPage({ navigateTo }) {
     setDir(direction === "desc" ? "desc" : "asc");
   };
 
+  const changeDateBy = (days) => {
+    setDate((current) => addDaysToISODate(current, days));
+  };
+
   const emailReport = async () => {
     setMessage("");
     const response = await fetch("/api/staff/signins/email-report", {
@@ -546,14 +542,6 @@ export function StaffSignInsPage({ navigateTo }) {
     );
   };
 
-  const logout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    navigateTo("/staff-login");
-  };
-
   const exportUrl = (format) =>
     `/api/staff/signins/export?${new URLSearchParams({ date, format })}`;
 
@@ -561,23 +549,17 @@ export function StaffSignInsPage({ navigateTo }) {
     <main className="staff-shell">
       <header className="staff-header">
         <div>
-          <div className="brand-mark">APPIA</div>
+          <button
+            className="brand-mark staff-settings-link"
+            type="button"
+            onClick={() => navigateTo("/")}
+          >
+            {"<- SETTINGS"}
+          </button>
           <h1>Who's on site</h1>
           <p>Site roster | {formatLongDate(date)}</p>
         </div>
         <span className="staff-live-pill">Live</span>
-        <div className="button-row staff-nav-actions">
-          <button
-            className="staff-quiet-button"
-            type="button"
-            onClick={() => navigateTo("/")}
-          >
-            Safety app
-          </button>
-          <button className="staff-quiet-button" type="button" onClick={logout}>
-            Logout
-          </button>
-        </div>
       </header>
 
       <section className="staff-scorebar" aria-label="Daily sign-in summary">
@@ -599,14 +581,30 @@ export function StaffSignInsPage({ navigateTo }) {
       </section>
 
       <section className="staff-toolbar">
-        <label className="field">
+        <div className="field staff-date-field">
           <span>Date</span>
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-          />
-        </label>
+          <div className="staff-date-stepper">
+            <button
+              aria-label="Previous day"
+              type="button"
+              onClick={() => changeDateBy(-1)}
+            >
+              {"<"}
+            </button>
+            <input
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
+            <button
+              aria-label="Next day"
+              type="button"
+              onClick={() => changeDateBy(1)}
+            >
+              {">"}
+            </button>
+          </div>
+        </div>
         <label className="field">
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
@@ -615,21 +613,16 @@ export function StaffSignInsPage({ navigateTo }) {
             <option value="company">Company</option>
           </select>
         </label>
-        <div className="staff-actions">
-          <details className="staff-more-menu">
-            <summary>More</summary>
-            <div className="staff-more-popover">
-              <a className="button-link" href={exportUrl("csv")}>
-                Export CSV
-              </a>
-              <a className="button-link" href={exportUrl("xml")}>
-                Export XML
-              </a>
-              <button type="button" onClick={emailReport}>
-                Email report
-              </button>
-            </div>
-          </details>
+        <div className="staff-actions staff-report-actions">
+          <a className="staff-action-chip" href={exportUrl("csv")}>
+            CSV
+          </a>
+          <a className="staff-action-chip" href={exportUrl("xml")}>
+            XML
+          </a>
+          <button className="staff-action-chip" type="button" onClick={emailReport}>
+            Email Report
+          </button>
         </div>
       </section>
 
@@ -683,13 +676,21 @@ export function StaffSignInsPage({ navigateTo }) {
           </label>
         </div>
         {group === "none" ? (
-          <CompactSignInList loading={loading} rows={visibleRows} />
+          <CompactSignInList
+            loading={loading}
+            rows={visibleRows}
+            onSelect={setSelectedSignIn}
+          />
         ) : (
           <div className="grouped-signins">
             {visibleGroups.map((section) => (
               <section className="signin-group" key={section.label}>
                 <h2>{section.label} <span>{section.count}</span></h2>
-                <CompactSignInList loading={loading} rows={section.items} />
+                <CompactSignInList
+                  loading={loading}
+                  rows={section.items}
+                  onSelect={setSelectedSignIn}
+                />
               </section>
             ))}
             {!visibleGroups.length && !loading ? (
@@ -698,11 +699,17 @@ export function StaffSignInsPage({ navigateTo }) {
           </div>
         )}
       </section>
+      {selectedSignIn ? (
+        <SignInDetailsDialog
+          row={selectedSignIn}
+          onClose={() => setSelectedSignIn(null)}
+        />
+      ) : null}
     </main>
   );
 }
 
-function CompactSignInList({ loading, rows }) {
+function CompactSignInList({ loading, rows, onSelect }) {
   return (
     <section className="compact-signin-list" aria-label="Compact sign-in list">
       <div className="compact-signin-list-title">
@@ -716,7 +723,12 @@ function CompactSignInList({ loading, rows }) {
       </div>
       <div className="compact-signin-rows">
         {rows.map((row) => (
-          <article className="compact-signin-row" key={row.id}>
+          <button
+            className="compact-signin-row"
+            key={row.id}
+            type="button"
+            onClick={() => onSelect(row)}
+          >
             <div className="compact-person">
               <span className={row.signed_out_at ? "row-mark out" : "row-mark"} />
               <span>
@@ -730,7 +742,7 @@ function CompactSignInList({ loading, rows }) {
             ) : (
               <span className="compact-status in">In</span>
             )}
-          </article>
+          </button>
         ))}
         {!rows.length ? (
           <p className="empty-state compact-empty">
@@ -742,6 +754,58 @@ function CompactSignInList({ loading, rows }) {
   );
 }
 
+function SignInDetailsDialog({ row, onClose }) {
+  return (
+    <div className="signin-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Worker sign-in details"
+        aria-modal="true"
+        className="signin-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="signin-dialog-header">
+          <div>
+            <p>{row.signed_out_at ? "Signed out" : "On site"}</p>
+            <h2>{row.name}</h2>
+          </div>
+          <button aria-label="Close details" type="button" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <dl className="signin-dialog-details">
+          <div>
+            <dt>Company</dt>
+            <dd>{row.company}</dd>
+          </div>
+          <div>
+            <dt>Trade</dt>
+            <dd>{row.trade}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>
+              <a href={`tel:${phoneHref(row.phone)}`}>{formatPhoneNumber(row.phone)}</a>
+            </dd>
+          </div>
+          <div>
+            <dt>Signed in</dt>
+            <dd>{formatDateTime(row.signed_in_at)}</dd>
+          </div>
+          <div>
+            <dt>Signed out</dt>
+            <dd>{row.signed_out_at ? formatDateTime(row.signed_out_at) : "Still on site"}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{row.signed_out_at ? "Out" : "In"}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  );
+}
+
 function todayInVancouver() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Vancouver",
@@ -749,6 +813,14 @@ function todayInVancouver() {
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
+}
+
+function addDaysToISODate(value, days) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return todayInVancouver();
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
 }
 
 function formatLongDate(value) {
@@ -816,6 +888,10 @@ function formatPhoneNumber(value) {
   return raw;
 }
 
+function phoneHref(value) {
+  return String(value || "").replace(/[^\d+]/g, "");
+}
+
 function isSignedIn(row) {
   return !row.signed_out_at;
 }
@@ -851,8 +927,4 @@ function groupSignInRows(rows, group) {
   return [...groups.entries()]
     .map(([label, items]) => ({ label, count: items.length, items }))
     .sort((a, b) => a.label.localeCompare(b.label));
-}
-
-function sortLabel(field) {
-  return SORTABLE_FIELDS.find((item) => item.field === field)?.label || field;
 }
