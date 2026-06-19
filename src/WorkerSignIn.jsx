@@ -7,6 +7,15 @@ const STATUS_FILTERS = [
   { id: "signedOut", label: "Out" },
 ];
 
+const STAFF_SORT_LABELS = {
+  company: "Company",
+  name: "Name",
+  phone: "Phone",
+  signed_in_at: "Signed In",
+  signed_out_at: "Signed Out",
+  trade: "Trade",
+};
+
 const STAFF_NAV_ITEMS = [
   { id: "home", label: "Home", path: "/staff/home" },
   { id: "sign-ins", label: "Who's Here", path: "/staff/sign-ins" },
@@ -963,7 +972,7 @@ export function StaffSignInsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="sign-ins" navigateTo={navigateTo}>
+    <StaffShell active="sign-ins" contentWide navigateTo={navigateTo}>
       <section className="staff-scorebar" aria-label="Daily sign-in summary">
         <div>
           <strong>{statusCounts.signedIn}</strong>
@@ -1077,29 +1086,67 @@ export function StaffSignInsPage({ navigateTo }) {
             </select>
           </label>
         </div>
-        {group === "none" ? (
-          <CompactSignInList
-            loading={loading}
-            rows={visibleRows}
-            onSelect={setSelectedSignIn}
-          />
-        ) : (
-          <div className="grouped-signins">
-            {visibleGroups.map((section) => (
-              <section className="signin-group" key={section.label}>
-                <h2>{section.label} <span>{section.count}</span></h2>
-                <CompactSignInList
-                  loading={loading}
-                  rows={section.items}
-                  onSelect={setSelectedSignIn}
-                />
-              </section>
-            ))}
-            {!visibleGroups.length && !loading ? (
-              <p className="empty-state">No sign-ins for this date.</p>
-            ) : null}
+        <div className="desktop-roster">
+          <div className="staff-table-heading">
+            <strong>{visibleRows.length} sign-ins</strong>
+            <span>{describeSort(sort, dir)}</span>
           </div>
-        )}
+          {group === "none" ? (
+            <DesktopSignInTable
+              dir={dir}
+              loading={loading}
+              rows={visibleRows}
+              sort={sort}
+              onSelect={setSelectedSignIn}
+              onSort={changeSortOption}
+            />
+          ) : (
+            <div className="desktop-grouped-signins">
+              {visibleGroups.map((section) => (
+                <section className="desktop-signin-group" key={section.label}>
+                  <h2>{section.label} <span>{section.count}</span></h2>
+                  <DesktopSignInTable
+                    dir={dir}
+                    loading={loading}
+                    rows={section.items}
+                    sort={sort}
+                    onSelect={setSelectedSignIn}
+                    onSort={changeSortOption}
+                  />
+                </section>
+              ))}
+              {!visibleGroups.length && !loading ? (
+                <p className="empty-state">No sign-ins for this date.</p>
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        <div className="mobile-roster">
+          {group === "none" ? (
+            <CompactSignInList
+              loading={loading}
+              rows={visibleRows}
+              onSelect={setSelectedSignIn}
+            />
+          ) : (
+            <div className="grouped-signins">
+              {visibleGroups.map((section) => (
+                <section className="signin-group" key={section.label}>
+                  <h2>{section.label} <span>{section.count}</span></h2>
+                  <CompactSignInList
+                    loading={loading}
+                    rows={section.items}
+                    onSelect={setSelectedSignIn}
+                  />
+                </section>
+              ))}
+              {!visibleGroups.length && !loading ? (
+                <p className="empty-state">No sign-ins for this date.</p>
+              ) : null}
+            </div>
+          )}
+        </div>
       </section>
       {selectedSignIn ? (
         <SignInDetailsDialog
@@ -1111,7 +1158,7 @@ export function StaffSignInsPage({ navigateTo }) {
   );
 }
 
-function StaffShell({ active, children, navigateTo }) {
+function StaffShell({ active, children, contentWide = false, navigateTo }) {
   const logout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
@@ -1148,7 +1195,9 @@ function StaffShell({ active, children, navigateTo }) {
           Logout
         </button>
       </nav>
-      <div className="staff-content">{children}</div>
+      <div className={contentWide ? "staff-content staff-content-wide" : "staff-content"}>
+        {children}
+      </div>
     </main>
   );
 }
@@ -1201,6 +1250,141 @@ function StaffLoadingScreen() {
         <p>Loading staff area...</p>
       </section>
     </main>
+  );
+}
+
+function DesktopSignInTable({ dir, loading, rows, sort, onSelect, onSort }) {
+  const sortColumn = (field) => {
+    const nextDirection = sort === field && dir === "asc" ? "desc" : "asc";
+    onSort(`${field}:${nextDirection}`);
+  };
+
+  return (
+    <div className="staff-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="name"
+                label="Name"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="phone"
+                label="Phone"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="trade"
+                label="Trade"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="company"
+                label="Company"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="signed_in_at"
+                label="Signed In"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+            <th>
+              <SortableStaffHeader
+                activeDir={dir}
+                field="signed_out_at"
+                label="Signed Out"
+                sort={sort}
+                onSort={sortColumn}
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr
+              key={row.id}
+              tabIndex={0}
+              onClick={() => onSelect(row)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelect(row);
+                }
+              }}
+            >
+              <td>{row.name}</td>
+              <td>
+                <a
+                  href={`tel:${phoneHref(row.phone)}`}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {formatPhoneNumber(row.phone)}
+                </a>
+              </td>
+              <td>{row.trade}</td>
+              <td>{row.company}</td>
+              <td>{formatDateTime(row.signed_in_at)}</td>
+              <td>
+                <div className="signin-status-cell">
+                  {row.signed_out_at ? (
+                    <>
+                      <span className="signin-status-badge signed-out">Signed out</span>
+                      <span>{formatDateTime(row.signed_out_at)}</span>
+                    </>
+                  ) : (
+                    <span className="signin-status-badge signed-in">Signed in</span>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+          {!rows.length ? (
+            <tr>
+              <td colSpan="6" className="staff-table-empty">
+                {loading ? "Loading..." : "No sign-ins for this view."}
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SortableStaffHeader({ activeDir, field, label, sort, onSort }) {
+  const active = sort === field;
+  return (
+    <div className="staff-sort-header">
+      <span>{label}</span>
+      <button
+        className={active ? "sort-chip sort-chip-active" : "sort-chip"}
+        type="button"
+        onClick={() => onSort(field)}
+      >
+        {active ? activeDir : "Sort"}
+      </button>
+    </div>
   );
 }
 
@@ -1390,6 +1574,11 @@ function formatCompactTime(value) {
     minute: "2-digit",
     timeZone: "America/Vancouver",
   }).format(new Date(value));
+}
+
+function describeSort(sort, dir) {
+  const label = STAFF_SORT_LABELS[sort] || sort;
+  return `Sort: ${label} ${dir}`;
 }
 
 function formatShortDate(record, dateField, timestampField) {

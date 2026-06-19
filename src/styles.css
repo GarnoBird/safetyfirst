@@ -952,6 +952,16 @@ p {
   margin: 0 auto;
 }
 
+.staff-content-wide {
+  max-width: 1440px;
+}
+
+.staff-content-wide .staff-scorebar,
+.staff-content-wide .staff-toolbar,
+.staff-content-wide .staff-table-panel {
+  max-width: none;
+}
+
 .staff-loading-card {
   display: grid;
   gap: 10px;
@@ -1476,6 +1486,18 @@ p {
   overflow: visible;
 }
 
+.desktop-roster {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.mobile-roster {
+  display: none;
+}
+
 .staff-table-heading {
   display: flex;
   gap: 12px;
@@ -1541,6 +1563,7 @@ p {
 }
 
 .staff-table-scroll {
+  overflow-x: auto;
   border: 0;
   border-radius: 0;
 }
@@ -1591,6 +1614,31 @@ p {
   min-width: 150px;
 }
 
+.staff-table tbody tr {
+  cursor: pointer;
+}
+
+.staff-table tbody tr:hover {
+  background: #f7faf9;
+}
+
+.staff-table tbody tr:focus-visible {
+  outline: 3px solid rgba(43, 122, 120, 0.24);
+  outline-offset: -3px;
+}
+
+.staff-table a {
+  color: #245f5b;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.staff-table-empty {
+  color: var(--muted);
+  font-weight: 750;
+  text-align: center;
+}
+
 .staff-sort-header {
   display: flex;
   gap: 8px;
@@ -1632,6 +1680,33 @@ p {
 .sort-chip-active:hover {
   border-color: #194845;
   background: #194845;
+}
+
+.desktop-grouped-signins {
+  display: grid;
+  gap: 16px;
+  padding: 14px;
+}
+
+.desktop-signin-group {
+  overflow: hidden;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.desktop-signin-group h2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #e4ebe7;
+  padding: 12px 14px;
+  font-size: 1rem;
+  background: #eef3f1;
+}
+
+.desktop-signin-group h2 span {
+  color: var(--muted);
 }
 
 .signin-status-cell {
@@ -2042,6 +2117,15 @@ p {
 
   .staff-table-scroll {
     display: none;
+  }
+
+  .desktop-roster {
+    display: none;
+  }
+
+  .mobile-roster {
+    display: grid;
+    gap: 12px;
   }
 
   .grouped-signins {
