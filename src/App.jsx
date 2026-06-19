@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import {
   DEFICIENCY_STATUSES,
   HAZARD_CATEGORIES,
@@ -47,6 +47,8 @@ const VIEWS = [
   { id: "data", label: "Data" },
 ];
 
+const SafetyLabApp = lazy(() => import("./SafetyLabApp.jsx"));
+
 export default function App() {
   const routePath = useRoutePath();
 
@@ -84,6 +86,14 @@ export default function App() {
 
   if (routePath === "/wiki" || routePath.startsWith("/wiki/")) {
     return <WikiApp routePath={routePath} navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/safety-lab" || routePath.startsWith("/safety-lab/")) {
+    return (
+      <Suspense fallback={<div className="route-loading">Loading Safety Lab...</div>}>
+        <SafetyLabApp routePath={routePath} navigateTo={navigateTo} />
+      </Suspense>
+    );
   }
 
   return <SafetyFirstApp navigateTo={navigateTo} />;

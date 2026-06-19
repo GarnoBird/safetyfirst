@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "generate:wiki-expansion": "node scripts/generate-safety-wiki-expansion.js",
+    "build:safety-lab-data": "node scripts/build-safety-lab-data.js",
+    "verify:safety-lab-data": "node scripts/verify-safety-lab-data.js",
     "validate:wiki": "node scripts/validate-wiki-content.js",
     "verify:wiki-expansion": "node scripts/verify-wiki-expansion.js",
     "seed:staff": "node scripts/seed-staff-user.js"
