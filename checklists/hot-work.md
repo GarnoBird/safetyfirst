@@ -6,18 +6,18 @@ Review status: Needs human safety/source review
 
 ## Use
 
-Use this checklist as a field prompt. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
+Use before welding, cutting, grinding, torching, or other spark/heat-producing work. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
 
 ## Checklist
 
-- [ ] Task, location, crew, and supervisor identified.
-- [ ] Current procedure, plan, permit, SDS, or manufacturer instruction available where applicable.
-- [ ] Workers are oriented, instructed, and competent for the task or directly supervised.
-- [ ] Required PPE and equipment are available, suitable, and inspected.
-- [ ] Hazards to workers, nearby trades, public areas, and emergency access are controlled.
-- [ ] Stop-work triggers have been discussed.
-- [ ] Deficiencies are assigned to a responsible person with a closeout date.
-- [ ] Records are filed where the site safety system requires them.
+- [ ] Hot work authorization, permit, or site approval is checked before work starts.
+- [ ] Combustibles are removed, covered, wetted, shielded, or otherwise controlled.
+- [ ] Spark travel to lower levels, wall cavities, hoarding, tarps, insulation, and adjacent spaces is checked.
+- [ ] Fire extinguisher, alarm access, emergency route, and fire watch are confirmed.
+- [ ] Ventilation, gas cylinders, hoses, regulators, and ignition sources are controlled.
+- [ ] Fire watch duration and post-work inspection are assigned.
+- [ ] Hot work stops if fire watch, extinguisher, permit, or spark control is missing.
+- [ ] Nearby trades and public interfaces are notified where smoke, fumes, or sparks could affect them.
 
 ## Notes / deficiencies
 
@@ -27,5 +27,7 @@ Use this checklist as a field prompt. It does not replace WorkSafeBC requirement
 
 ## Sources / review needed
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-32-evacuation-and-rescue
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
 - Needs verification against current WorkSafeBC/OHS source.
 - Verify this checklist against the current WorkSafeBC OHS Regulation and any applicable guideline before using it as a required inspection record.

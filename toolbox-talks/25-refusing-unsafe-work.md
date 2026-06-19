@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Ladders and scaffolds
+Topic area: Refusing unsafe work
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Workers must stop and speak up when they believe the work creates an undue hazard, and supervisors must handle that concern through the current BC/site process.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Workers should tell the supervisor immediately if they believe work is unsafe.
+- Stay available, explain the concern clearly, and avoid creating a new hazard while the concern is reviewed.
+- Supervisors must take the concern seriously and follow the required review process.
+- Do not pressure a worker to continue before the concern is resolved through the proper process.
+- Document the hazard, controls, and decision path without retaliation or blame.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What would make you refuse this task today?
+- Who do you tell first?
+- What should the supervisor do after hearing the concern?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Role-play a worker reporting an unsafe condition and a supervisor stopping the task for review.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can state the first step for refusing unsafe work on this site.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-13-ladders-scaffolds-and-temporary-work-platforms
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/19001_00
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

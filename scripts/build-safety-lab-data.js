@@ -215,6 +215,26 @@ function validate(data) {
   if (!data.checklists.length) errors.push("No checklists parsed.");
   if (!data.forms.length) errors.push("No forms parsed.");
 
+  requireUniqueSignatures(
+    "toolbox talk body",
+    data.toolboxTalks,
+    (talk) =>
+      [
+        talk.keyMessage,
+        ...talk.discussionPoints,
+        ...talk.questionsForCrew,
+        talk.supervisorDemo,
+        talk.signOffPrompt,
+      ].join(" | "),
+  );
+  requireUniqueSignatures("checklist item set", data.checklists, (checklist) => checklist.items.join(" | "));
+  requireUniqueSignatures("form field set", data.forms, (form) => form.fields.join(" | "));
+  requireUniqueSignatures(
+    "quiz prompt set",
+    data.quizzes,
+    (quiz) => quiz.questions.map((question) => question.prompt).join(" | "),
+  );
+
   for (const talk of data.toolboxTalks) {
     if (!talk.title || !talk.keyMessage || !talk.sourceReviewNote.length) {
       errors.push(`${talk.path}: missing title, key message, or source/review note`);
@@ -252,6 +272,25 @@ function validate(data) {
       errors.push(`${form.path}: missing fields or review note`);
     }
   }
+}
+
+function requireUniqueSignatures(label, items, getSignature) {
+  const signatures = new Map();
+  for (const item of items) {
+    const signature = normalizeSignature(getSignature(item));
+    if (signatures.has(signature)) {
+      errors.push(`${item.path}: duplicate ${label} also used by ${signatures.get(signature)}`);
+    } else {
+      signatures.set(signature, item.path);
+    }
+  }
+}
+
+function normalizeSignature(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function escapeRegExp(value) {

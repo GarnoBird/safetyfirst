@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Silica and dust
+Topic area: Ladders and scaffolds
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+A ladder is only a safe access tool when it is the right ladder, set on stable footing, secured when needed, and used without overreaching.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Choose a ladder that suits the height, work duration, surface, and materials being carried.
+- Set feet on firm, level ground and keep the top supported before climbing.
+- Maintain three points of contact and keep belt buckle between the side rails.
+- Do not use damaged ladders, makeshift extensions, top steps, or unstable bases.
+- Keep ladders out of vehicle routes, door swings, overhead hazards, and wet or cluttered areas.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Is this ladder being used for access or as a work platform?
+- What makes this setup unstable?
+- How will tools or materials be moved without overloading the climber?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Set a ladder in the work area and ask the crew to identify footing, angle, top support, access path, and overreach hazards.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one ladder defect and one setup condition that would stop the climb.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-13-ladders-scaffolds-and-temporary-work-platforms
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

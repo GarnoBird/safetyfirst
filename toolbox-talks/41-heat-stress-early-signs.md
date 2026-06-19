@@ -7,32 +7,33 @@ Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Heat stress controls must start before workers feel sick; early signs and workload changes need quick reporting and supervisor response.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Review heat conditions, workload, clothing, hydration, shade, and rest opportunities for the shift.
+- Use buddy checks for early signs such as unusual fatigue, dizziness, confusion, cramps, or heavy sweating concerns.
+- Adjust pace, timing, shade, and water access as conditions change.
+- Report symptoms early and involve first aid according to site procedure.
+- Pay extra attention to new workers, returning workers, and workers doing heavy tasks in PPE.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Where can workers cool down and get water?
+- What early sign should be reported immediately?
+- How will supervisors adjust work if heat increases?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Point out water, shade, rest location, first aid contact, and the hottest work areas for the shift.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can name one early sign and where to get help.
 
 ## Source/review note
 
 - Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

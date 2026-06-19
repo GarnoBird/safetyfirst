@@ -7,32 +7,33 @@ Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+A pedestrian detour must be clear, continuous, protected, and understandable before construction activity blocks the normal route.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Check that signs, barriers, lighting, ramps, and surfaces match the current pedestrian route.
+- Keep pedestrians separated from equipment, open excavations, falling-object zones, and vehicle traffic.
+- Maintain access for mobility devices, deliveries, emergency response, and nearby businesses where applicable.
+- Do not store materials, cords, hoses, or debris in the detour path.
+- Update the detour immediately when work sequence, weather, hoarding, or public flow changes.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Where does the public walk today?
+- What protects pedestrians from our work?
+- What would make the detour confusing or blocked?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Walk the detour as a pedestrian and point out signs, barriers, surface changes, and conflict points.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify the public route and who to notify if it is blocked.
 
 ## Source/review note
 
 - Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

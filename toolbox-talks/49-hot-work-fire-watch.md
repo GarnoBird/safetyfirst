@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Excavation and trenching
+Topic area: Emergency response
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Hot work is controlled before, during, and after sparks are made; the fire watch must know the area, timing, and stop conditions.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Review the hot work permit or site authorization before grinding, welding, cutting, or torch work starts.
+- Remove, cover, wet, or shield combustibles in the spark and heat travel area.
+- Check for hidden openings, wall cavities, lower levels, and adjacent spaces where sparks can travel.
+- Assign fire watch duties, extinguisher access, and post-work monitoring under the site procedure.
+- Stop hot work if fire watch, permit, ventilation, access, or extinguisher controls are missing.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Where could sparks travel from this task?
+- Who is the fire watch and how long do they stay?
+- What condition stops hot work immediately?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Trace the spark path, combustible materials, extinguisher, permit location, and fire watch position.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify the fire watch and spark travel hazard.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-32-evacuation-and-rescue
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

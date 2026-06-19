@@ -2,37 +2,39 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: PPE
+Topic area: Electrical safety
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Work near overhead power lines needs planning before equipment, materials, ladders, or loads enter the area.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Identify overhead lines before moving equipment, ladders, scaffolds, pipe, rebar, or crane loads.
+- Confirm approach limits, dedicated travel routes, barriers, and spotter needs under the reviewed plan.
+- Treat all overhead lines as energized unless the utility and site plan confirm otherwise.
+- Keep workers out of line-contact and step-potential danger areas.
+- Stop if the route, boom position, load path, or weather creates uncertainty.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Where are the closest overhead lines?
+- What equipment or material could reach them?
+- Who controls movement near the line today?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Stand at the travel or lift route and trace the closest line, equipment envelope, and stop point.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify the overhead line hazard and the controller for movement.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

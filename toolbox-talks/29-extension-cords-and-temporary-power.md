@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: WHMIS/SDS
+Topic area: Electrical safety
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Temporary power must be routed and inspected so cords do not become shock, fire, trip, or equipment-damage hazards.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Inspect cords for cuts, crushed insulation, missing ground pins, exposed conductors, and damaged plugs.
+- Keep cords out of water, pinch points, sharp edges, vehicle paths, and doorways.
+- Use power sources, protection, and equipment suited to the task and site conditions.
+- Do not daisy-chain, overload, repair with tape, or use damaged cords.
+- Route cords to reduce trips and protect them from falling materials or mobile equipment.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Where could this cord be damaged today?
+- What cord condition means it comes out of service?
+- How are we keeping cords away from water and traffic?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Walk the cord route from panel to tool and point out protection, trip hazards, water, and damage checks.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one cord defect and one safer routing choice.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-12-tools-machinery-and-equipment
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

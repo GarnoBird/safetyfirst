@@ -2,37 +2,37 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Mobile equipment
+Topic area: WHMIS/SDS
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Hazardous products must be identifiable before use; workers need the label, SDS access, and site instructions for safe handling.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Check that original and workplace containers are labelled before the product is used.
+- Know where the current SDS is available and how to read key hazards, PPE, storage, spill, and first aid sections.
+- Do not use mystery containers, damaged labels, or transferred products without required information.
+- Keep incompatible products separated according to the reviewed SDS and site storage plan.
+- Report spills, leaks, symptoms, or missing SDS information before continuing work.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What product are we using today?
+- Where is its SDS and what hazard symbol or warning applies?
+- What would make you stop using the container?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Show one product container and have the crew locate the label, SDS access point, PPE note, and storage instruction.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can find the SDS and identify one hazard for the product being used.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

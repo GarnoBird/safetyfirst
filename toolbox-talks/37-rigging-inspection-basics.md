@@ -2,37 +2,37 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Lockout/tagout
+Topic area: Cranes/rigging
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Rigging must be inspected and matched to the load before tension is applied; damaged or unknown gear stays out of service.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Check slings, shackles, hooks, tags, stitching, wires, chains, pins, and latches before use.
+- Confirm the rigging choice matches load weight, center of gravity, angle, edge protection, and lift method.
+- Protect rigging from sharp edges, crushing, heat, chemicals, and pinch points.
+- Do not use untagged, damaged, modified, or questionable rigging.
+- Keep hands out of pinch points while tension is taken and the load settles.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What damage takes this sling or shackle out of service?
+- Where is the load's center of gravity?
+- What edge or pinch point needs protection?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Inspect one sling and shackle with the crew, then trace the rigging angle, edge contact, and hand-clear zone.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one rigging defect and one pinch point.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-10-de-energization-and-lockout
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

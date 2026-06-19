@@ -5,115 +5,115 @@ Questions: 10
 Suggested pass threshold: 8/10 after instructor review
 Review flag: Needs source review before use as mandatory training
 
-## 1. What should happen before work starts?
+## 1. For incident reporting, what should be confirmed before work starts?
 
-A. Wait until the end of shift.
-B. Confirm hazards, controls, and supervision.
-C. Assume the last plan still applies.
-D. Skip the briefing if the crew is experienced.
-
-Answer: B
-
-Explanation: Confirm hazards, controls, and supervision. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 2. What is a stop-work trigger?
-
-A. A production target.
-B. A sign-off sheet only.
-C. A tool storage label.
-D. A condition that means work should pause until the hazard is controlled.
-
-Answer: D
-
-Explanation: A condition that means work should pause until the hazard is controlled. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 3. What should a worker do if they do not understand the control?
-
-A. Continue slowly.
-B. Ask the supervisor before starting or continuing.
-C. Ask another trade to decide.
-D. Ignore the task.
+A. Only the planned production target for the shift.
+B. The task, location, affected workers, supervisor, and controls for unreported incident.
+C. That another crew used the area safely yesterday.
+D. That paperwork can be completed after the task.
 
 Answer: B
 
-Explanation: Ask the supervisor before starting or continuing. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: The task, location, affected workers, supervisor, and controls for unreported incident. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 4. Which evidence is most useful after a deficiency is found?
+## 2. Which condition is a stop-work trigger for incident reporting?
 
-A. A verbal promise only.
-B. A deleted photo.
-C. No record.
-D. Assigned corrective action and closeout proof.
-
-Answer: D
-
-Explanation: Assigned corrective action and closeout proof. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 5. What does 'needs human review' mean?
-
-A. The content is official law.
-B. The page can be ignored.
-C. A qualified reviewer must verify current sources before publication/use as policy.
-D. The control is optional.
-
-Answer: C
-
-Explanation: A qualified reviewer must verify current sources before publication/use as policy. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 6. When should a procedure be updated?
-
-A. When site conditions, crew, tools, sequence, or source requirements change.
-B. Only once a year regardless of changes.
-C. Never after publication.
-D. Only after an injury.
-
-Answer: A
-
-Explanation: When site conditions, crew, tools, sequence, or source requirements change. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 7. Which source should be checked first for BC legal requirements?
-
-A. A private company manual from another province.
-B. A social media post.
-C. A supplier advertisement.
-D. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
+A. The crew finishes orientation early.
+B. The task is familiar to experienced workers.
+C. The supervisor is in a meeting but can be called later.
+D. Lost evidence is present and the planned control is missing, damaged, or unclear.
 
 Answer: D
 
-Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Lost evidence is present and the planned control is missing, damaged, or unclear. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 8. How should best practice be labelled?
+## 3. What should a worker do if the incident reporting control is unclear?
 
-A. As mandatory law without citation.
-B. Only in verbal instructions.
-C. Clearly separate from legal requirements.
-D. Hidden in the checklist.
+A. Continue slowly and watch what other trades do.
+B. Stop and ask the supervisor before starting or continuing the task.
+C. Wait until the end of shift to mention it.
+D. Choose any available PPE and keep working.
+
+Answer: B
+
+Explanation: Stop and ask the supervisor before starting or continuing the task. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 4. Which field evidence is most useful for incident reporting follow-up?
+
+A. A verbal promise that the issue is probably fixed.
+B. A photo with no location, date, or assigned action.
+C. No record because the hazard was corrected quickly.
+D. The inspection result, assigned corrective action, responsible person, due date, and closeout proof.
+
+Answer: D
+
+Explanation: The inspection result, assigned corrective action, responsible person, due date, and closeout proof. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 5. Which source should be checked first before treating a incident reporting statement as a BC legal requirement?
+
+A. A private manual from another province with no BC source link.
+B. A supplier advertisement or product brochure by itself.
+C. WorkSafeBC OHS Regulation Part 3, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant.
+D. A social media post from another jobsite.
 
 Answer: C
 
-Explanation: Clearly separate from legal requirements. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: WorkSafeBC OHS Regulation Part 3, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 9. What should be done with unsupported legal claims?
+## 6. What needs review before assigning workers to incident reporting work?
 
-A. Remove, cite, or mark for human/source review.
-B. Publish as-is.
-C. Make them sound more confident.
-D. Copy text from an unknown manual.
+A. Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure.
+B. Only whether the worker is available today.
+C. Only whether the work was completed on a previous project.
+D. Only whether the worker brought basic PPE.
 
 Answer: A
 
-Explanation: Remove, cite, or mark for human/source review. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 10. What is the safest answer when source access is missing?
+## 7. How should nearby workers or public areas be handled during incident reporting work?
 
-A. Verified compliant.
-B. No source needed.
-C. Needs verification against current WorkSafeBC/OHS source.
-D. Legal requirement confirmed.
+A. Assume people will stay away if the task looks risky.
+B. Warn nearby workers only after the work has started.
+C. Rely on one sign without checking the actual work area.
+D. Identify who could be exposed to no corrective action and set barriers, communication, scheduling, or access controls before work starts.
+
+Answer: D
+
+Explanation: Identify who could be exposed to no corrective action and set barriers, communication, scheduling, or access controls before work starts. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 8. When should the incident reporting procedure or checklist be updated?
+
+A. Only once each calendar year regardless of task changes.
+B. Only after an injury has already occurred.
+C. When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change.
+D. Never after the first reviewed version is printed.
 
 Answer: C
 
-Explanation: Needs verification against current WorkSafeBC/OHS source. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 9. How should best practice be labelled in incident reporting material?
+
+A. Clearly separate best practice, sample procedure, field checklist, and legal requirement wording.
+B. Label all advice as law to make workers take it seriously.
+C. Hide best practice inside the checklist without review.
+D. Remove source notes once the content sounds practical.
+
+Answer: A
+
+Explanation: Clearly separate best practice, sample procedure, field checklist, and legal requirement wording. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 10. What does "needs source review" mean on this incident reporting quiz?
+
+A. The quiz is official proof of competency.
+B. No further review is needed because the answers are visible.
+C. A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training.
+D. The employer can ignore site-specific conditions.
+
+Answer: C
+
+Explanation: A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 
 ## Source/review note

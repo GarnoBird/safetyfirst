@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: First aid
+Topic area: Excavation and trenching
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+No one enters a trench until cave-in, water, spoil pile, access, and equipment hazards have been reviewed and controlled.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Look for cracking, sloughing, bulging, water seepage, vibration, or changing soil conditions.
+- Keep spoil piles, materials, and mobile equipment away from the excavation edge as required by the reviewed plan.
+- Confirm sloping, shoring, shielding, or other protective systems before entry.
+- Keep ladders or other safe access in place and clear.
+- Stop work if weather, groundwater, utilities, or nearby loading changes the trench condition.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What warning sign means everyone gets out?
+- Where are spoil piles and equipment located relative to the edge?
+- What protective system is being used today?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+From outside the trench, identify soil condition, spoil location, access, protective system, and nearby equipment paths.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can name one cave-in warning sign and the escape route.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

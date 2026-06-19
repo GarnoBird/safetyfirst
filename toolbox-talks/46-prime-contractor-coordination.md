@@ -2,37 +2,39 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Emergency response
+Topic area: Prime contractor/site coordination
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Overlapping work needs coordination so one employer's task does not create hidden hazards for another crew or the public.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Identify all trades, employers, deliveries, public interfaces, and high-risk work in the same area.
+- Review who controls access, permits, sequencing, traffic, emergency routes, and communication.
+- Communicate changes before moving work, opening edges, energizing systems, or changing access.
+- Resolve conflicts before crews improvise around each other.
+- Keep coordination notes, permits, and contact information available to affected supervisors.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Which other crew can affect our work today?
+- Who controls the area if two tasks conflict?
+- How do we communicate a change before it reaches the field?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Use the site coordination board or daily plan to point out overlapping work and the contact for each affected crew.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one overlapping task and the coordination contact.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-32-evacuation-and-rescue
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition
+- Source candidate: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/19001_00
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

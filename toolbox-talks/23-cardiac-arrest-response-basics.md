@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Emergency response
+Topic area: First aid
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+If someone collapses and is not responding normally, the crew must activate emergency response immediately and follow first aid training and site procedure.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Call emergency services and site first aid immediately according to the emergency plan.
+- Send someone to get the AED and another person to guide responders to the exact location.
+- Follow CPR and AED training only if trained and safe to do so.
+- Clear the work area so responders have room and equipment access.
+- Protect privacy and avoid unnecessary discussion or recording of medical details.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Who calls emergency services and who gets the AED?
+- How do responders find this exact location?
+- What should bystanders do to keep the response area clear?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Assign sample roles for caller, AED runner, guide, and area control, then walk the access path.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can name their emergency role and the AED route.
 
 ## Source/review note
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
 - Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-32-evacuation-and-rescue
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

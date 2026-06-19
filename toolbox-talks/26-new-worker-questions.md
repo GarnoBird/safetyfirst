@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Excavation and trenching
+Topic area: Young/new workers
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+New and young workers need direct permission to ask questions before they guess, copy others, or continue without understanding the hazard.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Point out task hazards that may not be obvious to someone new to construction.
+- Assign a supervisor, lead hand, or experienced worker for questions during the shift.
+- Explain that asking for clarification is expected, not a sign of weakness.
+- Check understanding by asking the worker to repeat the task, hazard, and control.
+- Use extra supervision when the worker is new to the task, tool, crew, or site area.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What part of this task is unclear?
+- Who is your go-to person for questions today?
+- What should you do if you feel rushed but unsure?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Ask a new-worker-style question out loud and model the expected supervisor response.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can name the person they will ask before guessing.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/19001_00
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

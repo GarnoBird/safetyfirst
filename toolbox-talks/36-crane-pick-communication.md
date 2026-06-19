@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Electrical safety
+Topic area: Cranes/rigging
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Every lift needs clear communication before the load moves: who signals, who rigs, who controls the area, and what stops the lift.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Confirm lift roles: operator, signal person, rigger, supervisor, and exclusion-zone controller.
+- Review load weight, radius, path, landing area, wind, power lines, and nearby work.
+- Use agreed hand signals or radio communication before the first movement.
+- Stop the lift if communication is unclear, the load changes, or someone enters the danger area.
+- Keep non-essential workers out from under and around the load path.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- Who is the signal person for this pick?
+- Where is the load travelling and landing?
+- What is the stop command?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Before the pick, have the lift team point out the load path, landing point, exclusion area, and communication method.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Crew members sign after they can identify the signal person and stop command.
 
 ## Source/review note
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists
 - Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

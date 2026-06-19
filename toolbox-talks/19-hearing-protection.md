@@ -2,37 +2,39 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Violence/harassment
+Topic area: PPE
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Hearing protection must be selected, fitted, and worn before noisy work begins, not after the noise is already uncomfortable.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Identify loud tools, equipment, impact work, compressed air, and nearby noise sources.
+- Use the site-required hearing protection and fit it correctly before exposure starts.
+- Keep communication methods clear when hearing protection reduces normal speech or warning sounds.
+- Replace damaged, dirty, loose, or poorly fitting plugs or muffs.
+- Move non-essential workers away from high-noise zones where practical.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What is the loudest task in this area today?
+- How will we communicate warnings while protection is worn?
+- What makes earplugs or earmuffs ineffective?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Demonstrate fitting the selected hearing protection and point out the noisy work boundary.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can fit their protection and explain how warnings will be communicated.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-07-noise-vibration-radiation-and-temperature
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-12-tools-machinery-and-equipment
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

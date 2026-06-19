@@ -5,115 +5,115 @@ Questions: 10
 Suggested pass threshold: 8/10 after instructor review
 Review flag: Needs source review before use as mandatory training
 
-## 1. What should happen before work starts?
+## 1. For supervisor duties, what should be confirmed before work starts?
 
-A. Wait until the end of shift.
-B. Assume the last plan still applies.
-C. Confirm hazards, controls, and supervision.
-D. Skip the briefing if the crew is experienced.
+A. Only the planned production target for the shift.
+B. That another crew used the area safely yesterday.
+C. The task, location, affected workers, supervisor, and controls for unclear direction.
+D. That paperwork can be completed after the task.
 
 Answer: C
 
-Explanation: Confirm hazards, controls, and supervision. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: The task, location, affected workers, supervisor, and controls for unclear direction. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 2. What is a stop-work trigger?
+## 2. Which condition is a stop-work trigger for supervisor duties?
 
-A. A condition that means work should pause until the hazard is controlled.
-B. A production target.
-C. A sign-off sheet only.
-D. A tool storage label.
+A. Uncorrected hazard is present and the planned control is missing, damaged, or unclear.
+B. The crew finishes orientation early.
+C. The task is familiar to experienced workers.
+D. The supervisor is in a meeting but can be called later.
 
 Answer: A
 
-Explanation: A condition that means work should pause until the hazard is controlled. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Uncorrected hazard is present and the planned control is missing, damaged, or unclear. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 3. What should a worker do if they do not understand the control?
+## 3. What should a worker do if the supervisor duties control is unclear?
 
-A. Continue slowly.
-B. Ask another trade to decide.
-C. Ignore the task.
-D. Ask the supervisor before starting or continuing.
+A. Continue slowly and watch what other trades do.
+B. Wait until the end of shift to mention it.
+C. Choose any available PPE and keep working.
+D. Stop and ask the supervisor before starting or continuing the task.
 
 Answer: D
 
-Explanation: Ask the supervisor before starting or continuing. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Stop and ask the supervisor before starting or continuing the task. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 4. Which evidence is most useful after a deficiency is found?
+## 4. Which field evidence is most useful for supervisor duties follow-up?
 
-A. A verbal promise only.
-B. A deleted photo.
-C. Assigned corrective action and closeout proof.
-D. No record.
+A. A verbal promise that the issue is probably fixed.
+B. A photo with no location, date, or assigned action.
+C. The inspection result, assigned corrective action, responsible person, due date, and closeout proof.
+D. No record because the hazard was corrected quickly.
 
 Answer: C
 
-Explanation: Assigned corrective action and closeout proof. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: The inspection result, assigned corrective action, responsible person, due date, and closeout proof. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 5. What does 'needs human review' mean?
+## 5. Which source should be checked first before treating a supervisor duties statement as a BC legal requirement?
 
-A. A qualified reviewer must verify current sources before publication/use as policy.
-B. The content is official law.
-C. The page can be ignored.
-D. The control is optional.
+A. WorkSafeBC OHS Regulation Part 3, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant.
+B. A private manual from another province with no BC source link.
+C. A supplier advertisement or product brochure by itself.
+D. A social media post from another jobsite.
 
 Answer: A
 
-Explanation: A qualified reviewer must verify current sources before publication/use as policy. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: WorkSafeBC OHS Regulation Part 3, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 6. When should a procedure be updated?
+## 6. What needs review before assigning workers to supervisor duties work?
 
-A. Only once a year regardless of changes.
-B. Never after publication.
-C. When site conditions, crew, tools, sequence, or source requirements change.
-D. Only after an injury.
+A. Only whether the worker is available today.
+B. Only whether the work was completed on a previous project.
+C. Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure.
+D. Only whether the worker brought basic PPE.
 
 Answer: C
 
-Explanation: When site conditions, crew, tools, sequence, or source requirements change. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 7. Which source should be checked first for BC legal requirements?
+## 7. How should nearby workers or public areas be handled during supervisor duties work?
 
-A. A private company manual from another province.
-B. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
-C. A social media post.
-D. A supplier advertisement.
-
-Answer: B
-
-Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 8. How should best practice be labelled?
-
-A. As mandatory law without citation.
-B. Only in verbal instructions.
-C. Hidden in the checklist.
-D. Clearly separate from legal requirements.
-
-Answer: D
-
-Explanation: Clearly separate from legal requirements. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-
-## 9. What should be done with unsupported legal claims?
-
-A. Publish as-is.
-B. Remove, cite, or mark for human/source review.
-C. Make them sound more confident.
-D. Copy text from an unknown manual.
+A. Assume people will stay away if the task looks risky.
+B. Identify who could be exposed to no verification and set barriers, communication, scheduling, or access controls before work starts.
+C. Warn nearby workers only after the work has started.
+D. Rely on one sign without checking the actual work area.
 
 Answer: B
 
-Explanation: Remove, cite, or mark for human/source review. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Identify who could be exposed to no verification and set barriers, communication, scheduling, or access controls before work starts. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 10. What is the safest answer when source access is missing?
+## 8. When should the supervisor duties procedure or checklist be updated?
 
-A. Verified compliant.
-B. No source needed.
-C. Legal requirement confirmed.
-D. Needs verification against current WorkSafeBC/OHS source.
+A. Only once each calendar year regardless of task changes.
+B. Only after an injury has already occurred.
+C. Never after the first reviewed version is printed.
+D. When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change.
 
 Answer: D
 
-Explanation: Needs verification against current WorkSafeBC/OHS source. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 9. How should best practice be labelled in supervisor duties material?
+
+A. Label all advice as law to make workers take it seriously.
+B. Clearly separate best practice, sample procedure, field checklist, and legal requirement wording.
+C. Hide best practice inside the checklist without review.
+D. Remove source notes once the content sounds practical.
+
+Answer: B
+
+Explanation: Clearly separate best practice, sample procedure, field checklist, and legal requirement wording. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+
+## 10. What does "needs source review" mean on this supervisor duties quiz?
+
+A. The quiz is official proof of competency.
+B. No further review is needed because the answers are visible.
+C. The employer can ignore site-specific conditions.
+D. A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training.
+
+Answer: D
+
+Explanation: A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training. For supervisor duties, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 
 ## Source/review note

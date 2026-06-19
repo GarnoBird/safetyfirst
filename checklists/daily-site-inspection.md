@@ -6,18 +6,18 @@ Review status: Needs human safety/source review
 
 ## Use
 
-Use this checklist as a field prompt. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
+Use this as a general site walk prompt at the start of shift or after major site changes. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
 
 ## Checklist
 
-- [ ] Task, location, crew, and supervisor identified.
-- [ ] Current procedure, plan, permit, SDS, or manufacturer instruction available where applicable.
-- [ ] Workers are oriented, instructed, and competent for the task or directly supervised.
-- [ ] Required PPE and equipment are available, suitable, and inspected.
-- [ ] Hazards to workers, nearby trades, public areas, and emergency access are controlled.
-- [ ] Stop-work triggers have been discussed.
-- [ ] Deficiencies are assigned to a responsible person with a closeout date.
-- [ ] Records are filed where the site safety system requires them.
+- [ ] Access routes, stairs, ramps, ladders, and emergency paths are clear.
+- [ ] Open edges, floor openings, excavations, and public-interface areas are protected.
+- [ ] Housekeeping, material storage, waste, cords, hoses, and slip/trip hazards are controlled.
+- [ ] Mobile equipment routes, delivery zones, and pedestrian separation are understood.
+- [ ] First aid, fire extinguishers, muster information, and site notices are accessible.
+- [ ] Active high-risk work areas are identified and controlled before nearby work proceeds.
+- [ ] Deficiencies are assigned, dated, and communicated to affected supervisors.
+- [ ] Items needing immediate correction are stopped or isolated before work continues.
 
 ## Notes / deficiencies
 
@@ -27,5 +27,7 @@ Use this checklist as a field prompt. It does not replace WorkSafeBC requirement
 
 ## Sources / review needed
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
 - Needs verification against current WorkSafeBC/OHS source.
 - Verify this checklist against the current WorkSafeBC OHS Regulation and any applicable guideline before using it as a required inspection record.

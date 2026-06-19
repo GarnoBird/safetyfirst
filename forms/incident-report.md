@@ -6,24 +6,30 @@ Review status: Needs human safety/source review
 ## Form fields
 
 - Project:
-- Date/time:
-- Location:
+- Date/time of incident:
+- Exact location:
 - Employer/trade:
-- Worker(s) involved, if appropriate:
-- Supervisor:
-- Description:
+- Person reporting:
+- Supervisor notified:
+- Incident type:
+- Task underway:
+- What happened:
 - Immediate controls taken:
-- Required follow-up:
+- First aid/emergency response contacted if applicable:
+- Witnesses:
+- Photos/evidence reference:
+- Corrective action required:
 - Responsible person:
 - Due date:
-- Closeout evidence:
 - Reviewer:
 
 ## Privacy and sensitivity note
 
-Do not record unnecessary medical details, private personal information, or speculation. Keep only the information needed for safety follow-up, reporting, and corrective action.
+Do not record unnecessary medical details, private personal information, direct contact/payment identifiers, or speculation. Keep only the information needed for safety follow-up, reporting, and corrective action.
 
 ## Source/review note
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/19001_00
 - Needs verification against current WorkSafeBC/OHS source.
 - Confirm legal reporting, investigation, privacy, and retention requirements before using this as an official company form.

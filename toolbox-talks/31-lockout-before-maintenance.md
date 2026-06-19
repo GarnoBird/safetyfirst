@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: First aid
+Topic area: Lockout/tagout
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Maintenance, clearing jams, or servicing waits until hazardous energy is isolated, locked out, and verified according to the site procedure.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Identify all energy sources: electrical, mechanical, hydraulic, pneumatic, gravity, thermal, or stored pressure.
+- Shut down and isolate using the approved procedure before hands enter danger zones.
+- Apply personal locks or the site-required lockout method before work starts.
+- Verify zero energy or safe state before maintenance begins.
+- Do not remove another worker's lock or restart equipment until the lockout process is complete.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What energy sources are present on this equipment?
+- How do we verify the equipment cannot start or move?
+- What is the rule for someone else's lock?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Use an equipment example to point out isolation points, lock placement, try-start or verification step, and restart control.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can name one energy source and the verification step.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-10-de-energization-and-lockout
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

@@ -2,37 +2,39 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Tool and equipment safety
+Topic area: Silica and dust
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Concrete, masonry, rock, and similar dust-producing work needs planned dust control before cutting, grinding, drilling, sweeping, or cleanup starts.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Identify which task will create respirable dust and who could be exposed nearby.
+- Use reviewed controls such as water, local exhaust, isolation, ventilation, and suitable cleanup methods.
+- Do not dry sweep, blow down dust, or remove controls for convenience.
+- Confirm respiratory protection requirements, fit, cartridges, and limits before relying on a respirator.
+- Keep adjacent workers and public areas out of the dust path.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What material are we disturbing today?
+- What dust control is active before the tool starts?
+- Who else could be exposed if the wind or work direction changes?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Show the water feed, vacuum, enclosure, or exclusion area that will control dust before the first cut or grind.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify the dust source, control, and stop point if dust becomes visible or uncontrolled.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-12-tools-machinery-and-equipment
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

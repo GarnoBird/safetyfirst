@@ -6,18 +6,18 @@ Review status: Needs human safety/source review
 
 ## Use
 
-Use this checklist as a field prompt. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
+Use before workers access, load, move, or work from scaffold platforms. It does not replace WorkSafeBC requirements, manufacturer instructions, engineered documents, or site-specific procedures.
 
 ## Checklist
 
-- [ ] Task, location, crew, and supervisor identified.
-- [ ] Current procedure, plan, permit, SDS, or manufacturer instruction available where applicable.
-- [ ] Workers are oriented, instructed, and competent for the task or directly supervised.
-- [ ] Required PPE and equipment are available, suitable, and inspected.
-- [ ] Hazards to workers, nearby trades, public areas, and emergency access are controlled.
-- [ ] Stop-work triggers have been discussed.
-- [ ] Deficiencies are assigned to a responsible person with a closeout date.
-- [ ] Records are filed where the site safety system requires them.
+- [ ] Scaffold status tag or site approval system is checked before use.
+- [ ] Base plates, mudsills, leveling, ties, braces, planks, guardrails, and toe boards are visually checked.
+- [ ] Safe access is provided and workers do not climb frames or cross-bracing.
+- [ ] Platform load, material storage, and tool placement are controlled.
+- [ ] Missing, damaged, modified, or moved components are reported before use.
+- [ ] Rolling scaffold wheels are locked and workers are off before movement.
+- [ ] Overhead hazards, floor openings, slopes, and nearby equipment routes are controlled.
+- [ ] Only authorized workers alter scaffold components.
 
 ## Notes / deficiencies
 
@@ -27,5 +27,7 @@ Use this checklist as a field prompt. It does not replace WorkSafeBC requirement
 
 ## Sources / review needed
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-13-ladders-scaffolds-and-temporary-work-platforms
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection
 - Needs verification against current WorkSafeBC/OHS source.
 - Verify this checklist against the current WorkSafeBC OHS Regulation and any applicable guideline before using it as a required inspection record.

@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Supervisor duties
+Topic area: Violence/harassment
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Clear, respectful communication prevents safety information from being ignored, misunderstood, or hidden by intimidation.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Give task instructions in plain language and confirm understanding before work starts.
+- Use interpreters, diagrams, demonstration, or a buddy when language or literacy barriers exist.
+- Do not use insults, threats, jokes, or pressure that stops workers from asking safety questions.
+- Separate safety correction from personal criticism or blame.
+- Escalate repeated communication problems before they become conflict or unsafe work.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What instruction today needs a repeat-back?
+- How do workers ask for clarification here?
+- What behaviour would stop someone from speaking up?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Demonstrate a short instruction, then have a worker repeat the task, hazard, and control in their own words.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can explain how to ask for clarification without being dismissed.
 
 ## Source/review note
 
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
 - Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

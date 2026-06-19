@@ -22,6 +22,30 @@ if (totalQuestions !== expectedQuestionCount) {
   errors.push(`Expected ${expectedQuestionCount} total quiz questions, found ${totalQuestions}`);
 }
 
+requireUniqueSignatures(
+  "toolbox talk body",
+  safetyLabData.toolboxTalks || [],
+  (talk) =>
+    [
+      talk.keyMessage,
+      ...(talk.discussionPoints || []),
+      ...(talk.questionsForCrew || []),
+      talk.supervisorDemo,
+      talk.signOffPrompt,
+    ].join(" | "),
+);
+requireUniqueSignatures(
+  "checklist item set",
+  safetyLabData.checklists || [],
+  (checklist) => (checklist.items || []).join(" | "),
+);
+requireUniqueSignatures("form field set", safetyLabData.forms || [], (form) => (form.fields || []).join(" | "));
+requireUniqueSignatures(
+  "quiz prompt set",
+  safetyLabData.quizzes || [],
+  (quiz) => (quiz.questions || []).map((question) => question.prompt).join(" | "),
+);
+
 for (const talk of safetyLabData.toolboxTalks || []) {
   if (!talk.title || !talk.keyMessage || !talk.sourceReviewNote?.length) {
     errors.push(`${talk.id}: toolbox talk missing title, key message, or source/review note`);
@@ -79,3 +103,22 @@ console.log(`- ${safetyLabData.toolboxTalks.length} toolbox talks`);
 console.log(`- ${safetyLabData.quizzes.length} quizzes`);
 console.log(`- ${safetyLabData.checklists.length} checklists`);
 console.log(`- ${safetyLabData.forms.length} forms`);
+
+function requireUniqueSignatures(label, items, getSignature) {
+  const signatures = new Map();
+  for (const item of items) {
+    const signature = normalizeSignature(getSignature(item));
+    if (signatures.has(signature)) {
+      errors.push(`${item.id}: duplicate ${label} also used by ${signatures.get(signature)}`);
+    } else {
+      signatures.set(signature, item.id);
+    }
+  }
+}
+
+function normalizeSignature(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}

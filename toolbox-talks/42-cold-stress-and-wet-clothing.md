@@ -2,37 +2,38 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Violence/harassment
+Topic area: Heat/cold stress
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Cold, wind, and wet clothing can reduce judgment and hand function before a worker realizes how much performance has dropped.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Review forecast, wind, wet work, ground conditions, and warm-up options for the shift.
+- Keep spare dry gloves, socks, and layers available when work is wet or exposed.
+- Watch for shivering, numbness, clumsy hands, confusion, or workers hiding symptoms to keep working.
+- Plan warm-up breaks and task rotation when conditions require it.
+- Report symptoms early and involve first aid according to site procedure.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What task will make workers wet or cold today?
+- Where can workers warm up or change dry gear?
+- What early sign means stop and get help?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Show the warm-up location, dry-gear storage, and the wettest or windiest work area.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one cold-stress sign and the warm-up plan.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

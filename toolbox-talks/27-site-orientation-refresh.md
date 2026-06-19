@@ -2,37 +2,37 @@
 
 Duration: 5 to 10 minutes
 Audience: Construction workers and supervisors
-Topic area: Confined spaces
+Topic area: Site orientation
 Review status: Needs human safety/source review
 
 ## Key message
 
-Do not start the task until the crew understands the hazard, the control, and the stop-work trigger.
+Orientation information must stay useful after day one; workers need current emergency, access, reporting, and high-risk work information for today's site.
 
 ## Discussion points
 
-- What is the specific task today?
-- Which workers, trades, or public areas could be affected?
-- What control must be in place before work starts?
-- What changed since the last time we did this task?
-- Who stops the work if the control is missing or unclear?
+- Review current muster area, emergency access, first aid contact, and site map changes.
+- Identify restricted areas, public interfaces, high-risk work zones, and active permits.
+- Confirm how workers report hazards, injuries, near misses, and changed conditions.
+- Update workers when gates, stairs, elevators, traffic routes, or supervisor contacts change.
+- Check that new or returning workers understand the information before starting work.
 
 ## Questions for crew
 
-- What is one thing that could go wrong during this task?
-- What would make you stop and call a supervisor?
-- Where is the required document, procedure, or inspection record kept?
+- What changed on site since your last shift?
+- Where do you go in an emergency from this area?
+- How do you report a hazard today?
 
 ## Supervisor demonstration
 
-Show the crew the actual control in the field. Point to the hazard, the control, the access route, and the stop-work trigger.
+Use the current site board or map to point out emergency, access, restricted, and reporting locations.
 
 ## Sign-off prompt
 
-Crew members sign only after they can explain the key hazard and control in their own words.
+Workers sign after they can identify one changed site condition and the emergency route.
 
 ## Source/review note
 
-- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces
+- Source candidate: https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities
 - Needs verification against current WorkSafeBC/OHS source.
 - This talk is a practical draft, not official policy or legal advice.

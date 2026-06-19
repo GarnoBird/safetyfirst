@@ -5,115 +5,115 @@ Questions: 10
 Suggested pass threshold: 8/10 after instructor review
 Review flag: Needs source review before use as mandatory training
 
-## 1. What should happen before work starts?
+## 1. For excavation and trenching, what should be confirmed before work starts?
 
-A. Wait until the end of shift.
-B. Assume the last plan still applies.
-C. Skip the briefing if the crew is experienced.
-D. Confirm hazards, controls, and supervision.
+A. Only the planned production target for the shift.
+B. That another crew used the area safely yesterday.
+C. That paperwork can be completed after the task.
+D. The task, location, affected workers, supervisor, and controls for cave-in.
 
 Answer: D
 
-Explanation: Confirm hazards, controls, and supervision. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: The task, location, affected workers, supervisor, and controls for cave-in. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 2. What is a stop-work trigger?
+## 2. Which condition is a stop-work trigger for excavation and trenching?
 
-A. A production target.
-B. A sign-off sheet only.
-C. A condition that means work should pause until the hazard is controlled.
-D. A tool storage label.
+A. The crew finishes orientation early.
+B. The task is familiar to experienced workers.
+C. Underground utilities is present and the planned control is missing, damaged, or unclear.
+D. The supervisor is in a meeting but can be called later.
 
 Answer: C
 
-Explanation: A condition that means work should pause until the hazard is controlled. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Underground utilities is present and the planned control is missing, damaged, or unclear. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 3. What should a worker do if they do not understand the control?
+## 3. What should a worker do if the excavation and trenching control is unclear?
 
-A. Ask the supervisor before starting or continuing.
-B. Continue slowly.
-C. Ask another trade to decide.
-D. Ignore the task.
+A. Stop and ask the supervisor before starting or continuing the task.
+B. Continue slowly and watch what other trades do.
+C. Wait until the end of shift to mention it.
+D. Choose any available PPE and keep working.
 
 Answer: A
 
-Explanation: Ask the supervisor before starting or continuing. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Stop and ask the supervisor before starting or continuing the task. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 4. Which evidence is most useful after a deficiency is found?
+## 4. Which field evidence is most useful for excavation and trenching follow-up?
 
-A. A verbal promise only.
-B. A deleted photo.
-C. No record.
-D. Assigned corrective action and closeout proof.
+A. A verbal promise that the issue is probably fixed.
+B. A photo with no location, date, or assigned action.
+C. No record because the hazard was corrected quickly.
+D. The inspection result, assigned corrective action, responsible person, due date, and closeout proof.
 
 Answer: D
 
-Explanation: Assigned corrective action and closeout proof. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: The inspection result, assigned corrective action, responsible person, due date, and closeout proof. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 5. What does 'needs human review' mean?
+## 5. Which source should be checked first before treating a excavation and trenching statement as a BC legal requirement?
 
-A. The content is official law.
-B. The page can be ignored.
-C. A qualified reviewer must verify current sources before publication/use as policy.
-D. The control is optional.
+A. A private manual from another province with no BC source link.
+B. A supplier advertisement or product brochure by itself.
+C. WorkSafeBC OHS Regulation Part 20, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant.
+D. A social media post from another jobsite.
 
 Answer: C
 
-Explanation: A qualified reviewer must verify current sources before publication/use as policy. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: WorkSafeBC OHS Regulation Part 20, then related WorkSafeBC guidance or Workers Compensation Act provisions where relevant. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 6. When should a procedure be updated?
+## 6. What needs review before assigning workers to excavation and trenching work?
 
-A. When site conditions, crew, tools, sequence, or source requirements change.
-B. Only once a year regardless of changes.
-C. Never after publication.
-D. Only after an injury.
+A. Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure.
+B. Only whether the worker is available today.
+C. Only whether the work was completed on a previous project.
+D. Only whether the worker brought basic PPE.
 
 Answer: A
 
-Explanation: When site conditions, crew, tools, sequence, or source requirements change. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Current source requirements, task instruction, competency, direct supervision needs, and site-specific procedure. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 7. Which source should be checked first for BC legal requirements?
+## 7. How should nearby workers or public areas be handled during excavation and trenching work?
 
-A. A private company manual from another province.
-B. A social media post.
-C. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
-D. A supplier advertisement.
+A. Assume people will stay away if the task looks risky.
+B. Warn nearby workers only after the work has started.
+C. Identify who could be exposed to mobile equipment and set barriers, communication, scheduling, or access controls before work starts.
+D. Rely on one sign without checking the actual work area.
 
 Answer: C
 
-Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Identify who could be exposed to mobile equipment and set barriers, communication, scheduling, or access controls before work starts. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 8. How should best practice be labelled?
+## 8. When should the excavation and trenching procedure or checklist be updated?
 
-A. As mandatory law without citation.
-B. Clearly separate from legal requirements.
-C. Only in verbal instructions.
-D. Hidden in the checklist.
+A. Only once each calendar year regardless of task changes.
+B. When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change.
+C. Only after an injury has already occurred.
+D. Never after the first reviewed version is printed.
 
 Answer: B
 
-Explanation: Clearly separate from legal requirements. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: When site conditions, tools, crew, sequence, weather, adjacent work, or source requirements change. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 9. What should be done with unsupported legal claims?
+## 9. How should best practice be labelled in excavation and trenching material?
 
-A. Publish as-is.
-B. Make them sound more confident.
-C. Copy text from an unknown manual.
-D. Remove, cite, or mark for human/source review.
+A. Label all advice as law to make workers take it seriously.
+B. Hide best practice inside the checklist without review.
+C. Remove source notes once the content sounds practical.
+D. Clearly separate best practice, sample procedure, field checklist, and legal requirement wording.
 
 Answer: D
 
-Explanation: Remove, cite, or mark for human/source review. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: Clearly separate best practice, sample procedure, field checklist, and legal requirement wording. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
-## 10. What is the safest answer when source access is missing?
+## 10. What does "needs source review" mean on this excavation and trenching quiz?
 
-A. Verified compliant.
-B. Needs verification against current WorkSafeBC/OHS source.
-C. No source needed.
-D. Legal requirement confirmed.
+A. The quiz is official proof of competency.
+B. A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training.
+C. No further review is needed because the answers are visible.
+D. The employer can ignore site-specific conditions.
 
 Answer: B
 
-Explanation: Needs verification against current WorkSafeBC/OHS source. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
+Explanation: A qualified reviewer still has to verify current WorkSafeBC/OHS sources before it is used as mandatory training. For excavation and trenching, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 
 ## Source/review note
