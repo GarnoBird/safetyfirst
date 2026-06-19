@@ -1885,25 +1885,10 @@ p {
   text-transform: lowercase;
 }
 
-.compact-signin-list-head,
 .compact-signin-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 82px 48px;
   align-items: center;
-}
-
-.compact-signin-list-head {
-  padding: 8px 18px;
-  color: #5a6864;
-  font-size: 0.67rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.compact-signin-list-head span:nth-child(2),
-.compact-signin-list-head span:nth-child(3) {
-  text-align: right;
 }
 
 .compact-signin-row {
@@ -2355,7 +2340,6 @@ p {
     width: 100%;
   }
 
-  .compact-signin-list-head,
   .compact-signin-row {
     grid-template-columns: minmax(0, 1fr) 76px 44px;
   }

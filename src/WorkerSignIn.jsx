@@ -1431,16 +1431,13 @@ function SortableStaffHeader({ activeDir, field, label, sort, onSort }) {
 }
 
 function CompactSignInList({ loading, rows, onSelect }) {
+  const signInLabel = rows.length === 1 ? "1 sign-in" : `${rows.length} sign-ins`;
+
   return (
     <section className="compact-signin-list" aria-label="Compact sign-in list">
       <div className="compact-signin-list-title">
-        <h2>Compact list</h2>
+        <h2>{signInLabel}</h2>
         <span>tap any row</span>
-      </div>
-      <div className="compact-signin-list-head">
-        <span>Person / company</span>
-        <span>Time</span>
-        <span>Status</span>
       </div>
       <div className="compact-signin-rows">
         {rows.map((row) => (
@@ -1454,7 +1451,7 @@ function CompactSignInList({ loading, rows, onSelect }) {
               <span className={row.signed_out_at ? "row-mark out" : "row-mark"} />
               <span>
                 <strong>{row.name}</strong>
-                <em>{row.company}</em>
+                <em>{row.trade}</em>
               </span>
             </div>
             <time>{formatCompactTime(row.signed_out_at || row.signed_in_at)}</time>
@@ -1496,12 +1493,12 @@ function SignInDetailsDialog({ row, onClose }) {
         </div>
         <dl className="signin-dialog-details">
           <div>
-            <dt>Company</dt>
-            <dd>{row.company}</dd>
-          </div>
-          <div>
             <dt>Trade</dt>
             <dd>{row.trade}</dd>
+          </div>
+          <div>
+            <dt>Company</dt>
+            <dd>{row.company}</dd>
           </div>
           <div>
             <dt>Phone</dt>
