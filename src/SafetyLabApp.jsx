@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import QRCode from "qrcode";
 import { safetyLabData } from "./safetyLabData.js";
+import { getSafetyPackById, safetyPacks, searchSafetyPacks } from "./safetyPacks.js";
+import { getArticleBySlug, getRegulationById, getSourceById } from "./wikiContent.js";
 
 const LAB_NAV = [
   { label: "Lab home", path: "/safety-lab" },
+  { label: "Safety pack", path: "/safety-lab/safety-pack" },
   { label: "Toolbox talks", path: "/safety-lab/toolbox-talks" },
   { label: "Flash quiz", path: "/safety-lab/flash-quiz" },
   { label: "Checklists", path: "/safety-lab/checklists" },
@@ -25,6 +29,8 @@ export default function SafetyLabApp({ routePath, navigateTo }) {
     switch (normalizedPath) {
       case "/safety-lab/toolbox-talks":
         return <ToolboxTalksTool />;
+      case "/safety-lab/safety-pack":
+        return <SafetyPackTool navigateTo={navigateWithinLab} />;
       case "/safety-lab/flash-quiz":
         return <FlashQuizTool />;
       case "/safety-lab/checklists":
@@ -77,6 +83,13 @@ export default function SafetyLabApp({ routePath, navigateTo }) {
 
 function SafetyLabHome({ navigateTo }) {
   const cards = [
+    {
+      title: "Safety Pack Generator",
+      path: "/safety-lab/safety-pack",
+      count: safetyPacks.length,
+      label: "packs",
+      text: "Type a job task and assemble a complete draft pack: wiki links, talk, checklist, quiz, forms, sources, print, and QR handoff.",
+    },
     {
       title: "Toolbox Talk Generator",
       path: "/safety-lab/toolbox-talks",
@@ -132,6 +145,283 @@ function SafetyLabHome({ navigateTo }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function SafetyPackTool({ navigateTo }) {
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(getInitialSafetyPackId);
+  const rankedPacks = useMemo(() => searchSafetyPacks(query), [query]);
+  const selectedPack =
+    rankedPacks.find((pack) => pack.id === selectedId) || rankedPacks[0] || safetyPacks[0];
+  const [qrDataUrl, setQrDataUrl] = useState("");
+
+  useEffect(() => {
+    if (!query.trim() || !rankedPacks[0]?.score) return;
+    setSelectedId(rankedPacks[0].id);
+  }, [query, rankedPacks]);
+
+  useEffect(() => {
+    if (!selectedPack) return;
+
+    let cancelled = false;
+    QRCode.toDataURL(packUrl(selectedPack.id), {
+      errorCorrectionLevel: "M",
+      margin: 1,
+      width: 220,
+    }).then((url) => {
+      if (!cancelled) setQrDataUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPack]);
+
+  const selectPack = (packId) => {
+    setSelectedId(packId);
+    navigateTo(`/safety-lab/safety-pack?pack=${encodeURIComponent(packId)}`);
+  };
+
+  return (
+    <section className="lab-screen">
+      <ToolHeader
+        title="Safety Pack Generator"
+        description="Type a job task and assemble a draft field pack from the local wiki, talks, checklists, quizzes, forms, and source notes."
+      />
+      <div className="lab-tool-layout">
+        <aside className="lab-picker">
+          <LabSearch
+            query={query}
+            setQuery={setQuery}
+            placeholder="Try cutting concrete, tie off, crane pick..."
+          />
+          <div className="lab-example-grid" aria-label="Demo searches">
+            {safetyPacks.slice(0, 6).map((pack) => (
+              <button type="button" key={pack.id} onClick={() => setQuery(pack.demoQuery)}>
+                {pack.demoQuery}
+              </button>
+            ))}
+          </div>
+          <ResultList
+            rows={rankedPacks}
+            selectedId={selectedPack?.id}
+            onSelect={selectPack}
+            meta={(pack) =>
+              pack.score
+                ? `Matched: ${pack.matchedTerms.join(", ")}`
+                : "Demo-ready source pack"
+            }
+          />
+        </aside>
+        {selectedPack ? (
+          <SafetyPackPreview
+            navigateTo={navigateTo}
+            pack={selectedPack}
+            qrDataUrl={qrDataUrl}
+            query={query}
+          />
+        ) : (
+          <EmptyTool />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
+  const articles = findByIds(pack.wikiSlugs, (slug) => getArticleBySlug(slug));
+  const talks = findByIds(pack.toolboxTalkIds, (id) =>
+    safetyLabData.toolboxTalks.find((talk) => talk.id === id),
+  );
+  const checklists = findByIds(pack.checklistIds, (id) =>
+    safetyLabData.checklists.find((checklist) => checklist.id === id),
+  );
+  const quizzes = findByIds(pack.quizIds, (id) =>
+    safetyLabData.quizzes.find((quiz) => quiz.id === id),
+  );
+  const forms = findByIds(pack.formIds, (id) =>
+    safetyLabData.forms.find((form) => form.id === id),
+  );
+  const primaryTalk = talks[0];
+  const primaryChecklist = checklists[0];
+  const primaryQuiz = quizzes[0];
+  const sourceLinks = officialLinksForArticles(articles);
+
+  return (
+    <article className="lab-preview lab-print-surface lab-pack-preview">
+      <div className="lab-preview-heading">
+        <div>
+          <p>Draft safety workflow pack</p>
+          <h3>{pack.title}</h3>
+        </div>
+        <div className="lab-button-row">
+          {primaryQuiz ? (
+            <button
+              type="button"
+              onClick={() => navigateTo(`/training-quiz/${primaryQuiz.id}`)}
+            >
+              Launch quiz
+            </button>
+          ) : null}
+          <button type="button" onClick={() => window.print()}>
+            Print safety pack
+          </button>
+        </div>
+      </div>
+
+      <div className="lab-pack-alert">
+        <strong>Offline-safe demo engine.</strong>
+        <span>
+          This pack was selected by local keyword matching against curated draft content. No
+          live AI/API call is used.
+        </span>
+      </div>
+
+      <dl className="lab-meta-list">
+        <div>
+          <dt>Pack</dt>
+          <dd>{pack.id}</dd>
+        </div>
+        <div>
+          <dt>Matched terms</dt>
+          <dd>{pack.matchedTerms?.length ? pack.matchedTerms.join(", ") : query ? "No strong match" : "Ready"}</dd>
+        </div>
+        <div>
+          <dt>Review</dt>
+          <dd>Needs human safety/source review</dd>
+        </div>
+      </dl>
+
+      <LabSection title="Scenario summary">
+        <p>{pack.scenario}</p>
+      </LabSection>
+
+      <LabSection title="Hazards">
+        <div className="lab-chip-list">
+          {pack.hazards.map((hazard) => (
+            <span key={hazard}>{hazard}</span>
+          ))}
+        </div>
+      </LabSection>
+
+      <LabSection title="Required documents">
+        <BulletList items={pack.requiredDocuments} />
+      </LabSection>
+
+      <LabSection title="Wiki and source links">
+        <div className="lab-link-grid">
+          {articles.map((article) => (
+            <a
+              href={`/wiki/articles/${article.slug}`}
+              key={article.slug}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo(`/wiki/articles/${article.slug}`);
+              }}
+            >
+              <strong>{article.title}</strong>
+              <span>{article.summary}</span>
+            </a>
+          ))}
+        </div>
+        {sourceLinks.length ? (
+          <ul className="lab-source-list">
+            {sourceLinks.map((source) => (
+              <li key={source.url}>
+                <a href={source.url} target="_blank" rel="noreferrer">
+                  {source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </LabSection>
+
+      {primaryTalk ? (
+        <LabSection title="Toolbox talk preview">
+          <div className="lab-pack-panel">
+            <h5>{primaryTalk.title}</h5>
+            <p>{primaryTalk.keyMessage}</p>
+            <BulletList items={primaryTalk.discussionPoints.slice(0, 4)} />
+          </div>
+          {talks.length > 1 ? (
+            <p className="lab-note">
+              Also included: {talks.slice(1).map((talk) => talk.title).join(", ")}
+            </p>
+          ) : null}
+        </LabSection>
+      ) : null}
+
+      {primaryChecklist ? (
+        <LabSection title="Checklist preview">
+          <div className="lab-checklist compact">
+            {primaryChecklist.items.slice(0, 7).map((item) => (
+              <label key={item}>
+                <input type="checkbox" readOnly />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+          {checklists.length > 1 ? (
+            <p className="lab-note">
+              Also included: {checklists.slice(1).map((checklist) => checklist.title).join(", ")}
+            </p>
+          ) : null}
+        </LabSection>
+      ) : null}
+
+      {primaryQuiz ? (
+        <LabSection title="Training quiz">
+          <div className="lab-pack-action">
+            <div>
+              <strong>{primaryQuiz.title}</strong>
+              <span>
+                {primaryQuiz.questions.length} questions. Practice only, not proof of
+                training or competency.
+              </span>
+            </div>
+            <button type="button" onClick={() => navigateTo(`/training-quiz/${primaryQuiz.id}`)}>
+              Open quiz
+            </button>
+          </div>
+        </LabSection>
+      ) : null}
+
+      <LabSection title="Form templates">
+        <div className="lab-form-pack-grid">
+          {forms.map((form) => (
+            <div className="lab-pack-panel" key={form.id}>
+              <h5>{form.title}</h5>
+              <p>{form.fields.slice(0, 5).join(", ")}</p>
+            </div>
+          ))}
+        </div>
+      </LabSection>
+
+      <LabSection title="Printable field output">
+        <BulletList items={pack.printableSections} />
+      </LabSection>
+
+      <LabSection title="QR crew handoff">
+        <div className="lab-qr-panel">
+          {qrDataUrl ? <img alt={`QR code for ${pack.title}`} src={qrDataUrl} /> : null}
+          <div>
+            <strong>Scan to open this draft pack</strong>
+            <span>{packUrl(pack.id)}</span>
+            {primaryQuiz ? (
+              <button type="button" onClick={() => navigateTo(`/training-quiz/${primaryQuiz.id}`)}>
+                Open crew quiz
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </LabSection>
+
+      <LabSection title="Source/review warning">
+        <p>{pack.reviewNotice}</p>
+      </LabSection>
+    </article>
   );
 }
 
@@ -594,6 +884,58 @@ function LabNotFound({ path, navigateTo }) {
       </button>
     </section>
   );
+}
+
+function getInitialSafetyPackId() {
+  if (typeof window === "undefined") return safetyPacks[0]?.id || "";
+  const packId = new URLSearchParams(window.location.search).get("pack");
+  return getSafetyPackById(packId)?.id || safetyPacks[0]?.id || "";
+}
+
+function packUrl(packId) {
+  if (typeof window === "undefined") return `/safety-lab/safety-pack?pack=${packId}`;
+  const prefix = window.location.pathname.startsWith("/safetyfirst") ? "/safetyfirst" : "";
+  return new URL(
+    `${prefix}/safety-lab/safety-pack?pack=${encodeURIComponent(packId)}`,
+    window.location.origin,
+  ).href;
+}
+
+function findByIds(ids, resolve) {
+  return ids.map(resolve).filter(Boolean);
+}
+
+function officialLinksForArticles(articles) {
+  const links = [];
+
+  for (const article of articles) {
+    for (const refId of article.regulationRefs || []) {
+      const ref = getRegulationById(refId);
+      if (ref) {
+        links.push({
+          label: `${ref.instrument} ${ref.part}: ${ref.title}`,
+          url: ref.url,
+        });
+      }
+    }
+
+    for (const sourceId of article.sourceIds || []) {
+      const source = getSourceById(sourceId);
+      if (source) {
+        links.push({
+          label: `${source.title} (${source.publisher})`,
+          url: source.url,
+        });
+      }
+    }
+  }
+
+  const seenUrls = new Set();
+  return links.filter((link) => {
+    if (seenUrls.has(link.url)) return false;
+    seenUrls.add(link.url);
+    return true;
+  });
 }
 
 function unique(items) {
