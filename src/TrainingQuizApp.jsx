@@ -56,10 +56,13 @@ export default function TrainingQuizApp({ routePath, navigateTo }) {
   };
 
   const selectAnswer = (letter) => {
-    setAnswers((current) => ({
-      ...current,
-      [currentQuestion.number]: letter,
-    }));
+    setAnswers((current) => {
+      if (current[currentQuestion.number]) return current;
+      return {
+        ...current,
+        [currentQuestion.number]: letter,
+      };
+    });
   };
 
   const resetProgress = () => {
@@ -169,6 +172,7 @@ export default function TrainingQuizApp({ routePath, navigateTo }) {
                         .join(" ")}
                       type="button"
                       key={choice.letter}
+                      disabled={hasAnswered}
                       onClick={() => selectAnswer(choice.letter)}
                     >
                       <b>{choice.letter}.</b>

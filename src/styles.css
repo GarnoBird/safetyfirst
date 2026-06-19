@@ -3619,6 +3619,11 @@ p {
   white-space: normal;
 }
 
+.quiz-choice-grid button:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
 .quiz-choice-grid button.selected {
   border-color: #46616d;
   background: #eef4f6;
