@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 
-const STATUS_FILTERS = [
-  { id: "all", label: "All" },
-  { id: "signedIn", label: "In" },
-  { id: "signedOut", label: "Out" },
-];
-
 const STAFF_SORT_LABELS = {
   company: "Company",
   name: "Name",
@@ -913,25 +907,15 @@ export function StaffSignInsPage({ navigateTo }) {
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
-  const [statusFilter, setStatusFilter] = useState("signedIn");
   const [search, setSearch] = useState("");
   const [selectedSignIn, setSelectedSignIn] = useState(null);
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const statusCounts = useMemo(
-    () => ({
-      all: records.rows.length,
-      signedIn: records.rows.filter(isSignedIn).length,
-      signedOut: records.rows.filter(isSignedOut).length,
-    }),
-    [records.rows],
-  );
-
   const visibleRows = useMemo(
-    () => filterRowsBySearch(filterRowsByStatus(records.rows, statusFilter), search),
-    [records.rows, search, statusFilter],
+    () => filterRowsBySearch(records.rows, search),
+    [records.rows, search],
   );
 
   const visibleGroups = useMemo(
@@ -1001,25 +985,37 @@ export function StaffSignInsPage({ navigateTo }) {
 
   return (
     <StaffShell active="sign-ins" contentWide navigateTo={navigateTo}>
-      <div className="staff-status-filters" aria-label="Sign-in status filter">
-        {STATUS_FILTERS.map((filter) => (
-          <button
-            className={
-              statusFilter === filter.id
-                ? "status-filter-chip active"
-                : "status-filter-chip"
-            }
-            key={filter.id}
-            type="button"
-            onClick={() => setStatusFilter(filter.id)}
-          >
-            <span>{filter.label}</span>
-            <strong>{statusCounts[filter.id]}</strong>
+      <section className="staff-toolbar staff-toolbar-desktop">
+        <label className="field">
+          <span>Date</span>
+          <input
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </label>
+        <label className="field">
+          <span>Group</span>
+          <select value={group} onChange={(event) => setGroup(event.target.value)}>
+            <option value="none">Grouping</option>
+            <option value="trade">Trade</option>
+            <option value="company">Company</option>
+          </select>
+        </label>
+        <div className="staff-actions staff-report-buttons">
+          <a className="staff-report-button" href={exportUrl("csv")}>
+            Export CSV
+          </a>
+          <a className="staff-report-button" href={exportUrl("xml")}>
+            Export XML
+          </a>
+          <button className="staff-report-button primary" type="button" onClick={emailReport}>
+            Email report
           </button>
-        ))}
-      </div>
+        </div>
+      </section>
 
-      <section className="staff-toolbar">
+      <section className="staff-toolbar staff-toolbar-mobile">
         <div className="field staff-date-field">
           <span>Date</span>
           <div className="staff-date-stepper">
@@ -1195,7 +1191,13 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
 
   return (
     <main className="staff-shell">
-      <div className="staff-mobile-menu">
+      <div
+        className={
+          contentWide
+            ? "staff-mobile-menu staff-mobile-menu-wide"
+            : "staff-mobile-menu"
+        }
+      >
         <button
           aria-expanded={mobileMenuOpen}
           className="staff-mobile-menu-trigger"
@@ -1667,12 +1669,6 @@ function isSignedIn(row) {
 
 function isSignedOut(row) {
   return Boolean(row.signed_out_at);
-}
-
-function filterRowsByStatus(rows, statusFilter) {
-  if (statusFilter === "signedIn") return rows.filter(isSignedIn);
-  if (statusFilter === "signedOut") return rows.filter(isSignedOut);
-  return rows;
 }
 
 function filterRowsBySearch(rows, search) {
