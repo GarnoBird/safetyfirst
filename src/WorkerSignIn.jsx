@@ -1005,11 +1005,7 @@ export function StaffSignInsPage({ navigateTo }) {
             >
               {"<"}
             </button>
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-            />
+            <span>{formatLongDate(date)}</span>
             <button
               aria-label="Next day"
               type="button"
@@ -1022,22 +1018,28 @@ export function StaffSignInsPage({ navigateTo }) {
         <label className="field">
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
-            <option value="none">No grouping</option>
+            <option value="none">Grouping</option>
             <option value="trade">Trade</option>
             <option value="company">Company</option>
           </select>
         </label>
-        <div className="staff-actions staff-report-actions">
-          <a className="staff-action-chip" href={exportUrl("csv")}>
-            CSV
-          </a>
-          <a className="staff-action-chip" href={exportUrl("xml")}>
-            XML
-          </a>
-          <button className="staff-action-chip" type="button" onClick={emailReport}>
-            Email Report
-          </button>
-        </div>
+        <details className="staff-export-menu">
+          <summary>Export</summary>
+          <div className="staff-export-menu-panel">
+            <a href={exportUrl("csv")}>
+              <strong>CSV</strong>
+              <span>Download spreadsheet</span>
+            </a>
+            <a href={exportUrl("xml")}>
+              <strong>XML</strong>
+              <span>Download XML file</span>
+            </a>
+            <button type="button" onClick={emailReport}>
+              <strong>Email Report</strong>
+              <span>Send this roster</span>
+            </button>
+          </div>
+        </details>
       </section>
 
       {message ? <p className="staff-message">{message}</p> : null}

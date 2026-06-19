@@ -1083,8 +1083,8 @@ p {
 
 .staff-toolbar {
   display: grid;
-  grid-template-columns: minmax(230px, 1fr) minmax(150px, 220px) minmax(250px, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   align-items: end;
   margin-bottom: 12px;
   padding: 12px;
@@ -1389,55 +1389,138 @@ p {
   justify-content: flex-end;
 }
 
-.staff-date-stepper {
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) 38px;
-  gap: 6px;
+.staff-toolbar > .field > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
 
-.staff-date-stepper input {
+.staff-date-stepper {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 22px;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.staff-date-stepper > span {
   min-width: 0;
+  overflow: hidden;
+  color: #17211f;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .staff-date-stepper button {
   min-height: 40px;
-  border-color: #d9e3de;
+  border: 0;
+  border-radius: 8px;
   padding: 0;
   color: #245f5b;
   font-size: 1rem;
   font-weight: 900;
-  background: #fff;
-}
-
-.staff-report-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  border: 0;
-  padding: 0;
   background: transparent;
 }
 
-.staff-action-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  border: 1px solid #d9e3de;
-  border-radius: 999px;
-  padding: 0 14px;
-  color: #34423f;
-  font-size: 0.78rem;
-  font-weight: 900;
-  text-align: center;
-  text-decoration: none;
-  background: rgba(255, 255, 255, 0.94);
+.staff-date-stepper button:hover {
+  border: 0;
+  background: #f2f6f4;
 }
 
-.staff-action-chip:hover {
+.staff-toolbar select,
+.staff-export-menu summary {
+  min-height: 44px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  color: #17211f;
+  font-weight: 800;
+  background-color: #fff;
+}
+
+.staff-export-menu {
+  position: relative;
+  min-width: 0;
+}
+
+.staff-export-menu summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14px;
+  gap: 8px;
+  align-items: center;
+  padding: 0 13px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.staff-export-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.staff-export-menu summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.staff-export-menu[open] summary {
   border-color: #245f5b;
-  color: #fff;
-  background: #245f5b;
+}
+
+.staff-export-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 25;
+  display: grid;
+  gap: 0;
+  width: min(240px, calc(100vw - 24px));
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgba(21, 35, 30, 0.14);
+}
+
+.staff-export-menu-panel a,
+.staff-export-menu-panel button {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #17211f;
+  text-align: left;
+  text-decoration: none;
+  background: #fff;
+}
+
+.staff-export-menu-panel a:hover,
+.staff-export-menu-panel button:hover {
+  border: 0;
+  background: #f2f6f4;
+}
+
+.staff-export-menu-panel strong {
+  font-size: 1.02rem;
+  line-height: 1;
+}
+
+.staff-export-menu-panel span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .staff-more-menu {
@@ -2161,7 +2244,7 @@ p {
   }
 
   .staff-toolbar {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     max-width: 720px;
   }
 
@@ -2259,7 +2342,8 @@ p {
   }
 
   .staff-toolbar {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
     padding: 10px;
   }
 
@@ -2345,6 +2429,20 @@ p {
   .staff-mobile-menu-trigger .brand-mark,
   .staff-mobile-menu-trigger strong {
     font-size: 0.96rem;
+  }
+
+  .staff-date-stepper {
+    grid-template-columns: 18px minmax(0, 1fr) 18px;
+  }
+
+  .staff-date-stepper > span,
+  .staff-toolbar select,
+  .staff-export-menu summary {
+    font-size: 0.78rem;
+  }
+
+  .staff-export-menu summary {
+    padding: 0 8px;
   }
 }
 
