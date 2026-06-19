@@ -48,6 +48,7 @@ const VIEWS = [
 ];
 
 const SafetyLabApp = lazy(() => import("./SafetyLabApp.jsx"));
+const TrainingQuizApp = lazy(() => import("./TrainingQuizApp.jsx"));
 
 export default function App() {
   const routePath = useRoutePath();
@@ -92,6 +93,14 @@ export default function App() {
     return (
       <Suspense fallback={<div className="route-loading">Loading Safety Lab...</div>}>
         <SafetyLabApp routePath={routePath} navigateTo={navigateTo} />
+      </Suspense>
+    );
+  }
+
+  if (routePath === "/training-quiz" || routePath.startsWith("/training-quiz/")) {
+    return (
+      <Suspense fallback={<div className="route-loading">Loading Training Quiz...</div>}>
+        <TrainingQuizApp routePath={routePath} navigateTo={navigateTo} />
       </Suspense>
     );
   }
