@@ -32,6 +32,8 @@ Change this password before using real production data.
 
 ## Routes
 
+- `/wiki`: public BC Construction Safety Wiki section with plain wiki-style styling.
+- `/wiki/articles/fall-protection`: example wiki article route.
 - `/worker-sign-in-qr`: QR poster page.
 - `/worker-sign-in`: public worker sign-in form.
 - `/worker-sign-out-qr`: QR poster page for worker sign-out.
@@ -44,3 +46,13 @@ Change this password before using real production data.
 ## Email Reports
 
 Auto Report sends once daily at 8:00 a.m. when sign-ins exist. Staff can edit the recipient, turn Auto Report on or off, choose CSV, XML, or both, and send a report immediately from Settings or Who's Here.
+
+## Wiki content validation
+
+```bash
+npm run validate:wiki
+```
+
+The wiki is isolated under `/wiki` and does not use the dashboard styling. The
+current prototype renders structured content from `src/wikiContent.js`; the
+planned long-term editorial structure is documented under `content/`.

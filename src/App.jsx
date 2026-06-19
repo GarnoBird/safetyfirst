@@ -22,6 +22,7 @@ import {
   WorkerSignOutPage,
   WorkerSignOutQr,
 } from "./WorkerSignIn.jsx";
+import WikiApp from "./WikiApp.jsx";
 import {
   csvFieldsFor,
   daysUntil,
@@ -79,6 +80,10 @@ export default function App() {
 
   if (routePath === "/staff/settings") {
     return <StaffSettingsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/wiki" || routePath.startsWith("/wiki/")) {
+    return <WikiApp routePath={routePath} navigateTo={navigateTo} />;
   }
 
   return <SafetyFirstApp navigateTo={navigateTo} />;
