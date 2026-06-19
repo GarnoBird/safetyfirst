@@ -758,7 +758,7 @@ export function StaffSettingsPage({ navigateTo }) {
         </SettingsSection>
 
         <SettingsSection
-          description="Choose where roster emails go, whether they send automatically, and which attachments are included."
+          description="Choose where roster emails go, whether Auto Report is on, and which attachments are included."
           title="Email Reports"
         >
           <label>
@@ -780,16 +780,14 @@ export function StaffSettingsPage({ navigateTo }) {
                 updateSetting("report_auto_enabled", event.target.checked)
               }
             />
-            <span>Send an automatic daily email report when sign-ins exist</span>
-          </label>
-          <label>
-            <span>Auto-report time</span>
-            <input
-              required
-              type="time"
-              value={settings.report_auto_time}
-              onChange={(event) => updateSetting("report_auto_time", event.target.value)}
-            />
+            <span>
+              <strong>Auto Report</strong>
+              <small>
+                {settings.report_auto_enabled
+                  ? "On - sends daily at 8:00 a.m. when sign-ins exist."
+                  : "Off - no daily automatic report."}
+              </small>
+            </span>
           </label>
           <label>
             <span>Email attachment format</span>

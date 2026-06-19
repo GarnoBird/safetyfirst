@@ -1246,6 +1246,17 @@ p {
   background: #f7faf9;
 }
 
+.settings-checkbox span {
+  display: grid;
+  gap: 2px;
+}
+
+.settings-checkbox small {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
 .settings-checkbox input {
   width: 18px;
   height: 18px;

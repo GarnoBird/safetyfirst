@@ -43,4 +43,4 @@ Change this password before using real production data.
 
 ## Email Reports
 
-The current Vercel Hobby deploy runs the automatic report check once daily at 15:00 UTC. Staff can edit the recipient, turn auto-reports on or off, and choose CSV, XML, or both. The preferred auto-report time is saved in settings, but arbitrary delivery times require Vercel Pro cron frequency or an external scheduler that calls `/api/cron/morning-report` more than once per day.
+Auto Report sends once daily at 8:00 a.m. when sign-ins exist. Staff can edit the recipient, turn Auto Report on or off, choose CSV, XML, or both, and send a report immediately from Settings or Who's Here.
