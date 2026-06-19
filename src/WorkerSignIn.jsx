@@ -1169,13 +1169,7 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
 
   return (
     <main className="staff-shell">
-      <button
-        className="brand-mark staff-settings-link"
-        type="button"
-        onClick={() => navigateTo("/staff/settings")}
-      >
-        {"<- SETTINGS"}
-      </button>
+      <div className="brand-mark staff-shell-brand">APPIA</div>
       <nav className="staff-nav-actions" aria-label="Staff navigation">
         {STAFF_NAV_ITEMS.map((item) => (
           <button

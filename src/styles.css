@@ -900,22 +900,12 @@ p {
     linear-gradient(180deg, #fbfcfa, #f5f8f2);
 }
 
-.staff-settings-link {
+.staff-shell-brand {
   display: flex;
   justify-content: flex-start;
   width: min(100%, 960px);
   max-width: 960px;
   margin: 0 auto 12px;
-  min-height: 0;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: transparent;
-}
-
-.staff-settings-link:hover {
-  border: 0;
-  background: transparent;
 }
 
 .staff-nav-actions {
