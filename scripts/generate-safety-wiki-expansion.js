@@ -603,6 +603,12 @@ Last generated: ${today}
 - Any statement that a written plan, permit, rescue service, engineered document, or specific training card is legally required.
 - Any emergency/medical instruction beyond calling 911, activating site first aid, and following trained first aid/AED procedures.
 
+## Verification commands
+
+- npm run verify:wiki-expansion
+- npm run validate:wiki
+- npm run build
+
 ## Recommended next phase
 
 1. Assign a qualified BC safety reviewer to the high-risk topics: fall protection, confined spaces, excavation, silica, cranes/rigging, lockout, electrical, first aid, and emergency response.
