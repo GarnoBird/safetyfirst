@@ -900,16 +900,11 @@ p {
     linear-gradient(180deg, #fbfcfa, #f5f8f2);
 }
 
-.staff-shell-brand {
-  display: flex;
-  justify-content: flex-start;
-  width: min(100%, 960px);
-  max-width: 960px;
-  margin: 0 auto 12px;
-}
-
 .staff-mobile-menu {
-  display: none;
+  position: relative;
+  display: block;
+  width: min(100%, 960px);
+  margin: 0 auto 18px;
 }
 
 .staff-mobile-menu-trigger {
@@ -985,35 +980,6 @@ p {
   background: #245f5b;
 }
 
-.staff-nav-actions {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  width: min(100%, 960px);
-  max-width: 960px;
-  margin: 0 auto 18px;
-}
-
-.staff-quiet-button {
-  min-height: 40px;
-  min-width: 0;
-  border-color: #e0e7e3;
-  color: #34423f;
-  padding: 0 14px;
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.staff-quiet-button:hover {
-  border-color: #b8c8c2;
-  background: #fff;
-}
-
-.staff-quiet-button.active {
-  border-color: #245f5b;
-  color: #fff;
-  background: #245f5b;
-}
-
 .staff-content {
   max-width: 960px;
   margin: 0 auto;
@@ -1023,7 +989,6 @@ p {
   max-width: 1440px;
 }
 
-.staff-content-wide .staff-scorebar,
 .staff-content-wide .staff-toolbar,
 .staff-content-wide .staff-table-panel {
   max-width: none;
@@ -1048,37 +1013,6 @@ p {
   border-radius: 8px;
   background: #fff;
   box-shadow: none;
-}
-
-.staff-scorebar {
-  display: grid;
-  grid-template-columns: repeat(3, max-content);
-  gap: 12px;
-  align-items: center;
-  max-width: 720px;
-  margin: 0 auto 12px;
-  border: 1px solid #d9e3de;
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.staff-scorebar div {
-  display: inline-flex;
-  gap: 8px;
-  align-items: baseline;
-}
-
-.staff-scorebar strong {
-  color: #111715;
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.staff-scorebar span {
-  color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 700;
 }
 
 .staff-toolbar {
@@ -1409,7 +1343,16 @@ p {
   background: #fff;
 }
 
-.staff-date-stepper > span {
+.staff-date-picker {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  cursor: pointer;
+}
+
+.staff-date-picker > span {
   min-width: 0;
   overflow: hidden;
   color: #17211f;
@@ -1418,6 +1361,24 @@ p {
   text-align: center;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.staff-date-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.staff-date-picker:focus-within {
+  border-radius: 6px;
+  outline: 3px solid rgba(43, 122, 120, 0.24);
+  outline-offset: -2px;
 }
 
 .staff-date-stepper button {
@@ -1683,6 +1644,7 @@ p {
   display: flex;
   flex-wrap: nowrap;
   gap: 0;
+  margin-bottom: 12px;
   border: 1px solid #d9e3de;
   border-radius: 999px;
   padding: 4px;
@@ -2253,20 +2215,9 @@ p {
     flex-wrap: wrap;
   }
 
-  .staff-shell-brand,
-  .staff-nav-actions {
-    display: none;
-  }
-
   .staff-mobile-menu {
-    position: relative;
-    display: block;
     width: min(100%, 720px);
     margin: 0 auto 16px;
-  }
-
-  .staff-scorebar {
-    display: none;
   }
 
   .staff-toolbar {
@@ -2461,7 +2412,7 @@ p {
     grid-template-columns: 22px minmax(0, 1fr) 22px;
   }
 
-  .staff-date-stepper > span,
+  .staff-date-picker > span,
   .staff-toolbar select,
   .staff-export-menu summary {
     font-size: 0.82rem;

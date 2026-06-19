@@ -16,12 +16,6 @@ const STAFF_SORT_LABELS = {
   trade: "Trade",
 };
 
-const STAFF_NAV_ITEMS = [
-  { id: "home", label: "Home", path: "/staff/home" },
-  { id: "sign-ins", label: "Who's Here", path: "/staff/sign-ins" },
-  { id: "settings", label: "Settings", path: "/staff/settings" },
-];
-
 const STAFF_MOBILE_NAV_ITEMS = [
   { id: "home", label: "HOME", path: "/staff/home" },
   { id: "sign-ins", label: "ON SITE", path: "/staff/sign-ins" },
@@ -488,6 +482,7 @@ export function StaffHomePage({ navigateTo }) {
   const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
   const [records, setRecords] = useState({ rows: [] });
   const [loading, setLoading] = useState(true);
+  const [emailing, setEmailing] = useState(false);
   const [message, setMessage] = useState("");
 
   const counts = useMemo(
@@ -527,6 +522,33 @@ export function StaffHomePage({ navigateTo }) {
       active = false;
     };
   }, [staff, today]);
+
+  const emailTodayReport = async () => {
+    setEmailing(true);
+    setMessage("");
+
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/signins/email-report", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ date: today, format: "both" }),
+        }),
+      );
+      setMessage(
+        payload.skipped
+          ? "No rows to email for today."
+          : `Report emailed to ${
+              payload.recipientEmail || settings.report_recipient_email
+            }.`,
+      );
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setEmailing(false);
+    }
+  };
 
   if (!staff) return <StaffLoadingScreen />;
 
@@ -569,14 +591,14 @@ export function StaffHomePage({ navigateTo }) {
 
         <StaffActionCard
           eyebrow="Today"
-          text={`Email today's worker sign-ins to ${settings.report_recipient_email}.`}
-          title="Email Reports"
+          text={`Exports today's worker sign-ins as CSV, XML, or emails both files to ${settings.report_recipient_email}.`}
+          title="Export Reports"
         >
           <div className="staff-card-actions">
             <a href={staffExportUrl(today, "csv")}>CSV</a>
             <a href={staffExportUrl(today, "xml")}>XML</a>
-            <button type="button" onClick={() => navigateTo("/staff/sign-ins")}>
-              Email
+            <button disabled={emailing} type="button" onClick={emailTodayReport}>
+              {emailing ? "Emailing..." : "Email"}
             </button>
           </div>
         </StaffActionCard>
@@ -958,7 +980,7 @@ export function StaffSignInsPage({ navigateTo }) {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ date }),
+      body: JSON.stringify({ date, format: "both" }),
     });
     const payload = await response.json();
     if (!response.ok) {
@@ -979,20 +1001,23 @@ export function StaffSignInsPage({ navigateTo }) {
 
   return (
     <StaffShell active="sign-ins" contentWide navigateTo={navigateTo}>
-      <section className="staff-scorebar" aria-label="Daily sign-in summary">
-        <div>
-          <strong>{statusCounts.signedIn}</strong>
-          <span>On site</span>
-        </div>
-        <div>
-          <strong>{statusCounts.signedOut}</strong>
-          <span>Out</span>
-        </div>
-        <div>
-          <strong>{statusCounts.all}</strong>
-          <span>Total</span>
-        </div>
-      </section>
+      <div className="staff-status-filters" aria-label="Sign-in status filter">
+        {STATUS_FILTERS.map((filter) => (
+          <button
+            className={
+              statusFilter === filter.id
+                ? "status-filter-chip active"
+                : "status-filter-chip"
+            }
+            key={filter.id}
+            type="button"
+            onClick={() => setStatusFilter(filter.id)}
+          >
+            <span>{filter.label}</span>
+            <strong>{statusCounts[filter.id]}</strong>
+          </button>
+        ))}
+      </div>
 
       <section className="staff-toolbar">
         <div className="field staff-date-field">
@@ -1005,7 +1030,15 @@ export function StaffSignInsPage({ navigateTo }) {
             >
               {"<"}
             </button>
-            <span>{formatLongDate(date)}</span>
+            <label className="staff-date-picker">
+              <span>{formatLongDate(date)}</span>
+              <input
+                aria-label="Choose date"
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
             <button
               aria-label="Next day"
               type="button"
@@ -1018,7 +1051,7 @@ export function StaffSignInsPage({ navigateTo }) {
         <label className="field staff-group-field">
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
-            <option value="none">No grouping</option>
+            <option value="none">Grouping</option>
             <option value="trade">Trade</option>
             <option value="company">Company</option>
           </select>
@@ -1045,23 +1078,6 @@ export function StaffSignInsPage({ navigateTo }) {
       {message ? <p className="staff-message">{message}</p> : null}
 
       <section className="staff-table-panel">
-        <div className="staff-status-filters" aria-label="Sign-in status filter">
-          {STATUS_FILTERS.map((filter) => (
-            <button
-              className={
-                statusFilter === filter.id
-                  ? "status-filter-chip active"
-                  : "status-filter-chip"
-              }
-              key={filter.id}
-              type="button"
-              onClick={() => setStatusFilter(filter.id)}
-            >
-              <span>{filter.label}</span>
-              <strong>{statusCounts[filter.id]}</strong>
-            </button>
-          ))}
-        </div>
         <div className="staff-list-controls">
           <label className="staff-search-field">
             <span>Search people</span>
@@ -1179,7 +1195,6 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
 
   return (
     <main className="staff-shell">
-      <div className="brand-mark staff-shell-brand">APPIA</div>
       <div className="staff-mobile-menu">
         <button
           aria-expanded={mobileMenuOpen}
@@ -1220,25 +1235,6 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
           </div>
         ) : null}
       </div>
-      <nav className="staff-nav-actions" aria-label="Staff navigation">
-        {STAFF_NAV_ITEMS.map((item) => (
-          <button
-            className={
-              active === item.id
-                ? "staff-quiet-button active"
-                : "staff-quiet-button"
-            }
-            key={item.id}
-            type="button"
-            onClick={() => navigateTo(item.path)}
-          >
-            {item.label}
-          </button>
-        ))}
-        <button className="staff-quiet-button" type="button" onClick={logout}>
-          Logout
-        </button>
-      </nav>
       <div className={contentWide ? "staff-content staff-content-wide" : "staff-content"}>
         {children}
       </div>
