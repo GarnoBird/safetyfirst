@@ -986,9 +986,6 @@ export function StaffSignInsPage({ navigateTo }) {
           <strong>{statusCounts.all}</strong>
           <span>Total</span>
         </div>
-        <button type="button" onClick={() => setStatusFilter("signedIn")}>
-          Roll call
-        </button>
       </section>
 
       <section className="staff-toolbar">
