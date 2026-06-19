@@ -3602,6 +3602,57 @@ p {
     repeating-linear-gradient(90deg, rgba(31, 55, 49, 0.08) 0, rgba(31, 55, 49, 0.08) 1px, transparent 1px, transparent 32px);
 }
 
+.lab-scan-preview {
+  display: grid;
+  gap: 14px;
+}
+
+.lab-scan-explainer,
+.lab-scan-detail {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #c9b46d;
+  border-left: 5px solid #9b7a18;
+  border-radius: 8px;
+  padding: 12px;
+  color: #3f3310;
+  background: #fff8da;
+}
+
+.lab-scan-explainer p,
+.lab-scan-scenario,
+.lab-scan-detail span,
+.lab-scan-detail p,
+.lab-scan-workflow span {
+  color: #52615c;
+}
+
+.lab-scan-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lab-scan-summary div {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #d8dfdc;
+  border-radius: 8px;
+  padding: 11px;
+  background: #f8faf8;
+}
+
+.lab-scan-summary strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.lab-scan-summary span {
+  color: #52615c;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
 .lab-scan-lane,
 .lab-scan-zone {
   position: absolute;
@@ -3685,10 +3736,48 @@ p {
   border-color: #386c82;
 }
 
+.lab-scan-marker.active {
+  z-index: 2;
+  outline: 4px solid rgba(31, 55, 49, 0.2);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
 .lab-scan-marker span {
   color: #52615c;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.lab-scan-detail {
+  border-color: #c8d0cc;
+  border-left-color: #1f3731;
+  color: #17211f;
+  background: #ffffff;
+}
+
+.lab-scan-detail h4 {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+}
+
+.lab-scan-workflow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lab-scan-workflow section {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #d8dfdc;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f8faf8;
+}
+
+.lab-scan-workflow ul {
+  margin: 0;
+  padding-left: 1.15rem;
 }
 
 .lab-crew-shell {
@@ -3765,7 +3854,9 @@ p {
   .lab-risk-grid,
   .lab-investor-grid,
   .lab-metric-strip,
-  .lab-compare-grid {
+  .lab-compare-grid,
+  .lab-scan-summary,
+  .lab-scan-workflow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -3787,7 +3878,9 @@ p {
   .lab-risk-grid,
   .lab-investor-grid,
   .lab-metric-strip,
-  .lab-compare-grid {
+  .lab-compare-grid,
+  .lab-scan-summary,
+  .lab-scan-workflow {
     grid-template-columns: 1fr;
   }
 

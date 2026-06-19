@@ -496,6 +496,20 @@ function SafetyPackPreview({ navigateTo, pack, comparisonPacks, qrDataUrl, query
 function SiteScanTool({ navigateTo }) {
   const [selectedId, setSelectedId] = useState(getInitialSiteScanId);
   const sample = siteScanSamples.find((item) => item.id === selectedId) || siteScanSamples[0];
+  const [selectedDetectionId, setSelectedDetectionId] = useState(sample.simulatedDetections[0]?.id || "");
+  const selectedDetection =
+    sample.simulatedDetections.find((detection) => detection.id === selectedDetectionId) ||
+    sample.simulatedDetections[0];
+  const selectedPack = getSafetyPackById(selectedDetection?.packId) || getSafetyPackById(sample.packId);
+  const selectedContent = selectedPack ? getPackContent(selectedPack) : null;
+  const severityCounts = topCounts(sample.simulatedDetections, "severity");
+  const criticalCount = sample.simulatedDetections.filter((detection) =>
+    ["Critical", "High"].includes(detection.severity),
+  ).length;
+
+  useEffect(() => {
+    setSelectedDetectionId(sample.simulatedDetections[0]?.id || "");
+  }, [sample.id]);
 
   const openPack = (packId) => {
     navigateTo(`/safety-lab/safety-pack?pack=${encodeURIComponent(packId)}`);
@@ -528,25 +542,54 @@ function SiteScanTool({ navigateTo }) {
               ...detection,
               title: detection.label,
             }))}
-            selectedId=""
-            onSelect={(detectionId) => {
-              const detection = sample.simulatedDetections.find((item) => item.id === detectionId);
-              if (detection) openPack(detection.packId);
-            }}
+            selectedId={selectedDetection?.id}
+            onSelect={setSelectedDetectionId}
             meta={(detection) => `${detection.severity}: ${detection.note}`}
           />
         </aside>
-        <article className="lab-preview">
+        <article className="lab-preview lab-scan-preview">
           <div className="lab-preview-heading">
             <div>
               <p>{sample.location}</p>
               <h3>{sample.title}</h3>
             </div>
-            <button type="button" onClick={() => openPack(sample.packId)}>
-              Open primary pack
-            </button>
+            <div className="lab-button-row">
+              <button type="button" onClick={() => openPack(sample.packId)}>
+                Open primary pack
+              </button>
+              {selectedPack ? (
+                <button type="button" onClick={() => navigateTo(`/safety-lab/crew-mode?pack=${selectedPack.id}`)}>
+                  Crew handoff
+                </button>
+              ) : null}
+            </div>
           </div>
-          <p>{sample.scenario}</p>
+          <div className="lab-scan-explainer">
+            <strong>What this is showing</strong>
+            <p>
+              Site Scan is a demo of the product workflow: a future photo/video scan would
+              flag visible hazard patterns, rank them, and connect each one to the right
+              safety pack. This prototype uses hand-authored sample scenes so the demo is
+              reliable and does not pretend to inspect real photos.
+            </p>
+          </div>
+          <div className="lab-scan-summary">
+            <div>
+              <strong>{sample.simulatedDetections.length}</strong>
+              <span>simulated detections</span>
+            </div>
+            <div>
+              <strong>{criticalCount}</strong>
+              <span>high / critical</span>
+            </div>
+            {severityCounts.map((item) => (
+              <div key={item.label}>
+                <strong>{item.count}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="lab-scan-scenario">{sample.scenario}</p>
           <div className="lab-scan-stage" aria-label={`${sample.title} simulated site scan`}>
             <div className="lab-scan-lane horizontal" />
             <div className="lab-scan-lane vertical" />
@@ -555,18 +598,62 @@ function SiteScanTool({ navigateTo }) {
             <div className="lab-scan-zone zone-c">Public edge</div>
             {sample.simulatedDetections.map((detection) => (
               <button
-                className={`lab-scan-marker severity-${slugifyClass(detection.severity)}`}
+                className={[
+                  "lab-scan-marker",
+                  `severity-${slugifyClass(detection.severity)}`,
+                  detection.id === selectedDetection?.id ? "active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 key={detection.id}
                 style={{ left: `${detection.x}%`, top: `${detection.y}%` }}
                 type="button"
-                onClick={() => openPack(detection.packId)}
+                onClick={() => setSelectedDetectionId(detection.id)}
               >
                 <strong>{detection.label}</strong>
                 <span>{detection.severity}</span>
               </button>
             ))}
           </div>
-          <LabSection title="Detection notes">
+          {selectedDetection && selectedPack ? (
+            <div className="lab-scan-detail">
+              <div>
+                <p>{selectedDetection.severity} priority</p>
+                <h4>{selectedDetection.label}</h4>
+                <span>{selectedDetection.note}</span>
+              </div>
+              <div className="lab-scan-workflow">
+                <section>
+                  <strong>Recommended pack</strong>
+                  <span>{selectedPack.title}</span>
+                </section>
+                <section>
+                  <strong>Next field actions</strong>
+                  <ul>
+                    {selectedPack.printableSections.slice(0, 3).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+                <section>
+                  <strong>Workflow assets</strong>
+                  <span>
+                    {selectedContent?.talks.length || 0} talks, {selectedContent?.checklists.length || 0} checklists,{" "}
+                    {selectedContent?.quizzes.length || 0} quizzes, {selectedContent?.forms.length || 0} forms
+                  </span>
+                </section>
+              </div>
+              <div className="lab-button-row">
+                <button type="button" onClick={() => openPack(selectedPack.id)}>
+                  Open safety pack
+                </button>
+                <button type="button" onClick={() => navigateTo(`/safety-lab/risk-map`)}>
+                  View risk map
+                </button>
+              </div>
+            </div>
+          ) : null}
+          <LabSection title="All detection notes">
             <BulletList items={sample.simulatedDetections.map((detection) => `${detection.label}: ${detection.note}`)} />
           </LabSection>
         </article>
