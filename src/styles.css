@@ -1083,12 +1083,14 @@ p {
 
 .staff-toolbar {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
   gap: 10px;
   align-items: end;
   margin-bottom: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.88);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .staff-home-grid {
@@ -1399,9 +1401,9 @@ p {
 
 .staff-date-stepper {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 22px;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
   align-items: center;
-  min-height: 44px;
+  min-height: 50px;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   background: #fff;
@@ -1411,6 +1413,7 @@ p {
   min-width: 0;
   overflow: hidden;
   color: #17211f;
+  font-size: 1rem;
   font-weight: 800;
   text-align: center;
   white-space: nowrap;
@@ -1418,12 +1421,12 @@ p {
 }
 
 .staff-date-stepper button {
-  min-height: 40px;
+  min-height: 48px;
   border: 0;
   border-radius: 8px;
   padding: 0;
   color: #245f5b;
-  font-size: 1rem;
+  font-size: 1.12rem;
   font-weight: 900;
   background: transparent;
 }
@@ -1435,12 +1438,35 @@ p {
 
 .staff-toolbar select,
 .staff-export-menu summary {
-  min-height: 44px;
+  min-height: 50px;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   color: #17211f;
+  font-size: 1rem;
   font-weight: 800;
   background-color: #fff;
+}
+
+.staff-group-field {
+  position: relative;
+}
+
+.staff-group-field select {
+  appearance: none;
+  padding-right: 34px;
+}
+
+.staff-group-field::after {
+  content: "";
+  position: absolute;
+  right: 15px;
+  bottom: 20px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  pointer-events: none;
+  transform: rotate(45deg);
 }
 
 .staff-export-menu {
@@ -1453,7 +1479,7 @@ p {
   grid-template-columns: minmax(0, 1fr) 14px;
   gap: 8px;
   align-items: center;
-  padding: 0 13px;
+  padding: 0 18px;
   list-style: none;
   cursor: pointer;
 }
@@ -2244,7 +2270,7 @@ p {
   }
 
   .staff-toolbar {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
     max-width: 720px;
   }
 
@@ -2342,9 +2368,9 @@ p {
   }
 
   .staff-toolbar {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
     gap: 8px;
-    padding: 10px;
+    padding: 0;
   }
 
   .staff-list-controls {
@@ -2432,17 +2458,21 @@ p {
   }
 
   .staff-date-stepper {
-    grid-template-columns: 18px minmax(0, 1fr) 18px;
+    grid-template-columns: 22px minmax(0, 1fr) 22px;
   }
 
   .staff-date-stepper > span,
   .staff-toolbar select,
   .staff-export-menu summary {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
   }
 
   .staff-export-menu summary {
     padding: 0 8px;
+  }
+
+  .staff-group-field::after {
+    right: 10px;
   }
 }
 

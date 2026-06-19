@@ -1015,10 +1015,10 @@ export function StaffSignInsPage({ navigateTo }) {
             </button>
           </div>
         </div>
-        <label className="field">
+        <label className="field staff-group-field">
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
-            <option value="none">Grouping</option>
+            <option value="none">No grouping</option>
             <option value="trade">Trade</option>
             <option value="company">Company</option>
           </select>
