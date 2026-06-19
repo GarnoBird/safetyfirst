@@ -1376,6 +1376,7 @@ p {
 }
 
 .staff-date-stepper {
+  position: relative;
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 28px;
   align-items: center;
@@ -1392,6 +1393,7 @@ p {
   min-width: 0;
   height: 100%;
   cursor: pointer;
+  z-index: 1;
 }
 
 .staff-date-picker > span {
@@ -1424,6 +1426,8 @@ p {
 }
 
 .staff-date-stepper button {
+  position: relative;
+  z-index: 3;
   min-height: 37px;
   border: 0;
   border-radius: 8px;
