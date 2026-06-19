@@ -34,8 +34,12 @@ Change this password before using real production data.
 
 - `/worker-sign-in-qr`: QR poster page.
 - `/worker-sign-in`: public worker sign-in form.
+- `/worker-sign-out-qr`: QR poster page for worker sign-out.
+- `/worker-sign-out`: public worker sign-out confirmation.
 - `/staff-login`: staff login.
-- `/staff/sign-ins`: staff sign-in records, grouping, export, and manual email report.
+- `/staff/home`: staff landing page with roster counts, QR links, reports, and settings access.
+- `/staff/sign-ins`: staff "Who's Here" records, grouping, export, and manual email report.
+- `/staff/settings`: staff-only site settings, report details, reminder placeholder, and privacy notes.
 
 ## Reports
 

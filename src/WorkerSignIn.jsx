@@ -7,6 +7,28 @@ const STATUS_FILTERS = [
   { id: "signedOut", label: "Out" },
 ];
 
+const STAFF_NAV_ITEMS = [
+  { id: "home", label: "Home", path: "/staff/home" },
+  { id: "sign-ins", label: "Who's Here", path: "/staff/sign-ins" },
+  { id: "settings", label: "Settings", path: "/staff/settings" },
+];
+
+const DEFAULT_SITE_SETTINGS = {
+  site_name: "Safety First",
+  site_location: "Vancouver condo tower site",
+  timezone: "America/Vancouver",
+  signout_cutoff_time: "16:30",
+  signout_reminders_enabled: false,
+  signout_reminder_message:
+    "Hello {{name}}, APPIA records show you are still signed in on site today. If you have left site, please sign out here: {{signout_link}}. If you are still on site, no action is needed.",
+};
+
+const DEFAULT_SYSTEM_STATUS = {
+  database: "checking",
+  email: "checking",
+  sms: "not connected",
+};
+
 const OTHER_TRADE = "Other";
 const WORKER_TRADE_OPTIONS = [
   "General contractor",
@@ -398,7 +420,7 @@ export function StaffLoginPage({ navigateTo }) {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Login failed.");
-      navigateTo("/staff/sign-ins");
+      navigateTo("/staff/home");
     } catch (loginError) {
       setError(loginError.message);
     } finally {
@@ -441,8 +463,350 @@ export function StaffLoginPage({ navigateTo }) {
   );
 }
 
+export function StaffHomePage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const today = useMemo(todayInVancouver, []);
+  const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
+  const [records, setRecords] = useState({ rows: [] });
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const counts = useMemo(
+    () => ({
+      all: records.rows.length,
+      signedIn: records.rows.filter(isSignedIn).length,
+      signedOut: records.rows.filter(isSignedOut).length,
+    }),
+    [records.rows],
+  );
+
+  useEffect(() => {
+    if (!staff) return;
+    let active = true;
+    setLoading(true);
+    setMessage("");
+
+    Promise.all([
+      fetch(`/api/staff/signins?${new URLSearchParams({ date: today })}`, {
+        credentials: "include",
+      }).then(readApiJson),
+      fetch("/api/staff/settings", { credentials: "include" }).then(readApiJson),
+    ])
+      .then(([signIns, settingsPayload]) => {
+        if (!active) return;
+        setRecords({ rows: signIns.rows || [] });
+        setSettings(settingsPayload.settings || DEFAULT_SITE_SETTINGS);
+      })
+      .catch((error) => {
+        if (active) setMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [staff, today]);
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell
+      active="home"
+      navigateTo={navigateTo}
+      staff={staff}
+      subtitle={`${settings.site_name} | ${formatLongDate(today)}`}
+      title="Staff Home"
+    >
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-home-grid" aria-label="Staff home actions">
+        <StaffActionCard
+          actionLabel="Open roster"
+          eyebrow="Live roster"
+          text={
+            loading
+              ? "Loading today's worker sign-ins."
+              : `${counts.signedIn} on site, ${counts.signedOut} signed out, ${counts.all} total today.`
+          }
+          title="Who's Here"
+          onAction={() => navigateTo("/staff/sign-ins")}
+        >
+          <div className="staff-mini-metrics">
+            <span><strong>{counts.signedIn}</strong> On site</span>
+            <span><strong>{counts.signedOut}</strong> Out</span>
+            <span><strong>{counts.all}</strong> Total</span>
+          </div>
+        </StaffActionCard>
+
+        <StaffActionCard
+          eyebrow="Worker links"
+          text="Open clean sign-in and sign-out QR pages for printing or tablet display."
+          title="QR Posters"
+        >
+          <div className="staff-card-actions">
+            <button type="button" onClick={() => navigateTo("/worker-sign-in-qr")}>
+              Sign-In QR
+            </button>
+            <button type="button" onClick={() => navigateTo("/worker-sign-out-qr")}>
+              Sign-Out QR
+            </button>
+          </div>
+        </StaffActionCard>
+
+        <StaffActionCard
+          eyebrow="Today"
+          text="Export today's worker sign-in records or open the roster to email the daily report."
+          title="Reports"
+        >
+          <div className="staff-card-actions">
+            <a href={staffExportUrl(today, "csv")}>CSV</a>
+            <a href={staffExportUrl(today, "xml")}>XML</a>
+            <button type="button" onClick={() => navigateTo("/staff/sign-ins")}>
+              Email
+            </button>
+          </div>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open settings"
+          eyebrow="Setup"
+          text="Review site identity, QR links, report delivery, reminder copy, and privacy notes."
+          title="Settings"
+          onAction={() => navigateTo("/staff/settings")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Site</dt>
+              <dd>{settings.site_location}</dd>
+            </div>
+            <div>
+              <dt>Reminder SMS</dt>
+              <dd>Not connected</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+      </section>
+    </StaffShell>
+  );
+}
+
+export function StaffSettingsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
+  const [system, setSystem] = useState(DEFAULT_SYSTEM_STATUS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!staff) return;
+    let active = true;
+    setLoading(true);
+    setMessage("");
+
+    fetch("/api/staff/settings", { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (!active) return;
+        setSettings(payload.settings || DEFAULT_SITE_SETTINGS);
+        setSystem(payload.system || DEFAULT_SYSTEM_STATUS);
+      })
+      .catch((error) => {
+        if (active) setMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [staff]);
+
+  const updateSetting = (field, value) => {
+    setSettings((current) => ({ ...current, [field]: value }));
+  };
+
+  const saveSettings = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/settings", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(settings),
+        }),
+      );
+      setSettings(payload.settings || DEFAULT_SITE_SETTINGS);
+      setSystem(payload.system || DEFAULT_SYSTEM_STATUS);
+      setMessage("Settings saved.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell
+      active="settings"
+      navigateTo={navigateTo}
+      staff={staff}
+      subtitle="Site, reports, reminders, and privacy"
+      title="Settings"
+    >
+      {message ? <p className="staff-message">{message}</p> : null}
+      <form className="staff-settings-grid" onSubmit={saveSettings}>
+        <SettingsSection
+          description="Basic jobsite identity shown around the staff area."
+          title="Site"
+        >
+          <label>
+            <span>Site display name</span>
+            <input
+              required
+              value={settings.site_name}
+              onChange={(event) => updateSetting("site_name", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Location label</span>
+            <input
+              required
+              value={settings.site_location}
+              onChange={(event) => updateSetting("site_location", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Timezone</span>
+            <input
+              required
+              value={settings.timezone}
+              onChange={(event) => updateSetting("timezone", event.target.value)}
+            />
+          </label>
+        </SettingsSection>
+
+        <SettingsSection
+          description="Public worker links and the notice workers should understand."
+          title="Worker Sign-In"
+        >
+          <div className="settings-link-row">
+            <span>Sign-in link</span>
+            <a href="/worker-sign-in">{publicUrl("/worker-sign-in")}</a>
+          </div>
+          <div className="settings-link-row">
+            <span>Sign-out link</span>
+            <a href="/worker-sign-out">{publicUrl("/worker-sign-out")}</a>
+          </div>
+          <div className="staff-card-actions">
+            <button type="button" onClick={() => navigateTo("/worker-sign-in-qr")}>
+              Sign-In QR
+            </button>
+            <button type="button" onClick={() => navigateTo("/worker-sign-out-qr")}>
+              Sign-Out QR
+            </button>
+          </div>
+          <p className="settings-note">
+            Phone numbers are used for site sign-in records and sign-out reminders only.
+          </p>
+        </SettingsSection>
+
+        <SettingsSection
+          description="Daily report delivery and export formats."
+          title="Reports"
+        >
+          <dl className="settings-detail-list">
+            <div>
+              <dt>Report recipient</dt>
+              <dd>{staff.email}</dd>
+            </div>
+            <div>
+              <dt>Auto-report schedule</dt>
+              <dd>8:00 a.m. Vancouver time when sign-ins exist.</dd>
+            </div>
+            <div>
+              <dt>Exports</dt>
+              <dd>CSV and XML are available from Who's Here.</dd>
+            </div>
+          </dl>
+        </SettingsSection>
+
+        <SettingsSection
+          description="SMS is planned, but not connected in this build."
+          title="Sign-Out Reminders"
+        >
+          <div className="settings-status-line">
+            <span>SMS provider</span>
+            <strong>Not connected</strong>
+          </div>
+          <label>
+            <span>Cutoff time</span>
+            <input
+              required
+              type="time"
+              value={settings.signout_cutoff_time}
+              onChange={(event) =>
+                updateSetting("signout_cutoff_time", event.target.value)
+              }
+            />
+          </label>
+          <label>
+            <span>Reminder message</span>
+            <textarea
+              required
+              rows="5"
+              value={settings.signout_reminder_message}
+              onChange={(event) =>
+                updateSetting("signout_reminder_message", event.target.value)
+              }
+            />
+          </label>
+          <div className="settings-preview">
+            <span>Preview</span>
+            <p>{previewReminderMessage(settings.signout_reminder_message)}</p>
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          description="Current guardrails for worker records."
+          title="Data & Privacy"
+        >
+          <ul className="settings-list">
+            <li>No medical information or private first aid details.</li>
+            <li>Worker phone numbers are personal information and stay staff-only.</li>
+            <li>Records are kept for safe keeping until a retention policy is added.</li>
+            <li>CSV and XML export are available to staff users.</li>
+          </ul>
+        </SettingsSection>
+
+        <SettingsSection description="Current service connection status." title="System">
+          <div className="system-status-grid">
+            <SystemStatus label="Database" value={system.database} />
+            <SystemStatus label="Email" value={system.email} />
+            <SystemStatus label="SMS" value={system.sms} />
+          </div>
+        </SettingsSection>
+
+        <div className="staff-settings-save">
+          <button className="primary-button" disabled={loading || saving} type="submit">
+            {saving ? "Saving..." : "Save settings"}
+          </button>
+        </div>
+      </form>
+    </StaffShell>
+  );
+}
+
 export function StaffSignInsPage({ navigateTo }) {
-  const [staff, setStaff] = useState(null);
+  const { staff } = useStaffSession(navigateTo);
   const [date, setDate] = useState(todayInVancouver());
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
@@ -472,20 +836,6 @@ export function StaffSignInsPage({ navigateTo }) {
     () => groupSignInRows(visibleRows, group),
     [group, visibleRows],
   );
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/me", { credentials: "include" })
-      .then(async (response) => {
-        const payload = await response.json();
-        if (!response.ok) throw new Error("login_required");
-        if (active) setStaff(payload.staff);
-      })
-      .catch(() => navigateTo("/staff-login"));
-    return () => {
-      active = false;
-    };
-  }, [navigateTo]);
 
   useEffect(() => {
     if (!staff) return;
@@ -545,22 +895,17 @@ export function StaffSignInsPage({ navigateTo }) {
   const exportUrl = (format) =>
     `/api/staff/signins/export?${new URLSearchParams({ date, format })}`;
 
+  if (!staff) return <StaffLoadingScreen />;
+
   return (
-    <main className="staff-shell">
-      <header className="staff-header">
-        <div>
-          <button
-            className="brand-mark staff-settings-link"
-            type="button"
-            onClick={() => navigateTo("/")}
-          >
-            {"<- SETTINGS"}
-          </button>
-          <h1>Who's on site</h1>
-          <p>Site roster | {formatLongDate(date)}</p>
-        </div>
-        <span className="staff-live-pill">Live</span>
-      </header>
+    <StaffShell
+      active="sign-ins"
+      badge="Live"
+      navigateTo={navigateTo}
+      staff={staff}
+      subtitle={`Site roster | ${formatLongDate(date)}`}
+      title="Who's Here"
+    >
 
       <section className="staff-scorebar" aria-label="Daily sign-in summary">
         <div>
@@ -705,6 +1050,113 @@ export function StaffSignInsPage({ navigateTo }) {
           onClose={() => setSelectedSignIn(null)}
         />
       ) : null}
+    </StaffShell>
+  );
+}
+
+function StaffShell({
+  active,
+  badge = "Staff",
+  children,
+  navigateTo,
+  staff,
+  subtitle,
+  title,
+}) {
+  const logout = async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    navigateTo("/staff-login");
+  };
+
+  return (
+    <main className="staff-shell">
+      <header className="staff-header">
+        <div>
+          <div className="staff-kicker">
+            <span className="brand-mark">APPIA</span>
+            <span>{staff.username} | {staff.email}</span>
+          </div>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
+        <div className="staff-nav-block">
+          <span className="staff-live-pill">{badge}</span>
+          <nav className="staff-nav-actions" aria-label="Staff navigation">
+            {STAFF_NAV_ITEMS.map((item) => (
+              <button
+                className={
+                  active === item.id
+                    ? "staff-quiet-button active"
+                    : "staff-quiet-button"
+                }
+                key={item.id}
+                type="button"
+                onClick={() => navigateTo(item.path)}
+              >
+                {item.label}
+              </button>
+            ))}
+            <button className="staff-quiet-button" type="button" onClick={logout}>
+              Logout
+            </button>
+          </nav>
+        </div>
+      </header>
+      <div className="staff-content">{children}</div>
+    </main>
+  );
+}
+
+function StaffActionCard({ actionLabel, children, eyebrow, onAction, text, title }) {
+  return (
+    <article className="staff-action-card">
+      <div>
+        <p>{eyebrow}</p>
+        <h2>{title}</h2>
+        <span>{text}</span>
+      </div>
+      {children}
+      {actionLabel ? (
+        <button className="primary-button" type="button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      ) : null}
+    </article>
+  );
+}
+
+function SettingsSection({ children, description, title }) {
+  return (
+    <section className="settings-section">
+      <div className="settings-section-heading">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      <div className="settings-section-body">{children}</div>
+    </section>
+  );
+}
+
+function SystemStatus({ label, value }) {
+  const connected = ["connected", "configured"].includes(String(value).toLowerCase());
+  return (
+    <div className={connected ? "system-status connected" : "system-status"}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function StaffLoadingScreen() {
+  return (
+    <main className="staff-shell">
+      <section className="staff-loading-card">
+        <div className="brand-mark">APPIA</div>
+        <p>Loading staff area...</p>
+      </section>
     </main>
   );
 }
@@ -804,6 +1256,51 @@ function SignInDetailsDialog({ row, onClose }) {
       </section>
     </div>
   );
+}
+
+function useStaffSession(navigateTo) {
+  const [staff, setStaff] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (active) setStaff(payload.staff);
+      })
+      .catch(() => {
+        if (active) navigateTo("/staff-login");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [navigateTo]);
+
+  return { staff };
+}
+
+async function readApiJson(response) {
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error || "The server could not complete the request.");
+  }
+  return payload;
+}
+
+function staffExportUrl(date, format) {
+  return `/api/staff/signins/export?${new URLSearchParams({ date, format })}`;
+}
+
+function publicUrl(path) {
+  if (typeof window === "undefined") return path;
+  return new URL(path, window.location.origin).href;
+}
+
+function previewReminderMessage(template) {
+  return String(template || "")
+    .replaceAll("{{name}}", "Garnet")
+    .replaceAll("{{signout_link}}", publicUrl("/worker-sign-out"));
 }
 
 function todayInVancouver() {
