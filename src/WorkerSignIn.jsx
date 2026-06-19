@@ -12,7 +12,7 @@ const SORTABLE_FIELDS = [
 
 const STATUS_FILTERS = [
   { id: "all", label: "All" },
-  { id: "signedIn", label: "Currently signed in" },
+  { id: "signedIn", label: "On site" },
   { id: "signedOut", label: "Signed out" },
 ];
 
@@ -457,6 +457,7 @@ export function StaffSignInsPage({ navigateTo }) {
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
   const [statusFilter, setStatusFilter] = useState("signedIn");
+  const [search, setSearch] = useState("");
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -471,8 +472,8 @@ export function StaffSignInsPage({ navigateTo }) {
   );
 
   const visibleRows = useMemo(
-    () => filterRowsByStatus(records.rows, statusFilter),
-    [records.rows, statusFilter],
+    () => filterRowsBySearch(filterRowsByStatus(records.rows, statusFilter), search),
+    [records.rows, search, statusFilter],
   );
 
   const visibleGroups = useMemo(
@@ -519,15 +520,6 @@ export function StaffSignInsPage({ navigateTo }) {
     };
   }, [date, dir, group, sort, staff]);
 
-  const changeSort = (field) => {
-    if (field === sort) {
-      setDir((current) => (current === "asc" ? "desc" : "asc"));
-      return;
-    }
-    setSort(field);
-    setDir("asc");
-  };
-
   const changeSortOption = (value) => {
     const [field, direction] = value.split(":");
     setSort(field);
@@ -571,8 +563,9 @@ export function StaffSignInsPage({ navigateTo }) {
         <div>
           <div className="brand-mark">APPIA</div>
           <h1>Who's on site</h1>
-          {staff ? <p>{staff.username} | {staff.email}</p> : null}
+          <p>Site roster | {formatLongDate(date)}</p>
         </div>
+        <span className="staff-live-pill">Live</span>
         <div className="button-row staff-nav-actions">
           <button
             className="staff-quiet-button"
@@ -586,6 +579,24 @@ export function StaffSignInsPage({ navigateTo }) {
           </button>
         </div>
       </header>
+
+      <section className="staff-scorebar" aria-label="Daily sign-in summary">
+        <div>
+          <strong>{statusCounts.signedIn}</strong>
+          <span>On site</span>
+        </div>
+        <div>
+          <strong>{statusCounts.signedOut}</strong>
+          <span>Out</span>
+        </div>
+        <div>
+          <strong>{statusCounts.all}</strong>
+          <span>Total</span>
+        </div>
+        <button type="button" onClick={() => setStatusFilter("signedIn")}>
+          Roll call
+        </button>
+      </section>
 
       <section className="staff-toolbar">
         <label className="field">
@@ -625,28 +636,6 @@ export function StaffSignInsPage({ navigateTo }) {
       {message ? <p className="staff-message">{message}</p> : null}
 
       <section className="staff-table-panel">
-        <div className="staff-table-heading">
-          <strong>{loading ? "Loading..." : `${visibleRows.length} sign-ins`}</strong>
-          <span className="staff-sort-summary">Sort: {sortLabel(sort)} {dir}</span>
-          <label className="staff-mobile-sort">
-            <span>Sort</span>
-            <select
-              value={`${sort}:${dir}`}
-              onChange={(event) => changeSortOption(event.target.value)}
-            >
-              <option value="signed_in_at:asc">Signed in asc</option>
-              <option value="signed_in_at:desc">Signed in desc</option>
-              <option value="signed_out_at:asc">Signed out asc</option>
-              <option value="signed_out_at:desc">Signed out desc</option>
-              <option value="name:asc">Name asc</option>
-              <option value="name:desc">Name desc</option>
-              <option value="company:asc">Company asc</option>
-              <option value="company:desc">Company desc</option>
-              <option value="trade:asc">Trade asc</option>
-              <option value="trade:desc">Trade desc</option>
-            </select>
-          </label>
-        </div>
         <div className="staff-status-filters" aria-label="Sign-in status filter">
           {STATUS_FILTERS.map((filter) => (
             <button
@@ -664,24 +653,43 @@ export function StaffSignInsPage({ navigateTo }) {
             </button>
           ))}
         </div>
+        <div className="staff-list-controls">
+          <label className="staff-search-field">
+            <span>Search people</span>
+            <input
+              placeholder="Search people"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          <label className="staff-sort-select">
+            <span>Sort</span>
+            <select
+              value={`${sort}:${dir}`}
+              onChange={(event) => changeSortOption(event.target.value)}
+            >
+              <option value="signed_in_at:asc">Time ↑</option>
+              <option value="signed_in_at:desc">Time ↓</option>
+              <option value="signed_out_at:asc">Out time ↑</option>
+              <option value="signed_out_at:desc">Out time ↓</option>
+              <option value="name:asc">Name A-Z</option>
+              <option value="name:desc">Name Z-A</option>
+              <option value="company:asc">Company A-Z</option>
+              <option value="company:desc">Company Z-A</option>
+              <option value="trade:asc">Trade A-Z</option>
+              <option value="trade:desc">Trade Z-A</option>
+            </select>
+          </label>
+        </div>
         {group === "none" ? (
-          <SignInsTable
-            dir={dir}
-            rows={visibleRows}
-            sort={sort}
-            onSort={changeSort}
-          />
+          <CompactSignInList loading={loading} rows={visibleRows} />
         ) : (
           <div className="grouped-signins">
             {visibleGroups.map((section) => (
               <section className="signin-group" key={section.label}>
                 <h2>{section.label} <span>{section.count}</span></h2>
-                <SignInsTable
-                  dir={dir}
-                  rows={section.items}
-                  sort={sort}
-                  onSort={changeSort}
-                />
+                <CompactSignInList loading={loading} rows={section.items} />
               </section>
             ))}
             {!visibleGroups.length && !loading ? (
@@ -694,112 +702,43 @@ export function StaffSignInsPage({ navigateTo }) {
   );
 }
 
-function SignInsTable({ rows, sort, dir, onSort }) {
+function CompactSignInList({ loading, rows }) {
   return (
-    <>
-      <div className="table-scroll staff-table-scroll">
-        <table className="staff-table">
-          <thead>
-            <tr>
-              {SORTABLE_FIELDS.map((column) => (
-                <th
-                  key={column.field}
-                  aria-sort={sortAriaValue(column.field, sort, dir)}
-                >
-                  <div className="staff-sort-header">
-                    <span>{column.label}</span>
-                    <button
-                      aria-label={`Sort by ${column.label}`}
-                      aria-pressed={sort === column.field}
-                      className={
-                        sort === column.field
-                          ? "sort-chip sort-chip-active"
-                          : "sort-chip"
-                      }
-                      type="button"
-                      onClick={() => onSort(column.field)}
-                    >
-                      {sort === column.field ? dir.toUpperCase() : "Sort"}
-                    </button>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.name}</td>
-                <td>{formatPhoneNumber(row.phone)}</td>
-                <td>{row.trade}</td>
-                <td>{row.company}</td>
-                <td>{formatDateTime(row.signed_in_at)}</td>
-                <td>
-                  {row.signed_out_at ? (
-                    <div className="signin-status-cell">
-                      <span className="signin-status-badge signed-out">
-                        Signed out
-                      </span>
-                      <span>{formatDateTime(row.signed_out_at)}</span>
-                    </div>
-                  ) : (
-                    <span className="signin-status-badge signed-in">
-                      Signed in
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {!rows.length ? (
-              <tr>
-                <td colSpan={SORTABLE_FIELDS.length}>No sign-ins for this date.</td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
+    <section className="compact-signin-list" aria-label="Compact sign-in list">
+      <div className="compact-signin-list-title">
+        <h2>Compact list</h2>
+        <span>tap any row</span>
       </div>
-      <SignInCards rows={rows} />
-    </>
-  );
-}
-
-function SignInCards({ rows }) {
-  if (!rows.length) {
-    return <p className="empty-state staff-card-empty">No sign-ins for this date.</p>;
-  }
-
-  return (
-    <div className="staff-card-list">
-      {rows.map((row) => (
-        <article className="staff-signin-card" key={row.id}>
-          <div className="staff-signin-card-header">
-            <h3>{row.name}</h3>
-            {row.signed_out_at ? (
-              <span className="signin-status-badge signed-out">Signed out</span>
-            ) : (
-              <span className="signin-status-badge signed-in">Signed in</span>
-            )}
-          </div>
-          <p className="staff-signin-company">{row.company}</p>
-          <div className="staff-signin-meta">
-            <span>{row.trade}</span>
-            <a href={`tel:${phoneHref(row.phone)}`}>{formatPhoneNumber(row.phone)}</a>
-          </div>
-          <dl className="staff-signin-times">
-            <div>
-              <dt>Signed in</dt>
-              <dd>{formatDateTime(row.signed_in_at)}</dd>
+      <div className="compact-signin-list-head">
+        <span>Person / company</span>
+        <span>Time</span>
+        <span>Status</span>
+      </div>
+      <div className="compact-signin-rows">
+        {rows.map((row) => (
+          <article className="compact-signin-row" key={row.id}>
+            <div className="compact-person">
+              <span className={row.signed_out_at ? "row-mark out" : "row-mark"} />
+              <span>
+                <strong>{row.name}</strong>
+                <em>{row.company}</em>
+              </span>
             </div>
+            <time>{formatCompactTime(row.signed_out_at || row.signed_in_at)}</time>
             {row.signed_out_at ? (
-              <div>
-                <dt>Signed out</dt>
-                <dd>{formatDateTime(row.signed_out_at)}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </article>
-      ))}
-    </div>
+              <span className="compact-status out">Out</span>
+            ) : (
+              <span className="compact-status in">In</span>
+            )}
+          </article>
+        ))}
+        {!rows.length ? (
+          <p className="empty-state compact-empty">
+            {loading ? "Loading..." : "No sign-ins for this view."}
+          </p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
@@ -812,11 +751,31 @@ function todayInVancouver() {
   }).format(new Date());
 }
 
+function formatLongDate(value) {
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/Vancouver",
+  }).format(new Date(`${year}-${month}-${day}T12:00:00-08:00`));
+}
+
 function formatDateTime(value) {
   if (!value) return "";
   return new Intl.DateTimeFormat("en-CA", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "America/Vancouver",
+  }).format(new Date(value));
+}
+
+function formatCompactTime(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
     timeZone: "America/Vancouver",
   }).format(new Date(value));
 }
@@ -857,10 +816,6 @@ function formatPhoneNumber(value) {
   return raw;
 }
 
-function phoneHref(value) {
-  return String(value || "").replace(/[^\d+]/g, "");
-}
-
 function isSignedIn(row) {
   return !row.signed_out_at;
 }
@@ -873,6 +828,16 @@ function filterRowsByStatus(rows, statusFilter) {
   if (statusFilter === "signedIn") return rows.filter(isSignedIn);
   if (statusFilter === "signedOut") return rows.filter(isSignedOut);
   return rows;
+}
+
+function filterRowsBySearch(rows, search) {
+  const query = search.trim().toLowerCase();
+  if (!query) return rows;
+  return rows.filter((row) =>
+    [row.name, row.company, row.trade, row.phone]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query)),
+  );
 }
 
 function groupSignInRows(rows, group) {
@@ -890,9 +855,4 @@ function groupSignInRows(rows, group) {
 
 function sortLabel(field) {
   return SORTABLE_FIELDS.find((item) => item.field === field)?.label || field;
-}
-
-function sortAriaValue(field, sort, dir) {
-  if (field !== sort) return "none";
-  return dir === "asc" ? "ascending" : "descending";
 }
