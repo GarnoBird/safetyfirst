@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
+import { demoScenarios, riskMapRecords, siteScanSamples } from "./demoScenarios.js";
 import { safetyLabData } from "./safetyLabData.js";
 import { getSafetyPackById, safetyPacks, searchSafetyPacks } from "./safetyPacks.js";
 import { getArticleBySlug, getRegulationById, getSourceById } from "./wikiContent.js";
@@ -7,6 +8,10 @@ import { getArticleBySlug, getRegulationById, getSourceById } from "./wikiConten
 const LAB_NAV = [
   { label: "Lab home", path: "/safety-lab" },
   { label: "Safety pack", path: "/safety-lab/safety-pack" },
+  { label: "Site scan", path: "/safety-lab/site-scan" },
+  { label: "Risk map", path: "/safety-lab/risk-map" },
+  { label: "Crew mode", path: "/safety-lab/crew-mode" },
+  { label: "Metrics", path: "/safety-lab/investor-metrics" },
   { label: "Toolbox talks", path: "/safety-lab/toolbox-talks" },
   { label: "Flash quiz", path: "/safety-lab/flash-quiz" },
   { label: "Checklists", path: "/safety-lab/checklists" },
@@ -31,6 +36,14 @@ export default function SafetyLabApp({ routePath, navigateTo }) {
         return <ToolboxTalksTool />;
       case "/safety-lab/safety-pack":
         return <SafetyPackTool navigateTo={navigateWithinLab} />;
+      case "/safety-lab/site-scan":
+        return <SiteScanTool navigateTo={navigateWithinLab} />;
+      case "/safety-lab/risk-map":
+        return <RiskMapTool navigateTo={navigateWithinLab} />;
+      case "/safety-lab/crew-mode":
+        return <CrewModeTool navigateTo={navigateWithinLab} />;
+      case "/safety-lab/investor-metrics":
+        return <InvestorMetricsTool navigateTo={navigateWithinLab} />;
       case "/safety-lab/flash-quiz":
         return <FlashQuizTool />;
       case "/safety-lab/checklists":
@@ -89,6 +102,34 @@ function SafetyLabHome({ navigateTo }) {
       count: safetyPacks.length,
       label: "packs",
       text: "Type a job task and assemble a complete draft pack: wiki links, talk, checklist, quiz, forms, sources, print, and QR handoff.",
+    },
+    {
+      title: "Simulated Site Scan",
+      path: "/safety-lab/site-scan",
+      count: siteScanSamples.length,
+      label: "scans",
+      text: "Select a sample jobsite scene, click simulated hazard detections, and open the matching safety pack.",
+    },
+    {
+      title: "Risk Map",
+      path: "/safety-lab/risk-map",
+      count: riskMapRecords.length,
+      label: "risks",
+      text: "Group demo risks by area, trade, hazard, and urgency, then jump into the source-aware workflow.",
+    },
+    {
+      title: "Crew Mode",
+      path: "/safety-lab/crew-mode",
+      count: 3,
+      label: "actions",
+      text: "Mobile-first worker handoff with a talk, mini quiz, checklist, and visible review warning.",
+    },
+    {
+      title: "Investor Metrics",
+      path: "/safety-lab/investor-metrics",
+      count: demoScenarios.length,
+      label: "scenarios",
+      text: "Demo-only metrics for hazard coverage, documents assembled, source links, and review backlog.",
     },
     {
       title: "Toolbox Talk Generator",
@@ -165,7 +206,7 @@ function SafetyPackTool({ navigateTo }) {
     if (!selectedPack) return;
 
     let cancelled = false;
-    QRCode.toDataURL(packUrl(selectedPack.id), {
+    QRCode.toDataURL(crewModeUrl(selectedPack.id), {
       errorCorrectionLevel: "M",
       margin: 1,
       width: 220,
@@ -218,6 +259,7 @@ function SafetyPackTool({ navigateTo }) {
           <SafetyPackPreview
             navigateTo={navigateTo}
             pack={selectedPack}
+            comparisonPacks={rankedPacks.slice(0, 3)}
             qrDataUrl={qrDataUrl}
             query={query}
           />
@@ -229,7 +271,7 @@ function SafetyPackTool({ navigateTo }) {
   );
 }
 
-function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
+function SafetyPackPreview({ navigateTo, pack, comparisonPacks, qrDataUrl, query }) {
   const articles = findByIds(pack.wikiSlugs, (slug) => getArticleBySlug(slug));
   const talks = findByIds(pack.toolboxTalkIds, (id) =>
     safetyLabData.toolboxTalks.find((talk) => talk.id === id),
@@ -267,7 +309,17 @@ function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
           <button type="button" onClick={() => window.print()}>
             Print safety pack
           </button>
+          <button type="button" onClick={() => window.print()}>
+            Export demo packet
+          </button>
         </div>
+      </div>
+
+      <div className="lab-export-cover">
+        <p>Demo packet cover</p>
+        <strong>{pack.title}</strong>
+        <span>{pack.scenario}</span>
+        <span>Draft / needs human safety and source review / not legal advice</span>
       </div>
 
       <div className="lab-pack-alert">
@@ -307,6 +359,22 @@ function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
 
       <LabSection title="Required documents">
         <BulletList items={pack.requiredDocuments} />
+      </LabSection>
+
+      <LabSection title="Why this matched">
+        <div className="lab-compare-grid">
+          {comparisonPacks.map((candidate) => (
+            <div className={candidate.id === pack.id ? "active" : ""} key={candidate.id}>
+              <strong>{candidate.title}</strong>
+              <span>
+                {candidate.score
+                  ? `Score ${candidate.score}: ${candidate.matchedTerms.join(", ")}`
+                  : "Available source pack"}
+              </span>
+              <small>Confidence: demo match, needs source review</small>
+            </div>
+          ))}
+        </div>
       </LabSection>
 
       <LabSection title="Wiki and source links">
@@ -407,11 +475,11 @@ function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
         <div className="lab-qr-panel">
           {qrDataUrl ? <img alt={`QR code for ${pack.title}`} src={qrDataUrl} /> : null}
           <div>
-            <strong>Scan to open this draft pack</strong>
-            <span>{packUrl(pack.id)}</span>
+            <strong>Scan to open crew mode</strong>
+            <span>{crewModeUrl(pack.id)}</span>
             {primaryQuiz ? (
-              <button type="button" onClick={() => navigateTo(`/training-quiz/${primaryQuiz.id}`)}>
-                Open crew quiz
+              <button type="button" onClick={() => navigateTo(`/safety-lab/crew-mode?pack=${pack.id}`)}>
+                Open crew mode
               </button>
             ) : null}
           </div>
@@ -422,6 +490,330 @@ function SafetyPackPreview({ navigateTo, pack, qrDataUrl, query }) {
         <p>{pack.reviewNotice}</p>
       </LabSection>
     </article>
+  );
+}
+
+function SiteScanTool({ navigateTo }) {
+  const [selectedId, setSelectedId] = useState(getInitialSiteScanId);
+  const sample = siteScanSamples.find((item) => item.id === selectedId) || siteScanSamples[0];
+
+  const openPack = (packId) => {
+    navigateTo(`/safety-lab/safety-pack?pack=${encodeURIComponent(packId)}`);
+  };
+
+  return (
+    <section className="lab-screen">
+      <ToolHeader
+        title="Simulated Site Scan"
+        description="Select a sample jobsite scene and click simulated hazard detections that route into source-aware safety packs."
+      />
+      <div className="lab-tool-layout">
+        <aside className="lab-picker">
+          <label className="lab-field">
+            <span>Sample scene</span>
+            <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+              {siteScanSamples.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="lab-pack-alert">
+            <strong>Simulated demo intelligence.</strong>
+            <span>This is not live computer vision and does not inspect real photos.</span>
+          </div>
+          <ResultList
+            rows={sample.simulatedDetections.map((detection) => ({
+              ...detection,
+              title: detection.label,
+            }))}
+            selectedId=""
+            onSelect={(detectionId) => {
+              const detection = sample.simulatedDetections.find((item) => item.id === detectionId);
+              if (detection) openPack(detection.packId);
+            }}
+            meta={(detection) => `${detection.severity}: ${detection.note}`}
+          />
+        </aside>
+        <article className="lab-preview">
+          <div className="lab-preview-heading">
+            <div>
+              <p>{sample.location}</p>
+              <h3>{sample.title}</h3>
+            </div>
+            <button type="button" onClick={() => openPack(sample.packId)}>
+              Open primary pack
+            </button>
+          </div>
+          <p>{sample.scenario}</p>
+          <div className="lab-scan-stage" aria-label={`${sample.title} simulated site scan`}>
+            <div className="lab-scan-lane horizontal" />
+            <div className="lab-scan-lane vertical" />
+            <div className="lab-scan-zone zone-a">Work zone</div>
+            <div className="lab-scan-zone zone-b">Access route</div>
+            <div className="lab-scan-zone zone-c">Public edge</div>
+            {sample.simulatedDetections.map((detection) => (
+              <button
+                className={`lab-scan-marker severity-${slugifyClass(detection.severity)}`}
+                key={detection.id}
+                style={{ left: `${detection.x}%`, top: `${detection.y}%` }}
+                type="button"
+                onClick={() => openPack(detection.packId)}
+              >
+                <strong>{detection.label}</strong>
+                <span>{detection.severity}</span>
+              </button>
+            ))}
+          </div>
+          <LabSection title="Detection notes">
+            <BulletList items={sample.simulatedDetections.map((detection) => `${detection.label}: ${detection.note}`)} />
+          </LabSection>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function RiskMapTool({ navigateTo }) {
+  const [area, setArea] = useState("All");
+  const [trade, setTrade] = useState("All");
+  const [hazard, setHazard] = useState("All");
+  const [urgency, setUrgency] = useState("All");
+
+  const filtered = riskMapRecords.filter((record) => {
+    return (
+      (area === "All" || record.area === area) &&
+      (trade === "All" || record.trade === trade) &&
+      (hazard === "All" || record.hazard === hazard) &&
+      (urgency === "All" || record.urgency === urgency)
+    );
+  });
+  const urgencyCounts = topCounts(riskMapRecords, "urgency");
+
+  return (
+    <section className="lab-screen">
+      <ToolHeader
+        title="Risk Map"
+        description="Demo-only risk records grouped by area, trade, hazard, and urgency with links back to packs and source content."
+      />
+      <div className="lab-risk-toolbar">
+        <FilterSelect label="Area" value={area} setValue={setArea} options={unique(riskMapRecords.map((record) => record.area))} />
+        <FilterSelect label="Trade" value={trade} setValue={setTrade} options={unique(riskMapRecords.map((record) => record.trade))} />
+        <FilterSelect label="Hazard" value={hazard} setValue={setHazard} options={unique(riskMapRecords.map((record) => record.hazard))} />
+        <FilterSelect label="Urgency" value={urgency} setValue={setUrgency} options={["Critical", "High", "Medium", "Low"]} />
+      </div>
+      <div className="lab-metric-strip">
+        <div>
+          <strong>{filtered.length}</strong>
+          <span>visible demo risks</span>
+        </div>
+        {urgencyCounts.map((item) => (
+          <div key={item.label}>
+            <strong>{item.count}</strong>
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="lab-risk-grid">
+        {filtered.map((record) => {
+          const pack = getSafetyPackById(record.packId);
+          return (
+            <article className={`lab-risk-card urgency-${slugifyClass(record.urgency)}`} key={record.id}>
+              <div>
+                <span>{record.area}</span>
+                <strong>{record.hazard}</strong>
+              </div>
+              <p>{record.summary}</p>
+              <dl>
+                <div>
+                  <dt>Trade</dt>
+                  <dd>{record.trade}</dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd>{record.status}</dd>
+                </div>
+                <div>
+                  <dt>Pack</dt>
+                  <dd>{pack?.title || record.packId}</dd>
+                </div>
+              </dl>
+              <button type="button" onClick={() => navigateTo(`/safety-lab/safety-pack?pack=${record.packId}`)}>
+                Open workflow
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function CrewModeTool({ navigateTo }) {
+  const [packId, setPackId] = useState(getInitialSafetyPackId);
+  const pack = getSafetyPackById(packId) || safetyPacks[0];
+  const content = getPackContent(pack);
+  const questions = content.primaryQuiz?.questions.slice(0, 3) || [];
+  const items = content.primaryChecklist?.items.slice(0, 5) || pack.printableSections;
+  const [answers, setAnswers] = useState({});
+  const [checked, setChecked] = useState({});
+
+  useEffect(() => {
+    setAnswers({});
+    setChecked({});
+  }, [packId]);
+
+  const score = questions.filter((question) => answers[question.number] === question.answer).length;
+
+  return (
+    <section className="lab-screen">
+      <div className="lab-crew-shell">
+        <header className="lab-crew-header">
+          <p>Mobile crew handoff</p>
+          <h2>{pack.title}</h2>
+          <span>Practice only. No worker names. No permanent records. Not proof of competency.</span>
+        </header>
+        <label className="lab-field">
+          <span>Pack</span>
+          <select value={packId} onChange={(event) => setPackId(event.target.value)}>
+            {safetyPacks.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <LabSection title="Today's talk">
+          <p>{content.primaryTalk?.keyMessage || pack.scenario}</p>
+        </LabSection>
+        <LabSection title="Mini quiz">
+          <div className="lab-crew-quiz">
+            {questions.map((question) => (
+              <div key={question.number}>
+                <strong>{question.prompt}</strong>
+                {question.choices.slice(0, 4).map((choice) => {
+                  const selected = answers[question.number];
+                  return (
+                    <button
+                      className={[
+                        selected === choice.letter ? "selected" : "",
+                        selected && choice.letter === question.answer ? "correct" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      disabled={Boolean(selected)}
+                      key={choice.letter}
+                      type="button"
+                      onClick={() => setAnswers((current) => ({ ...current, [question.number]: choice.letter }))}
+                    >
+                      {choice.letter}. {choice.text}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+          <p className="lab-note">Score {score}/{Object.keys(answers).length || 0}. Practice only.</p>
+        </LabSection>
+        <LabSection title="Checklist">
+          <div className="lab-checklist">
+            {items.map((item, index) => (
+              <label key={item}>
+                <input
+                  checked={Boolean(checked[index])}
+                  type="checkbox"
+                  onChange={(event) => setChecked((current) => ({ ...current, [index]: event.target.checked }))}
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+        </LabSection>
+        <div className="lab-pack-alert">
+          <strong>Needs human safety/source review.</strong>
+          <span>{pack.reviewNotice}</span>
+        </div>
+        <div className="lab-button-row">
+          <button type="button" onClick={() => navigateTo(`/safety-lab/safety-pack?pack=${pack.id}`)}>
+            Open full pack
+          </button>
+          <button type="button" onClick={() => window.print()}>
+            Print crew handoff
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InvestorMetricsTool({ navigateTo }) {
+  const metrics = getInvestorDemoMetrics();
+  const reviewBacklog = safetyPacks.length + safetyLabData.counts.toolboxTalks + safetyLabData.counts.quizzes;
+
+  return (
+    <section className="lab-screen">
+      <ToolHeader
+        title="Investor Metrics"
+        description="Demo-only product metrics for the Monday story. These are not audited customer metrics."
+      />
+      <div className="lab-metric-strip investor">
+        <div>
+          <strong>{safetyPacks.length}</strong>
+          <span>safety packs</span>
+        </div>
+        <div>
+          <strong>{metrics.uniqueHazards}</strong>
+          <span>hazard labels</span>
+        </div>
+        <div>
+          <strong>{metrics.documents}</strong>
+          <span>documents assembled</span>
+        </div>
+        <div>
+          <strong>{metrics.sourceLinks}</strong>
+          <span>source-linked articles</span>
+        </div>
+        <div>
+          <strong>{reviewBacklog}</strong>
+          <span>review backlog items</span>
+        </div>
+      </div>
+      <div className="lab-investor-grid">
+        {demoScenarios.map((scenario) => {
+          const pack = getSafetyPackById(scenario.packId);
+          return (
+            <article className="lab-pack-panel" key={scenario.id}>
+              <h3>{scenario.title}</h3>
+              <p>{scenario.headline}</p>
+              <dl className="lab-mini-dl">
+                <div>
+                  <dt>Pack</dt>
+                  <dd>{pack?.title}</dd>
+                </div>
+                <div>
+                  <dt>Estimated time saved</dt>
+                  <dd>{scenario.riskSummary.timeSavedMinutes} min</dd>
+                </div>
+              </dl>
+              <button type="button" onClick={() => navigateTo(`/safety-lab/safety-pack?pack=${scenario.packId}`)}>
+                Open scenario pack
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      <LabSection title="Guardrails">
+        <BulletList
+          items={[
+            "Demo calculations only, not audited customer data.",
+            "All content remains draft and needs human safety/source review.",
+            "No legal compliance, medical advice, or proof-of-competency claim is made.",
+            "The simulated site scan does not inspect real photos or video.",
+          ]}
+        />
+      </LabSection>
+    </section>
   );
 }
 
@@ -832,6 +1224,20 @@ function LabSearch({ query, setQuery, placeholder }) {
   );
 }
 
+function FilterSelect({ label, options, setValue, value }) {
+  return (
+    <label className="lab-field">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => setValue(event.target.value)}>
+        <option>All</option>
+        {options.map((option) => (
+          <option key={option}>{option}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function ResultList({ rows, selectedId, onSelect, meta }) {
   return (
     <div className="lab-result-list">
@@ -892,13 +1298,72 @@ function getInitialSafetyPackId() {
   return getSafetyPackById(packId)?.id || safetyPacks[0]?.id || "";
 }
 
-function packUrl(packId) {
-  if (typeof window === "undefined") return `/safety-lab/safety-pack?pack=${packId}`;
+function getInitialSiteScanId() {
+  if (typeof window === "undefined") return siteScanSamples[0]?.id || "";
+  const sampleId = new URLSearchParams(window.location.search).get("sample");
+  return siteScanSamples.some((sample) => sample.id === sampleId)
+    ? sampleId
+    : siteScanSamples[0]?.id || "";
+}
+
+function crewModeUrl(packId) {
+  if (typeof window === "undefined") return `/safety-lab/crew-mode?pack=${packId}`;
   const prefix = window.location.pathname.startsWith("/safetyfirst") ? "/safetyfirst" : "";
   return new URL(
-    `${prefix}/safety-lab/safety-pack?pack=${encodeURIComponent(packId)}`,
+    `${prefix}/safety-lab/crew-mode?pack=${encodeURIComponent(packId)}`,
     window.location.origin,
   ).href;
+}
+
+function getPackContent(pack) {
+  const articles = findByIds(pack.wikiSlugs, (slug) => getArticleBySlug(slug));
+  const talks = findByIds(pack.toolboxTalkIds, (id) =>
+    safetyLabData.toolboxTalks.find((talk) => talk.id === id),
+  );
+  const checklists = findByIds(pack.checklistIds, (id) =>
+    safetyLabData.checklists.find((checklist) => checklist.id === id),
+  );
+  const quizzes = findByIds(pack.quizIds, (id) =>
+    safetyLabData.quizzes.find((quiz) => quiz.id === id),
+  );
+  const forms = findByIds(pack.formIds, (id) =>
+    safetyLabData.forms.find((form) => form.id === id),
+  );
+
+  return {
+    articles,
+    talks,
+    checklists,
+    quizzes,
+    forms,
+    primaryTalk: talks[0],
+    primaryChecklist: checklists[0],
+    primaryQuiz: quizzes[0],
+  };
+}
+
+function getInvestorDemoMetrics() {
+  const uniqueHazards = unique(safetyPacks.flatMap((pack) => pack.hazards)).length;
+  const documents = safetyPacks.reduce((total, pack) => total + pack.requiredDocuments.length, 0);
+  const sourceLinks = unique(safetyPacks.flatMap((pack) => pack.wikiSlugs)).length;
+  return { uniqueHazards, documents, sourceLinks };
+}
+
+function topCounts(rows, field) {
+  const counts = new Map();
+  for (const row of rows) {
+    counts.set(row[field], (counts.get(row[field]) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+function slugifyClass(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function findByIds(ids, resolve) {

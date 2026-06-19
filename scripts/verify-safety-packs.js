@@ -3,7 +3,7 @@ import { safetyPacks, searchSafetyPacks } from "../src/safetyPacks.js";
 import { wikiArticles } from "../src/wikiContent.js";
 
 const errors = [];
-const expectedPackCount = 10;
+const expectedPackCount = 30;
 
 const articleSlugs = new Set(wikiArticles.map((article) => article.slug));
 const talkIds = new Set(safetyLabData.toolboxTalks.map((talk) => talk.id));
@@ -30,6 +30,9 @@ for (const pack of safetyPacks) {
   requireList(pack, "hazards");
   requireList(pack, "requiredDocuments");
   requireList(pack, "printableSections");
+  if (!pack.reviewNotice.includes("Draft safety pack only")) {
+    errors.push(`${pack.id}: reviewNotice must clearly mark the pack as draft`);
+  }
 
   requireReferences(pack, "wikiSlugs", articleSlugs, "wiki article");
   requireReferences(pack, "toolboxTalkIds", talkIds, "toolbox talk");
