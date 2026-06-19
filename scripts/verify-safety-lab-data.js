@@ -37,9 +37,19 @@ for (const quiz of safetyLabData.quizzes || []) {
     errors.push(`${quiz.id}: missing needs-source-review flag or source/review note`);
   }
 
+  const answerLetters = new Set((quiz.questions || []).map((question) => question.answer));
+  for (const letter of ["A", "B", "C", "D"]) {
+    if (!answerLetters.has(letter)) {
+      errors.push(`${quiz.id}: quiz answer key does not use ${letter}`);
+    }
+  }
+
   for (const question of quiz.questions || []) {
     if (!question.prompt || !question.answer || !question.explanation || question.choices?.length !== 4) {
       errors.push(`${quiz.id}: question ${question.number} is incomplete`);
+    }
+    if (!question.choices?.some((choice) => choice.letter === question.answer)) {
+      errors.push(`${quiz.id}: question ${question.number} answer does not match a choice`);
     }
   }
 }

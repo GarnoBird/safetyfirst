@@ -7,12 +7,12 @@ Review flag: Needs source review before use as mandatory training
 
 ## 1. What should happen before work starts?
 
-A. Confirm hazards, controls, and supervision.
-B. Wait until the end of shift.
-C. Assume the last plan still applies.
+A. Wait until the end of shift.
+B. Assume the last plan still applies.
+C. Confirm hazards, controls, and supervision.
 D. Skip the briefing if the crew is experienced.
 
-Answer: A
+Answer: C
 
 Explanation: Confirm hazards, controls, and supervision. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -29,23 +29,23 @@ Explanation: A condition that means work should pause until the hazard is contro
 
 ## 3. What should a worker do if they do not understand the control?
 
-A. Ask the supervisor before starting or continuing.
-B. Continue slowly.
-C. Ask another trade to decide.
-D. Ignore the task.
+A. Continue slowly.
+B. Ask another trade to decide.
+C. Ignore the task.
+D. Ask the supervisor before starting or continuing.
 
-Answer: A
+Answer: D
 
 Explanation: Ask the supervisor before starting or continuing. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 4. Which evidence is most useful after a deficiency is found?
 
-A. Assigned corrective action and closeout proof.
-B. A verbal promise only.
-C. A deleted photo.
+A. A verbal promise only.
+B. A deleted photo.
+C. Assigned corrective action and closeout proof.
 D. No record.
 
-Answer: A
+Answer: C
 
 Explanation: Assigned corrective action and closeout proof. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -62,56 +62,56 @@ Explanation: A qualified reviewer must verify current sources before publication
 
 ## 6. When should a procedure be updated?
 
-A. When site conditions, crew, tools, sequence, or source requirements change.
-B. Only once a year regardless of changes.
-C. Never after publication.
+A. Only once a year regardless of changes.
+B. Never after publication.
+C. When site conditions, crew, tools, sequence, or source requirements change.
 D. Only after an injury.
 
-Answer: A
+Answer: C
 
 Explanation: When site conditions, crew, tools, sequence, or source requirements change. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 7. Which source should be checked first for BC legal requirements?
 
-A. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
-B. A private company manual from another province.
+A. A private company manual from another province.
+B. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
 C. A social media post.
 D. A supplier advertisement.
 
-Answer: A
+Answer: B
 
 Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 8. How should best practice be labelled?
 
-A. Clearly separate from legal requirements.
-B. As mandatory law without citation.
-C. Only in verbal instructions.
-D. Hidden in the checklist.
+A. As mandatory law without citation.
+B. Only in verbal instructions.
+C. Hidden in the checklist.
+D. Clearly separate from legal requirements.
 
-Answer: A
+Answer: D
 
 Explanation: Clearly separate from legal requirements. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 9. What should be done with unsupported legal claims?
 
-A. Remove, cite, or mark for human/source review.
-B. Publish as-is.
+A. Publish as-is.
+B. Remove, cite, or mark for human/source review.
 C. Make them sound more confident.
 D. Copy text from an unknown manual.
 
-Answer: A
+Answer: B
 
 Explanation: Remove, cite, or mark for human/source review. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 10. What is the safest answer when source access is missing?
 
-A. Needs verification against current WorkSafeBC/OHS source.
-B. Verified compliant.
-C. No source needed.
-D. Legal requirement confirmed.
+A. Verified compliant.
+B. No source needed.
+C. Legal requirement confirmed.
+D. Needs verification against current WorkSafeBC/OHS source.
 
-Answer: A
+Answer: D
 
 Explanation: Needs verification against current WorkSafeBC/OHS source. For violence/harassment, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 

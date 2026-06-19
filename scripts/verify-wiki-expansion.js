@@ -130,12 +130,18 @@ for (const path of quizFiles) {
   ]);
 
   const questionCount = (content.match(/^## \d+\. /gm) || []).length;
-  const answerCount = (content.match(/^Answer: /gm) || []).length;
+  const answers = [...content.matchAll(/^Answer:\s+([A-D])$/gm)].map((match) => match[1]);
+  const answerCount = answers.length;
   if (questionCount !== 10) {
     errors.push(`${path}: expected 10 questions, found ${questionCount}`);
   }
   if (answerCount !== 10) {
     errors.push(`${path}: expected 10 answers, found ${answerCount}`);
+  }
+  for (const letter of ["A", "B", "C", "D"]) {
+    if (!answers.includes(letter)) {
+      errors.push(`${path}: quiz answer key does not use ${letter}`);
+    }
   }
 }
 

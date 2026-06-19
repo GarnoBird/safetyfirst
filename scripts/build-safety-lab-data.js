@@ -225,9 +225,18 @@ function validate(data) {
     if (quiz.questions.length !== 10) {
       errors.push(`${quiz.path}: expected 10 questions, found ${quiz.questions.length}`);
     }
+    const answerLetters = new Set(quiz.questions.map((question) => question.answer));
+    for (const letter of ["A", "B", "C", "D"]) {
+      if (!answerLetters.has(letter)) {
+        errors.push(`${quiz.path}: quiz answer key does not use ${letter}`);
+      }
+    }
     for (const question of quiz.questions) {
       if (!question.answer || !question.explanation || question.choices.length !== 4) {
         errors.push(`${quiz.path}: question ${question.number} missing answer, explanation, or choices`);
+      }
+      if (!question.choices.some((choice) => choice.letter === question.answer)) {
+        errors.push(`${quiz.path}: question ${question.number} answer does not match a choice`);
       }
     }
   }

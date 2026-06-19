@@ -12,6 +12,7 @@ import {
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const reviewPhrase = "Needs verification against current WorkSafeBC/OHS source.";
 const today = "2026-06-19";
+const quizAnswerPattern = ["A", "C", "B", "D", "B", "D", "C", "A", "D", "C"];
 
 const sourceLinks = {
   regulation:
@@ -436,25 +437,37 @@ Suggested pass threshold: 8/10 after instructor review
 Review flag: Needs source review before use as mandatory training
 
 ${questions
-    .map(
-      ([question, correct, b, c, d], index) => `## ${index + 1}. ${question}
+    .map(([question, correct, b, c, d], index) => {
+      const answer = quizAnswerForTopic(topicItem.title, index);
+      const choices = arrangeQuizChoices(answer, [correct, b, c, d]);
+      return `## ${index + 1}. ${question}
 
-A. ${correct}
-B. ${b}
-C. ${c}
-D. ${d}
+${choices.map((choice) => `${choice.letter}. ${choice.text}`).join("\n")}
 
-Answer: A
+Answer: ${answer}
 
 Explanation: ${correct} For ${topicItem.title.toLowerCase()}, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
-`,
-    )
+`;
+    })
     .join("\n")}
 
 ## Source/review note
 
 ${sourceLines(topicItem.sourceKeys)}
 `;
+}
+
+function arrangeQuizChoices(answer, [correct, ...distractors]) {
+  let distractorIndex = 0;
+  return ["A", "B", "C", "D"].map((letter) => ({
+    letter,
+    text: letter === answer ? correct : distractors[distractorIndex++],
+  }));
+}
+
+function quizAnswerForTopic(topicTitle, questionIndex) {
+  const offset = [...topicTitle].reduce((total, char) => total + char.charCodeAt(0), 0);
+  return quizAnswerPattern[(questionIndex + offset) % quizAnswerPattern.length];
 }
 
 function sourcePolicy() {

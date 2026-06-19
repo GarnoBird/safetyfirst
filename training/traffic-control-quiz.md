@@ -7,34 +7,34 @@ Review flag: Needs source review before use as mandatory training
 
 ## 1. What should happen before work starts?
 
-A. Confirm hazards, controls, and supervision.
-B. Wait until the end of shift.
+A. Wait until the end of shift.
+B. Confirm hazards, controls, and supervision.
 C. Assume the last plan still applies.
 D. Skip the briefing if the crew is experienced.
 
-Answer: A
+Answer: B
 
 Explanation: Confirm hazards, controls, and supervision. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 2. What is a stop-work trigger?
 
-A. A condition that means work should pause until the hazard is controlled.
-B. A production target.
-C. A sign-off sheet only.
-D. A tool storage label.
+A. A production target.
+B. A sign-off sheet only.
+C. A tool storage label.
+D. A condition that means work should pause until the hazard is controlled.
 
-Answer: A
+Answer: D
 
 Explanation: A condition that means work should pause until the hazard is controlled. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 3. What should a worker do if they do not understand the control?
 
-A. Ask the supervisor before starting or continuing.
-B. Continue slowly.
-C. Ask another trade to decide.
+A. Continue slowly.
+B. Ask another trade to decide.
+C. Ask the supervisor before starting or continuing.
 D. Ignore the task.
 
-Answer: A
+Answer: C
 
 Explanation: Ask the supervisor before starting or continuing. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -51,23 +51,23 @@ Explanation: Assigned corrective action and closeout proof. For traffic control,
 
 ## 5. What does 'needs human review' mean?
 
-A. A qualified reviewer must verify current sources before publication/use as policy.
-B. The content is official law.
-C. The page can be ignored.
-D. The control is optional.
+A. The content is official law.
+B. The page can be ignored.
+C. The control is optional.
+D. A qualified reviewer must verify current sources before publication/use as policy.
 
-Answer: A
+Answer: D
 
 Explanation: A qualified reviewer must verify current sources before publication/use as policy. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 6. When should a procedure be updated?
 
-A. When site conditions, crew, tools, sequence, or source requirements change.
-B. Only once a year regardless of changes.
-C. Never after publication.
+A. Only once a year regardless of changes.
+B. Never after publication.
+C. When site conditions, crew, tools, sequence, or source requirements change.
 D. Only after an injury.
 
-Answer: A
+Answer: C
 
 Explanation: When site conditions, crew, tools, sequence, or source requirements change. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -84,34 +84,34 @@ Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provision
 
 ## 8. How should best practice be labelled?
 
-A. Clearly separate from legal requirements.
-B. As mandatory law without citation.
-C. Only in verbal instructions.
+A. As mandatory law without citation.
+B. Only in verbal instructions.
+C. Clearly separate from legal requirements.
 D. Hidden in the checklist.
 
-Answer: A
+Answer: C
 
 Explanation: Clearly separate from legal requirements. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 9. What should be done with unsupported legal claims?
 
-A. Remove, cite, or mark for human/source review.
-B. Publish as-is.
+A. Publish as-is.
+B. Remove, cite, or mark for human/source review.
 C. Make them sound more confident.
 D. Copy text from an unknown manual.
 
-Answer: A
+Answer: B
 
 Explanation: Remove, cite, or mark for human/source review. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 10. What is the safest answer when source access is missing?
 
-A. Needs verification against current WorkSafeBC/OHS source.
-B. Verified compliant.
-C. No source needed.
-D. Legal requirement confirmed.
+A. Verified compliant.
+B. No source needed.
+C. Legal requirement confirmed.
+D. Needs verification against current WorkSafeBC/OHS source.
 
-Answer: A
+Answer: D
 
 Explanation: Needs verification against current WorkSafeBC/OHS source. For traffic control, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 

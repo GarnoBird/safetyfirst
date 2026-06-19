@@ -7,12 +7,12 @@ Review flag: Needs source review before use as mandatory training
 
 ## 1. What should happen before work starts?
 
-A. Confirm hazards, controls, and supervision.
-B. Wait until the end of shift.
-C. Assume the last plan still applies.
+A. Wait until the end of shift.
+B. Assume the last plan still applies.
+C. Confirm hazards, controls, and supervision.
 D. Skip the briefing if the crew is experienced.
 
-Answer: A
+Answer: C
 
 Explanation: Confirm hazards, controls, and supervision. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -29,67 +29,67 @@ Explanation: A condition that means work should pause until the hazard is contro
 
 ## 3. What should a worker do if they do not understand the control?
 
-A. Ask the supervisor before starting or continuing.
-B. Continue slowly.
-C. Ask another trade to decide.
+A. Continue slowly.
+B. Ask another trade to decide.
+C. Ask the supervisor before starting or continuing.
 D. Ignore the task.
 
-Answer: A
+Answer: C
 
 Explanation: Ask the supervisor before starting or continuing. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 4. Which evidence is most useful after a deficiency is found?
 
-A. Assigned corrective action and closeout proof.
-B. A verbal promise only.
+A. A verbal promise only.
+B. Assigned corrective action and closeout proof.
 C. A deleted photo.
 D. No record.
 
-Answer: A
+Answer: B
 
 Explanation: Assigned corrective action and closeout proof. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 5. What does 'needs human review' mean?
 
-A. A qualified reviewer must verify current sources before publication/use as policy.
-B. The content is official law.
-C. The page can be ignored.
-D. The control is optional.
+A. The content is official law.
+B. The page can be ignored.
+C. The control is optional.
+D. A qualified reviewer must verify current sources before publication/use as policy.
 
-Answer: A
+Answer: D
 
 Explanation: A qualified reviewer must verify current sources before publication/use as policy. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 6. When should a procedure be updated?
 
-A. When site conditions, crew, tools, sequence, or source requirements change.
-B. Only once a year regardless of changes.
+A. Only once a year regardless of changes.
+B. When site conditions, crew, tools, sequence, or source requirements change.
 C. Never after publication.
 D. Only after an injury.
 
-Answer: A
+Answer: B
 
 Explanation: When site conditions, crew, tools, sequence, or source requirements change. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 7. Which source should be checked first for BC legal requirements?
 
-A. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
-B. A private company manual from another province.
-C. A social media post.
-D. A supplier advertisement.
+A. A private company manual from another province.
+B. A social media post.
+C. A supplier advertisement.
+D. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
 
-Answer: A
+Answer: D
 
 Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 8. How should best practice be labelled?
 
-A. Clearly separate from legal requirements.
-B. As mandatory law without citation.
-C. Only in verbal instructions.
+A. As mandatory law without citation.
+B. Only in verbal instructions.
+C. Clearly separate from legal requirements.
 D. Hidden in the checklist.
 
-Answer: A
+Answer: C
 
 Explanation: Clearly separate from legal requirements. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -106,12 +106,12 @@ Explanation: Remove, cite, or mark for human/source review. For heat/cold stress
 
 ## 10. What is the safest answer when source access is missing?
 
-A. Needs verification against current WorkSafeBC/OHS source.
-B. Verified compliant.
-C. No source needed.
-D. Legal requirement confirmed.
+A. Verified compliant.
+B. No source needed.
+C. Legal requirement confirmed.
+D. Needs verification against current WorkSafeBC/OHS source.
 
-Answer: A
+Answer: D
 
 Explanation: Needs verification against current WorkSafeBC/OHS source. For heat/cold stress, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 

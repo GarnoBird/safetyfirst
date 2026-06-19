@@ -7,56 +7,56 @@ Review flag: Needs source review before use as mandatory training
 
 ## 1. What should happen before work starts?
 
-A. Confirm hazards, controls, and supervision.
-B. Wait until the end of shift.
+A. Wait until the end of shift.
+B. Confirm hazards, controls, and supervision.
 C. Assume the last plan still applies.
 D. Skip the briefing if the crew is experienced.
 
-Answer: A
+Answer: B
 
 Explanation: Confirm hazards, controls, and supervision. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 2. What is a stop-work trigger?
 
-A. A condition that means work should pause until the hazard is controlled.
-B. A production target.
-C. A sign-off sheet only.
-D. A tool storage label.
+A. A production target.
+B. A sign-off sheet only.
+C. A tool storage label.
+D. A condition that means work should pause until the hazard is controlled.
 
-Answer: A
+Answer: D
 
 Explanation: A condition that means work should pause until the hazard is controlled. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 3. What should a worker do if they do not understand the control?
 
-A. Ask the supervisor before starting or continuing.
-B. Continue slowly.
+A. Continue slowly.
+B. Ask the supervisor before starting or continuing.
 C. Ask another trade to decide.
 D. Ignore the task.
 
-Answer: A
+Answer: B
 
 Explanation: Ask the supervisor before starting or continuing. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 4. Which evidence is most useful after a deficiency is found?
 
-A. Assigned corrective action and closeout proof.
-B. A verbal promise only.
-C. A deleted photo.
-D. No record.
+A. A verbal promise only.
+B. A deleted photo.
+C. No record.
+D. Assigned corrective action and closeout proof.
 
-Answer: A
+Answer: D
 
 Explanation: Assigned corrective action and closeout proof. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 5. What does 'needs human review' mean?
 
-A. A qualified reviewer must verify current sources before publication/use as policy.
-B. The content is official law.
-C. The page can be ignored.
+A. The content is official law.
+B. The page can be ignored.
+C. A qualified reviewer must verify current sources before publication/use as policy.
 D. The control is optional.
 
-Answer: A
+Answer: C
 
 Explanation: A qualified reviewer must verify current sources before publication/use as policy. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -73,23 +73,23 @@ Explanation: When site conditions, crew, tools, sequence, or source requirements
 
 ## 7. Which source should be checked first for BC legal requirements?
 
-A. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
-B. A private company manual from another province.
-C. A social media post.
-D. A supplier advertisement.
+A. A private company manual from another province.
+B. A social media post.
+C. A supplier advertisement.
+D. WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions.
 
-Answer: A
+Answer: D
 
 Explanation: WorkSafeBC OHS Regulation or Workers Compensation Act OHS provisions. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
 ## 8. How should best practice be labelled?
 
-A. Clearly separate from legal requirements.
-B. As mandatory law without citation.
-C. Only in verbal instructions.
+A. As mandatory law without citation.
+B. Only in verbal instructions.
+C. Clearly separate from legal requirements.
 D. Hidden in the checklist.
 
-Answer: A
+Answer: C
 
 Explanation: Clearly separate from legal requirements. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
@@ -106,12 +106,12 @@ Explanation: Remove, cite, or mark for human/source review. For incident reporti
 
 ## 10. What is the safest answer when source access is missing?
 
-A. Needs verification against current WorkSafeBC/OHS source.
-B. Verified compliant.
-C. No source needed.
+A. Verified compliant.
+B. No source needed.
+C. Needs verification against current WorkSafeBC/OHS source.
 D. Legal requirement confirmed.
 
-Answer: A
+Answer: C
 
 Explanation: Needs verification against current WorkSafeBC/OHS source. For incident reporting, do not treat this draft quiz as proof of legal competency until the employer verifies current WorkSafeBC/OHS requirements and site-specific procedure.
 
