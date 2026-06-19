@@ -5,7 +5,7 @@ import {
   hasSentAutoReport,
   sendSignInReportEmail,
 } from "../_lib/reports.js";
-import { getSupabaseServiceClient, throwIfSupabaseError } from "../_lib/supabase.js";
+import { getSiteSettings } from "../_lib/settings.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") return sendMethodNotAllowed(res, ["GET"]);
@@ -14,6 +14,23 @@ export default async function handler(req, res) {
     assertCronAuthorized(req);
 
     const date = getVancouverDate();
+    const settings = await getSiteSettings();
+
+    if (!settings.report_auto_enabled) {
+      return sendJson(res, 200, { skipped: true, reason: "auto_disabled", date });
+    }
+
+    const currentTime = getVancouverTime();
+    if (currentTime < settings.report_auto_time) {
+      return sendJson(res, 200, {
+        skipped: true,
+        reason: "too_early",
+        date,
+        currentTime,
+        reportTime: settings.report_auto_time,
+      });
+    }
+
     if (await hasSentAutoReport(date)) {
       return sendJson(res, 200, { skipped: true, reason: "already_sent", date });
     }
@@ -23,18 +40,7 @@ export default async function handler(req, res) {
       return sendJson(res, 200, { skipped: true, reason: "no_signins", date });
     }
 
-    const staffRows = throwIfSupabaseError(
-      await getSupabaseServiceClient()
-        .from("staff_profiles")
-        .select("id, email")
-        .eq("username", "lbird")
-        .eq("active", true)
-        .limit(1),
-      "Report recipient could not be loaded.",
-    );
-
-    const recipient = staffRows[0];
-    if (!recipient?.email) {
+    if (!settings.report_recipient_email) {
       const error = new Error("No active report recipient is configured.");
       error.statusCode = 503;
       throw error;
@@ -42,15 +48,24 @@ export default async function handler(req, res) {
 
     const result = await sendSignInReportEmail({
       date,
-      recipientEmail: recipient.email,
+      recipientEmail: settings.report_recipient_email,
+      format: settings.report_format,
       kind: "auto",
-      staffId: recipient.id,
     });
 
     return sendJson(res, 200, { ...result, date });
   } catch (error) {
     return handleApiError(res, error);
   }
+}
+
+function getVancouverTime(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Vancouver",
+  }).format(date);
 }
 
 function assertCronAuthorized(req) {

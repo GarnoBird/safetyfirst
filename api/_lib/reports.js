@@ -49,12 +49,19 @@ ${body}
 </signIns>`;
 }
 
-export async function sendSignInReportEmail({ date, recipientEmail, kind, staffId }) {
+export async function sendSignInReportEmail({
+  date,
+  recipientEmail,
+  kind,
+  staffId,
+  format = "both",
+}) {
   const report = await buildSignInReport(date);
   if (!report.rows.length) return { skipped: true, rowCount: 0 };
 
   assertEmailConfig();
 
+  const reportFormat = normalizeReportFormat(format);
   const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
   const from = getRequiredEnv("REPORT_FROM_EMAIL");
   const subject = `Worker sign-ins - ${date}`;
@@ -68,18 +75,7 @@ export async function sendSignInReportEmail({ date, recipientEmail, kind, staffI
     to: [recipientEmail],
     subject,
     html: `<p>Attached are the worker sign-ins for ${escapeHtml(date)}.</p><p>Rows: ${report.rows.length}</p>${dashboardLink}`,
-    attachments: [
-      {
-        filename: `worker-sign-ins-${date}.csv`,
-        content: encodeAttachment(report.csv),
-        contentType: "text/csv; charset=utf-8",
-      },
-      {
-        filename: `worker-sign-ins-${date}.xml`,
-        content: encodeAttachment(report.xml),
-        contentType: "application/xml; charset=utf-8",
-      },
-    ],
+    attachments: reportAttachments(report, reportFormat),
   });
 
   if (error) {
@@ -106,7 +102,13 @@ export async function sendSignInReportEmail({ date, recipientEmail, kind, staffI
     staffId,
   });
 
-  return { skipped: false, rowCount: report.rows.length, emailId: data?.id };
+  return {
+    skipped: false,
+    rowCount: report.rows.length,
+    emailId: data?.id,
+    recipientEmail,
+    format: reportFormat,
+  };
 }
 
 function assertEmailConfig() {
@@ -125,6 +127,32 @@ function assertEmailConfig() {
 
 function encodeAttachment(content) {
   return Buffer.from(content, "utf8").toString("base64");
+}
+
+function normalizeReportFormat(format) {
+  return ["csv", "xml", "both"].includes(format) ? format : "both";
+}
+
+function reportAttachments(report, format) {
+  const attachments = [];
+
+  if (format === "csv" || format === "both") {
+    attachments.push({
+      filename: `worker-sign-ins-${report.date}.csv`,
+      content: encodeAttachment(report.csv),
+      contentType: "text/csv; charset=utf-8",
+    });
+  }
+
+  if (format === "xml" || format === "both") {
+    attachments.push({
+      filename: `worker-sign-ins-${report.date}.xml`,
+      content: encodeAttachment(report.xml),
+      contentType: "application/xml; charset=utf-8",
+    });
+  }
+
+  return attachments;
 }
 
 export async function hasSentAutoReport(date) {

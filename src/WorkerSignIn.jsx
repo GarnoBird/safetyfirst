@@ -21,6 +21,10 @@ const DEFAULT_SITE_SETTINGS = {
   signout_reminders_enabled: false,
   signout_reminder_message:
     "Hello {{name}}, APPIA records show you are still signed in on site today. If you have left site, please sign out here: {{signout_link}}. If you are still on site, no action is needed.",
+  report_recipient_email: "garnobird@gmail.com",
+  report_auto_enabled: true,
+  report_auto_time: "08:00",
+  report_format: "both",
 };
 
 const DEFAULT_SYSTEM_STATUS = {
@@ -556,8 +560,8 @@ export function StaffHomePage({ navigateTo }) {
 
         <StaffActionCard
           eyebrow="Today"
-          text="Export today's worker sign-in records or open the roster to email the daily report."
-          title="Reports"
+          text={`Email today's worker sign-ins to ${settings.report_recipient_email}.`}
+          title="Email Reports"
         >
           <div className="staff-card-actions">
             <a href={staffExportUrl(today, "csv")}>CSV</a>
@@ -720,23 +724,53 @@ export function StaffSettingsPage({ navigateTo }) {
         </SettingsSection>
 
         <SettingsSection
-          description="Daily report delivery and export formats."
-          title="Reports"
+          description="Choose where roster emails go, whether they send automatically, and which attachments are included."
+          title="Email Reports"
         >
-          <dl className="settings-detail-list">
-            <div>
-              <dt>Report recipient</dt>
-              <dd>{staff.email}</dd>
-            </div>
-            <div>
-              <dt>Auto-report schedule</dt>
-              <dd>8:00 a.m. Vancouver time when sign-ins exist.</dd>
-            </div>
-            <div>
-              <dt>Exports</dt>
-              <dd>CSV and XML are available from Who's Here.</dd>
-            </div>
-          </dl>
+          <label>
+            <span>Send reports to</span>
+            <input
+              required
+              type="email"
+              value={settings.report_recipient_email}
+              onChange={(event) =>
+                updateSetting("report_recipient_email", event.target.value)
+              }
+            />
+          </label>
+          <label className="settings-checkbox">
+            <input
+              checked={Boolean(settings.report_auto_enabled)}
+              type="checkbox"
+              onChange={(event) =>
+                updateSetting("report_auto_enabled", event.target.checked)
+              }
+            />
+            <span>Send an automatic daily email report when sign-ins exist</span>
+          </label>
+          <label>
+            <span>Auto-report time</span>
+            <input
+              required
+              type="time"
+              value={settings.report_auto_time}
+              onChange={(event) => updateSetting("report_auto_time", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Email attachment format</span>
+            <select
+              value={settings.report_format}
+              onChange={(event) => updateSetting("report_format", event.target.value)}
+            >
+              <option value="both">CSV and XML</option>
+              <option value="csv">CSV only</option>
+              <option value="xml">XML only</option>
+            </select>
+          </label>
+          <p className="settings-note">
+            Manual and automatic email reports use these settings. Auto-report runs once per day at or after the selected Vancouver time.
+          </p>
         </SettingsSection>
 
         <SettingsSection
@@ -888,7 +922,7 @@ export function StaffSignInsPage({ navigateTo }) {
     setMessage(
       payload.skipped
         ? "No rows to email for this date."
-        : `Report emailed to ${staff.email}.`,
+        : `Report emailed to ${payload.recipientEmail || staff.email}.`,
     );
   };
 

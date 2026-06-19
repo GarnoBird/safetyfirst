@@ -4,7 +4,8 @@ const SETTINGS_ID = "default";
 const MAX_TEXT_LENGTH = 120;
 const MAX_MESSAGE_LENGTH = 320;
 const SETTINGS_SELECT =
-  "id, site_name, site_location, timezone, signout_cutoff_time, signout_reminders_enabled, signout_reminder_message, updated_at, updated_by_staff_id";
+  "id, site_name, site_location, timezone, signout_cutoff_time, signout_reminders_enabled, signout_reminder_message, report_recipient_email, report_auto_enabled, report_auto_time, report_format, updated_at, updated_by_staff_id";
+const REPORT_FORMATS = ["csv", "xml", "both"];
 
 const DEFAULT_SETTINGS = {
   site_name: "Safety First",
@@ -14,6 +15,10 @@ const DEFAULT_SETTINGS = {
   signout_reminders_enabled: false,
   signout_reminder_message:
     "Hello {{name}}, APPIA records show you are still signed in on site today. If you have left site, please sign out here: {{signout_link}}. If you are still on site, no action is needed.",
+  report_recipient_email: "garnobird@gmail.com",
+  report_auto_enabled: true,
+  report_auto_time: "08:00",
+  report_format: "both",
 };
 
 export async function getSiteSettings() {
@@ -80,6 +85,10 @@ function validateSettingsInput(body) {
     timezone: cleanTimezone(input.timezone),
     signout_cutoff_time: cleanCutoffTime(input.signout_cutoff_time),
     signout_reminder_message: cleanReminderMessage(input.signout_reminder_message),
+    report_recipient_email: cleanEmail(input.report_recipient_email),
+    report_auto_enabled: cleanBoolean(input.report_auto_enabled),
+    report_auto_time: cleanTime(input.report_auto_time, "Auto-report time"),
+    report_format: cleanReportFormat(input.report_format),
   };
 }
 
@@ -90,6 +99,12 @@ function normalizeSettings(row) {
     signout_cutoff_time: String(
       row?.signout_cutoff_time || DEFAULT_SETTINGS.signout_cutoff_time,
     ).slice(0, 5),
+    report_auto_time: String(
+      row?.report_auto_time || DEFAULT_SETTINGS.report_auto_time,
+    ).slice(0, 5),
+    report_format: REPORT_FORMATS.includes(row?.report_format)
+      ? row.report_format
+      : DEFAULT_SETTINGS.report_format,
     signout_reminders_enabled: false,
   };
 }
@@ -114,11 +129,38 @@ function cleanTimezone(value) {
 }
 
 function cleanCutoffTime(value) {
+  return cleanTime(value, "Sign-out cutoff time");
+}
+
+function cleanTime(value, label) {
   const time = String(value || "").trim();
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
-    return fail("Sign-out cutoff time must use HH:MM 24-hour format.");
+    return fail(`${label} must use HH:MM 24-hour format.`);
   }
   return time;
+}
+
+function cleanEmail(value) {
+  const email = cleanText(value, "Report recipient email", 180).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return fail("Report recipient email must be valid.");
+  }
+  return email;
+}
+
+function cleanReportFormat(value) {
+  const format = String(value || "").trim().toLowerCase();
+  if (!REPORT_FORMATS.includes(format)) {
+    return fail("Report format must be CSV, XML, or Both.");
+  }
+  return format;
+}
+
+function cleanBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return Boolean(value);
 }
 
 function cleanReminderMessage(value) {

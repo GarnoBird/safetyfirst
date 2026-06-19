@@ -39,8 +39,8 @@ Change this password before using real production data.
 - `/staff-login`: staff login.
 - `/staff/home`: staff landing page with roster counts, QR links, reports, and settings access.
 - `/staff/sign-ins`: staff "Who's Here" records, grouping, export, and manual email report.
-- `/staff/settings`: staff-only site settings, report details, reminder placeholder, and privacy notes.
+- `/staff/settings`: staff-only site settings, editable email report settings, reminder placeholder, and privacy notes.
 
-## Reports
+## Email Reports
 
-The Vercel cron runs once daily at 15:00 UTC, which is 8am Vancouver during daylight time. It skips if there are no sign-ins or if the automatic report already sent for that date. Exact year-round 8am Vancouver scheduling requires Vercel Pro hourly cron or an external scheduler.
+The Vercel cron polls every 30 minutes. The backend sends at most one automatic report per Vancouver calendar date, only after the configured staff settings time and only when sign-ins exist.

@@ -1218,6 +1218,7 @@ p {
 }
 
 .settings-section-body input,
+.settings-section-body select,
 .settings-section-body textarea {
   width: 100%;
   border-color: #d9e3de;
@@ -1225,9 +1226,30 @@ p {
   background: #fff;
 }
 
+.settings-section-body select {
+  min-height: 44px;
+}
+
 .settings-section-body textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+.settings-checkbox {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid #edf2ef;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f7faf9;
+}
+
+.settings-checkbox input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
 }
 
 .settings-link-row,
