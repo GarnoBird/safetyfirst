@@ -900,28 +900,12 @@ p {
     linear-gradient(180deg, #fbfcfa, #f5f8f2);
 }
 
-.staff-header {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: space-between;
-  max-width: 960px;
-  margin: 0 auto 16px;
-}
-
-.staff-header h1 {
-  margin-top: 6px;
-  font-size: clamp(2rem, 8vw, 3rem);
-  line-height: 0.95;
-  letter-spacing: 0;
-}
-
-.staff-header p {
-  color: var(--muted);
-  font-weight: 650;
-}
-
 .staff-settings-link {
+  display: flex;
+  justify-content: flex-start;
+  width: min(100%, 960px);
+  max-width: 960px;
+  margin: 0 auto 12px;
   min-height: 0;
   border: 0;
   border-radius: 0;
@@ -934,46 +918,21 @@ p {
   background: transparent;
 }
 
-.staff-kicker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 750;
-}
-
-.staff-live-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  border-radius: 999px;
-  padding: 0 16px;
-  color: #14594f;
-  font-size: 0.9rem;
-  font-weight: 850;
-  background: #e1f5ee;
-}
-
-.staff-nav-block {
-  display: grid;
-  gap: 10px;
-  justify-items: end;
-}
-
 .staff-nav-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 960px);
+  max-width: 960px;
+  margin: 0 auto 18px;
 }
 
 .staff-quiet-button {
-  min-height: 38px;
+  min-height: 40px;
+  min-width: 0;
   border-color: #e0e7e3;
   color: #34423f;
+  padding: 0 14px;
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -2055,12 +2014,6 @@ p {
     flex-wrap: wrap;
   }
 
-  .staff-header {
-    align-items: flex-start;
-    flex-direction: row;
-    max-width: 720px;
-  }
-
   .staff-toolbar {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     max-width: 720px;
@@ -2155,19 +2108,13 @@ p {
     padding: 10px;
   }
 
-  .staff-header {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .staff-nav-block {
-    justify-items: start;
-    width: 100%;
-  }
-
   .staff-nav-actions {
-    justify-content: flex-start;
     margin-top: 0;
+  }
+
+  .staff-quiet-button {
+    padding: 0 8px;
+    font-size: 0.88rem;
   }
 
   .staff-scorebar {
@@ -2256,6 +2203,17 @@ p {
   .snapshot-list div {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .staff-nav-actions {
+    gap: 4px;
+  }
+
+  .staff-quiet-button {
+    padding: 0 4px;
+    font-size: 0.82rem;
   }
 }
 

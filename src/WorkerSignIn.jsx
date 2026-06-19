@@ -516,13 +516,7 @@ export function StaffHomePage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell
-      active="home"
-      navigateTo={navigateTo}
-      staff={staff}
-      subtitle={`${settings.site_name} | ${formatLongDate(today)}`}
-      title="Staff Home"
-    >
+    <StaffShell active="home" navigateTo={navigateTo}>
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="staff-home-grid" aria-label="Staff home actions">
         <StaffActionCard
@@ -693,13 +687,7 @@ export function StaffSettingsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell
-      active="settings"
-      navigateTo={navigateTo}
-      staff={staff}
-      subtitle="Site, reports, reminders, and privacy"
-      title="Settings"
-    >
+    <StaffShell active="settings" navigateTo={navigateTo}>
       {message ? <p className="staff-message">{message}</p> : null}
       <form className="staff-settings-grid" onSubmit={saveSettings}>
         <SettingsSection
@@ -975,15 +963,7 @@ export function StaffSignInsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell
-      active="sign-ins"
-      badge="Live"
-      navigateTo={navigateTo}
-      staff={staff}
-      subtitle={`Site roster | ${formatLongDate(date)}`}
-      title="Who's Here"
-    >
-
+    <StaffShell active="sign-ins" navigateTo={navigateTo}>
       <section className="staff-scorebar" aria-label="Daily sign-in summary">
         <div>
           <strong>{statusCounts.signedIn}</strong>
@@ -1131,15 +1111,7 @@ export function StaffSignInsPage({ navigateTo }) {
   );
 }
 
-function StaffShell({
-  active,
-  badge = "Staff",
-  children,
-  navigateTo,
-  staff,
-  subtitle,
-  title,
-}) {
+function StaffShell({ active, children, navigateTo }) {
   const logout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
@@ -1150,38 +1122,32 @@ function StaffShell({
 
   return (
     <main className="staff-shell">
-      <header className="staff-header">
-        <div>
-          <div className="staff-kicker">
-            <span className="brand-mark">APPIA</span>
-            <span>{staff.username} | {staff.email}</span>
-          </div>
-          <h1>{title}</h1>
-          <p>{subtitle}</p>
-        </div>
-        <div className="staff-nav-block">
-          <span className="staff-live-pill">{badge}</span>
-          <nav className="staff-nav-actions" aria-label="Staff navigation">
-            {STAFF_NAV_ITEMS.map((item) => (
-              <button
-                className={
-                  active === item.id
-                    ? "staff-quiet-button active"
-                    : "staff-quiet-button"
-                }
-                key={item.id}
-                type="button"
-                onClick={() => navigateTo(item.path)}
-              >
-                {item.label}
-              </button>
-            ))}
-            <button className="staff-quiet-button" type="button" onClick={logout}>
-              Logout
-            </button>
-          </nav>
-        </div>
-      </header>
+      <button
+        className="brand-mark staff-settings-link"
+        type="button"
+        onClick={() => navigateTo("/staff/settings")}
+      >
+        {"<- SETTINGS"}
+      </button>
+      <nav className="staff-nav-actions" aria-label="Staff navigation">
+        {STAFF_NAV_ITEMS.map((item) => (
+          <button
+            className={
+              active === item.id
+                ? "staff-quiet-button active"
+                : "staff-quiet-button"
+            }
+            key={item.id}
+            type="button"
+            onClick={() => navigateTo(item.path)}
+          >
+            {item.label}
+          </button>
+        ))}
+        <button className="staff-quiet-button" type="button" onClick={logout}>
+          Logout
+        </button>
+      </nav>
       <div className="staff-content">{children}</div>
     </main>
   );
