@@ -20,17 +20,6 @@ export default async function handler(req, res) {
       return sendJson(res, 200, { skipped: true, reason: "auto_disabled", date });
     }
 
-    const currentTime = getVancouverTime();
-    if (currentTime < settings.report_auto_time) {
-      return sendJson(res, 200, {
-        skipped: true,
-        reason: "too_early",
-        date,
-        currentTime,
-        reportTime: settings.report_auto_time,
-      });
-    }
-
     if (await hasSentAutoReport(date)) {
       return sendJson(res, 200, { skipped: true, reason: "already_sent", date });
     }
@@ -57,15 +46,6 @@ export default async function handler(req, res) {
   } catch (error) {
     return handleApiError(res, error);
   }
-}
-
-function getVancouverTime(date = new Date()) {
-  return new Intl.DateTimeFormat("en-CA", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "America/Vancouver",
-  }).format(date);
 }
 
 function assertCronAuthorized(req) {

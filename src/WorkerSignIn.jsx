@@ -769,7 +769,7 @@ export function StaffSettingsPage({ navigateTo }) {
             </select>
           </label>
           <p className="settings-note">
-            Manual and automatic email reports use these settings. Auto-report runs once per day at or after the selected Vancouver time.
+            Manual reports use these settings now. The preferred auto-report time is saved here, but the current Vercel Hobby scheduler runs once daily.
           </p>
         </SettingsSection>
 
