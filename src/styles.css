@@ -1379,7 +1379,7 @@ p {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 28px;
   align-items: center;
-  min-height: 50px;
+  min-height: 39px;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   background: #fff;
@@ -1398,7 +1398,7 @@ p {
   min-width: 0;
   overflow: hidden;
   color: #17211f;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 800;
   text-align: center;
   white-space: nowrap;
@@ -1424,12 +1424,12 @@ p {
 }
 
 .staff-date-stepper button {
-  min-height: 48px;
+  min-height: 37px;
   border: 0;
   border-radius: 8px;
   padding: 0;
   color: #245f5b;
-  font-size: 1.12rem;
+  font-size: 1rem;
   font-weight: 900;
   background: transparent;
 }
@@ -1441,11 +1441,11 @@ p {
 
 .staff-toolbar select,
 .staff-export-menu summary {
-  min-height: 50px;
+  min-height: 39px;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   color: #17211f;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 800;
   background-color: #fff;
 }
@@ -1463,7 +1463,7 @@ p {
   content: "";
   position: absolute;
   right: 15px;
-  bottom: 20px;
+  bottom: 16px;
   width: 8px;
   height: 8px;
   border-right: 2px solid currentColor;
@@ -1482,7 +1482,7 @@ p {
   grid-template-columns: minmax(0, 1fr) 14px;
   gap: 8px;
   align-items: center;
-  padding: 0 18px;
+  padding: 0 14px;
   list-style: none;
   cursor: pointer;
 }
@@ -1710,14 +1710,14 @@ p {
 
 .staff-search-field input,
 .staff-sort-select select {
-  min-height: 38px;
+  min-height: 39px;
   border-color: #d9e3de;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
 }
 
 .staff-search-field input {
-  padding-left: 18px;
+  padding-left: 14px;
 }
 
 .staff-sort-select select {
@@ -2210,6 +2210,7 @@ p {
   .staff-toolbar-mobile {
     display: grid;
     grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
+    gap: 8px;
     max-width: 720px;
     border: 0;
     border-radius: 0;
@@ -2248,7 +2249,7 @@ p {
 
   .mobile-roster {
     display: grid;
-    gap: 12px;
+    gap: 8px;
   }
 
   .grouped-signins {
@@ -2312,12 +2313,13 @@ p {
 
   .staff-toolbar-mobile {
     grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
-    gap: 8px;
+    gap: 6px;
     padding: 0;
   }
 
   .staff-list-controls {
     grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 6px;
   }
 
   .staff-mini-metrics,
