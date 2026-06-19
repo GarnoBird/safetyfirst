@@ -1163,6 +1163,9 @@ export function StaffSignInsPage({ navigateTo }) {
 
 function StaffShell({ active, children, contentWide = false, navigateTo }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const activeMobileItem =
+    STAFF_MOBILE_NAV_ITEMS.find((item) => item.id === active) ||
+    STAFF_MOBILE_NAV_ITEMS[0];
 
   const logout = async () => {
     await fetch("/api/auth/logout", {
@@ -1184,7 +1187,7 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
         >
           <span className="brand-mark">APPIA</span>
           <span aria-hidden="true">|</span>
-          <strong>HOME</strong>
+          <strong>{activeMobileItem.label}</strong>
         </button>
         {mobileMenuOpen ? (
           <div className="staff-mobile-menu-panel" role="menu">
