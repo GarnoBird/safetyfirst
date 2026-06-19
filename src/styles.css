@@ -3222,6 +3222,11 @@ p {
   white-space: normal;
 }
 
+.lab-answer-grid button:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
 .lab-answer-grid button.selected {
   border-color: #34413d;
   background: #eef1ee;

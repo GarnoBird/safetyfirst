@@ -254,6 +254,17 @@ function FlashQuizTool() {
     setAnswers({});
   };
 
+  const selectAnswer = (letter) => {
+    if (!current) return;
+    setAnswers((currentAnswers) => {
+      if (currentAnswers[current.number]) return currentAnswers;
+      return {
+        ...currentAnswers,
+        [current.number]: letter,
+      };
+    });
+  };
+
   return (
     <section className="lab-screen">
       <ToolHeader
@@ -307,12 +318,8 @@ function FlashQuizTool() {
                       .join(" ")}
                     key={choice.letter}
                     type="button"
-                    onClick={() =>
-                      setAnswers((currentAnswers) => ({
-                        ...currentAnswers,
-                        [current.number]: choice.letter,
-                      }))
-                    }
+                    disabled={Boolean(selected)}
+                    onClick={() => selectAnswer(choice.letter)}
                   >
                     <b>{choice.letter}.</b> {choice.text}
                   </button>
