@@ -601,6 +601,7 @@ export function StaffSettingsPage({ navigateTo }) {
   const [system, setSystem] = useState(DEFAULT_SYSTEM_STATUS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [emailing, setEmailing] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -632,27 +633,60 @@ export function StaffSettingsPage({ navigateTo }) {
     setSettings((current) => ({ ...current, [field]: value }));
   };
 
+  const persistSettings = async () => {
+    const payload = await readApiJson(
+      await fetch("/api/staff/settings", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(settings),
+      }),
+    );
+    setSettings(payload.settings || DEFAULT_SITE_SETTINGS);
+    setSystem(payload.system || DEFAULT_SYSTEM_STATUS);
+    return payload.settings || settings;
+  };
+
   const saveSettings = async (event) => {
     event.preventDefault();
     setSaving(true);
     setMessage("");
 
     try {
-      const payload = await readApiJson(
-        await fetch("/api/staff/settings", {
-          method: "PATCH",
-          credentials: "include",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(settings),
-        }),
-      );
-      setSettings(payload.settings || DEFAULT_SITE_SETTINGS);
-      setSystem(payload.system || DEFAULT_SYSTEM_STATUS);
+      await persistSettings();
       setMessage("Settings saved.");
     } catch (error) {
       setMessage(error.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const emailReportNow = async () => {
+    setEmailing(true);
+    setMessage("");
+
+    try {
+      const savedSettings = await persistSettings();
+      const payload = await readApiJson(
+        await fetch("/api/staff/signins/email-report", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ date: todayInVancouver() }),
+        }),
+      );
+      setMessage(
+        payload.skipped
+          ? "No rows to email for today."
+          : `Report emailed to ${
+              payload.recipientEmail || savedSettings.report_recipient_email
+            }.`,
+      );
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setEmailing(false);
     }
   };
 
@@ -768,9 +802,16 @@ export function StaffSettingsPage({ navigateTo }) {
               <option value="xml">XML only</option>
             </select>
           </label>
-          <p className="settings-note">
-            Manual reports use these settings now. The preferred auto-report time is saved here, but the current Vercel Hobby scheduler runs once daily.
-          </p>
+          <div className="settings-report-actions">
+            <button
+              className="primary-button"
+              disabled={loading || saving || emailing}
+              type="button"
+              onClick={emailReportNow}
+            >
+              {emailing ? "Emailing..." : "Email Report Now"}
+            </button>
+          </div>
         </SettingsSection>
 
         <SettingsSection
@@ -830,7 +871,11 @@ export function StaffSettingsPage({ navigateTo }) {
         </SettingsSection>
 
         <div className="staff-settings-save">
-          <button className="primary-button" disabled={loading || saving} type="submit">
+          <button
+            className="primary-button"
+            disabled={loading || saving || emailing}
+            type="submit"
+          >
             {saving ? "Saving..." : "Save settings"}
           </button>
         </div>

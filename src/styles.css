@@ -1252,6 +1252,11 @@ p {
   margin: 0;
 }
 
+.settings-report-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .settings-link-row,
 .settings-status-line {
   display: grid;
