@@ -334,41 +334,50 @@ export function WorkerSignOutPage({ navigateTo }) {
     <main className="public-page worker-page">
       <section className="worker-card">
         <div className="brand-mark">APPIA</div>
-        <div className="worker-confirmation">
-          <h1>Worker Sign-Out</h1>
-          {loading ? <p className="muted">Loading...</p> : null}
-          {!loading && signIn ? (
-            <>
-              <p className="worker-summary">
-                {signIn.name} / {signIn.company} / {signIn.trade}
-              </p>
-              <p className="worker-detail">Sign out for today?</p>
-              <button
-                className="primary-button"
-                disabled={submitting}
-                type="button"
-                onClick={submitSignOut}
-              >
-                {submitting ? "Signing out..." : "Sign out"}
-              </button>
-            </>
-          ) : null}
-          {!loading && !signIn && !signedOut ? (
-            <div className="worker-status-panel">
-              <p>No open sign-in was found on this phone for today.</p>
-              <button type="button" onClick={() => navigateTo("/worker-sign-in")}>
-                Open sign-in
-              </button>
-            </div>
-          ) : null}
+        <div
+          className={
+            signedOut
+              ? "worker-confirmation submitted"
+              : "worker-confirmation"
+          }
+        >
           {signedOut ? (
-            <div className="worker-status-panel">
-              <p className="worker-summary">
-                {signedOut.name} / {signedOut.company} / {signedOut.trade}
-              </p>
-              <p>Signed out.</p>
+            <div className="worker-thank-you" role="status">
+              <h1>Thank you</h1>
             </div>
-          ) : null}
+          ) : (
+            <>
+              <h1>Worker Sign-Out</h1>
+              {loading ? <p className="muted">Loading...</p> : null}
+              {!loading && signIn ? (
+                <>
+                  <p className="worker-summary">
+                    {signIn.name} / {signIn.company} / {signIn.trade}
+                  </p>
+                  <p className="worker-detail">Sign out for today?</p>
+                  <button
+                    className="primary-button"
+                    disabled={submitting}
+                    type="button"
+                    onClick={submitSignOut}
+                  >
+                    {submitting ? "Signing out..." : "Sign out"}
+                  </button>
+                </>
+              ) : null}
+              {!loading && !signIn ? (
+                <div className="worker-status-panel">
+                  <p>No open sign-in was found on this phone for today.</p>
+                  <button
+                    type="button"
+                    onClick={() => navigateTo("/worker-sign-in")}
+                  >
+                    Open sign-in
+                  </button>
+                </div>
+              ) : null}
+            </>
+          )}
           {status.message ? (
             <p className={`form-message ${status.type}`}>{status.message}</p>
           ) : null}
@@ -447,7 +456,7 @@ export function StaffSignInsPage({ navigateTo }) {
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("signedIn");
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -519,6 +528,12 @@ export function StaffSignInsPage({ navigateTo }) {
     setDir("asc");
   };
 
+  const changeSortOption = (value) => {
+    const [field, direction] = value.split(":");
+    setSort(field);
+    setDir(direction === "desc" ? "desc" : "asc");
+  };
+
   const emailReport = async () => {
     setMessage("");
     const response = await fetch("/api/staff/signins/email-report", {
@@ -555,14 +570,18 @@ export function StaffSignInsPage({ navigateTo }) {
       <header className="staff-header">
         <div>
           <div className="brand-mark">APPIA</div>
-          <h1>Worker Sign-Ins</h1>
+          <h1>Who's on site</h1>
           {staff ? <p>{staff.username} | {staff.email}</p> : null}
         </div>
-        <div className="button-row">
-          <button type="button" onClick={() => navigateTo("/")}>
+        <div className="button-row staff-nav-actions">
+          <button
+            className="staff-quiet-button"
+            type="button"
+            onClick={() => navigateTo("/")}
+          >
             Safety app
           </button>
-          <button type="button" onClick={logout}>
+          <button className="staff-quiet-button" type="button" onClick={logout}>
             Logout
           </button>
         </div>
@@ -586,15 +605,20 @@ export function StaffSignInsPage({ navigateTo }) {
           </select>
         </label>
         <div className="staff-actions">
-          <a className="button-link" href={exportUrl("csv")}>
-            Export CSV
-          </a>
-          <a className="button-link" href={exportUrl("xml")}>
-            Export XML
-          </a>
-          <button className="primary-button" type="button" onClick={emailReport}>
-            Email report
-          </button>
+          <details className="staff-more-menu">
+            <summary>More</summary>
+            <div className="staff-more-popover">
+              <a className="button-link" href={exportUrl("csv")}>
+                Export CSV
+              </a>
+              <a className="button-link" href={exportUrl("xml")}>
+                Export XML
+              </a>
+              <button type="button" onClick={emailReport}>
+                Email report
+              </button>
+            </div>
+          </details>
         </div>
       </section>
 
@@ -603,7 +627,25 @@ export function StaffSignInsPage({ navigateTo }) {
       <section className="staff-table-panel">
         <div className="staff-table-heading">
           <strong>{loading ? "Loading..." : `${visibleRows.length} sign-ins`}</strong>
-          <span>Sort: {sortLabel(sort)} {dir}</span>
+          <span className="staff-sort-summary">Sort: {sortLabel(sort)} {dir}</span>
+          <label className="staff-mobile-sort">
+            <span>Sort</span>
+            <select
+              value={`${sort}:${dir}`}
+              onChange={(event) => changeSortOption(event.target.value)}
+            >
+              <option value="signed_in_at:asc">Signed in asc</option>
+              <option value="signed_in_at:desc">Signed in desc</option>
+              <option value="signed_out_at:asc">Signed out asc</option>
+              <option value="signed_out_at:desc">Signed out desc</option>
+              <option value="name:asc">Name asc</option>
+              <option value="name:desc">Name desc</option>
+              <option value="company:asc">Company asc</option>
+              <option value="company:desc">Company desc</option>
+              <option value="trade:asc">Trade asc</option>
+              <option value="trade:desc">Trade desc</option>
+            </select>
+          </label>
         </div>
         <div className="staff-status-filters" aria-label="Sign-in status filter">
           {STATUS_FILTERS.map((filter) => (
@@ -654,66 +696,109 @@ export function StaffSignInsPage({ navigateTo }) {
 
 function SignInsTable({ rows, sort, dir, onSort }) {
   return (
-    <div className="table-scroll staff-table-scroll">
-      <table className="staff-table">
-        <thead>
-          <tr>
-            {SORTABLE_FIELDS.map((column) => (
-              <th
-                key={column.field}
-                aria-sort={sortAriaValue(column.field, sort, dir)}
-              >
-                <div className="staff-sort-header">
-                  <span>{column.label}</span>
-                  <button
-                    aria-label={`Sort by ${column.label}`}
-                    aria-pressed={sort === column.field}
-                    className={
-                      sort === column.field
-                        ? "sort-chip sort-chip-active"
-                        : "sort-chip"
-                    }
-                    type="button"
-                    onClick={() => onSort(column.field)}
-                  >
-                    {sort === column.field ? dir.toUpperCase() : "Sort"}
-                  </button>
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td>{row.name}</td>
-              <td>{formatPhoneNumber(row.phone)}</td>
-              <td>{row.trade}</td>
-              <td>{row.company}</td>
-              <td>{formatDateTime(row.signed_in_at)}</td>
-              <td>
-                {row.signed_out_at ? (
-                  <div className="signin-status-cell">
-                    <span className="signin-status-badge signed-out">
-                      Signed out
-                    </span>
-                    <span>{formatDateTime(row.signed_out_at)}</span>
-                  </div>
-                ) : (
-                  <span className="signin-status-badge signed-in">
-                    Signed in
-                  </span>
-                )}
-              </td>
-            </tr>
-          ))}
-          {!rows.length ? (
+    <>
+      <div className="table-scroll staff-table-scroll">
+        <table className="staff-table">
+          <thead>
             <tr>
-              <td colSpan={SORTABLE_FIELDS.length}>No sign-ins for this date.</td>
+              {SORTABLE_FIELDS.map((column) => (
+                <th
+                  key={column.field}
+                  aria-sort={sortAriaValue(column.field, sort, dir)}
+                >
+                  <div className="staff-sort-header">
+                    <span>{column.label}</span>
+                    <button
+                      aria-label={`Sort by ${column.label}`}
+                      aria-pressed={sort === column.field}
+                      className={
+                        sort === column.field
+                          ? "sort-chip sort-chip-active"
+                          : "sort-chip"
+                      }
+                      type="button"
+                      onClick={() => onSort(column.field)}
+                    >
+                      {sort === column.field ? dir.toUpperCase() : "Sort"}
+                    </button>
+                  </div>
+                </th>
+              ))}
             </tr>
-          ) : null}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.id}>
+                <td>{row.name}</td>
+                <td>{formatPhoneNumber(row.phone)}</td>
+                <td>{row.trade}</td>
+                <td>{row.company}</td>
+                <td>{formatDateTime(row.signed_in_at)}</td>
+                <td>
+                  {row.signed_out_at ? (
+                    <div className="signin-status-cell">
+                      <span className="signin-status-badge signed-out">
+                        Signed out
+                      </span>
+                      <span>{formatDateTime(row.signed_out_at)}</span>
+                    </div>
+                  ) : (
+                    <span className="signin-status-badge signed-in">
+                      Signed in
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {!rows.length ? (
+              <tr>
+                <td colSpan={SORTABLE_FIELDS.length}>No sign-ins for this date.</td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+      <SignInCards rows={rows} />
+    </>
+  );
+}
+
+function SignInCards({ rows }) {
+  if (!rows.length) {
+    return <p className="empty-state staff-card-empty">No sign-ins for this date.</p>;
+  }
+
+  return (
+    <div className="staff-card-list">
+      {rows.map((row) => (
+        <article className="staff-signin-card" key={row.id}>
+          <div className="staff-signin-card-header">
+            <h3>{row.name}</h3>
+            {row.signed_out_at ? (
+              <span className="signin-status-badge signed-out">Signed out</span>
+            ) : (
+              <span className="signin-status-badge signed-in">Signed in</span>
+            )}
+          </div>
+          <p className="staff-signin-company">{row.company}</p>
+          <div className="staff-signin-meta">
+            <span>{row.trade}</span>
+            <a href={`tel:${phoneHref(row.phone)}`}>{formatPhoneNumber(row.phone)}</a>
+          </div>
+          <dl className="staff-signin-times">
+            <div>
+              <dt>Signed in</dt>
+              <dd>{formatDateTime(row.signed_in_at)}</dd>
+            </div>
+            {row.signed_out_at ? (
+              <div>
+                <dt>Signed out</dt>
+                <dd>{formatDateTime(row.signed_out_at)}</dd>
+              </div>
+            ) : null}
+          </dl>
+        </article>
+      ))}
     </div>
   );
 }
@@ -770,6 +855,10 @@ function formatPhoneNumber(value) {
   }
 
   return raw;
+}
+
+function phoneHref(value) {
+  return String(value || "").replace(/[^\d+]/g, "");
 }
 
 function isSignedIn(row) {
