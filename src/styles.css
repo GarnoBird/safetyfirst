@@ -2404,6 +2404,7 @@ p {
 
   .worker-form input,
   .worker-form select {
+    height: 62px;
     min-height: 62px;
     padding: 12px 14px;
     font-size: 1.34rem;

@@ -75,7 +75,6 @@ const WORKER_COMPANY_OPTIONS = [
   "National Tile",
   "New Way",
   "New York Paint",
-  OTHER_COMPANY,
   "Oxford Hoist Install",
   "Pacific Water Proofing",
   "Pro-Bell",
@@ -88,6 +87,7 @@ const WORKER_COMPANY_OPTIONS = [
   "Tucavan",
   "United Scaffold",
   "West Coast Cleaning",
+  OTHER_COMPANY,
 ];
 
 export function WorkerSignInQr({ navigateTo }) {
