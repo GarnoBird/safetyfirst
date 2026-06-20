@@ -157,10 +157,7 @@ export async function sendSignInReportEmail({
         staffId,
       });
     }
-    const sendError = new Error("Report email could not be sent.");
-    sendError.statusCode = 502;
-    sendError.cause = error;
-    throw sendError;
+    throw createEmailSendError(error);
   }
 
   if (recordRun) {
@@ -233,10 +230,7 @@ async function sendCompanySummaryReportEmail({
         staffId,
       });
     }
-    const sendError = new Error("Report email could not be sent.");
-    sendError.statusCode = 502;
-    sendError.cause = error;
-    throw sendError;
+    throw createEmailSendError(error);
   }
 
   if (recordRun) {
@@ -274,6 +268,31 @@ function assertEmailConfig() {
   error.statusCode = 503;
   error.exposeMessage = true;
   throw error;
+}
+
+function createEmailSendError(providerError) {
+  const providerMessage = cleanProviderErrorMessage(providerError);
+  const message = providerMessage
+    ? `Report email could not be sent. Email provider said: ${providerMessage}`
+    : "Report email could not be sent.";
+
+  console.error("Report email send failed", {
+    providerName: providerError?.name,
+    providerStatusCode: providerError?.statusCode,
+    providerMessage,
+  });
+
+  const sendError = new Error(message);
+  sendError.statusCode = 502;
+  sendError.exposeMessage = true;
+  sendError.cause = providerError;
+  return sendError;
+}
+
+function cleanProviderErrorMessage(providerError) {
+  const message = String(providerError?.message || "").trim();
+  if (!message) return "";
+  return message.length > 280 ? `${message.slice(0, 277)}...` : message;
 }
 
 function encodeAttachment(content) {
