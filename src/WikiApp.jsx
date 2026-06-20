@@ -214,16 +214,16 @@ function WikiHome({ query, navigateTo }) {
       </section>
 
       <section className="wiki-section">
-        <h2>MVP plan</h2>
+        <h2>Browse all draft articles</h2>
         <p>
-          The first useful version is 25 source-cited articles, search by worker language,
-          article cross-links, print checklists, visible review status, and a public
-          correction process.
+          The current wiki includes {wikiArticles.length} source-cited draft article pages with
+          worker-language search terms, related topic links, checklists, review status, and
+          official source notes.
         </p>
         <ArticleList articles={wikiArticles} compact />
         <p className="wiki-more">
           <a href="/wiki/roadmap" onClick={makeNavigate(navigateTo, "/wiki/roadmap")}>
-            View the first 100-article roadmap
+            View the full 100-topic roadmap
           </a>
         </p>
       </section>
@@ -466,11 +466,11 @@ function SourcesPage() {
 function RoadmapPage() {
   return (
     <article className="wiki-article">
-      <PageTitle title="Roadmap" subtitle="First 25 articles and first 100-topic plan" />
+      <PageTitle title="Roadmap" subtitle="Published draft batches and the full 100-topic plan" />
       <section className="wiki-section">
         <h2>First public launch criteria</h2>
         <ul>
-          <li>25 article pages published as source-cited drafts.</li>
+          <li>50 article pages published as source-cited drafts for the first public content base.</li>
           <li>Every article has official sources, related topics, aliases, review dates, and checklists.</li>
           <li>Search works for worker-language terms such as tie off, silica dust, crane pick, and toolbox talk.</li>
           <li>Correction process, disclaimer, and review badges are visible.</li>
@@ -478,7 +478,8 @@ function RoadmapPage() {
         </ul>
       </section>
       <RoadmapTable title="First 25 articles" rows={getRoadmapByPhase("MVP 25")} />
-      <RoadmapTable title="First 100-article roadmap" rows={articleRoadmap} />
+      <RoadmapTable title="Batch 2 articles" rows={getRoadmapByPhase("Batch 2")} />
+      <RoadmapTable title="Full 100-topic roadmap" rows={articleRoadmap} />
     </article>
   );
 }

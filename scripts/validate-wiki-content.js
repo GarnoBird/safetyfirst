@@ -54,8 +54,8 @@ for (const article of wikiArticles) {
   }
 }
 
-if (wikiArticles.length < 25) {
-  errors.push(`MVP requires at least 25 articles; found ${wikiArticles.length}`);
+if (wikiArticles.length < 50) {
+  errors.push(`Wiki expansion requires at least 50 articles; found ${wikiArticles.length}`);
 }
 
 if (errors.length) {
