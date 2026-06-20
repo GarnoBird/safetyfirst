@@ -4,54 +4,78 @@ title: "Traffic Control"
 category: "High-Risk Work"
 status: "Deep draft"
 jurisdiction: "BC"
-difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+difficulty: "Intermediate"
+confidenceLevel: "Tier 1 source-cited draft"
+reviewTier: "Tier 1"
+maturity: "Draft"
+reviewPriority: "High-risk legal/source hardening"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 1 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
   - "TCP"
-  - "traffic plan"
+  - "flagger"
   - "lane closure"
+  - "construction traffic"
   - "pedestrian detour"
 trades:
+  - "Civil"
+  - "Concrete"
+  - "Delivery"
+  - "Traffic control"
   - "All construction trades"
 hazards:
-  - "Vehicle strike"
-  - "Public interface"
-  - "Mobile equipment"
-tasks: []
+  - "Struck-by traffic"
+  - "Pedestrian conflict"
+  - "Backing equipment"
+  - "Poor visibility"
+  - "Public exposure"
+tasks:
+  - "Planning traffic control"
+  - "Deliveries"
+  - "Lane closures"
+  - "Pedestrian detours"
+  - "Flagging"
 requiredDocuments:
   - "Traffic control plan"
-  - "TCP training record"
+  - "Risk assessment"
+  - "TCP training/authorization record"
+  - "Site drawing"
   - "Inspection record"
-  - "Site-specific safe work procedure"
-  - "Worker instruction or training record"
-  - "Inspection or pre-use check record"
-  - "Corrective action record when a deficiency is found"
+  - "Incident response plan"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 regulationRefs:
-  - "ohsr-part-18"
+  - "ohsr-18-3"
+  - "ohsr-18-3-1"
+  - "ohsr-18-3-2"
+  - "ohsr-18-4"
+  - "ohsr-18-5"
+  - "ohsr-8-4"
 citations:
-  - "ohsr-part-18"
+  - "ohsr-18-3"
+  - "ohsr-18-3-1"
+  - "ohsr-18-3-2"
+  - "ohsr-18-4"
+  - "ohsr-18-5"
+  - "ohsr-8-4"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
+  - "traffic-control-plans"
+  - "traffic-control-persons"
+  - "high-visibility-apparel"
   - "mobile-equipment"
   - "hoarding-and-public-protection"
-  - "site-orientation"
   - "site-specific-safety-plan"
-  - "supervisor-duties"
   - "workplace-inspections"
-  - "corrective-actions"
-  - "site-emergency-response-plan"
-  - "fall-protection"
-  - "fall-arrest"
-  - "fall-restraint"
-  - "guardrails"
+  - "incident-investigation"
+  - "supervisor-duties"
+  - "worker-rights-and-responsibilities"
+  - "emergency-transportation"
+  - "first-aid-assessment"
 ---
 
 # Traffic Control
@@ -60,127 +84,138 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Traffic Control is a BC construction safety topic for the planned work. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[mobile-equipment|Mobile Equipment]] and [[hoarding-and-public-protection|Hoarding and Public Protection]] so readers can move through the topic the way they would in a practical wiki.
+Traffic control protects workers, drivers, pedestrians, cyclists, and the public where construction work interacts with roads, lanes, sidewalks, parkades, deliveries, backing equipment, or temporary routes. The plan has to match the actual traffic speed, sight lines, work activity, and public interface. {{cite:ohsr-18-3}}
 
-The main hazards to control are vehicle strike, public interface, mobile equipment. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+Good traffic control is not just placing cones. It includes risk assessment, a traffic control plan where required, supervision, device placement, trained traffic control persons, pedestrian detours, delivery coordination, lighting, and high-visibility apparel. {{cite:ohsr-18-3-1}} {{cite:ohsr-18-3-2}}
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-18}}
+Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. {{review:source}}
 
 ## When this applies
 
-- The work involves traffic control on a BC construction site. {{cite:worksafebc-ohs-regulation}}
-- The task includes the planned work or a similar activity with comparable hazards.
-- Workers could be exposed to vehicle strike, public interface, mobile equipment, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as traffic control plan must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- Workers are exposed to public traffic, site traffic, deliveries, backing vehicles, forklifts, concrete trucks, or mobile equipment.
+- A lane, sidewalk, driveway, alley, parkade route, or public path is changed or blocked.
+- Traffic control persons, signs, cones, barriers, detours, or temporary devices are needed.
+- A delivery or concrete pour creates a temporary traffic or pedestrian hazard.
+- The work happens in low light, rain, snow, poor visibility, congestion, or high-speed traffic.
+- Public protection, hoarding, gates, flagging, or spotters need coordination.
+- A traffic plan is being reviewed after a near miss, complaint, or changed work area.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-18}}
-- Identify the hazards connected to traffic control and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:worksafebc-ohs-guidelines}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-part-18}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-regulation}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:worksafebc-ohs-guidelines}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Use traffic control standards required by Part 18 for the work. {{cite:ohsr-18-3}}
+- Complete a traffic control risk assessment where required. {{cite:ohsr-18-3-1}}
+- Prepare and use a traffic control plan where required. {{cite:ohsr-18-3-2}}
+- Provide supervision for traffic control as required by the regulation. {{cite:ohsr-18-4}}
+- Place temporary traffic control devices in accordance with the applicable requirements. {{cite:ohsr-18-5}}
+- Use appropriate high-visibility and PPE controls for workers exposed to traffic. {{cite:ohsr-8-4}}
+- Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. {{review:source}}
+- Confirm whether additional road authority permits or standards apply to the specific road or municipality. {{review:source}}
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[site-orientation|Site Orientation]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Separate pedestrians from vehicle movement with physical controls where practical.
+- Plan delivery staging so trucks do not block sight lines, sidewalks, fire access, or emergency routes.
+- Use spotters for backing only when the driver and spotter have a clear communication method.
+- Check traffic control after dark, after weather changes, and after devices are moved by vehicles or the public.
+- Keep signs and cones clean, visible, upright, and placed far enough in advance for the road condition.
+- Coordinate traffic control with hoarding, gates, crane picks, concrete pours, and emergency access.
+- Give TCPs a safe standing position, escape path, communication, breaks, and weather protection.
 
 ## Required documents
 
-- Traffic control plan: shows how the site chose and communicated the control. {{cite:ohsr-part-18}}
-- TCP training record: records who checked the condition before work started. {{cite:worksafebc-ohs-regulation}}
-- Inspection record: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:worksafebc-ohs-guidelines}}
-- Site-specific safe work procedure: helps supervisors prove workers received task-specific instruction. {{cite:ohsr-part-18}}
-- Worker instruction or training record: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ohs-regulation}}
-- Inspection or pre-use check record: supports coordination between employers, the prime contractor, and affected trades. {{cite:worksafebc-ohs-guidelines}}
-- Corrective action record when a deficiency is found: gives the crew a field reference when conditions change. {{cite:ohsr-part-18}}
+- Traffic control plan: records the site-specific control expected before the task starts. {{cite:ohsr-18-3}}
+- Risk assessment: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-18-3-1}}
+- TCP training/authorization record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-18-3-2}}
+- Site drawing: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-18-4}}
+- Inspection record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-18-5}}
+- Incident response plan: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-8-4}}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[mobile-equipment|Mobile Equipment]] and any site-specific procedure that applies.
-3. Identify the hazards, including vehicle strike, public interface, mobile equipment, and decide who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-18}}
-5. Prepare or update the required document set, including traffic control plan.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Identify workers, public users, vehicles, equipment, sidewalks, driveways, lanes, speeds, and sight lines.
+2. Complete the risk assessment and decide whether a formal traffic control plan is required.
+3. Lay out signs, cones, barriers, detours, TCP positions, delivery routes, and emergency access on a sketch.
+4. Brief workers, TCPs, drivers, gate control, and affected supervisors.
+5. Install devices in the planned sequence before workers are exposed.
+6. Check high-visibility apparel, radios, lighting, and escape paths.
+7. Monitor the setup during deliveries, pours, hoists, backups, and pedestrian detours.
+8. Stop work if traffic devices are moved, visibility drops, the public enters the work area, or communication fails.
+9. Restore the road, sidewalk, or route when the work activity is complete.
+10. Record inspections, changes, incidents, and corrective actions.
 
 ## Worker checklist
 
-- [ ] I understand what traffic control means for today's task.
-- [ ] I know the main hazards: vehicle strike, public interface, mobile equipment.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
-- [ ] I know the emergency response or first aid contact path if something goes wrong.
-- [ ] I will not continue if the work no longer matches the plan.
+- [ ] I know the traffic route and pedestrian route for today's work.
+- [ ] I will stay inside the protected work area.
+- [ ] I know who the TCP, spotter, or traffic supervisor is.
+- [ ] I am wearing required high-visibility apparel.
+- [ ] I will not move traffic devices without authorization.
+- [ ] I will keep gates, sidewalks, fire lanes, and emergency routes clear.
+- [ ] I will make eye contact or confirm communication before entering vehicle paths.
+- [ ] I will report damaged signs, missing cones, poor lighting, or public access problems.
+- [ ] I will stop if a driver, pedestrian, or equipment operator does not understand the route.
+- [ ] I know how to call for help after a struck-by or traffic incident.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:worksafebc-ohs-regulation}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
-- [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[site-specific-safety-plan|Site-Specific Safety Plan]] or another related article when the issue is broader than this task.
+- [ ] The traffic risk assessment reflects the actual road, public, and site conditions. {{cite:ohsr-18-3-1}}
+- [ ] A traffic control plan is prepared and available where required. {{cite:ohsr-18-3-2}}
+- [ ] Traffic devices are placed and maintained as required. {{cite:ohsr-18-5}}
+- [ ] TCPs, spotters, drivers, and affected workers understand communication and authority.
+- [ ] Pedestrians and the public are physically separated where practical.
+- [ ] High-visibility apparel, lighting, and escape paths are checked.
+- [ ] Deliveries, concrete pours, crane picks, and emergency access are coordinated.
+- [ ] The setup is inspected after weather, darkness, traffic changes, or device movement.
+- [ ] Incidents and near misses trigger plan review.
+- [ ] Current road authority and training requirements are source checked before public-ready status. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
-- Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Using a generic cone layout that does not match traffic speed or sight distance.
+- Putting a TCP where there is no escape path.
+- Blocking a sidewalk without a clear pedestrian detour.
+- Forgetting deliveries, concrete trucks, and backing equipment during traffic planning.
+- Leaving signs or cones dirty, fallen, or hidden by parked vehicles.
+- Letting workers cross active traffic lanes without a controlled path.
+- Ignoring night work, rain, glare, and worker visibility.
+- Failing to update the plan after a public complaint or near miss.
 
 ## Related topics
 
-- [[mobile-equipment|Mobile Equipment]]
-- [[hoarding-and-public-protection|Hoarding and Public Protection]]
-- [[site-orientation|Site Orientation]]
-- [[site-specific-safety-plan|Site-Specific Safety Plan]]
-- [[supervisor-duties|Supervisor Duties]]
-- [[workplace-inspections|Workplace Inspections]]
-- [[corrective-actions|Corrective Actions]]
-- [[site-emergency-response-plan|Site Emergency Response Plan]]
-- [[fall-protection|Fall Protection]]
-- [[fall-arrest|Fall Arrest]]
-- [[fall-restraint|Fall Restraint]]
-- [[guardrails|Guardrails]]
+- [[traffic-control-plans]]
+- [[traffic-control-persons]]
+- [[high-visibility-apparel]]
+- [[mobile-equipment]]
+- [[hoarding-and-public-protection]]
+- [[site-specific-safety-plan]]
+- [[workplace-inspections]]
+- [[incident-investigation]]
+- [[supervisor-duties]]
+- [[worker-rights-and-responsibilities]]
+- [[emergency-transportation]]
+- [[first-aid-assessment]]
 
 ## Official sources
 
-- {{cite:ohsr-part-18}}
+- {{cite:ohsr-18-3}}
+- {{cite:ohsr-18-3-1}}
+- {{cite:ohsr-18-3-2}}
+- {{cite:ohsr-18-4}}
+- {{cite:ohsr-18-5}}
+- {{cite:ohsr-8-4}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## Reviewer notes
+
+- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
+- Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
+
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 1 hardening: Added BC-specific legal citations, field procedures, checklists, related links, and review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

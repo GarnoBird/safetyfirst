@@ -9,17 +9,24 @@ import {
   databaseSchema,
   getArticleBySlug,
   getCitationById,
+  getRedirectTarget,
   getRegulationById,
   getRoadmapByPhase,
+  getSearchSuggestion,
   getSourceById,
+  getWikiFilterOptions,
+  getWikiReviewBacklog,
   governanceModel,
+  glossaryTerms,
   linkingModel,
   productStrategy,
+  reviewerChecklist,
   searchWiki,
   searchStrategy,
   sourceHierarchy,
   synonymIndex,
   technicalRecommendation,
+  wikiRedirects,
   wikiArticles,
   wikiCategories,
   wikiSources,
@@ -30,7 +37,10 @@ const WIKI_NAV = [
   { label: "Article index", path: "/wiki/articles" },
   { label: "Categories", path: "/wiki/categories" },
   { label: "Sources", path: "/wiki/sources" },
+  { label: "Glossary", path: "/wiki/glossary" },
+  { label: "Redirects", path: "/wiki/redirects" },
   { label: "Roadmap", path: "/wiki/roadmap" },
+  { label: "Review backlog", path: "/wiki/review-backlog" },
   { label: "Governance", path: "/wiki/governance" },
   { label: "Technical plan", path: "/wiki/technical" },
 ];
@@ -40,10 +50,12 @@ export default function WikiApp({ routePath, navigateTo }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(getInitialSearch());
   const [activeSearch, setActiveSearch] = useState(getInitialSearch());
+  const [filters, setFilters] = useState(getInitialFilters());
   const navigateWithinWiki = (path) => {
-    if (!path.includes("?search=")) {
+    if (!path.includes("?")) {
       setActiveSearch("");
       setSearchValue("");
+      setFilters(emptyFilters());
     }
     navigateTo(path);
   };
@@ -51,7 +63,8 @@ export default function WikiApp({ routePath, navigateTo }) {
   useEffect(() => {
     if (normalizedPath.startsWith("/wiki/articles/")) {
       const slug = normalizedPath.replace("/wiki/articles/", "");
-      const article = getArticleBySlug(slug);
+      const redirectTarget = getRedirectTarget(slug);
+      const article = getArticleBySlug(slug) || (redirectTarget ? getArticleBySlug(redirectTarget) : null);
       document.title = article
         ? `${article.title} - BC Construction Safety Wiki`
         : "BC Construction Safety Wiki";
@@ -63,11 +76,18 @@ export default function WikiApp({ routePath, navigateTo }) {
 
   const page = useMemo(() => {
     if (normalizedPath === "/wiki" || normalizedPath === "/wiki/main") {
-      return <WikiHome query={activeSearch} navigateTo={navigateWithinWiki} />;
+      return (
+        <WikiHome
+          query={activeSearch}
+          filters={filters}
+          setFilters={setFilters}
+          navigateTo={navigateWithinWiki}
+        />
+      );
     }
 
     if (normalizedPath === "/wiki/articles") {
-      return <ArticleIndex />;
+      return <ArticleIndex navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath.startsWith("/wiki/articles/")) {
@@ -76,15 +96,32 @@ export default function WikiApp({ routePath, navigateTo }) {
     }
 
     if (normalizedPath === "/wiki/categories") {
-      return <CategoriesPage />;
+      return <CategoriesPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath.startsWith("/wiki/categories/")) {
+      const categoryId = normalizedPath.replace("/wiki/categories/", "");
+      return <CategoryPage categoryId={categoryId} navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath === "/wiki/sources") {
       return <SourcesPage />;
     }
 
+    if (normalizedPath === "/wiki/glossary") {
+      return <GlossaryPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath === "/wiki/redirects") {
+      return <RedirectsPage navigateTo={navigateWithinWiki} />;
+    }
+
     if (normalizedPath === "/wiki/roadmap") {
       return <RoadmapPage />;
+    }
+
+    if (normalizedPath === "/wiki/review-backlog") {
+      return <ReviewBacklogPage navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath === "/wiki/governance") {
@@ -96,13 +133,19 @@ export default function WikiApp({ routePath, navigateTo }) {
     }
 
     return <NotFoundPage path={normalizedPath} />;
-  }, [activeSearch, navigateWithinWiki, normalizedPath]);
+  }, [activeSearch, filters, navigateWithinWiki, normalizedPath]);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
     const query = searchValue.trim();
     setActiveSearch(query);
-    navigateTo(query ? `/wiki?search=${encodeURIComponent(query)}` : "/wiki");
+    const params = new URLSearchParams();
+    if (query) params.set("search", query);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) params.set(key, value);
+    }
+    const queryString = params.toString();
+    navigateTo(queryString ? `/wiki?${queryString}` : "/wiki");
   };
 
   return (
@@ -149,7 +192,12 @@ export default function WikiApp({ routePath, navigateTo }) {
             <ul>
               {wikiCategories.map((category) => (
                 <li key={category.id}>
-                  <a href={`/wiki/categories#${category.id}`}>{category.title}</a>
+                  <a
+                    href={`/wiki/categories/${category.id}`}
+                    onClick={makeNavigate(navigateWithinWiki, `/wiki/categories/${category.id}`)}
+                  >
+                    {category.title}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -161,8 +209,9 @@ export default function WikiApp({ routePath, navigateTo }) {
   );
 }
 
-function WikiHome({ query, navigateTo }) {
-  const results = searchWiki(query);
+function WikiHome({ query, filters, setFilters, navigateTo }) {
+  const results = searchWiki(query, filters);
+  const suggestion = query ? getSearchSuggestion(query) : null;
   const featured = ["fall-protection", "silica-exposure-control", "cardiac-arrest-on-site"]
     .map(getArticleBySlug)
     .filter(Boolean);
@@ -178,9 +227,23 @@ function WikiHome({ query, navigateTo }) {
       {query ? (
         <section className="wiki-section">
           <h2>Search results for "{query}"</h2>
+          {suggestion ? (
+            <p className="wiki-small">
+              Did you mean{" "}
+              <a
+                href={`/wiki/articles/${suggestion.article.slug}`}
+                onClick={makeNavigate(navigateTo, `/wiki/articles/${suggestion.article.slug}`)}
+              >
+                {suggestion.article.title}
+              </a>
+              ? Matched worker term "{suggestion.term}".
+            </p>
+          ) : null}
           <ArticleList articles={results} empty="No matching articles found." />
         </section>
       ) : null}
+
+      <SearchFilters filters={filters} setFilters={setFilters} />
 
       <section className="wiki-section">
         <h2>Product concept</h2>
@@ -194,7 +257,7 @@ function WikiHome({ query, navigateTo }) {
 
       <section className="wiki-section">
         <h2>Featured articles</h2>
-        <ArticleList articles={featured} />
+        <ArticleList articles={featured} navigateTo={navigateTo} />
       </section>
 
       <section className="wiki-section">
@@ -209,6 +272,14 @@ function WikiHome({ query, navigateTo }) {
                   <li key={topic}>{topic}</li>
                 ))}
               </ul>
+              <p className="wiki-more">
+                <a
+                  href={`/wiki/categories/${category.id}`}
+                  onClick={makeNavigate(navigateTo, `/wiki/categories/${category.id}`)}
+                >
+                  View category page
+                </a>
+              </p>
             </section>
           ))}
         </div>
@@ -221,7 +292,7 @@ function WikiHome({ query, navigateTo }) {
           worker-language search terms, related topic links, checklists, review status, and
           official source notes.
         </p>
-        <ArticleList articles={wikiArticles} compact />
+        <ArticleList articles={wikiArticles} compact navigateTo={navigateTo} />
         <p className="wiki-more">
           <a href="/wiki/roadmap" onClick={makeNavigate(navigateTo, "/wiki/roadmap")}>
             View the 100-article review roadmap
@@ -233,14 +304,24 @@ function WikiHome({ query, navigateTo }) {
 }
 
 function ArticlePage({ slug, navigateTo }) {
-  const article = getArticleBySlug(slug);
+  const directArticle = getArticleBySlug(slug);
+  const redirectTarget = !directArticle ? getRedirectTarget(slug) : null;
+  const article = directArticle || (redirectTarget ? getArticleBySlug(redirectTarget) : null);
 
   if (!article) {
     return <NotFoundPage path={`/wiki/articles/${slug}`} />;
   }
 
+  const redirectedFrom = directArticle ? "" : slug;
+  const relatedFieldTools = [
+    ...(article.relatedToolboxTalks || []),
+    ...(article.relatedChecklists || []),
+    ...(article.relatedQuizzes || []),
+    ...(article.relatedForms || []),
+  ];
   const sectionHeadings = [
     "Summary",
+    "Review status",
     "When this applies",
     "Legal requirements",
     "Best practice",
@@ -250,10 +331,12 @@ function ArticlePage({ slug, navigateTo }) {
     "Supervisor checklist",
     "Common mistakes",
     "Related topics",
+    "Related field tools",
     "Pages that link here",
     "Official sources",
     "Official citations",
-    "Review and version history",
+    "Report an issue with this article",
+    "Version history",
     "Disclaimer",
   ];
 
@@ -263,9 +346,18 @@ function ArticlePage({ slug, navigateTo }) {
       <div className="wiki-article-meta">
         <span>{article.jurisdiction}</span>
         <span>{article.status}</span>
+        <span>{article.maturity || "Draft"}</span>
+        <span>{article.reviewTier || "Tier 3"}</span>
         <span>{article.confidenceLevel}</span>
         <span>Last reviewed {article.review.lastReviewed}</span>
       </div>
+
+      {redirectedFrom ? (
+        <div className="wiki-notice wiki-redirect-notice">
+          Redirected from <b>{redirectedFrom}</b>. This worker-language term points to{" "}
+          <b>{article.title}</b>.
+        </div>
+      ) : null}
 
       <TableOfContents items={sectionHeadings} />
 
@@ -282,6 +374,8 @@ function ArticlePage({ slug, navigateTo }) {
           </p>
         ) : null}
       </section>
+
+      <ReviewBox article={article} />
 
       <ArticleSection title="When this applies" items={article.sections.whenApplies} navigateTo={navigateTo} />
       <ArticleSection
@@ -324,6 +418,10 @@ function ArticlePage({ slug, navigateTo }) {
           })}
         </ul>
       </section>
+
+      {relatedFieldTools.length ? (
+        <RelatedFieldTools article={article} navigateTo={navigateTo} />
+      ) : null}
 
       {article.backlinks?.length ? (
         <section className="wiki-section" id="pages-that-link-here">
@@ -393,8 +491,10 @@ function ArticlePage({ slug, navigateTo }) {
         </section>
       ) : null}
 
-      <section className="wiki-section" id="review-and-version-history">
-        <h2>Review and version history</h2>
+      <CorrectionForm article={article} />
+
+      <section className="wiki-section" id="version-history">
+        <h2>Version history</h2>
         <table className="wiki-table">
           <tbody>
             <tr>
@@ -413,10 +513,14 @@ function ArticlePage({ slug, navigateTo }) {
               <th>Safety review</th>
               <td>{article.review.safetyReviewStatus}</td>
             </tr>
-            <tr>
-              <th>Version</th>
-              <td>0.1 source-cited draft</td>
-            </tr>
+            {(article.versionHistory?.length ? article.versionHistory : ["0.1 source-cited draft"]).map(
+              (entry, index) => (
+                <tr key={`${entry}-${index}`}>
+                  <th>{index === 0 ? "Version notes" : ""}</th>
+                  <td>{entry}</td>
+                </tr>
+              ),
+            )}
           </tbody>
         </table>
       </section>
@@ -437,7 +541,7 @@ function ArticlePage({ slug, navigateTo }) {
   );
 }
 
-function ArticleIndex() {
+function ArticleIndex({ navigateTo }) {
   const grouped = groupBy(wikiArticles, "category");
 
   return (
@@ -446,20 +550,27 @@ function ArticleIndex() {
       {Object.entries(grouped).map(([category, articles]) => (
         <section className="wiki-section" key={category}>
           <h2>{category}</h2>
-          <ArticleList articles={articles} />
+          <ArticleList articles={articles} navigateTo={navigateTo} />
         </section>
       ))}
     </article>
   );
 }
 
-function CategoriesPage() {
+function CategoriesPage({ navigateTo }) {
   return (
     <article className="wiki-article">
       <PageTitle title="Categories" subtitle="Information architecture" />
       {wikiCategories.map((category) => (
         <section className="wiki-section" id={category.id} key={category.id}>
-          <h2>{category.title}</h2>
+          <h2>
+            <a
+              href={`/wiki/categories/${category.id}`}
+              onClick={makeNavigate(navigateTo, `/wiki/categories/${category.id}`)}
+            >
+              {category.title}
+            </a>
+          </h2>
           <p>{category.description}</p>
           <ul className="wiki-columns-list">
             {category.topics.map((topic) => (
@@ -468,6 +579,49 @@ function CategoriesPage() {
           </ul>
         </section>
       ))}
+    </article>
+  );
+}
+
+function CategoryPage({ categoryId, navigateTo }) {
+  const category = wikiCategories.find((item) => item.id === categoryId);
+  if (!category) return <NotFoundPage path={`/wiki/categories/${categoryId}`} />;
+
+  const articles = wikiArticles.filter((article) => article.category === category.title);
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title={`Category: ${category.title}`} subtitle="BC Construction Safety Wiki category page" />
+      <section className="wiki-section">
+        <h2>About this category</h2>
+        <p>{category.description}</p>
+      </section>
+      <section className="wiki-section">
+        <h2>Key topics</h2>
+        <ul className="wiki-columns-list">
+          {category.topics.map((topic) => {
+            const article = articleByTitle(topic);
+            return (
+              <li key={topic}>
+                {article ? (
+                  <a
+                    href={`/wiki/articles/${article.slug}`}
+                    onClick={makeNavigate(navigateTo, `/wiki/articles/${article.slug}`)}
+                  >
+                    {article.title}
+                  </a>
+                ) : (
+                  topic
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+      <section className="wiki-section">
+        <h2>Pages in this category</h2>
+        <ArticleList articles={articles} navigateTo={navigateTo} />
+      </section>
     </article>
   );
 }
@@ -546,6 +700,155 @@ function RoadmapPage() {
       <RoadmapTable title="Batch 3 articles" rows={getRoadmapByPhase("Batch 3")} />
       <RoadmapTable title="Batch 4 articles" rows={getRoadmapByPhase("Batch 4")} />
       <RoadmapTable title="Full 100-topic roadmap" rows={articleRoadmap} />
+    </article>
+  );
+}
+
+function GlossaryPage({ navigateTo }) {
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Glossary" subtitle="Worker-language terms and wiki meanings" />
+      <section className="wiki-section">
+        <h2>Glossary terms</h2>
+        <table className="wiki-table">
+          <thead>
+            <tr>
+              <th>Term</th>
+              <th>Plain meaning</th>
+              <th>Main article</th>
+            </tr>
+          </thead>
+          <tbody>
+            {glossaryTerms.map((term) => {
+              const article = getArticleBySlug(term.targetArticle);
+              return (
+                <tr key={term.slug}>
+                  <td>{term.term}</td>
+                  <td>{term.definition}</td>
+                  <td>
+                    {article ? (
+                      <a
+                        href={`/wiki/articles/${article.slug}`}
+                        onClick={makeNavigate(navigateTo, `/wiki/articles/${article.slug}`)}
+                      >
+                        {article.title}
+                      </a>
+                    ) : (
+                      term.targetArticle
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+    </article>
+  );
+}
+
+function RedirectsPage({ navigateTo }) {
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Redirects" subtitle="Common worker terms that point to main articles" />
+      <section className="wiki-section">
+        <h2>Worker-language redirects</h2>
+        <table className="wiki-table">
+          <thead>
+            <tr>
+              <th>Search term</th>
+              <th>Redirect page</th>
+              <th>Target article</th>
+            </tr>
+          </thead>
+          <tbody>
+            {wikiRedirects.map((redirect) => {
+              const target = getArticleBySlug(redirect.to);
+              return (
+                <tr key={redirect.from}>
+                  <td>{redirect.term}</td>
+                  <td>
+                    <a
+                      href={`/wiki/articles/${redirect.from}`}
+                      onClick={makeNavigate(navigateTo, `/wiki/articles/${redirect.from}`)}
+                    >
+                      {redirect.from}
+                    </a>
+                  </td>
+                  <td>
+                    {target ? (
+                      <a
+                        href={`/wiki/articles/${target.slug}`}
+                        onClick={makeNavigate(navigateTo, `/wiki/articles/${target.slug}`)}
+                      >
+                        {target.title}
+                      </a>
+                    ) : (
+                      redirect.to
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+    </article>
+  );
+}
+
+function ReviewBacklogPage({ navigateTo }) {
+  const backlog = getWikiReviewBacklog();
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Review backlog" subtitle="Maintenance view for source and safety review" />
+      <div className="wiki-notice">
+        This page is for maintainers. It identifies draft articles that need citation review,
+        copy hardening, backlink improvement, or maturity decisions before public-ready use.
+      </div>
+      <section className="wiki-section">
+        <h2>Review tiers</h2>
+        <ul className="wiki-inline-list">
+          {Object.entries(backlog.tierCounts).map(([tier, count]) => (
+            <li key={tier}>
+              <b>{tier}</b>: {count}
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="wiki-section">
+        <h2>Reviewer checklist</h2>
+        <ul>
+          {reviewerChecklist.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+      <BacklogList
+        title="Most source-review flags"
+        articles={backlog.sourceReview.slice(0, 25)}
+        getNote={(article) => `${article.sourceReviewFlagCount} source-review flags`}
+        navigateTo={navigateTo}
+      />
+      <BacklogList
+        title="Tier 1 articles with weak citation coverage"
+        articles={backlog.weakCitations}
+        getNote={(article) => `${article.citationIds?.length || 0} citation ids`}
+        navigateTo={navigateTo}
+      />
+      <BacklogList
+        title="Low-backlink pages"
+        articles={backlog.lowBacklinks.slice(0, 25)}
+        getNote={(article) => `${article.backlinks?.length || 0} inbound backlinks`}
+        navigateTo={navigateTo}
+      />
+      <BacklogList
+        title="Oldest review dates"
+        articles={backlog.oldestReview.slice(0, 25)}
+        getNote={(article) => `Last reviewed ${article.review?.lastReviewed || "unknown"}`}
+        navigateTo={navigateTo}
+      />
     </article>
   );
 }
@@ -742,17 +1045,213 @@ function ChecklistSection({ title, items, navigateTo }) {
   );
 }
 
-function ArticleList({ articles, compact = false, empty = "No articles." }) {
+function ArticleList({ articles, compact = false, empty = "No articles.", navigateTo }) {
   if (!articles.length) return <p>{empty}</p>;
   return (
     <ul className={compact ? "wiki-article-list compact" : "wiki-article-list"}>
       {articles.map((article) => (
         <li key={article.slug}>
-          <a href={`/wiki/articles/${article.slug}`}>{article.title}</a>
+          <a
+            href={`/wiki/articles/${article.slug}`}
+            onClick={navigateTo ? makeNavigate(navigateTo, `/wiki/articles/${article.slug}`) : undefined}
+          >
+            {article.title}
+          </a>
           {compact ? null : <p>{plainWikiText(article.summary)}</p>}
         </li>
       ))}
     </ul>
+  );
+}
+
+function SearchFilters({ filters, setFilters }) {
+  const options = getWikiFilterOptions();
+  const updateFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
+
+  return (
+    <section className="wiki-section wiki-search-filters" aria-label="Search filters">
+      <h2>Search filters</h2>
+      <div className="wiki-filter-grid">
+        <FilterSelect label="Hazard" value={filters.hazard} options={options.hazards} onChange={(value) => updateFilter("hazard", value)} />
+        <FilterSelect label="Trade" value={filters.trade} options={options.trades} onChange={(value) => updateFilter("trade", value)} />
+        <FilterSelect label="Required document" value={filters.document} options={options.documents} onChange={(value) => updateFilter("document", value)} />
+        <FilterSelect label="Regulation section" value={filters.regulation} options={options.regulations} onChange={(value) => updateFilter("regulation", value)} />
+        <FilterSelect label="Article maturity" value={filters.maturity} options={options.maturities} onChange={(value) => updateFilter("maturity", value)} />
+      </div>
+      {hasActiveFilters(filters) ? (
+        <button className="wiki-small-button" type="button" onClick={() => setFilters(emptyFilters())}>
+          Clear filters
+        </button>
+      ) : null}
+    </section>
+  );
+}
+
+function FilterSelect({ label, value, options, onChange }) {
+  return (
+    <label className="wiki-filter-field">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">All</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ReviewBox({ article }) {
+  return (
+    <section className="wiki-section wiki-review-box" id="review-status">
+      <h2>Review status</h2>
+      <table className="wiki-table">
+        <tbody>
+          <tr>
+            <th>Article maturity</th>
+            <td>{article.maturity || "Draft"}</td>
+          </tr>
+          <tr>
+            <th>Review tier</th>
+            <td>{article.reviewTier || "Tier 3"}</td>
+          </tr>
+          <tr>
+            <th>Review priority</th>
+            <td>{article.reviewPriority || "Support/reference review"}</td>
+          </tr>
+          <tr>
+            <th>Legal/source review</th>
+            <td>{article.review.legalReviewStatus}</td>
+          </tr>
+          <tr>
+            <th>Safety review</th>
+            <td>{article.review.safetyReviewStatus}</td>
+          </tr>
+          <tr>
+            <th>Review window</th>
+            <td>
+              Last reviewed {article.review.lastReviewed}; next review {article.review.nextReview}
+            </td>
+          </tr>
+          <tr>
+            <th>Open source flags</th>
+            <td>{article.sourceReviewFlagCount || 0}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+function RelatedFieldTools({ article, navigateTo }) {
+  return (
+    <section className="wiki-section" id="related-field-tools">
+      <h2>Related field tools</h2>
+      <div className="wiki-tool-grid">
+        <ResourceList title="Related toolbox talks" ids={article.relatedToolboxTalks} path="/safety-lab/toolbox-talks" navigateTo={navigateTo} />
+        <ResourceList title="Related forms" ids={article.relatedForms} path="/safety-lab/forms" navigateTo={navigateTo} />
+        <ResourceList title="Related quizzes" ids={article.relatedQuizzes} path="/training-quiz" navigateTo={navigateTo} />
+        <ResourceList title="Related checklists" ids={article.relatedChecklists} path="/safety-lab/checklists" navigateTo={navigateTo} />
+      </div>
+    </section>
+  );
+}
+
+function ResourceList({ title, ids = [], path, navigateTo }) {
+  if (!ids.length) return null;
+  return (
+    <section>
+      <h3>{title}</h3>
+      <ul>
+        {ids.map((id) => {
+          const href = path === "/training-quiz" ? `/training-quiz/${id}` : path;
+          return (
+            <li key={id}>
+              <a href={href} onClick={makeNavigate(navigateTo, href)}>
+                {formatResourceId(id)}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function CorrectionForm({ article }) {
+  const [category, setCategory] = useState("source issue");
+  const [details, setDetails] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const submit = (event) => {
+    event.preventDefault();
+    setSubmitted(true);
+  };
+
+  return (
+    <section className="wiki-section" id="report-an-issue-with-this-article">
+      <h2>Report an issue with this article</h2>
+      <form className="wiki-correction-form" onSubmit={submit}>
+        <label>
+          <span>Issue category</span>
+          <select value={category} onChange={(event) => setCategory(event.target.value)}>
+            <option>broken link</option>
+            <option>source issue</option>
+            <option>unclear wording</option>
+            <option>unsafe suggestion</option>
+            <option>outdated regulation</option>
+          </select>
+        </label>
+        <label>
+          <span>What should be checked?</span>
+          <textarea
+            value={details}
+            onChange={(event) => setDetails(event.target.value)}
+            rows="4"
+            placeholder={`Example: ${article.title} legal requirement 3 needs source review.`}
+          />
+        </label>
+        <button className="wiki-small-button" type="submit">Prepare correction note</button>
+      </form>
+      {submitted ? (
+        <div className="wiki-notice">
+          Correction note prepared for article <b>{article.title}</b>. Category: <b>{category}</b>.
+          This prototype does not submit public edits yet; it records the workflow shape for the review queue.
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function BacklogList({ title, articles, getNote, navigateTo }) {
+  return (
+    <section className="wiki-section">
+      <h2>{title}</h2>
+      {articles.length ? (
+        <table className="wiki-table">
+          <tbody>
+            {articles.map((article) => (
+              <tr key={`${title}-${article.slug}`}>
+                <th>
+                  <a
+                    href={`/wiki/articles/${article.slug}`}
+                    onClick={makeNavigate(navigateTo, `/wiki/articles/${article.slug}`)}
+                  >
+                    {article.title}
+                  </a>
+                </th>
+                <td>{getNote(article)}</td>
+                <td>{article.maturity || "Draft"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No articles in this backlog group.</p>
+      )}
+    </section>
   );
 }
 
@@ -766,13 +1265,15 @@ function RichText({ text, navigateTo }) {
     const wikiMatch = part.match(/^\[\[([^|\]]+)(?:\|([^\]]+))?\]\]$/);
     if (wikiMatch) {
       const slug = wikiMatch[1].trim();
-      const article = getArticleBySlug(slug);
+      const redirectTarget = getRedirectTarget(slug);
+      const article = getArticleBySlug(slug) || (redirectTarget ? getArticleBySlug(redirectTarget) : null);
+      const targetSlug = article?.slug || slug;
       const label = wikiMatch[2]?.trim() || article?.title || slug;
       return article ? (
         <a
           key={`${part}-${index}`}
-          href={`/wiki/articles/${slug}`}
-          onClick={makeNavigate(navigateTo, `/wiki/articles/${slug}`)}
+          href={`/wiki/articles/${targetSlug}`}
+          onClick={makeNavigate(navigateTo, `/wiki/articles/${targetSlug}`)}
         >
           {label}
         </a>
@@ -874,6 +1375,49 @@ function makeNavigate(navigateTo, path) {
 function getInitialSearch() {
   if (typeof window === "undefined") return "";
   return new URLSearchParams(window.location.search).get("search") || "";
+}
+
+function emptyFilters() {
+  return {
+    hazard: "",
+    trade: "",
+    document: "",
+    regulation: "",
+    maturity: "",
+  };
+}
+
+function getInitialFilters() {
+  if (typeof window === "undefined") return emptyFilters();
+  const params = new URLSearchParams(window.location.search);
+  return {
+    hazard: params.get("hazard") || "",
+    trade: params.get("trade") || "",
+    document: params.get("document") || "",
+    regulation: params.get("regulation") || "",
+    maturity: params.get("maturity") || "",
+  };
+}
+
+function hasActiveFilters(filters) {
+  return Object.values(filters).some(Boolean);
+}
+
+function articleByTitle(title) {
+  const normalizedTitle = normalizeText(title);
+  return wikiArticles.find((article) => normalizeText(article.title) === normalizedTitle);
+}
+
+function formatResourceId(id) {
+  return String(id || "")
+    .replace(/-quiz$/, "")
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normalizeText(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function groupBy(rows, key) {

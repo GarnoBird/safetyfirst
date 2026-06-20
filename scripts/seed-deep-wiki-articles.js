@@ -192,6 +192,18 @@ function plain(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
+function lower(value) {
+  return plain(value).toLowerCase();
+}
+
+function taskPhrase(article) {
+  return article.tasks?.length ? lower(article.tasks.join(", ")) : "this work";
+}
+
+function hazardPhrase(article) {
+  return article.hazards?.length ? lower(article.hazards.join(", ")) : "the hazards from this task";
+}
+
 function articleMarkdown(article, index) {
   const related = selectRelated(article, index);
   const citations = citationIdsFor(article);
@@ -200,29 +212,30 @@ function articleMarkdown(article, index) {
   const secondaryRelated = related[1] || "workplace-inspections";
   const thirdRelated = related[2] || "corrective-actions";
   const fourthRelated = related[3] || "site-orientation";
-  const hazardText = article.hazards?.length ? article.hazards.join(", ") : "the task hazards";
-  const taskText = article.tasks?.length ? article.tasks.join(", ") : "the planned work";
+  const hazardText = hazardPhrase(article);
+  const taskText = taskPhrase(article);
+  const topicText = lower(article.title);
   const docText = docs[0] || "site-specific safe work procedure";
 
   const summaryParagraphs = [
-    `${article.title} is a BC construction safety topic for ${taskText.toLowerCase()}. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to ${link(primaryRelated)} and ${link(secondaryRelated)} so readers can move through the topic the way they would in a practical wiki.`,
-    `The main hazards to control are ${hazardText.toLowerCase()}. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.`,
-    `Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. ${cite(citations, 0)}`,
+    `Use this page when ${taskText} could involve hazards or outcomes such as ${hazardText}. It gives supervisors and crews a plain-language starting point for the controls, documents, and stop-work triggers that should be checked before work starts.`,
+    `${article.title} usually connects to other site controls, not just one task. Read it with ${link(primaryRelated)} and ${link(secondaryRelated)} when planning the work, especially if access, weather, equipment, public protection, or nearby trades could change the risk.`,
+    `This is a source-cited draft, not a legal opinion. Legal points include citations where possible; anything marked source review needed must be checked by a qualified BC safety/source reviewer before it is used as a compliance checklist. ${cite(citations, 0)}`,
   ];
 
   const whenApplies = [
-    `The work involves ${article.title.toLowerCase()} on a BC construction site. ${cite(citations, 1)}`,
-    `The task includes ${taskText.toLowerCase()} or a similar activity with comparable hazards.`,
-    `Workers could be exposed to ${hazardText.toLowerCase()}, or nearby trades/public users could be affected.`,
-    `A supervisor must choose controls before production work starts, not after a deficiency is found.`,
-    `The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.`,
-    `A required document such as ${docText.toLowerCase()} must be prepared, reviewed, updated, or kept available.`,
+    `You are planning or supervising ${taskText}, and this topic affects the task. ${cite(citations, 1)}`,
+    `The work could involve hazards or outcomes such as ${hazardText}, even if the trade or location is different.`,
+    `The work could affect nearby trades, visitors, tenants, pedestrians, traffic, or the public.`,
+    `Controls need to be chosen before production starts, not after a deficiency is found.`,
+    `The crew, equipment, weather, access route, public interface, or work sequence has changed.`,
+    `A required document such as ${lower(docText)} must be prepared, reviewed, updated, or kept available.`,
     `A worker is new to the task, unfamiliar with the site, or unsure which control applies.`,
   ];
 
   const legalRequirements = [
     `Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. ${cite(citations, 0)}`,
-    `Identify the hazards connected to ${article.title.toLowerCase()} and control them before workers are exposed. ${cite(citations, 1)}`,
+    `Identify the hazards connected to this work and control them before workers are exposed. ${cite(citations, 1)}`,
     `Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. ${cite(citations, 2)}`,
     `Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}`,
     `Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. ${cite(citations, 3)}`,
@@ -232,35 +245,35 @@ function articleMarkdown(article, index) {
   ];
 
   const bestPractice = [
-    `Start with a short pre-job review that links this topic to ${link(thirdRelated)} and the actual work area.`,
-    `Use the strongest practicable control before relying on PPE or worker behaviour alone.`,
-    `Make the responsible supervisor, competent person, or qualified person explicit in the field notes.`,
+    `Before work starts, walk the area with the crew and check whether today's setup also needs controls covered in ${link(thirdRelated)}.`,
+    `Use elimination, substitution, engineering, or isolation controls first when they are practicable; do not make PPE the whole plan.`,
+    `Name the supervisor, qualified person, or competent worker who can approve changes in the field.`,
     `Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.`,
-    `Check whether the same hazard exists in another area of the site before closing the action.`,
+    `Check nearby entrances, laydown areas, adjacent trades, and public routes for the same hazard before closing the action.`,
     `Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.`,
-    `Keep the field version concise enough that a foreperson can use it during a live work briefing.`,
+    `Keep field instructions short enough to use in a toolbox talk, but specific enough that the crew knows what to do.`,
   ];
 
   const requiredDocumentItems = docs.map((doc, docIndex) => {
     const reason = [
-      "shows how the site chose and communicated the control",
-      "records who checked the condition before work started",
-      "supports follow-up if a deficiency, refusal, incident, or source-review question arises",
-      "helps supervisors prove workers received task-specific instruction",
-      "keeps the article tied back to official source requirements instead of informal memory",
-      "supports coordination between employers, the prime contractor, and affected trades",
-      "gives the crew a field reference when conditions change",
-      "creates review evidence for the next scheduled safety/source check",
+      "defines the control, location, responsible person, and review trigger",
+      "confirms the site condition was checked before the crew started work",
+      "supports follow-up if there is a deficiency, refusal, incident, or source-review question",
+      "shows workers received task-specific instruction before doing the work",
+      "keeps the field procedure tied to official sources instead of memory or habit",
+      "helps employers, the prime contractor, and affected trades coordinate overlapping work",
+      "gives the crew a reference point when conditions change mid-shift",
+      "creates evidence for the next scheduled safety/source review",
     ][docIndex % 8];
     return `${doc}: ${reason}. ${cite(citations, docIndex)}`;
   });
 
   const procedure = [
     `Define the exact task, location, workers, equipment, materials, and expected duration.`,
-    `Review this article with ${link(primaryRelated)} and any site-specific procedure that applies.`,
-    `Identify the hazards, including ${hazardText.toLowerCase()}, and decide who could be affected.`,
+    `Read ${link(primaryRelated)} and the site procedure before setting up the work.`,
+    `List the hazards and possible outcomes, including ${hazardText}, and identify everyone who could be affected.`,
     `Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. ${cite(citations, 0)}`,
-    `Prepare or update the required document set, including ${docText.toLowerCase()}.`,
+    `Prepare or update the required document set, including ${lower(docText)}.`,
     `Set up the controls before production work starts and check that they match the actual site condition.`,
     `Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.`,
     `Inspect the work area during the task and document deficiencies or corrective actions.`,
@@ -269,8 +282,8 @@ function articleMarkdown(article, index) {
   ];
 
   const workerChecklist = [
-    `I understand what ${article.title.toLowerCase()} means for today's task.`,
-    `I know the main hazards: ${hazardText.toLowerCase()}.`,
+    `I know how this topic affects my task today.`,
+    `I know the main hazards: ${hazardText}.`,
     `I know which control must be in place before I start.`,
     `I know where the required document or procedure is kept.`,
     `I have the required PPE, tools, equipment, and instructions for the task.`,
@@ -291,7 +304,7 @@ function articleMarkdown(article, index) {
     `Deficiencies are assigned to an owner with a due date and interim control.`,
     `A change in conditions triggers a pause and review before work continues.`,
     `Records are kept without collecting unnecessary personal information.`,
-    `Follow-up is linked to ${link(fourthRelated)} or another related article when the issue is broader than this task.`,
+    `If the deficiency points to a broader issue, open ${link(fourthRelated)} and assign a separate corrective action.`,
   ];
 
   const mistakes = [

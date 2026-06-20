@@ -1,4 +1,12 @@
 import { generatedWikiArticles, generatedWikiCitations } from "./generatedWikiArticles.js";
+import {
+  glossaryTerms,
+  maturityLevels,
+  reviewerChecklist,
+  searchSuggestionTerms,
+  tierOneArticleSlugs,
+  wikiRedirects,
+} from "./wikiCompletionData.js";
 
 const REVIEW_DATE = "2026-06-19";
 
@@ -356,7 +364,7 @@ export const wikiSources = [
   },
 ];
 
-export const regulationRefs = [
+const baseRegulationRefs = [
   {
     id: "ohsr-part-3",
     instrument: "WorkSafeBC OHS Regulation",
@@ -491,6 +499,494 @@ export const regulationRefs = [
     url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-34-rope-access",
   },
 ];
+
+export const detailedRegulationRefs = [
+  {
+    id: "ohsr-3-16",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 3.16",
+    title: "Basic occupational first aid requirements",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities",
+  },
+  {
+    id: "ohsr-3-17",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 3.17",
+    title: "First aid procedures",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities",
+  },
+  {
+    id: "ohsr-3-18",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 3.18",
+    title: "Communication and availability",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities",
+  },
+  {
+    id: "ohsr-3-19",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 3.19",
+    title: "First aid records",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities",
+  },
+  {
+    id: "ohsr-3-21",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 3.21",
+    title: "First aid attendant responsibilities",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-03-rights-and-responsibilities",
+  },
+  {
+    id: "ohsr-4-54",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 4.54",
+    title: "Guardrails",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions",
+  },
+  {
+    id: "ohsr-4-55",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 4.55",
+    title: "When guardrails are required",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions",
+  },
+  {
+    id: "ohsr-4-59",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 4.59",
+    title: "Floor and roof openings",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions",
+  },
+  {
+    id: "ohsr-4-60",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 4.60",
+    title: "Toeboards",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-04-general-conditions",
+  },
+  {
+    id: "ohsr-5-54",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 5.54",
+    title: "Exposure control plan",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents",
+  },
+  {
+    id: "ohsr-5-55",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 5.55",
+    title: "Work procedures",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents",
+  },
+  {
+    id: "ohsr-6-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.4",
+    title: "Asbestos inventory",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-5",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.5",
+    title: "Asbestos identification",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-6",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.6",
+    title: "Asbestos assessment and classification",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-7",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.7",
+    title: "Control of asbestos fibre",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-8",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.8",
+    title: "Asbestos procedures",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-110",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.110",
+    title: "Respirable crystalline silica and rock dust definitions",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-111",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.111",
+    title: "Respirable crystalline silica controls",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-6-112",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 6.112",
+    title: "Silica exposure control plan",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+  },
+  {
+    id: "ohsr-8-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 8.4",
+    title: "Personal protective equipment standards",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+  },
+  {
+    id: "ohsr-8-7",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 8.7",
+    title: "Personal protective equipment instruction",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+  },
+  {
+    id: "ohsr-8-32",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 8.32",
+    title: "Respiratory protection program",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+  },
+  {
+    id: "ohsr-8-39",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 8.39",
+    title: "Respirator fit tests",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+  },
+  {
+    id: "ohsr-9-5",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.5",
+    title: "Confined space entry program",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-13",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.13",
+    title: "When confined space entry permits are required",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-14",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.14",
+    title: "Contents of confined space entry permit",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-24",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.24",
+    title: "Verifying confined space precautions",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-25",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.25",
+    title: "Testing confined space atmosphere",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-34",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.34",
+    title: "Low hazard confined space standby person",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-37",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.37",
+    title: "Provision of confined space rescue services",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-39",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.39",
+    title: "Confined space rescue notification",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-9-40",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 9.40",
+    title: "Summoning confined space rescue",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-09-confined-spaces",
+  },
+  {
+    id: "ohsr-10-6",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 10.6",
+    title: "Checking locked out equipment",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-10-de-energization-and-lockout",
+  },
+  {
+    id: "ohsr-10-7",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 10.7",
+    title: "Worker lockout responsibilities",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-10-de-energization-and-lockout",
+  },
+  {
+    id: "ohsr-10-9",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 10.9",
+    title: "Group lockout procedure",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-10-de-energization-and-lockout",
+  },
+  {
+    id: "ohsr-11-2",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.2",
+    title: "Obligation to use fall protection",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-3",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.3",
+    title: "Fall protection plan",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.4",
+    title: "Selection of harness or belt",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-5",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.5",
+    title: "Fall protection equipment standards",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-6",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.6",
+    title: "Fall protection anchors",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-9",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.9",
+    title: "Fall protection inspection and maintenance",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-11-10",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 11.10",
+    title: "Fall protection removal from service",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-11-fall-protection",
+  },
+  {
+    id: "ohsr-14-2",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 14.2",
+    title: "Crane and hoist standards",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+  },
+  {
+    id: "ohsr-14-16",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 14.16",
+    title: "Crane and hoist certification required",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+  },
+  {
+    id: "ohsr-14-17",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 14.17",
+    title: "Crane and hoist access and egress",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+  },
+  {
+    id: "ohsr-15-2",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 15.2",
+    title: "Qualified riggers",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+  },
+  {
+    id: "ohsr-15-3",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 15.3",
+    title: "Detaching loads",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+  },
+  {
+    id: "ohsr-15-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 15.4",
+    title: "Use of rigging",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+  },
+  {
+    id: "ohsr-15-20",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 15.20",
+    title: "Crane hand signals",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+  },
+  {
+    id: "ohsr-15-31",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 15.31",
+    title: "Sling inspection before use",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+  },
+  {
+    id: "ohsr-18-3",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 18.3",
+    title: "Standards for traffic control",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control",
+  },
+  {
+    id: "ohsr-18-3-1",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 18.3.1",
+    title: "Traffic control risk assessment",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control",
+  },
+  {
+    id: "ohsr-18-3-2",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 18.3.2",
+    title: "Traffic control plan",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control",
+  },
+  {
+    id: "ohsr-18-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 18.4",
+    title: "Traffic control supervision",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control",
+  },
+  {
+    id: "ohsr-18-5",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 18.5",
+    title: "Placement of temporary traffic control devices",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-18-traffic-control",
+  },
+  {
+    id: "ohsr-19-24-1",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 19.24.1",
+    title: "Minimum distance from high voltage conductors",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
+  },
+  {
+    id: "ohsr-19-25",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 19.25",
+    title: "Written assurance for high voltage work",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
+  },
+  {
+    id: "ohsr-19-29",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 19.29",
+    title: "Authorization by owner",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
+  },
+  {
+    id: "ohsr-20-78",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.78",
+    title: "Excavation support and slope exceptions",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-79",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.79",
+    title: "Underground utility services",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-80",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.80",
+    title: "Removing nearby excavation hazards",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-81",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.81",
+    title: "Sloping and shoring requirements",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-82",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.82",
+    title: "Timber shoring and grades",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-83",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.83",
+    title: "Safe shoring procedures",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-85",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.85",
+    title: "Trench support structures",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-86",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.86",
+    title: "Spoil piles",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-87",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.87",
+    title: "Excavation entry and exit",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-20-112",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 20.112",
+    title: "Hazardous materials before demolition or renovation",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+  },
+  {
+    id: "ohsr-32-4",
+    instrument: "WorkSafeBC OHS Regulation",
+    part: "Section 32.4",
+    title: "Emergency rescue and evacuation workers",
+    url: "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-32-evacuation-and-rescue",
+  },
+];
+
+export const regulationRefs = [...baseRegulationRefs, ...detailedRegulationRefs];
 
 export const wikiCategories = [
   {
@@ -3816,6 +4312,17 @@ export const citationMap = Object.fromEntries(
   generatedWikiCitations.map((citation) => [citation.id, citation]),
 );
 export const articleMap = Object.fromEntries(wikiArticles.map((article) => [article.slug, article]));
+export const redirectMap = Object.fromEntries(wikiRedirects.map((redirect) => [redirect.from, redirect.to]));
+export const glossaryMap = Object.fromEntries(glossaryTerms.map((term) => [term.slug, term]));
+
+export {
+  glossaryTerms,
+  maturityLevels,
+  reviewerChecklist,
+  searchSuggestionTerms,
+  tierOneArticleSlugs,
+  wikiRedirects,
+};
 
 export const synonymIndex = [
   { term: "tie off", target: "fall-protection" },
@@ -4221,6 +4728,14 @@ export function getArticleBySlug(slug) {
   return articleMap[slug];
 }
 
+export function getRedirectTarget(slug) {
+  return redirectMap[slug] || null;
+}
+
+export function getGlossaryTerm(slug) {
+  return glossaryMap[slug] || null;
+}
+
 export function getSourceById(id) {
   return sourceMap[id];
 }
@@ -4237,15 +4752,78 @@ export function getRoadmapByPhase(phase) {
   return articleRoadmap.filter((item) => item.phase === phase);
 }
 
-export function searchWiki(query) {
+export function getWikiFilterOptions() {
+  const uniqueSorted = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  return {
+    hazards: uniqueSorted(wikiArticles.flatMap((article) => article.hazards || [])),
+    trades: uniqueSorted(wikiArticles.flatMap((article) => article.trades || [])),
+    documents: uniqueSorted(wikiArticles.flatMap((article) => article.requiredDocuments || [])),
+    regulations: uniqueSorted(wikiArticles.flatMap((article) => article.regulationRefs || [])),
+    maturities: maturityLevels,
+  };
+}
+
+export function getSearchSuggestion(query) {
   const normalizedQuery = normalize(query);
-  if (!normalizedQuery) return wikiArticles;
+  if (!normalizedQuery) return null;
+
+  const redirect = wikiRedirects.find(
+    (item) =>
+      normalize(item.term) === normalizedQuery ||
+      normalize(item.from) === normalizedQuery ||
+      normalize(item.term).includes(normalizedQuery) ||
+      normalizedQuery.includes(normalize(item.term)),
+  );
+  if (redirect) {
+    const article = getArticleBySlug(redirect.to);
+    return article ? { term: redirect.term, article } : null;
+  }
+
+  const term = searchSuggestionTerms.find((item) => normalize(item).includes(normalizedQuery));
+  const synonym = term ? synonymIndex.find((entry) => normalize(entry.term) === normalize(term)) : null;
+  const article = synonym ? getArticleBySlug(synonym.target) : null;
+  return article ? { term, article } : null;
+}
+
+export function getWikiReviewBacklog() {
+  const sourceReview = [...wikiArticles]
+    .filter((article) => article.sourceReviewFlagCount > 0)
+    .sort((a, b) => b.sourceReviewFlagCount - a.sourceReviewFlagCount || a.title.localeCompare(b.title));
+  const weakCitations = wikiArticles
+    .filter((article) => article.reviewTier === "Tier 1" && (article.citationIds || []).length < 5)
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const oldestReview = [...wikiArticles].sort((a, b) =>
+    String(a.review?.lastReviewed || "").localeCompare(String(b.review?.lastReviewed || "")),
+  );
+  const lowBacklinks = wikiArticles
+    .filter((article) => (article.backlinks || []).length <= 1)
+    .sort((a, b) => (a.backlinks || []).length - (b.backlinks || []).length || a.title.localeCompare(b.title));
+  const readyWithFlags = wikiArticles.filter(
+    (article) => article.maturity === "Ready for public use" && article.sourceReviewFlagCount > 0,
+  );
+
+  return {
+    sourceReview,
+    weakCitations,
+    oldestReview,
+    lowBacklinks,
+    readyWithFlags,
+    tierCounts: wikiArticles.reduce((counts, article) => {
+      counts[article.reviewTier] = (counts[article.reviewTier] || 0) + 1;
+      return counts;
+    }, {}),
+  };
+}
+
+export function searchWiki(query, filters = {}) {
+  const normalizedQuery = normalize(query);
 
   const synonymTargets = synonymIndex
     .filter((entry) => normalize(entry.term).includes(normalizedQuery))
     .map((entry) => entry.target);
 
   return wikiArticles
+    .filter((article) => matchesFilters(article, filters))
     .map((article) => {
       const text = normalize(
         [
@@ -4265,17 +4843,33 @@ export function searchWiki(query) {
             .join(" "),
         ].join(" "),
       );
-      const exactTitle = normalize(article.title) === normalizedQuery ? 30 : 0;
+      const exactTitle = normalize(article.title) === normalizedQuery ? 50 : 0;
       const alias = article.aliases.some((item) => normalize(item).includes(normalizedQuery))
-        ? 20
+        ? 35
         : 0;
-      const synonym = synonymTargets.includes(article.slug) ? 18 : 0;
-      const body = text.includes(normalizedQuery) ? 10 : 0;
-      return { article, score: exactTitle + alias + synonym + body };
+      const synonym = synonymTargets.includes(article.slug) ? 40 : 0;
+      const hazard = normalizedQuery && article.hazards.some((item) => normalize(item).includes(normalizedQuery)) ? 24 : 0;
+      const task = normalizedQuery && article.tasks.some((item) => normalize(item).includes(normalizedQuery)) ? 20 : 0;
+      const document =
+        normalizedQuery && article.requiredDocuments.some((item) => normalize(item).includes(normalizedQuery)) ? 18 : 0;
+      const regulation =
+        normalizedQuery && article.regulationRefs.some((item) => normalize(item).includes(normalizedQuery)) ? 18 : 0;
+      const body = normalizedQuery && text.includes(normalizedQuery) ? 10 : 0;
+      const noQuery = normalizedQuery ? 0 : 1;
+      return { article, score: exactTitle + alias + synonym + hazard + task + document + regulation + body + noQuery };
     })
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score || a.article.title.localeCompare(b.article.title))
     .map((result) => result.article);
+}
+
+function matchesFilters(article, filters = {}) {
+  if (filters.hazard && !article.hazards.includes(filters.hazard)) return false;
+  if (filters.trade && !article.trades.includes(filters.trade)) return false;
+  if (filters.document && !article.requiredDocuments.includes(filters.document)) return false;
+  if (filters.regulation && !article.regulationRefs.includes(filters.regulation)) return false;
+  if (filters.maturity && article.maturity !== filters.maturity) return false;
+  return true;
 }
 
 export function slugify(value) {

@@ -73,26 +73,26 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-High Visibility Apparel is a BC construction safety topic for traffic control, deliveries, equipment work, night work, public interface. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[traffic-control|Traffic Control]] and [[traffic-control-persons|Traffic Control Persons]] so readers can move through the topic the way they would in a practical wiki.
+Use this page when traffic control, deliveries, equipment work, night work, public interface could involve hazards or outcomes such as struck-by, vehicle traffic, mobile equipment, poor visibility. It gives supervisors and crews a plain-language starting point for the controls, documents, and stop-work triggers that should be checked before work starts.
 
-The main hazards to control are struck-by, vehicle traffic, mobile equipment, poor visibility. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+High Visibility Apparel usually connects to other site controls, not just one task. Read it with [[traffic-control|Traffic Control]] and [[traffic-control-persons|Traffic Control Persons]] when planning the work, especially if access, weather, equipment, public protection, or nearby trades could change the risk.
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-8}}
+This is a source-cited draft, not a legal opinion. Legal points include citations where possible; anything marked source review needed must be checked by a qualified BC safety/source reviewer before it is used as a compliance checklist. {{cite:ohsr-part-8}}
 
 ## When this applies
 
-- The work involves high visibility apparel on a BC construction site. {{cite:ohsr-part-18}}
-- The task includes traffic control, deliveries, equipment work, night work, public interface or a similar activity with comparable hazards.
-- Workers could be exposed to struck-by, vehicle traffic, mobile equipment, poor visibility, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
+- You are planning or supervising traffic control, deliveries, equipment work, night work, public interface, and this topic affects the task. {{cite:ohsr-part-18}}
+- The work could involve hazards or outcomes such as struck-by, vehicle traffic, mobile equipment, poor visibility, even if the trade or location is different.
+- The work could affect nearby trades, visitors, tenants, pedestrians, traffic, or the public.
+- Controls need to be chosen before production starts, not after a deficiency is found.
+- The crew, equipment, weather, access route, public interface, or work sequence has changed.
 - A required document such as ppe requirement in site orientation must be prepared, reviewed, updated, or kept available.
 - A worker is new to the task, unfamiliar with the site, or unsure which control applies.
 
 ## Legal requirements
 
 - Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-8}}
-- Identify the hazards connected to high visibility apparel and control them before workers are exposed. {{cite:ohsr-part-18}}
+- Identify the hazards connected to this work and control them before workers are exposed. {{cite:ohsr-part-18}}
 - Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-16}}
 - Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
 - Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
@@ -102,29 +102,29 @@ Treat this page as a source-cited draft until a qualified BC safety/source revie
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[mobile-equipment|Mobile Equipment]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
+- Before work starts, walk the area with the crew and check whether today's setup also needs controls covered in [[mobile-equipment|Mobile Equipment]].
+- Use elimination, substitution, engineering, or isolation controls first when they are practicable; do not make PPE the whole plan.
+- Name the supervisor, qualified person, or competent worker who can approve changes in the field.
 - Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
+- Check nearby entrances, laydown areas, adjacent trades, and public routes for the same hazard before closing the action.
 - Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Keep field instructions short enough to use in a toolbox talk, but specific enough that the crew knows what to do.
 
 ## Required documents
 
-- PPE requirement in site orientation: shows how the site chose and communicated the control. {{cite:ohsr-part-8}}
-- Traffic control plan where required: records who checked the condition before work started. {{cite:ohsr-part-18}}
-- Worker instruction record: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:ohsr-part-16}}
-- Site-specific safe work procedure: helps supervisors prove workers received task-specific instruction. {{cite:worksafebc-ohs-regulation}}
-- Worker instruction or training record: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ppe}}
-- Inspection or pre-use check record: supports coordination between employers, the prime contractor, and affected trades. {{cite:worksafebc-ohs-guidelines}}
-- Corrective action record when a deficiency is found: gives the crew a field reference when conditions change. {{cite:ohsr-part-8}}
+- PPE requirement in site orientation: defines the control, location, responsible person, and review trigger. {{cite:ohsr-part-8}}
+- Traffic control plan where required: confirms the site condition was checked before the crew started work. {{cite:ohsr-part-18}}
+- Worker instruction record: supports follow-up if there is a deficiency, refusal, incident, or source-review question. {{cite:ohsr-part-16}}
+- Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-regulation}}
+- Worker instruction or training record: keeps the field procedure tied to official sources instead of memory or habit. {{cite:worksafebc-ppe}}
+- Inspection or pre-use check record: helps employers, the prime contractor, and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}
+- Corrective action record when a deficiency is found: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-8}}
 
 ## Step-by-step safe procedure
 
 1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[traffic-control|Traffic Control]] and any site-specific procedure that applies.
-3. Identify the hazards, including struck-by, vehicle traffic, mobile equipment, poor visibility, and decide who could be affected.
+2. Read [[traffic-control|Traffic Control]] and the site procedure before setting up the work.
+3. List the hazards and possible outcomes, including struck-by, vehicle traffic, mobile equipment, poor visibility, and identify everyone who could be affected.
 4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-8}}
 5. Prepare or update the required document set, including ppe requirement in site orientation.
 6. Set up the controls before production work starts and check that they match the actual site condition.
@@ -135,7 +135,7 @@ Treat this page as a source-cited draft until a qualified BC safety/source revie
 
 ## Worker checklist
 
-- [ ] I understand what high visibility apparel means for today's task.
+- [ ] I know how this topic affects my task today.
 - [ ] I know the main hazards: struck-by, vehicle traffic, mobile equipment, poor visibility.
 - [ ] I know which control must be in place before I start.
 - [ ] I know where the required document or procedure is kept.
@@ -157,7 +157,7 @@ Treat this page as a source-cited draft until a qualified BC safety/source revie
 - [ ] Deficiencies are assigned to an owner with a due date and interim control.
 - [ ] A change in conditions triggers a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[traffic-control-plans|Traffic Control Plans]] or another related article when the issue is broader than this task.
+- [ ] If the deficiency points to a broader issue, open [[traffic-control-plans|Traffic Control Plans]] and assign a separate corrective action.
 
 ## Common mistakes
 

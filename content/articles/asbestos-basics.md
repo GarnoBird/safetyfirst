@@ -4,50 +4,62 @@ title: "Asbestos Basics"
 category: "Health Hazards"
 status: "Deep draft"
 jurisdiction: "BC"
-difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+difficulty: "Intermediate"
+confidenceLevel: "Tier 1 source-cited draft"
+reviewTier: "Tier 1"
+maturity: "Draft"
+reviewPriority: "High-risk legal/source hardening"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 1 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
-  - "asbestos"
   - "ACM"
-  - "asbestos-containing material"
-  - "vermiculite"
-  - "asbestos abatement"
+  - "asbestos containing material"
+  - "hazmat survey"
+  - "pre-1990 materials"
 trades:
-  - "All construction trades"
+  - "Demolition"
+  - "Restoration"
+  - "Mechanical"
+  - "Electrical"
+  - "Carpentry"
 hazards:
   - "Asbestos fibres"
-  - "Respiratory disease"
-  - "Contaminated waste"
+  - "Airborne exposure"
+  - "Contaminated debris"
+  - "Unsurveyed materials"
 tasks:
   - "Renovation"
   - "Demolition"
+  - "Cutting into old materials"
   - "Restoration"
-  - "Abatement"
+  - "Hazardous materials review"
 requiredDocuments:
-  - "Asbestos inventory or survey"
-  - "Risk assessment by a qualified person"
+  - "Asbestos inventory"
+  - "Qualified assessment"
   - "Exposure control plan"
-  - "Safe work procedures"
-  - "Notice of Project/licensing records where required"
-  - "Site-specific safe work procedure"
-  - "Worker instruction or training record"
-  - "Inspection or pre-use check record"
+  - "Safe work procedure"
+  - "Training/instruction record"
+  - "Waste and containment records"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
   - "worksafebc-asbestos"
 regulationRefs:
-  - "ohsr-part-6"
-  - "ohsr-part-5"
-  - "ohsr-part-20"
+  - "ohsr-6-4"
+  - "ohsr-6-5"
+  - "ohsr-6-6"
+  - "ohsr-6-7"
+  - "ohsr-6-8"
+  - "ohsr-20-112"
 citations:
-  - "ohsr-part-6"
-  - "ohsr-part-5"
-  - "ohsr-part-20"
+  - "ohsr-6-4"
+  - "ohsr-6-5"
+  - "ohsr-6-6"
+  - "ohsr-6-7"
+  - "ohsr-6-8"
+  - "ohsr-20-112"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
   - "worksafebc-asbestos"
@@ -55,15 +67,15 @@ related:
   - "hazardous-materials-before-demolition"
   - "demolition-planning"
   - "respirators"
+  - "ppe-basics"
   - "whmis-basics"
-  - "notice-of-project"
-  - "worker-rights-and-responsibilities"
-  - "silica-exposure-control"
-  - "ventilation"
-  - "dust-control-methods"
   - "lead-exposure-control"
   - "mould-in-restoration"
-  - "noise-exposure"
+  - "ventilation"
+  - "hepa-vacuums"
+  - "site-specific-safety-plan"
+  - "training-records"
+  - "worker-rights-and-responsibilities"
 ---
 
 # Asbestos Basics
@@ -72,131 +84,139 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Asbestos Basics is a BC construction safety topic for renovation, demolition, restoration, abatement. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]] and [[demolition-planning|Demolition Planning]] so readers can move through the topic the way they would in a practical wiki.
+Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}
 
-The main hazards to control are asbestos fibres, respiratory disease, contaminated waste. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-6}}
+Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
 
 ## When this applies
 
-- The work involves asbestos basics on a BC construction site. {{cite:ohsr-part-5}}
-- The task includes renovation, demolition, restoration, abatement or a similar activity with comparable hazards.
-- Workers could be exposed to asbestos fibres, respiratory disease, contaminated waste, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as asbestos inventory or survey must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- Work will disturb building materials in a structure where asbestos-containing materials may be present.
+- Renovation, restoration, demolition, coring, cutting, drilling, ceiling access, pipe work, or wall removal is planned.
+- A hazardous materials survey, asbestos inventory, or qualified assessment is missing, unclear, or out of date.
+- Workers find suspect insulation, texture coat, flooring, fireproofing, mastic, pipe wrap, board, or debris.
+- A contractor is asked to remove or repair material that may contain asbestos.
+- Unplanned damage, water loss, fire damage, or hidden material creates potential fibre release.
+- A supervisor needs to confirm whether the work must stop until qualified review is complete.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-6}}
-- Identify the hazards connected to asbestos basics and control them before workers are exposed. {{cite:ohsr-part-5}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-20}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-guidelines}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:worksafebc-asbestos}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Maintain or use an asbestos inventory where required for the workplace or building materials. {{cite:ohsr-6-4}}
+- Identify asbestos-containing materials before work could disturb them. {{cite:ohsr-6-5}}
+- Have asbestos work assessed and classified so controls match the risk. {{cite:ohsr-6-6}}
+- Control asbestos fibre release during work that could disturb asbestos-containing material. {{cite:ohsr-6-7}}
+- Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}
+- Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}
+- Use appropriate respiratory protection and PPE when required by the asbestos work procedure. {{review:source}}
+- Confirm notification, waste handling, clearance, and documentation requirements with current WorkSafeBC and environmental sources before publication. {{review:source}}
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[respirators|Respirators]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Stop work immediately when suspect material is discovered outside the reviewed scope.
+- Keep the survey or inventory available to the supervisor and workers doing intrusive work.
+- Mark known asbestos areas so workers do not drill, cut, scrape, or disturb them by mistake.
+- Use qualified asbestos contractors for work that requires specialized containment, procedures, or clearance.
+- Keep asbestos controls separate from general dust controls; silica controls do not automatically make asbestos work safe.
+- Brief every affected trade before ceiling access, slab coring, demolition, or service penetrations.
+- Photograph and document the location of suspect material without spreading debris or collecting samples unless qualified.
 
 ## Required documents
 
-- Asbestos inventory or survey: shows how the site chose and communicated the control. {{cite:ohsr-part-6}}
-- Risk assessment by a qualified person: records who checked the condition before work started. {{cite:ohsr-part-5}}
-- Exposure control plan: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:ohsr-part-20}}
-- Safe work procedures: helps supervisors prove workers received task-specific instruction. {{cite:worksafebc-ohs-regulation}}
-- Notice of Project/licensing records where required: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ohs-guidelines}}
-- Site-specific safe work procedure: supports coordination between employers, the prime contractor, and affected trades. {{cite:worksafebc-asbestos}}
-- Worker instruction or training record: gives the crew a field reference when conditions change. {{cite:ohsr-part-6}}
-- Inspection or pre-use check record: creates review evidence for the next scheduled safety/source check. {{cite:ohsr-part-5}}
+- Asbestos inventory: records the site-specific control expected before the task starts. {{cite:ohsr-6-4}}
+- Qualified assessment: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-6-5}}
+- Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-6-6}}
+- Safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}
+- Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-6-8}}
+- Waste and containment records: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-20-112}}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]] and any site-specific procedure that applies.
-3. Identify the hazards, including asbestos fibres, respiratory disease, contaminated waste, and decide who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-6}}
-5. Prepare or update the required document set, including asbestos inventory or survey.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Confirm the building age, work scope, and whether any material will be disturbed.
+2. Review the asbestos inventory, hazardous materials survey, or qualified assessment.
+3. Stop and isolate the area if suspect material is found outside the reviewed scope.
+4. Have qualified personnel assess, classify, and plan the asbestos work. {{cite:ohsr-6-6}}
+5. Prepare the written procedure, containment, access control, PPE, respirators, waste handling, and decontamination method.
+6. Brief workers on what material can be disturbed and what must not be touched.
+7. Set up containment, signage, isolation, and waste controls before disturbance starts.
+8. Monitor the work for damaged containment, dust, debris migration, and unauthorized access.
+9. Clean and dispose of waste according to the reviewed procedure.
+10. Record the scope, assessment, controls, waste handling, clearance if required, and any unexpected material.
 
 ## Worker checklist
 
-- [ ] I understand what asbestos basics means for today's task.
-- [ ] I know the main hazards: asbestos fibres, respiratory disease, contaminated waste.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
-- [ ] I know the emergency response or first aid contact path if something goes wrong.
-- [ ] I will not continue if the work no longer matches the plan.
+- [ ] I know whether the material I will disturb has been checked for asbestos.
+- [ ] I have seen or been briefed on the relevant survey, inventory, or work procedure.
+- [ ] I will stop if I find suspect material outside the scope.
+- [ ] I will not sweep, blow down, break, cut, or remove suspect material without authorization.
+- [ ] I know the boundaries of the asbestos work area.
+- [ ] I know the PPE and respirator rules for the assigned work.
+- [ ] I know how waste and contaminated tools are handled.
+- [ ] I will keep other workers out of the affected area.
+- [ ] I will report damaged containment, debris, dust, or unexpected material.
+- [ ] I will not take samples unless I am qualified and assigned to do so.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:ohsr-part-5}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
-- [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[whmis-basics|WHMIS Basics]] or another related article when the issue is broader than this task.
+- [ ] The work scope has been checked against an asbestos inventory, survey, or qualified assessment. {{cite:ohsr-6-5}}
+- [ ] The asbestos work classification and procedure match the material and task. {{cite:ohsr-6-6}}
+- [ ] Workers are trained for the assigned asbestos-related task.
+- [ ] Containment, access control, PPE, respirators, waste, and decontamination are set up before disturbance.
+- [ ] Unexpected suspect material triggers stop work and qualified review.
+- [ ] Adjacent trades and the prime contractor know the boundaries and restrictions.
+- [ ] Waste and cleanup follow the reviewed procedure.
+- [ ] Records are kept for assessment, procedure, training, waste, and clearance if required.
+- [ ] General dust controls are not substituted for asbestos controls.
+- [ ] Current WorkSafeBC asbestos requirements are checked before source-checked maturity is assigned. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
-- Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Assuming material is asbestos-free because it is hidden, painted, or not labelled.
+- Starting demolition before the hazardous materials review is complete.
+- Using silica dust methods for asbestos work without asbestos-specific review.
+- Letting another trade drill or cut through suspect materials after the area was cleared for a different scope.
+- Collecting samples or handling debris without qualification or procedure.
+- Forgetting asbestos in mastics, drywall compound, floor tile, roofing, pipe insulation, and fireproofing.
+- Failing to update the scope when hidden layers are exposed.
+- Treating cleanup as general housekeeping instead of controlled contamination work.
 
 ## Related topics
 
-- [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]]
-- [[demolition-planning|Demolition Planning]]
-- [[respirators|Respirators]]
-- [[whmis-basics|WHMIS Basics]]
-- [[notice-of-project|Notice of Project]]
-- [[worker-rights-and-responsibilities|Worker Rights and Responsibilities]]
-- [[silica-exposure-control|Silica Exposure Control]]
-- [[ventilation|Ventilation]]
-- [[dust-control-methods|Dust Control Methods]]
-- [[lead-exposure-control|Lead Exposure Control]]
-- [[mould-in-restoration|Mould in Restoration]]
-- [[noise-exposure|Noise Exposure]]
+- [[hazardous-materials-before-demolition]]
+- [[demolition-planning]]
+- [[respirators]]
+- [[ppe-basics]]
+- [[whmis-basics]]
+- [[lead-exposure-control]]
+- [[mould-in-restoration]]
+- [[ventilation]]
+- [[hepa-vacuums]]
+- [[site-specific-safety-plan]]
+- [[training-records]]
+- [[worker-rights-and-responsibilities]]
 
 ## Official sources
 
-- {{cite:ohsr-part-6}}
-- {{cite:ohsr-part-5}}
-- {{cite:ohsr-part-20}}
+- {{cite:ohsr-6-4}}
+- {{cite:ohsr-6-5}}
+- {{cite:ohsr-6-6}}
+- {{cite:ohsr-6-7}}
+- {{cite:ohsr-6-8}}
+- {{cite:ohsr-20-112}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-asbestos}}
 
+## Reviewer notes
+
+- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
+- Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
+
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 1 hardening: Added BC-specific legal citations, field procedures, checklists, related links, and review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

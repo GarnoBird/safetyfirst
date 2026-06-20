@@ -4,62 +4,80 @@ title: "Respirators"
 category: "PPE & Equipment"
 status: "Deep draft"
 jurisdiction: "BC"
-difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+difficulty: "Intermediate"
+confidenceLevel: "Tier 1 source-cited draft"
+reviewTier: "Tier 1"
+maturity: "Draft"
+reviewPriority: "High-risk legal/source hardening"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 1 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
-  - "mask"
+  - "dust mask"
   - "half mask"
   - "N95"
-  - "P100"
   - "fit test"
   - "respiratory protection"
 trades:
   - "All construction trades"
+  - "Concrete"
+  - "Demolition"
+  - "Restoration"
+  - "Painting"
 hazards:
-  - "Dust exposure"
-  - "Chemical exposure"
+  - "Airborne dust"
   - "Silica"
-  - "Lead"
   - "Asbestos"
-tasks: []
+  - "Lead"
+  - "Chemical exposure"
+tasks:
+  - "Choosing a respirator"
+  - "Fit testing"
+  - "Seal checking"
+  - "Using cartridges"
+  - "Storing respiratory protection"
 requiredDocuments:
   - "Respiratory protection program"
   - "Fit test record"
-  - "Training record"
-  - "Site-specific safe work procedure"
-  - "Worker instruction or training record"
-  - "Inspection or pre-use check record"
-  - "Corrective action record when a deficiency is found"
+  - "Exposure control plan"
+  - "Training/instruction record"
+  - "Manufacturer instructions"
+  - "Inspection and maintenance record"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
+  - "worksafebc-ppe"
 regulationRefs:
-  - "ohsr-part-8"
-  - "ohsr-part-5"
-  - "ohsr-part-6"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
+  - "ohsr-8-4"
+  - "ohsr-8-7"
+  - "ohsr-5-54"
+  - "ohsr-6-112"
 citations:
-  - "ohsr-part-8"
-  - "ohsr-part-5"
-  - "ohsr-part-6"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
+  - "ohsr-8-4"
+  - "ohsr-8-7"
+  - "ohsr-5-54"
+  - "ohsr-6-112"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
+  - "worksafebc-ppe"
 related:
   - "silica-exposure-control"
+  - "asbestos-basics"
+  - "lead-exposure-control"
+  - "mould-in-restoration"
   - "whmis-basics"
   - "ppe-basics"
-  - "site-orientation"
+  - "ventilation"
+  - "dust-control-methods"
+  - "hepa-vacuums"
+  - "confined-space-entry"
   - "training-records"
-  - "workplace-inspections"
-  - "corrective-actions"
-  - "hearing-protection"
-  - "hard-hats"
-  - "eye-and-face-protection"
-  - "high-visibility-apparel"
-  - "safety-footwear"
+  - "worker-rights-and-responsibilities"
 ---
 
 # Respirators
@@ -68,129 +86,139 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Respirators is a BC construction safety topic for the planned work. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[silica-exposure-control|Silica Exposure Control]] and [[whmis-basics|WHMIS Basics]] so readers can move through the topic the way they would in a practical wiki.
+Respirators protect workers only when the right respirator is selected, fitted, used, maintained, and backed by a respiratory protection program. A dust mask grabbed from a box is not enough for silica, asbestos, lead, or chemical exposure unless the whole program and exposure control decision support that choice. {{cite:ohsr-8-32}}
 
-The main hazards to control are dust exposure, chemical exposure, silica, lead, asbestos. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+Respirators should follow exposure control, not replace it. For tasks like concrete cutting, asbestos disturbance, lead work, or chemical use, the employer still needs to control the source and work method before relying on respiratory protection. {{cite:ohsr-5-54}}
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-8}}
+Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
 
 ## When this applies
 
-- The work involves respirators on a BC construction site. {{cite:ohsr-part-5}}
-- The task includes the planned work or a similar activity with comparable hazards.
-- Workers could be exposed to dust exposure, chemical exposure, silica, lead, asbestos, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as respiratory protection program must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- A task can expose workers to dust, fumes, mist, vapour, gas, asbestos, silica, lead, mould, or other airborne hazards.
+- A supervisor is deciding whether respiratory protection is required.
+- Workers are wearing disposable, half-mask, full-face, powered air, supplied-air, or escape respirators.
+- Fit testing, seal checks, cartridges, filters, cleaning, or storage need to be confirmed.
+- Facial hair, eyewear, headgear, or other PPE could interfere with the seal.
+- A respirator is being used in a confined space or low-ventilation area.
+- A worker reports breathing difficulty, odour breakthrough, damaged equipment, or uncertainty about the cartridge.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-8}}
-- Identify the hazards connected to respirators and control them before workers are exposed. {{cite:ohsr-part-5}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-6}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-guidelines}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:ohsr-part-8}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Use a respiratory protection program where respirators are required. {{cite:ohsr-8-32}}
+- Fit test tight-fitting respirators where the regulation requires fit testing. {{cite:ohsr-8-39}}
+- Use PPE that meets applicable standards for the type of protection being relied on. {{cite:ohsr-8-4}}
+- Provide instruction and training for PPE use, limits, inspection, maintenance, and storage where required. {{cite:ohsr-8-7}}
+- Tie respirator selection to the exposure control plan when the hazard requires written exposure control. {{cite:ohsr-5-54}}
+- For silica work, confirm respiratory protection requirements against the silica exposure control plan. {{cite:ohsr-6-112}}
+- Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. {{review:source}}
+- Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. {{review:source}}
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[ppe-basics|PPE Basics]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Select the respirator from the hazard and exposure, not from what happens to be in the gang box.
+- Confirm the worker can get a proper seal before assigning tight-fitting respiratory protection.
+- Keep cartridges and filters labelled, protected, and changed before breakthrough or clogging.
+- Clean and store reusable respirators away from dust, chemicals, sunlight, crushing, and shared contamination.
+- Do not let respirators hide a failed engineering control; fix the dust, fume, or ventilation problem.
+- Recheck respirator choice when the material, task duration, ventilation, or product changes.
+- Record fit tests and training without collecting unnecessary medical or private information.
 
 ## Required documents
 
-- Respiratory protection program: shows how the site chose and communicated the control. {{cite:ohsr-part-8}}
-- Fit test record: records who checked the condition before work started. {{cite:ohsr-part-5}}
-- Training record: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:ohsr-part-6}}
-- Site-specific safe work procedure: helps supervisors prove workers received task-specific instruction. {{cite:worksafebc-ohs-regulation}}
-- Worker instruction or training record: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ohs-guidelines}}
-- Inspection or pre-use check record: supports coordination between employers, the prime contractor, and affected trades. {{cite:ohsr-part-8}}
-- Corrective action record when a deficiency is found: gives the crew a field reference when conditions change. {{cite:ohsr-part-5}}
+- Respiratory protection program: records the site-specific control expected before the task starts. {{cite:ohsr-8-32}}
+- Fit test record: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-8-39}}
+- Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-8-4}}
+- Training/instruction record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-8-7}}
+- Manufacturer instructions: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-5-54}}
+- Inspection and maintenance record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-6-112}}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[silica-exposure-control|Silica Exposure Control]] and any site-specific procedure that applies.
-3. Identify the hazards, including dust exposure, chemical exposure, silica, lead, asbestos, and decide who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-8}}
-5. Prepare or update the required document set, including respiratory protection program.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Identify the airborne hazard and the work method that creates it.
+2. Check the exposure control plan or SDS for the required control strategy.
+3. Choose engineering and administrative controls before relying on respirators.
+4. Select the respirator type, filter, cartridge, and assigned protection based on the hazard and current review.
+5. Confirm fit test status for tight-fitting respirators. {{cite:ohsr-8-39}}
+6. Inspect facepiece, straps, valves, gaskets, filters, cartridges, labels, and cleanliness.
+7. Complete a seal check before entering the work area.
+8. Use the respirator only within its limits and leave the area if breathing becomes difficult or odour breakthrough occurs.
+9. Clean, store, replace, or dispose of the respirator according to instructions.
+10. Record defects, replacements, fit test issues, and exposure control changes.
 
 ## Worker checklist
 
-- [ ] I understand what respirators means for today's task.
-- [ ] I know the main hazards: dust exposure, chemical exposure, silica, lead, asbestos.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
-- [ ] I know the emergency response or first aid contact path if something goes wrong.
-- [ ] I will not continue if the work no longer matches the plan.
+- [ ] I know the hazard my respirator is protecting me from.
+- [ ] I know my assigned respirator, filter, and cartridge.
+- [ ] I have a current fit test if my respirator is tight fitting.
+- [ ] I completed a seal check before starting work.
+- [ ] I inspected straps, valves, facepiece, filters, and cartridges.
+- [ ] I know when to leave the area because the respirator is not working properly.
+- [ ] I will not wear a tight-fitting respirator with facial hair that breaks the seal.
+- [ ] I will store reusable equipment clean and protected.
+- [ ] I will not share a respirator unless cleaning and assignment requirements are met.
+- [ ] I will report damage, breakthrough, clogging, or breathing difficulty.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:ohsr-part-5}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
-- [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[site-orientation|Site Orientation]] or another related article when the issue is broader than this task.
+- [ ] The airborne hazard has been identified and tied to an exposure control plan where required.
+- [ ] Respirators are used as part of a respiratory protection program. {{cite:ohsr-8-32}}
+- [ ] Workers have fit tests where required and know how to do seal checks. {{cite:ohsr-8-39}}
+- [ ] Filters, cartridges, and respirator types match the hazard and task.
+- [ ] Engineering controls are in place before respirators are relied on.
+- [ ] Workers have training on use, limits, cleaning, storage, and defect reporting.
+- [ ] Facial hair, eyewear, hard hats, and other PPE do not break the respirator seal.
+- [ ] Cleaning, storage, cartridge change, and replacement records are maintained as needed.
+- [ ] Respirator problems trigger a pause and exposure control review.
+- [ ] Respirator legal claims are source checked before public-ready maturity is assigned. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
-- Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Calling any disposable mask a respirator without checking the hazard and program.
+- Skipping fit testing because the respirator feels tight.
+- Letting workers use respirators with facial hair that breaks the seal.
+- Using cartridges after odour breakthrough or heavy clogging.
+- Storing reusable respirators loose in dusty toolboxes.
+- Relying on respirators while dry cutting, dry sweeping, or poor ventilation continues.
+- Using one respirator type for silica, asbestos, solvents, and welding fumes without review.
+- Forgetting that respirator use in confined spaces may require a separate entry and rescue review.
 
 ## Related topics
 
-- [[silica-exposure-control|Silica Exposure Control]]
-- [[whmis-basics|WHMIS Basics]]
-- [[ppe-basics|PPE Basics]]
-- [[site-orientation|Site Orientation]]
-- [[training-records|Training Records]]
-- [[workplace-inspections|Workplace Inspections]]
-- [[corrective-actions|Corrective Actions]]
-- [[hearing-protection|Hearing Protection]]
-- [[hard-hats|Hard Hats]]
-- [[eye-and-face-protection|Eye and Face Protection]]
-- [[high-visibility-apparel|High Visibility Apparel]]
-- [[safety-footwear|Safety Footwear]]
+- [[silica-exposure-control]]
+- [[asbestos-basics]]
+- [[lead-exposure-control]]
+- [[mould-in-restoration]]
+- [[whmis-basics]]
+- [[ppe-basics]]
+- [[ventilation]]
+- [[dust-control-methods]]
+- [[hepa-vacuums]]
+- [[confined-space-entry]]
+- [[training-records]]
+- [[worker-rights-and-responsibilities]]
 
 ## Official sources
 
-- {{cite:ohsr-part-8}}
-- {{cite:ohsr-part-5}}
-- {{cite:ohsr-part-6}}
+- {{cite:ohsr-8-32}}
+- {{cite:ohsr-8-39}}
+- {{cite:ohsr-8-4}}
+- {{cite:ohsr-8-7}}
+- {{cite:ohsr-5-54}}
+- {{cite:ohsr-6-112}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
+- {{cite:worksafebc-ppe}}
+
+## Reviewer notes
+
+- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
+- Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 1 hardening: Added BC-specific legal citations, field procedures, checklists, related links, and review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

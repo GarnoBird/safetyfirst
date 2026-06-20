@@ -1,6 +1,7 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { articleResourceLinks, workflowForArticle } from "../src/wikiCompletionData.js";
 import { regulationRefs, wikiSources } from "../src/wikiContent.js";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -53,6 +54,11 @@ function parseFrontmatter(content) {
   }
 
   return [data, content.slice(match[0].length)];
+}
+
+function toArray(value) {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
 }
 
 function unquote(value) {
@@ -113,6 +119,10 @@ function extractCitationIds(text) {
   return unique([...text.matchAll(/\{\{cite:([^}]+)\}\}/g)].map((match) => match[1].trim()));
 }
 
+function countSourceReviewFlags(text) {
+  return [...text.matchAll(/\{\{review:source\}\}/g)].length;
+}
+
 function sourceForCitation(id) {
   const regulation = regulationMap.get(id);
   if (regulation) {
@@ -166,6 +176,8 @@ function articleFromMarkdown(path, content) {
     ...regulationRefs,
     ...sourceIds,
   ]);
+  const workflow = workflowForArticle(slug);
+  const linkedResources = articleResourceLinks[slug] || {};
 
   return {
     slug,
@@ -177,6 +189,9 @@ function articleFromMarkdown(path, content) {
     difficulty: frontmatter.difficulty || "Basic",
     status: frontmatter.status || "Deep draft",
     confidenceLevel: frontmatter.confidenceLevel || "Source-cited deep draft",
+    reviewTier: frontmatter.reviewTier || workflow.reviewTier,
+    maturity: frontmatter.maturity || workflow.maturity,
+    reviewPriority: frontmatter.reviewPriority || workflow.reviewPriority,
     aliases: frontmatter.aliases || [],
     trades: frontmatter.trades || ["All construction trades"],
     hazards: frontmatter.hazards || [],
@@ -186,10 +201,29 @@ function articleFromMarkdown(path, content) {
     regulationRefs,
     citationIds,
     citations: citationIds.map(sourceForCitation),
+    sourceReviewFlagCount: countSourceReviewFlags(markdown),
     wikiLinks,
     outboundArticleLinks: unique([...wikiLinks, ...related]),
     backlinks: [],
     related,
+    relatedToolboxTalks: unique([
+      ...toArray(frontmatter.relatedToolboxTalks),
+      ...(linkedResources.toolboxTalks || []),
+    ]),
+    relatedChecklists: unique([
+      ...toArray(frontmatter.relatedChecklists),
+      ...(linkedResources.checklists || []),
+    ]),
+    relatedQuizzes: unique([
+      ...toArray(frontmatter.relatedQuizzes),
+      ...(linkedResources.quizzes || []),
+    ]),
+    relatedForms: unique([
+      ...toArray(frontmatter.relatedForms),
+      ...(linkedResources.forms || []),
+    ]),
+    versionHistory: listItems(section(markdown, "Version history")),
+    reviewerNotes: listItems(section(markdown, "Reviewer notes")),
     review: {
       lastReviewed: frontmatter.lastReviewed || "2026-06-20",
       nextReview: frontmatter.nextReview || "2026-09-20",

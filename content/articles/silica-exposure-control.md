@@ -4,65 +4,81 @@ title: "Silica Exposure Control"
 category: "Health Hazards"
 status: "Deep draft"
 jurisdiction: "BC"
-difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+difficulty: "Intermediate"
+confidenceLevel: "Tier 1 source-cited draft"
+reviewTier: "Tier 1"
+maturity: "Draft"
+reviewPriority: "High-risk legal/source hardening"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 1 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
   - "silica dust"
   - "concrete dust"
+  - "respirable crystalline silica"
   - "RCS"
   - "dust control"
-  - "exposure control plan"
 trades:
-  - "All construction trades"
+  - "Concrete"
+  - "Masonry"
+  - "Demolition"
+  - "Restoration"
+  - "Roadwork"
 hazards:
   - "Respirable crystalline silica"
-  - "Dust exposure"
+  - "Airborne dust"
+  - "Lung disease"
+  - "Poor ventilation"
 tasks:
-  - "Concrete cutting"
-  - "Grinding"
-  - "Coring"
-  - "Demolition"
-  - "Rock drilling"
+  - "Cutting concrete"
+  - "Grinding concrete"
+  - "Drilling masonry"
+  - "Chipping"
+  - "Sweeping dust"
 requiredDocuments:
-  - "Silica risk assessment"
   - "Exposure control plan"
-  - "Air monitoring record or documented exception"
-  - "Respirator fit test/training record"
-  - "Written work procedure"
-  - "Site-specific safe work procedure"
-  - "Worker instruction or training record"
-  - "Inspection or pre-use check record"
+  - "Safe work procedure"
+  - "Respiratory protection program"
+  - "Fit test record"
+  - "Training/instruction record"
+  - "Equipment inspection record"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
+  - "worksafebc-silica"
 regulationRefs:
-  - "ohsr-part-5"
-  - "ohsr-part-6"
-  - "ohsr-part-8"
+  - "ohsr-6-110"
+  - "ohsr-6-111"
+  - "ohsr-6-112"
+  - "ohsr-5-54"
+  - "ohsr-5-55"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
 citations:
-  - "ohsr-part-5"
-  - "ohsr-part-6"
-  - "ohsr-part-8"
+  - "ohsr-6-110"
+  - "ohsr-6-111"
+  - "ohsr-6-112"
+  - "ohsr-5-54"
+  - "ohsr-5-55"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
+  - "worksafebc-silica"
 related:
   - "respirators"
-  - "whmis-basics"
+  - "wet-cutting"
   - "hepa-vacuums"
-  - "incident-investigation"
-  - "site-orientation"
-  - "demolition-planning"
-  - "concrete-formwork"
-  - "ventilation"
   - "dust-control-methods"
+  - "ventilation"
+  - "ppe-basics"
+  - "eye-and-face-protection"
+  - "concrete-pumping"
+  - "demolition-planning"
   - "hazardous-materials-before-demolition"
-  - "asbestos-basics"
-  - "lead-exposure-control"
-  - "mould-in-restoration"
+  - "whmis-basics"
+  - "training-records"
 ---
 
 # Silica Exposure Control
@@ -71,131 +87,140 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Silica Exposure Control is a BC construction safety topic for concrete cutting, grinding, coring, demolition, rock drilling. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[respirators|Respirators]] and [[whmis-basics|WHMIS Basics]] so readers can move through the topic the way they would in a practical wiki.
+Silica exposure control is about preventing workers from breathing respirable crystalline silica during tasks such as cutting, grinding, drilling, coring, chipping, crushing, or cleaning concrete, masonry, stone, tile, or rock. The dust that matters most is often too fine to judge by sight. {{cite:ohsr-6-110}}
 
-The main hazards to control are respirable crystalline silica, dust exposure. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. Dust cleanup and extraction should be planned with [[dust-control-methods|Dust Control Methods]] and [[hepa-vacuums|HEPA Vacuums]] instead of treated as ordinary housekeeping. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+Effective control usually combines wet methods, local exhaust, HEPA cleanup, restricted access, training, and a respirator program when respiratory protection is required. Respirators are not a substitute for dust control; they are one part of the system when exposure cannot be controlled another way. {{cite:ohsr-6-111}}
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-5}}
+Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [[respirators|Respirators]], and [[dust-control-methods|Dust Control Methods]]. It is a Tier 1 draft pending qualified source review. {{review:source}}
 
 ## When this applies
 
-- The work involves silica exposure control on a BC construction site. {{cite:ohsr-part-6}}
-- The task includes concrete cutting, grinding, coring, demolition, rock drilling or a similar activity with comparable hazards.
-- Workers could be exposed to respirable crystalline silica, dust exposure, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as silica risk assessment must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- Concrete, masonry, stone, tile, mortar, grout, or rock will be cut, drilled, ground, chipped, crushed, swept, or disturbed.
+- A dry method is proposed or water/extraction cannot be used as planned.
+- Dust is visible near workers, nearby trades, public areas, occupied spaces, or return-air paths.
+- A respirator is required or workers are asking whether a dust mask is enough.
+- The work is indoors, underground, in a parkade, in a shaft, or in another area with limited ventilation.
+- Cleanup involves dust, slurry, vacuuming, sweeping, or waste disposal.
+- A supervisor needs to confirm the exposure control plan before starting a silica-generating task.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-5}}
-- Identify the hazards connected to silica exposure control and control them before workers are exposed. {{cite:ohsr-part-6}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-8}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-guidelines}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:ohsr-part-5}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Identify when respirable crystalline silica or rock dust requirements apply to the material and task. {{cite:ohsr-6-110}}
+- Control silica exposure using the measures required by the regulation for the work. {{cite:ohsr-6-111}}
+- Prepare and follow a silica exposure control plan where the regulation requires one. {{cite:ohsr-6-112}}
+- Use an exposure control plan for hazardous exposure risks that require written planning under Part 5. {{cite:ohsr-5-54}}
+- Use written work procedures where required to control worker exposure. {{cite:ohsr-5-55}}
+- Use a respiratory protection program when respirators are required as part of the control strategy. {{cite:ohsr-8-32}}
+- Fit test respirators where the regulation requires fit testing for the respirator being used. {{cite:ohsr-8-39}}
+- Confirm current exposure limits, monitoring expectations, and guideline wording before marking this article source checked. {{review:source}}
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[incident-investigation|Incident Investigation]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Plan the job around wet cutting or tool-mounted extraction before workers mobilize.
+- Keep dry sweeping, compressed-air blowdown, and uncontrolled cleanup out of the work method.
+- Use shrouds, HEPA vacuums, water delivery, and slurry controls matched to the tool and material.
+- Restrict the work area so nearby trades do not walk through dust or slurry.
+- Check water supply, hoses, power, GFCI protection, filters, bags, and waste containers before the task.
+- Treat respirator fit, cartridges, facial hair, storage, and cleaning as part of the job plan.
+- Reassess when the material, tool, duration, ventilation, or crew changes.
 
 ## Required documents
 
-- Silica risk assessment: shows how the site chose and communicated the control. {{cite:ohsr-part-5}}
-- Exposure control plan: records who checked the condition before work started. {{cite:ohsr-part-6}}
-- Air monitoring record or documented exception: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:ohsr-part-8}}
-- Respirator fit test/training record: helps supervisors prove workers received task-specific instruction. {{cite:worksafebc-ohs-regulation}}
-- Written work procedure: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ohs-guidelines}}
-- Site-specific safe work procedure: supports coordination between employers, the prime contractor, and affected trades. {{cite:ohsr-part-5}}
-- Worker instruction or training record: gives the crew a field reference when conditions change. {{cite:ohsr-part-6}}
-- Inspection or pre-use check record: creates review evidence for the next scheduled safety/source check. {{cite:ohsr-part-8}}
+- Exposure control plan: records the site-specific control expected before the task starts. {{cite:ohsr-6-110}}
+- Safe work procedure: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-6-111}}
+- Respiratory protection program: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-6-112}}
+- Fit test record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-5-54}}
+- Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-5-55}}
+- Equipment inspection record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-8-32}}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[respirators|Respirators]] and any site-specific procedure that applies.
-3. Identify the hazards, including respirable crystalline silica, dust exposure, and decide who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-5}}
-5. Prepare or update the required document set, including silica risk assessment.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Identify the material and task that can generate silica dust.
+2. Review the exposure control plan and task procedure before work starts.
+3. Choose the dust control method: wet method, local exhaust, isolation, ventilation, or a combination.
+4. Set up water, extraction, HEPA vacuum, power, hoses, slurry control, and waste containers.
+5. Confirm respirator requirements, fit test status, seal check, cartridges, and storage where respirators are needed.
+6. Restrict the work area and warn affected trades before dust-generating work starts.
+7. Start the tool only after water or extraction is working.
+8. Stop if dust escapes the control, water stops, vacuum suction drops, filters clog, or workers report irritation.
+9. Clean with wet methods or HEPA vacuuming; do not dry sweep or blow down dust.
+10. Record deficiencies, equipment problems, and changes needed for the next task.
 
 ## Worker checklist
 
-- [ ] I understand what silica exposure control means for today's task.
-- [ ] I know the main hazards: respirable crystalline silica, dust exposure.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
-- [ ] I know the emergency response or first aid contact path if something goes wrong.
-- [ ] I will not continue if the work no longer matches the plan.
+- [ ] I know whether today's material can contain silica.
+- [ ] I know the dust control method for my task.
+- [ ] I checked that water or extraction works before starting.
+- [ ] I will not dry sweep or use compressed air to clean silica dust.
+- [ ] I know whether I need a respirator and which one to use.
+- [ ] My respirator fit test and seal check are current for the assigned respirator.
+- [ ] I will stop if visible dust escapes the control.
+- [ ] I will keep other workers out of the dusty area.
+- [ ] I know how slurry, filters, and waste are being handled.
+- [ ] I will report tool, vacuum, water, or respirator problems right away.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:ohsr-part-6}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
-- [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[site-orientation|Site Orientation]] or another related article when the issue is broader than this task.
+- [ ] The exposure control plan covers the material, task, duration, crew, and location. {{cite:ohsr-6-112}}
+- [ ] Engineering controls are set up before relying on respirators.
+- [ ] Workers are trained on the dust control method and cleanup limits.
+- [ ] Respirator program, fit testing, and seal checks are current where respirators are required. {{cite:ohsr-8-32}} {{cite:ohsr-8-39}}
+- [ ] The work area is restricted and nearby trades are warned.
+- [ ] Water, HEPA extraction, filters, bags, hoses, and power are available.
+- [ ] Dry sweeping and blowdown are prevented.
+- [ ] Controls are checked during the task, not only at setup.
+- [ ] Waste and slurry are managed without creating new exposure.
+- [ ] Exposure-limit and monitoring assumptions have been source reviewed before public-ready status. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
-- Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Calling a paper mask a respirator without a respiratory protection program.
+- Turning on the tool before water or extraction is working.
+- Letting nearby trades work downwind or inside the dust area.
+- Dry sweeping dust after using wet cutting or HEPA extraction during production.
+- Using a shop vacuum instead of a HEPA-rated setup suitable for the dust.
+- Ignoring facial hair, fit testing, and seal checks.
+- Assuming visible dust is the only exposure concern.
+- Failing to change the plan when cutting moves indoors or ventilation changes.
 
 ## Related topics
 
-- [[respirators|Respirators]]
-- [[whmis-basics|WHMIS Basics]]
-- [[hepa-vacuums|HEPA Vacuums]]
-- [[incident-investigation|Incident Investigation]]
-- [[site-orientation|Site Orientation]]
-- [[demolition-planning|Demolition Planning]]
-- [[concrete-formwork|Concrete Formwork]]
-- [[ventilation|Ventilation]]
-- [[dust-control-methods|Dust Control Methods]]
-- [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]]
-- [[asbestos-basics|Asbestos Basics]]
-- [[lead-exposure-control|Lead Exposure Control]]
-- [[mould-in-restoration|Mould in Restoration]]
+- [[respirators]]
+- [[wet-cutting]]
+- [[hepa-vacuums]]
+- [[dust-control-methods]]
+- [[ventilation]]
+- [[ppe-basics]]
+- [[eye-and-face-protection]]
+- [[concrete-pumping]]
+- [[demolition-planning]]
+- [[hazardous-materials-before-demolition]]
+- [[whmis-basics]]
+- [[training-records]]
 
 ## Official sources
 
-- {{cite:ohsr-part-5}}
-- {{cite:ohsr-part-6}}
-- {{cite:ohsr-part-8}}
+- {{cite:ohsr-6-110}}
+- {{cite:ohsr-6-111}}
+- {{cite:ohsr-6-112}}
+- {{cite:ohsr-5-54}}
+- {{cite:ohsr-5-55}}
+- {{cite:ohsr-8-32}}
+- {{cite:ohsr-8-39}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
+- {{cite:worksafebc-silica}}
+
+## Reviewer notes
+
+- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
+- Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 1 hardening: Added BC-specific legal citations, field procedures, checklists, related links, and review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

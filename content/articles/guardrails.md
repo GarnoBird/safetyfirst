@@ -4,55 +4,74 @@ title: "Guardrails"
 category: "High-Risk Work"
 status: "Deep draft"
 jurisdiction: "BC"
-difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+difficulty: "Intermediate"
+confidenceLevel: "Tier 1 source-cited draft"
+reviewTier: "Tier 1"
+maturity: "Draft"
+reviewPriority: "High-risk legal/source hardening"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 1 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
-  - "edge protection"
-  - "handrail"
-  - "temporary rail"
+  - "edge rails"
+  - "handrails"
+  - "temporary guardrails"
+  - "guard rail"
 trades:
   - "All construction trades"
+  - "Formwork"
+  - "Concrete"
+  - "Carpentry"
 hazards:
   - "Falls from height"
+  - "Open edges"
   - "Floor openings"
-tasks: []
+  - "Falling objects"
+tasks:
+  - "Installing guardrails"
+  - "Inspecting guardrails"
+  - "Protecting slab edges"
+  - "Covering openings"
 requiredDocuments:
-  - "Inspection record where required"
-  - "Site-specific guardrail standard"
+  - "Guardrail inspection record"
   - "Site-specific safe work procedure"
-  - "Worker instruction or training record"
-  - "Inspection or pre-use check record"
-  - "Corrective action record when a deficiency is found"
+  - "Deficiency/corrective action log"
+  - "Fall protection plan"
+  - "Manufacturer or engineered instructions"
+  - "Toolbox talk record"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 regulationRefs:
-  - "ohsr-part-4"
-  - "ohsr-part-11"
-  - "ohsr-part-20"
+  - "ohsr-4-54"
+  - "ohsr-4-55"
+  - "ohsr-4-59"
+  - "ohsr-4-60"
+  - "ohsr-11-2"
+  - "ohsr-11-3"
 citations:
-  - "ohsr-part-4"
-  - "ohsr-part-11"
-  - "ohsr-part-20"
+  - "ohsr-4-54"
+  - "ohsr-4-55"
+  - "ohsr-4-59"
+  - "ohsr-4-60"
+  - "ohsr-11-2"
+  - "ohsr-11-3"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
   - "fall-protection"
   - "floor-openings-and-covers"
+  - "leading-edge-work"
+  - "fall-restraint"
+  - "fall-arrest"
+  - "anchor-points"
   - "scaffolds"
-  - "ladders"
-  - "site-specific-safety-plan"
-  - "supervisor-duties"
+  - "work-platforms"
+  - "roof-work"
+  - "housekeeping"
   - "workplace-inspections"
   - "corrective-actions"
-  - "site-emergency-response-plan"
-  - "fall-arrest"
-  - "fall-restraint"
-  - "anchor-points"
 ---
 
 # Guardrails
@@ -61,128 +80,138 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Guardrails is a BC construction safety topic for the planned work. It helps supervisors, CSOs, employers, prime contractors, and workers understand the hazards, documents, controls, and stop-work triggers before the work starts. It connects directly to [[fall-protection|Fall Protection]] and [[floor-openings-and-covers|Floor Openings and Covers]] so readers can move through the topic the way they would in a practical wiki.
+Guardrails are usually the simplest and most visible way to keep workers away from edges and openings. They protect the whole crew when they are complete, strong enough, properly installed, and kept in place until another reviewed control is ready. {{cite:ohsr-4-54}}
 
-The main hazards to control are falls from height, floor openings. On a real site, those hazards rarely stand alone: they usually overlap with access, supervision, training, emergency response, public protection, equipment condition, and nearby trades. This article separates legal requirements from best practice and field checklist items so a reader does not mistake a sample procedure for law.
+A guardrail problem is a fall protection problem. Missing midrails, loose posts, removed sections, unprotected openings, and hidden covers can expose workers who were not planning to use a harness. Guardrails connect directly to [[floor-openings-and-covers|Floor Openings and Covers]], [[fall-protection|Fall Protection]], and [[leading-edge-work|Leading Edge Work]].
 
-Treat this page as a source-cited draft until a qualified BC safety/source reviewer confirms the exact WorkSafeBC sections for the project. Where a legal point is not pinned to a confirmed section, it is marked for source review instead of being presented as a final legal interpretation. {{cite:ohsr-part-4}}
+This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. {{review:source}}
 
 ## When this applies
 
-- The work involves guardrails on a BC construction site. {{cite:ohsr-part-11}}
-- The task includes the planned work or a similar activity with comparable hazards.
-- Workers could be exposed to falls from height, floor openings, or nearby trades/public users could be affected.
-- A supervisor must choose controls before production work starts, not after a deficiency is found.
-- The site condition, crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as inspection record where required must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- A slab edge, roof edge, balcony, stair opening, shaft, excavation edge, or work platform edge needs collective fall protection.
+- Temporary rails are being installed, moved, removed, repaired, or inspected.
+- Materials, pallets, cords, snow, debris, or stored equipment could hide an opening or damage a rail.
+- Workers from multiple trades are using the same travel path or work area.
+- A section of guardrail must be removed for loading, access, hoisting, or finishing work.
+- An opening cover, toeboard, midrail, top rail, or post is missing or damaged.
+- A deficiency inspection asks whether a personal fall protection system is needed until the rail is restored.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-4}}
-- Identify the hazards connected to guardrails and control them before workers are exposed. {{cite:ohsr-part-11}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-20}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-guidelines}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:ohsr-part-4}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Install guardrails where the regulation requires them for the work surface, opening, or edge. {{cite:ohsr-4-55}}
+- Guardrails must meet the applicable design and component requirements in the regulation. {{cite:ohsr-4-54}}
+- Floor and roof openings must be protected as required so workers are not exposed to falls through them. {{cite:ohsr-4-59}}
+- Use toeboards where required to control falling-object hazards from elevated work areas. {{cite:ohsr-4-60}}
+- If guardrails are not in place and workers are exposed, use another required fall protection system. {{cite:ohsr-11-2}}
+- If the work requires a fall protection plan, address the temporary removal or replacement of guardrails in that plan. {{cite:ohsr-11-3}}
+- Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. {{review:source}}
+- Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. {{review:source}}
 
 ## Best practice
 
-- Start with a short pre-job review that links this topic to [[scaffolds|Scaffolds]] and the actual work area.
-- Use the strongest practicable control before relying on PPE or worker behaviour alone.
-- Make the responsible supervisor, competent person, or qualified person explicit in the field notes.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check whether the same hazard exists in another area of the site before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep the field version concise enough that a foreperson can use it during a live work briefing.
+- Use guardrails as the default control for common work areas instead of relying on each worker to tie off.
+- Tag or mark incomplete rail sections so workers do not mistake them for protection.
+- Keep material piles, carts, cords, and hoses away from rails and covers so damage is visible.
+- Use a written removal/replacement method for loading bays, hoist areas, and edge finishing.
+- Inspect rails after concrete pours, form stripping, deliveries, weather, and hoarding changes.
+- Use temporary barriers or fall restraint before removing rails for short tasks.
+- Record who removed a rail and who is responsible for reinstalling or replacing the control.
 
 ## Required documents
 
-- Inspection record where required: shows how the site chose and communicated the control. {{cite:ohsr-part-4}}
-- Site-specific guardrail standard: records who checked the condition before work started. {{cite:ohsr-part-11}}
-- Site-specific safe work procedure: supports follow-up if a deficiency, refusal, incident, or source-review question arises. {{cite:ohsr-part-20}}
-- Worker instruction or training record: helps supervisors prove workers received task-specific instruction. {{cite:worksafebc-ohs-regulation}}
-- Inspection or pre-use check record: keeps the article tied back to official source requirements instead of informal memory. {{cite:worksafebc-ohs-guidelines}}
-- Corrective action record when a deficiency is found: supports coordination between employers, the prime contractor, and affected trades. {{cite:ohsr-part-4}}
+- Guardrail inspection record: records the site-specific control expected before the task starts. {{cite:ohsr-4-54}}
+- Site-specific safe work procedure: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-4-55}}
+- Deficiency/corrective action log: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-4-59}}
+- Fall protection plan: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-4-60}}
+- Manufacturer or engineered instructions: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-11-2}}
+- Toolbox talk record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-11-3}}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Review this article with [[fall-protection|Fall Protection]] and any site-specific procedure that applies.
-3. Identify the hazards, including falls from height, floor openings, and decide who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-4}}
-5. Prepare or update the required document set, including inspection record where required.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Identify every edge and opening in the work area before crews enter.
+2. Confirm whether a guardrail, cover, travel restraint, or another control is required.
+3. Install rails, posts, midrails, toeboards, and covers to the applicable site and regulatory requirements.
+4. Inspect for missing components, loose fasteners, weak posts, damaged lumber, unmarked covers, and blocked access.
+5. Set an interim control before any section is removed.
+6. Brief affected workers and nearby trades before rails are removed or altered.
+7. Keep openings and covers visible, secured, and free of stored materials.
+8. Stop work if a rail is incomplete and no alternate fall protection is in place.
+9. Assign correction of missing or damaged rails to a named person with a deadline.
+10. Reinspect after the change and record the correction.
 
 ## Worker checklist
 
-- [ ] I understand what guardrails means for today's task.
-- [ ] I know the main hazards: falls from height, floor openings.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
-- [ ] I know the emergency response or first aid contact path if something goes wrong.
-- [ ] I will not continue if the work no longer matches the plan.
+- [ ] I checked for open edges and floor openings before starting work.
+- [ ] I will not remove a rail or cover without permission and an alternate control.
+- [ ] I will report loose posts, missing midrails, damaged rails, and hidden covers.
+- [ ] I will keep materials from hiding openings or pushing against rails.
+- [ ] I will not assume caution tape is fall protection.
+- [ ] I know the travel path I am expected to use.
+- [ ] I know what control is in place if a rail has to be removed.
+- [ ] I will stop if my work exposes another worker to an unguarded edge.
+- [ ] I will not lean, climb, or attach loads to a guardrail unless it is designed for that use.
+- [ ] I will tell the supervisor if a rail does not match today's work setup.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:ohsr-part-11}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
-- [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Follow-up is linked to [[ladders|Ladders]] or another related article when the issue is broader than this task.
+- [ ] Edges and openings have been identified before work starts.
+- [ ] Guardrails and covers are installed where required. {{cite:ohsr-4-55}} {{cite:ohsr-4-59}}
+- [ ] Temporary removal has a planned alternate control.
+- [ ] The crew understands who can remove or alter guardrails.
+- [ ] Rail deficiencies are treated as fall protection deficiencies.
+- [ ] Loading zones, hoist areas, and material routes have specific controls.
+- [ ] Toeboards or falling-object controls are considered where workers or the public are below. {{cite:ohsr-4-60}}
+- [ ] Inspections are repeated after work sequence, weather, or trade changes.
+- [ ] Corrections are documented and verified in the field.
+- [ ] Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
-- Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Using caution tape, cones, or verbal warnings as if they were guardrails.
+- Removing rails for deliveries and forgetting to replace them.
+- Covering floor openings with loose plywood that can slide or be lifted by mistake.
+- Letting stored materials hide damaged rails or openings.
+- Failing to protect workers while a rail section is being repaired.
+- Assuming another trade will reinstall a guardrail after finishing their work.
+- Ignoring falling-object hazards from open edges.
+- Not checking rails after weather, hoisting, stripping, or material movement.
 
 ## Related topics
 
-- [[fall-protection|Fall Protection]]
-- [[floor-openings-and-covers|Floor Openings and Covers]]
-- [[scaffolds|Scaffolds]]
-- [[ladders|Ladders]]
-- [[site-specific-safety-plan|Site-Specific Safety Plan]]
-- [[supervisor-duties|Supervisor Duties]]
-- [[workplace-inspections|Workplace Inspections]]
-- [[corrective-actions|Corrective Actions]]
-- [[site-emergency-response-plan|Site Emergency Response Plan]]
-- [[fall-arrest|Fall Arrest]]
-- [[fall-restraint|Fall Restraint]]
-- [[anchor-points|Anchor Points]]
+- [[fall-protection]]
+- [[floor-openings-and-covers]]
+- [[leading-edge-work]]
+- [[fall-restraint]]
+- [[fall-arrest]]
+- [[anchor-points]]
+- [[scaffolds]]
+- [[work-platforms]]
+- [[roof-work]]
+- [[housekeeping]]
+- [[workplace-inspections]]
+- [[corrective-actions]]
 
 ## Official sources
 
-- {{cite:ohsr-part-4}}
-- {{cite:ohsr-part-11}}
-- {{cite:ohsr-part-20}}
+- {{cite:ohsr-4-54}}
+- {{cite:ohsr-4-55}}
+- {{cite:ohsr-4-59}}
+- {{cite:ohsr-4-60}}
+- {{cite:ohsr-11-2}}
+- {{cite:ohsr-11-3}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## Reviewer notes
+
+- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
+- Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
+
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 1 hardening: Added BC-specific legal citations, field procedures, checklists, related links, and review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer
