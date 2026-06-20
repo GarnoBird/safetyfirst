@@ -18,6 +18,7 @@ import {
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
+  StaffTrendsPage,
   WorkerSignInPage,
   WorkerSignInQr,
   WorkerSignOutPage,
@@ -85,6 +86,10 @@ export default function App() {
 
   if (routePath === "/staff/sign-ins/company") {
     return <StaffCompanySummaryPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/trends") {
+    return <StaffTrendsPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/settings") {

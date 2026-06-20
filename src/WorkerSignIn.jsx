@@ -18,6 +18,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
     label: "ON SITE - COMPANY",
     path: "/staff/sign-ins/company",
   },
+  { id: "trends", label: "TRENDS", path: "/staff/trends" },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
 
@@ -40,6 +41,13 @@ const DEFAULT_SYSTEM_STATUS = {
   email: "checking",
   sms: "not connected",
 };
+
+const TREND_PRESETS = [
+  { id: "30", label: "30 days" },
+  { id: "90", label: "90 days" },
+  { id: "project", label: "Project to date" },
+  { id: "custom", label: "Custom" },
+];
 
 const OTHER_COMPANY = "Other";
 const WORKER_REMEMBER_COOKIE = "sf_worker_signin_profile";
@@ -737,6 +745,25 @@ export function StaffHomePage({ navigateTo }) {
               {emailing ? "Emailing..." : "Email"}
             </button>
           </div>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open trends"
+          eyebrow="Workforce planning"
+          text="Track worker counts, company activity, trade mix, and site-service planning signals over time."
+          title="Trends"
+          onAction={() => navigateTo("/staff/trends")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Default</dt>
+              <dd>Last 90 days</dd>
+            </div>
+            <div>
+              <dt>Data</dt>
+              <dd>Aggregate only</dd>
+            </div>
+          </dl>
         </StaffActionCard>
 
         <StaffActionCard
@@ -1494,6 +1521,311 @@ export function StaffCompanySummaryPage({ navigateTo }) {
   );
 }
 
+export function StaffTrendsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const today = useMemo(todayInVancouver, []);
+  const [preset, setPreset] = useState("90");
+  const [customFrom, setCustomFrom] = useState(addDaysToISODate(today, -89));
+  const [customTo, setCustomTo] = useState(today);
+  const [search, setSearch] = useState("");
+  const [companySort, setCompanySort] = useState("latest");
+  const [mappingDrafts, setMappingDrafts] = useState({});
+  const [savingCompany, setSavingCompany] = useState("");
+  const [trends, setTrends] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const rangeParams = useMemo(
+    () => trendRangeParams(preset, customFrom, customTo, today),
+    [customFrom, customTo, preset, today],
+  );
+
+  const companyRows = useMemo(
+    () => sortTrendCompanies(filterTrendCompanies(trends?.companies || [], search), companySort),
+    [companySort, search, trends],
+  );
+
+  const loadTrends = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/trends?${rangeParams}`, {
+          credentials: "include",
+        }),
+      );
+      setTrends(payload);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!staff) return;
+    let active = true;
+    setLoading(true);
+    setMessage("");
+
+    fetch(`/api/staff/trends?${rangeParams}`, { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (active) setTrends(payload);
+      })
+      .catch((error) => {
+        if (active) setMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [rangeParams, staff]);
+
+  const saveCompanyMapping = async (company, tradeCategory) => {
+    setSavingCompany(company);
+    setMessage("");
+
+    try {
+      await readApiJson(
+        await fetch("/api/staff/company-profiles", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            mappings: [{ companyName: company, tradeCategory }],
+          }),
+        }),
+      );
+      setMappingDrafts((current) => {
+        const next = { ...current };
+        delete next[company];
+        return next;
+      });
+      setMessage(`${company} mapped to ${tradeCategory}.`);
+      await loadTrends();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSavingCompany("");
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  const metrics = trends?.metrics || {};
+  const dataQuality = trends?.dataQuality || {};
+  const tradeCategories = trends?.tradeCategories || ["Unmapped"];
+  const unmappedCompanies = dataQuality.unmappedCompanies || [];
+
+  return (
+    <StaffShell active="trends" contentWide navigateTo={navigateTo}>
+      <section className="trends-page-heading">
+        <div>
+          <p>Workforce planning</p>
+          <h1>Trends</h1>
+          <span>
+            Aggregate worker counts by company and trade category. No worker names or phone numbers are shown here.
+          </span>
+        </div>
+      </section>
+
+      <section className="staff-toolbar trends-toolbar">
+        <div className="trend-preset-group" aria-label="Trend date range">
+          {TREND_PRESETS.map((item) => (
+            <button
+              className={preset === item.id ? "active" : ""}
+              key={item.id}
+              type="button"
+              onClick={() => setPreset(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <label className="field">
+          <span>From</span>
+          <input
+            disabled={preset !== "custom"}
+            type="date"
+            value={preset === "custom" ? customFrom : trends?.range?.from || customFrom}
+            onChange={(event) => setCustomFrom(event.target.value)}
+          />
+        </label>
+        <label className="field">
+          <span>To</span>
+          <input
+            disabled={preset !== "custom"}
+            type="date"
+            value={preset === "custom" ? customTo : trends?.range?.to || today}
+            onChange={(event) => setCustomTo(event.target.value)}
+          />
+        </label>
+      </section>
+
+      {message ? <p className="staff-message">{message}</p> : null}
+
+      <section className="trend-metric-grid" aria-label="Trend summary">
+        <TrendMetricCard
+          label="Current day"
+          value={formatTrendNumber(metrics.currentDay)}
+          detail={trends?.range?.to ? formatLongDate(trends.range.to) : "Loading"}
+        />
+        <TrendMetricCard
+          label="7-day average"
+          value={formatTrendNumber(metrics.current7DayAverage)}
+          detail="Average daily sign-ins"
+        />
+        <TrendMetricCard
+          label="Recent peak"
+          value={formatTrendNumber(metrics.recentPeak)}
+          detail="Highest daily count in the last 14 days"
+        />
+        <TrendMetricCard
+          label="Previous period"
+          value={formatSignedNumber(metrics.changeFromPreviousAverage)}
+          detail={
+            metrics.changeFromPreviousPercent === null
+              ? "No previous-period baseline"
+              : `${formatSignedNumber(metrics.changeFromPreviousPercent)}% average change`
+          }
+        />
+      </section>
+
+      <section className="trend-panel trend-panel-large">
+        <div className="trend-panel-heading">
+          <div>
+            <h2>Workforce load</h2>
+            <p>Daily worker sign-ins with a 7-day average for planning site services.</p>
+          </div>
+          <strong>{loading ? "Loading" : `${trends?.range?.dayCount || 0} days`}</strong>
+        </div>
+        <WorkforceLineChart daily={trends?.workforce?.daily || []} loading={loading} />
+      </section>
+
+      <section className="trend-grid">
+        <article className="trend-panel">
+          <div className="trend-panel-heading">
+            <div>
+              <h2>Site services planning</h2>
+              <p>Use these signals for outhouses, parking, hoist/elevator load, access control, and logistics.</p>
+            </div>
+          </div>
+          <dl className="trend-planning-list">
+            <div>
+              <dt>7-day average</dt>
+              <dd>{formatTrendNumber(metrics.current7DayAverage)} workers/day</dd>
+            </div>
+            <div>
+              <dt>Recent peak</dt>
+              <dd>{formatTrendNumber(metrics.recentPeak)} workers</dd>
+            </div>
+            <div>
+              <dt>Active companies</dt>
+              <dd>{formatTrendNumber(metrics.activeCompanies7Day)} in last 7 days</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="trend-panel">
+          <div className="trend-panel-heading">
+            <div>
+              <h2>Data quality</h2>
+              <p>These numbers help staff judge how complete the trend data is.</p>
+            </div>
+          </div>
+          <dl className="trend-planning-list">
+            <div>
+              <dt>Sign-out completion</dt>
+              <dd>{formatPercent(dataQuality.signOutCompletionRate)}</dd>
+            </div>
+            <div>
+              <dt>Open sign-ins</dt>
+              <dd>{formatTrendNumber(dataQuality.openSignIns)}</dd>
+            </div>
+            <div>
+              <dt>Avg. signed-in time</dt>
+              <dd>{formatHours(dataQuality.averageSignedInHours)}</dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+
+      <section className="trend-panel">
+        <div className="trend-panel-heading">
+          <div>
+            <h2>Trade mix</h2>
+            <p>Weekly sign-ins grouped by staff-managed company trade category.</p>
+          </div>
+        </div>
+        <TradeMixChart tradeMix={trends?.tradeMix} loading={loading} />
+      </section>
+
+      <section className="trend-panel">
+        <div className="trend-panel-heading">
+          <div>
+            <h2>Company activity</h2>
+            <p>First seen, last seen, active days, peak crew size, latest count, and direction.</p>
+          </div>
+        </div>
+        <div className="trend-company-controls">
+          <label className="staff-search-field">
+            <span>Search companies</span>
+            <input
+              placeholder="Search company"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          <label className="staff-sort-select">
+            <span>Sort</span>
+            <select value={companySort} onChange={(event) => setCompanySort(event.target.value)}>
+              <option value="latest">Latest count</option>
+              <option value="peak">Peak workers</option>
+              <option value="activeDays">Active days</option>
+              <option value="company">Company A-Z</option>
+            </select>
+          </label>
+        </div>
+        <CompanyActivityTable
+          companies={companyRows}
+          loading={loading}
+          mappingDrafts={mappingDrafts}
+          savingCompany={savingCompany}
+          tradeCategories={tradeCategories}
+          onDraftChange={(company, category) =>
+            setMappingDrafts((current) => ({ ...current, [company]: category }))
+          }
+          onSave={saveCompanyMapping}
+        />
+      </section>
+
+      <section className="trend-panel">
+        <div className="trend-panel-heading">
+          <div>
+            <h2>Unmapped companies</h2>
+            <p>Map companies to trade categories to improve trade mix charts.</p>
+          </div>
+          <strong>{unmappedCompanies.length}</strong>
+        </div>
+        {unmappedCompanies.length ? (
+          <div className="unmapped-company-list">
+            {unmappedCompanies.map((company) => (
+              <span key={company}>{company}</span>
+            ))}
+          </div>
+        ) : (
+          <p className="empty-state">All companies in this range are mapped.</p>
+        )}
+      </section>
+    </StaffShell>
+  );
+}
+
 function StaffShell({ active, children, contentWide = false, navigateTo }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const activeMobileItem =
@@ -1906,6 +2238,194 @@ function SignInDetailsDialog({ row, onClose }) {
   );
 }
 
+function TrendMetricCard({ detail, label, value }) {
+  return (
+    <article className="trend-metric-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <p>{detail}</p>
+    </article>
+  );
+}
+
+function WorkforceLineChart({ daily, loading }) {
+  if (loading) return <p className="empty-state">Loading workforce trend...</p>;
+  if (!daily.length) return <p className="empty-state">No trend data for this range.</p>;
+
+  const width = 720;
+  const height = 260;
+  const padding = { top: 18, right: 22, bottom: 34, left: 42 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const maxValue = Math.max(
+    1,
+    ...daily.map((day) => Math.max(day.workerCount, day.movingAverage7 || 0)),
+  );
+  const xForIndex = (index) =>
+    padding.left + (daily.length === 1 ? 0 : (index / (daily.length - 1)) * chartWidth);
+  const yForValue = (value) =>
+    padding.top + chartHeight - (Number(value || 0) / maxValue) * chartHeight;
+  const workerPoints = daily
+    .map((day, index) => `${xForIndex(index)},${yForValue(day.workerCount)}`)
+    .join(" ");
+  const averagePoints = daily
+    .map((day, index) => `${xForIndex(index)},${yForValue(day.movingAverage7)}`)
+    .join(" ");
+  const tickIndexes = uniqueChartTickIndexes(daily.length);
+
+  return (
+    <div className="trend-chart-shell">
+      <svg
+        aria-label="Daily workforce load chart"
+        className="trend-line-chart"
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const y = padding.top + chartHeight - ratio * chartHeight;
+          return (
+            <g key={ratio}>
+              <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} />
+              <text x={12} y={y + 4}>{Math.round(maxValue * ratio)}</text>
+            </g>
+          );
+        })}
+        <polyline className="average-line" points={averagePoints} />
+        <polyline className="worker-line" points={workerPoints} />
+        {tickIndexes.map((index) => (
+          <text
+            className="x-label"
+            key={daily[index].date}
+            x={xForIndex(index)}
+            y={height - 8}
+          >
+            {formatMonthDay(daily[index].date)}
+          </text>
+        ))}
+      </svg>
+      <div className="trend-chart-legend">
+        <span><i className="worker" />Daily count</span>
+        <span><i className="average" />7-day average</span>
+      </div>
+    </div>
+  );
+}
+
+function TradeMixChart({ loading, tradeMix }) {
+  if (loading) return <p className="empty-state">Loading trade mix...</p>;
+  const weekly = tradeMix?.weekly || [];
+  if (!weekly.length) return <p className="empty-state">No trade mix data for this range.</p>;
+
+  return (
+    <div className="trade-mix-chart">
+      {weekly.map((week) => (
+        <div className="trade-week-row" key={week.weekStart}>
+          <span>{formatMonthDay(week.weekStart)}</span>
+          <div className="trade-week-bar" aria-label={`Week of ${week.weekStart}, ${week.total} workers`}>
+            {week.categories.map((item) => (
+              <div
+                key={`${week.weekStart}-${item.category}`}
+                style={{
+                  background: trendColor(item.category),
+                  width: `${Math.max(4, (item.count / week.total) * 100)}%`,
+                }}
+                title={`${item.category}: ${item.count}`}
+              />
+            ))}
+          </div>
+          <strong>{week.total}</strong>
+        </div>
+      ))}
+      <div className="trade-mix-legend">
+        {(tradeMix?.totals || []).slice(0, 8).map((item) => (
+          <span key={item.category}>
+            <i style={{ background: trendColor(item.category) }} />
+            {item.category}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CompanyActivityTable({
+  companies,
+  loading,
+  mappingDrafts,
+  savingCompany,
+  tradeCategories,
+  onDraftChange,
+  onSave,
+}) {
+  if (loading) return <p className="empty-state">Loading company activity...</p>;
+  if (!companies.length) return <p className="empty-state">No companies found for this range.</p>;
+
+  return (
+    <div className="staff-table-scroll trend-table-scroll">
+      <table className="staff-table trend-company-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Trade category</th>
+            <th>First seen</th>
+            <th>Last seen</th>
+            <th>Active days</th>
+            <th>Peak</th>
+            <th>Latest</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          {companies.map((company) => {
+            const draft = mappingDrafts[company.company] || company.tradeCategory;
+            const changed = draft !== company.tradeCategory;
+            return (
+              <tr key={company.company}>
+                <td>
+                  <strong>{company.company}</strong>
+                  {!company.mapped ? <span className="unmapped-pill">Unmapped</span> : null}
+                </td>
+                <td>
+                  <div className="company-mapping-control">
+                    <select
+                      value={draft}
+                      onChange={(event) => onDraftChange(company.company, event.target.value)}
+                    >
+                      {tradeCategories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      disabled={!changed || savingCompany === company.company}
+                      type="button"
+                      onClick={() => onSave(company.company, draft)}
+                    >
+                      {savingCompany === company.company ? "Saving" : "Save"}
+                    </button>
+                  </div>
+                </td>
+                <td>{formatLongDate(company.firstSeen)}</td>
+                <td>{formatLongDate(company.lastSeen)}</td>
+                <td>{company.activeDays}</td>
+                <td>{company.peakWorkers}</td>
+                <td>{company.latestCount}</td>
+                <td><TrendDirection value={company.trend} /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function TrendDirection({ value }) {
+  const label = value === "up" ? "Up" : value === "down" ? "Down" : "Flat";
+  return <span className={`trend-direction trend-${value || "flat"}`}>{label}</span>;
+}
+
 function useStaffSession(navigateTo) {
   const [staff, setStaff] = useState(null);
 
@@ -1972,6 +2492,96 @@ function staffExportUrl(date, format, type = "people") {
   const params = { date, format };
   if (type === "company") params.type = "company";
   return `/api/staff/signins/export?${new URLSearchParams(params)}`;
+}
+
+function trendRangeParams(preset, customFrom, customTo, today) {
+  const params = new URLSearchParams({ to: today });
+  if (preset === "30") {
+    params.set("from", addDaysToISODate(today, -29));
+  } else if (preset === "project") {
+    params.set("range", "project");
+  } else if (preset === "custom") {
+    params.set("from", customFrom);
+    params.set("to", customTo);
+  } else {
+    params.set("from", addDaysToISODate(today, -89));
+  }
+  return params;
+}
+
+function filterTrendCompanies(companies, search) {
+  const query = search.trim().toLowerCase();
+  if (!query) return companies;
+  return companies.filter((company) =>
+    [company.company, company.tradeCategory]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query)),
+  );
+}
+
+function sortTrendCompanies(companies, sort) {
+  return [...companies].sort((a, b) => {
+    if (sort === "company") return a.company.localeCompare(b.company);
+    if (sort === "peak") {
+      return b.peakWorkers - a.peakWorkers || a.company.localeCompare(b.company);
+    }
+    if (sort === "activeDays") {
+      return b.activeDays - a.activeDays || a.company.localeCompare(b.company);
+    }
+    return b.latestCount - a.latestCount || b.peakWorkers - a.peakWorkers || a.company.localeCompare(b.company);
+  });
+}
+
+function uniqueChartTickIndexes(length) {
+  if (length <= 1) return [0];
+  return [...new Set([0, Math.floor((length - 1) / 2), length - 1])];
+}
+
+function trendColor(value) {
+  const palette = [
+    "#245f5b",
+    "#1e5c8a",
+    "#8d5d13",
+    "#7a4e8d",
+    "#426b2f",
+    "#8a3d35",
+    "#51606d",
+    "#2f7d78",
+  ];
+  const text = String(value || "");
+  const index = [...text].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return palette[index % palette.length];
+}
+
+function formatTrendNumber(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "0";
+  return Number(value).toLocaleString("en-CA", { maximumFractionDigits: 1 });
+}
+
+function formatSignedNumber(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "0";
+  const number = Number(value);
+  return `${number > 0 ? "+" : ""}${formatTrendNumber(number)}`;
+}
+
+function formatPercent(value) {
+  if (value === null || value === undefined) return "0%";
+  return `${formatTrendNumber(value)}%`;
+}
+
+function formatHours(value) {
+  if (value === null || value === undefined) return "Not enough sign-outs";
+  return `${formatTrendNumber(value)} hours`;
+}
+
+function formatMonthDay(value) {
+  const [year, month, day] = String(value || "").slice(0, 10).split("-");
+  if (!year || !month || !day) return value;
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "America/Vancouver",
+  }).format(new Date(`${year}-${month}-${day}T12:00:00-08:00`));
 }
 
 function readRememberedWorkerProfile() {
