@@ -16,6 +16,7 @@ export const GROUP_FIELDS = ["none", "trade", "company"];
 
 const WORKER_COOKIE_NAME = "sf_worker_signin";
 const WORKER_COOKIE_TTL_SECONDS = 60 * 60 * 36;
+const WORKER_SIGNIN_ID_LIMIT = 100;
 const WORKER_SIGNIN_SELECT =
   "id, name, phone, trade, company, signed_in_at, signed_out_at, sign_in_date_vancouver, sign_out_date_vancouver";
 
@@ -97,6 +98,23 @@ export async function getCurrentWorkerSignIn(req) {
   );
 }
 
+export async function getCurrentWorkerSignInsByIds(ids) {
+  const signInIds = cleanWorkerSignInIds(ids);
+  if (!signInIds.length) return [];
+
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("worker_signins")
+      .select(WORKER_SIGNIN_SELECT)
+      .in("id", signInIds)
+      .eq("sign_in_date_vancouver", getVancouverDate())
+      .is("signed_out_at", null),
+    "Worker sign-ins could not be loaded.",
+  );
+
+  return orderSignInsByIds(rows, signInIds);
+}
+
 export async function signOutCurrentWorker(req) {
   const currentSignIn = await getCurrentWorkerSignIn(req);
   if (!currentSignIn) {
@@ -119,6 +137,38 @@ export async function signOutCurrentWorker(req) {
       .single(),
     "Worker sign-out could not be saved.",
   );
+}
+
+export async function signOutWorkerSignInsByIds(ids) {
+  const signInIds = cleanWorkerSignInIds(ids);
+  if (!signInIds.length) {
+    const error = new Error("At least one sign-in is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const now = new Date();
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("worker_signins")
+      .update({
+        signed_out_at: now.toISOString(),
+        sign_out_date_vancouver: getVancouverDate(now),
+      })
+      .in("id", signInIds)
+      .eq("sign_in_date_vancouver", getVancouverDate(now))
+      .is("signed_out_at", null)
+      .select(WORKER_SIGNIN_SELECT),
+    "Worker sign-outs could not be saved.",
+  );
+
+  if (!rows.length) {
+    const error = new Error("No open sign-ins were found for today.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return orderSignInsByIds(rows, signInIds);
 }
 
 export async function listSignIns({ date, sort = "signed_in_at", dir = "asc" }) {
@@ -146,6 +196,32 @@ export function groupSignIns(rows, group) {
   return [...groups.entries()]
     .map(([label, items]) => ({ label, count: items.length, items }))
     .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function cleanWorkerSignInIds(value) {
+  const rawIds = Array.isArray(value) ? value : String(value || "").split(",");
+  const ids = rawIds.map((id) => String(id || "").trim()).filter(Boolean);
+  const uniqueIds = [...new Set(ids)];
+
+  if (uniqueIds.length > WORKER_SIGNIN_ID_LIMIT) {
+    const error = new Error(`No more than ${WORKER_SIGNIN_ID_LIMIT} sign-ins can be signed out at once.`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const invalid = uniqueIds.find((id) => !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id));
+  if (invalid) {
+    const error = new Error("Sign-in id is not valid.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return uniqueIds;
+}
+
+function orderSignInsByIds(rows, ids) {
+  const order = new Map(ids.map((id, index) => [id, index]));
+  return [...rows].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }
 
 function getWorkerCookieSecret() {

@@ -52,6 +52,7 @@ const TREND_PRESETS = [
 const OTHER_COMPANY = "Other";
 const WORKER_REMEMBER_COOKIE = "sf_worker_signin_profile";
 const WORKER_REMEMBER_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
+const WORKER_REMEMBER_GROUP_STORAGE = "sf_worker_group_signins";
 const WORKER_COMPANY_OPTIONS = [
   "Ainsworth",
   "AllWest",
@@ -214,6 +215,7 @@ export function WorkerSignInPage() {
       return;
     }
     clearRememberedWorkerProfile();
+    clearRememberedWorkerGroup();
   };
 
   const updateGroupMode = (enabled) => {
@@ -290,8 +292,14 @@ export function WorkerSignInPage() {
 
       if (rememberMe) {
         writeRememberedWorkerProfile(form);
+        if (createdSignIns.length > 1) {
+          writeRememberedWorkerGroup(createdSignIns);
+        } else {
+          clearRememberedWorkerGroup();
+        }
       } else {
         clearRememberedWorkerProfile();
+        clearRememberedWorkerGroup();
         setForm(EMPTY_WORKER_SIGNIN_FORM);
       }
       setGroupNames([]);
@@ -444,28 +452,50 @@ export function WorkerSignInPage() {
 }
 
 export function WorkerSignOutPage({ navigateTo }) {
-  const [signIn, setSignIn] = useState(null);
-  const [signedOut, setSignedOut] = useState(null);
+  const [signIns, setSignIns] = useState([]);
+  const [rememberedGroupIds, setRememberedGroupIds] = useState([]);
+  const [signedOutSignIns, setSignedOutSignIns] = useState([]);
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const signedOut = signedOutSignIns.length > 0;
 
   useEffect(() => {
     let active = true;
     setLoading(true);
 
-    fetch("/api/worker-signout", { credentials: "include" })
-      .then(async (response) => {
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "Sign-out failed.");
-        if (active) setSignIn(payload.signIn || null);
-      })
-      .catch((error) => {
+    async function loadOpenSignIns() {
+      try {
+        const rememberedGroup = readRememberedWorkerGroup();
+        if (rememberedGroup.signIns.length) {
+          const ids = rememberedGroup.signIns.map((signIn) => signIn.id);
+          const params = new URLSearchParams({ ids: ids.join(",") });
+          const groupPayload = await readApiJson(
+            await fetch(`/api/worker-signout?${params}`, {
+              credentials: "include",
+            }),
+          );
+          if (!active) return;
+          if (groupPayload.signIns?.length) {
+            setRememberedGroupIds(ids);
+            setSignIns(groupPayload.signIns);
+            return;
+          }
+          clearRememberedWorkerGroup();
+        }
+
+        const payload = await readApiJson(
+          await fetch("/api/worker-signout", { credentials: "include" }),
+        );
+        if (active) setSignIns(payload.signIn ? [payload.signIn] : []);
+      } catch (error) {
         if (active) setStatus({ type: "error", message: error.message });
-      })
-      .finally(() => {
+      } finally {
         if (active) setLoading(false);
-      });
+      }
+    }
+
+    loadOpenSignIns();
 
     return () => {
       active = false;
@@ -477,18 +507,32 @@ export function WorkerSignOutPage({ navigateTo }) {
     setStatus({ type: "", message: "" });
 
     try {
+      const openIds = new Set(signIns.map((signIn) => signIn.id));
+      const groupSignOutIds = rememberedGroupIds.filter((id) => openIds.has(id));
+      const requestOptions = groupSignOutIds.length
+        ? {
+            method: "POST",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ signInIds: groupSignOutIds }),
+          }
+        : {
+            method: "POST",
+            credentials: "include",
+          };
       const response = await fetch("/api/worker-signout", {
-        method: "POST",
-        credentials: "include",
+        ...requestOptions,
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Sign-out failed.");
-      setSignedOut(payload.signIn);
-      setSignIn(null);
+      const payload = await readApiJson(response);
+      const signedOutRows = payload.signIns || (payload.signIn ? [payload.signIn] : []);
+      setSignedOutSignIns(signedOutRows);
+      setSignIns([]);
+      setRememberedGroupIds([]);
+      if (groupSignOutIds.length) clearRememberedWorkerGroup();
       setStatus({
         type: "success",
-        message: `Signed out - ${formatShortDate(
-          payload.signIn,
+        message: `${signedOutRows.length === 1 ? "Signed out" : `${signedOutRows.length} signed out`} - ${formatShortDate(
+          signedOutRows[0],
           "sign_out_date_vancouver",
           "signed_out_at",
         )}`,
@@ -519,23 +563,41 @@ export function WorkerSignOutPage({ navigateTo }) {
             <>
               <h1>Worker Sign-Out</h1>
               {loading ? <p className="muted">Loading...</p> : null}
-              {!loading && signIn ? (
+              {!loading && signIns.length ? (
                 <>
-                  <p className="worker-summary">
-                    {signIn.name} / {signIn.company} / {signIn.trade}
+                  {signIns.length > 1 ? (
+                    <div className="worker-summary-list">
+                      {signIns.map((signIn) => (
+                        <p className="worker-summary" key={signIn.id}>
+                          {signIn.name} / {signIn.company} / {signIn.trade}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="worker-summary">
+                      {signIns[0].name} / {signIns[0].company} / {signIns[0].trade}
+                    </p>
+                  )}
+                  <p className="worker-detail">
+                    {signIns.length > 1
+                      ? `Sign out ${signIns.length} workers for today?`
+                      : "Sign out for today?"}
                   </p>
-                  <p className="worker-detail">Sign out for today?</p>
                   <button
                     className="primary-button"
                     disabled={submitting}
                     type="button"
                     onClick={submitSignOut}
                   >
-                    {submitting ? "Signing out..." : "Sign out"}
+                    {submitting
+                      ? "Signing out..."
+                      : signIns.length > 1
+                        ? "Sign out all"
+                        : "Sign out"}
                   </button>
                 </>
               ) : null}
-              {!loading && !signIn ? (
+              {!loading && !signIns.length ? (
                 <div className="worker-status-panel">
                   <p>No open sign-in was found on this phone for today.</p>
                   <button
@@ -2771,6 +2833,65 @@ function writeRememberedWorkerProfile(form) {
 function clearRememberedWorkerProfile() {
   if (typeof document === "undefined") return;
   document.cookie = `${WORKER_REMEMBER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
+}
+
+function readRememberedWorkerGroup() {
+  if (typeof window === "undefined") return { signIns: [] };
+  try {
+    const payload = JSON.parse(
+      window.localStorage.getItem(WORKER_REMEMBER_GROUP_STORAGE) || "{}",
+    );
+    return normalizeRememberedWorkerGroup(payload);
+  } catch {
+    clearRememberedWorkerGroup();
+    return { signIns: [] };
+  }
+}
+
+function writeRememberedWorkerGroup(signIns) {
+  if (typeof window === "undefined") return;
+  const rememberedGroup = normalizeRememberedWorkerGroup({
+    signIns,
+    date: signIns[0]?.sign_in_date_vancouver || todayInVancouver(),
+  });
+  if (!rememberedGroup.signIns.length) {
+    clearRememberedWorkerGroup();
+    return;
+  }
+  window.localStorage.setItem(
+    WORKER_REMEMBER_GROUP_STORAGE,
+    JSON.stringify(rememberedGroup),
+  );
+}
+
+function clearRememberedWorkerGroup() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(WORKER_REMEMBER_GROUP_STORAGE);
+}
+
+function normalizeRememberedWorkerGroup(payload) {
+  const date = String(payload?.date || "").trim();
+  if (date !== todayInVancouver()) return { signIns: [] };
+
+  const signIns = Array.isArray(payload?.signIns) ? payload.signIns : [];
+  const seen = new Set();
+  return {
+    date,
+    signIns: signIns
+      .map((signIn) => ({
+        id: String(signIn?.id || "").trim(),
+        name: String(signIn?.name || "").trim(),
+        company: String(signIn?.company || "").trim(),
+        trade: String(signIn?.trade || "").trim(),
+        signed_in_at: String(signIn?.signed_in_at || "").trim(),
+        sign_in_date_vancouver: String(signIn?.sign_in_date_vancouver || date).trim(),
+      }))
+      .filter((signIn) => {
+        if (!signIn.id || seen.has(signIn.id)) return false;
+        seen.add(signIn.id);
+        return true;
+      }),
+  };
 }
 
 function normalizeRememberedWorkerProfile(profile) {

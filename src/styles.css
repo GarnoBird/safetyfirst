@@ -848,6 +848,15 @@ p {
   background: #eef7f3;
 }
 
+.worker-summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.worker-summary-list .worker-summary {
+  margin: 0;
+}
+
 .worker-detail {
   color: var(--muted);
   font-weight: 750;
