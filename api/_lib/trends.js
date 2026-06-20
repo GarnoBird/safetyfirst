@@ -26,6 +26,7 @@ export const TRADE_CATEGORIES = [
 
 const DEFAULT_RANGE_DAYS = 90;
 const MAX_RANGE_DAYS = 730;
+const TREND_SIGNINS_PAGE_SIZE = 1000;
 const UNMAPPED = "Unmapped";
 const SIGNIN_TREND_SELECT =
   "company, trade, signed_in_at, signed_out_at, sign_in_date_vancouver, sign_out_date_vancouver";
@@ -113,15 +114,25 @@ async function loadProjectStartDate(fallbackDate) {
 }
 
 async function loadTrendSignIns(from, to) {
-  return throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("worker_signins")
-      .select(SIGNIN_TREND_SELECT)
-      .gte("sign_in_date_vancouver", from)
-      .lte("sign_in_date_vancouver", to)
-      .order("sign_in_date_vancouver", { ascending: true }),
-    "Trend sign-ins could not be loaded.",
-  );
+  const supabase = getSupabaseServiceClient();
+  const rows = [];
+  let fromIndex = 0;
+
+  while (true) {
+    const page = throwIfSupabaseError(
+      await supabase
+        .from("worker_signins")
+        .select(SIGNIN_TREND_SELECT)
+        .gte("sign_in_date_vancouver", from)
+        .lte("sign_in_date_vancouver", to)
+        .order("sign_in_date_vancouver", { ascending: true })
+        .range(fromIndex, fromIndex + TREND_SIGNINS_PAGE_SIZE - 1),
+      "Trend sign-ins could not be loaded.",
+    );
+    rows.push(...page);
+    if (page.length < TREND_SIGNINS_PAGE_SIZE) return rows;
+    fromIndex += TREND_SIGNINS_PAGE_SIZE;
+  }
 }
 
 async function loadCompanyProfiles() {
