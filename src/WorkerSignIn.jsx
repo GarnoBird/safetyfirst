@@ -171,6 +171,9 @@ export function WorkerSignInPage() {
     rememberedProfile || EMPTY_WORKER_SIGNIN_FORM,
   );
   const [rememberMe, setRememberMe] = useState(Boolean(rememberedProfile));
+  const [groupMode, setGroupMode] = useState(false);
+  const [groupNames, setGroupNames] = useState([]);
+  const [groupNameDraft, setGroupNameDraft] = useState("");
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const submitted = status.type === "success";
@@ -205,6 +208,32 @@ export function WorkerSignInPage() {
     clearRememberedWorkerProfile();
   };
 
+  const updateGroupMode = (enabled) => {
+    setGroupMode(enabled);
+    setGroupNameDraft("");
+    if (!enabled) setGroupNames([]);
+  };
+
+  const addGroupName = (value) => {
+    const name = value.trim();
+    if (!name) return false;
+    setGroupNames((current) => [...current, name]);
+    setGroupNameDraft("");
+    return true;
+  };
+
+  const removeGroupName = (indexToRemove) => {
+    setGroupNames((current) =>
+      current.filter((_, index) => index !== indexToRemove),
+    );
+  };
+
+  const handleGroupNameKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    addGroupName(groupNameDraft);
+  };
+
   const submitSignIn = async (event) => {
     event.preventDefault();
     setSubmitting(true);
@@ -220,22 +249,35 @@ export function WorkerSignInPage() {
       return;
     }
 
-    const payload = {
-      name: form.name,
-      phone: formatPhoneNumber(form.phone),
-      trade: companyName,
-      company: companyName,
-    };
+    const names = groupMode
+      ? [...groupNames, groupNameDraft.trim()].filter(Boolean)
+      : [form.name.trim()].filter(Boolean);
+    if (!names.length) {
+      setSubmitting(false);
+      setStatus({ type: "error", message: "Name is required." });
+      return;
+    }
+
+    const phone = formatPhoneNumber(form.phone);
+    const createdSignIns = [];
 
     try {
-      const response = await fetch("/api/worker-signins", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const responsePayload = await response.json();
-      if (!response.ok) {
-        throw new Error(responsePayload.error || "Sign-in failed.");
+      for (const name of names) {
+        const response = await fetch("/api/worker-signins", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            name,
+            phone,
+            trade: companyName,
+            company: companyName,
+          }),
+        });
+        const responsePayload = await response.json();
+        if (!response.ok) {
+          throw new Error(responsePayload.error || "Sign-in failed.");
+        }
+        createdSignIns.push(responsePayload.signIn);
       }
 
       if (rememberMe) {
@@ -244,16 +286,21 @@ export function WorkerSignInPage() {
         clearRememberedWorkerProfile();
         setForm(EMPTY_WORKER_SIGNIN_FORM);
       }
+      setGroupNames([]);
+      setGroupNameDraft("");
       setStatus({
         type: "success",
-        message: `Sign-in submitted - ${formatShortDate(
-          responsePayload.signIn,
+        message: `${names.length === 1 ? "Sign-in" : `${names.length} sign-ins`} submitted - ${formatShortDate(
+          createdSignIns[createdSignIns.length - 1],
           "sign_in_date_vancouver",
           "signed_in_at",
         )}`,
       });
     } catch (error) {
-      setStatus({ type: "error", message: error.message });
+      const partialMessage = createdSignIns.length
+        ? `${createdSignIns.length} sign-ins were saved before this error. `
+        : "";
+      setStatus({ type: "error", message: `${partialMessage}${error.message}` });
     } finally {
       setSubmitting(false);
     }
@@ -273,14 +320,40 @@ export function WorkerSignInPage() {
             </div>
           ) : (
             <>
-              <label>
+              <label className={groupMode ? "group-name-field" : ""}>
                 <span>Name</span>
-                <input
-                  required
-                  autoComplete="name"
-                  value={form.name}
-                  onChange={(event) => updateField("name", event.target.value)}
-                />
+                {groupMode ? (
+                  <div className="group-name-entry">
+                    {groupNames.map((name, index) => (
+                      <button
+                        aria-label={`Remove ${name}`}
+                        className="group-name-chip"
+                        key={`${name}-${index}`}
+                        type="button"
+                        onClick={() => removeGroupName(index)}
+                      >
+                        <span>{name}</span>
+                        <strong aria-hidden="true">x</strong>
+                      </button>
+                    ))}
+                    <input
+                      required={groupNames.length === 0}
+                      autoComplete="off"
+                      aria-label="Worker name"
+                      placeholder="Type name, press enter"
+                      value={groupNameDraft}
+                      onChange={(event) => setGroupNameDraft(event.target.value)}
+                      onKeyDown={handleGroupNameKeyDown}
+                    />
+                  </div>
+                ) : (
+                  <input
+                    required
+                    autoComplete="name"
+                    value={form.name}
+                    onChange={(event) => updateField("name", event.target.value)}
+                  />
+                )}
               </label>
               <label>
                 <span>Phone</span>
@@ -322,14 +395,28 @@ export function WorkerSignInPage() {
                   />
                 </label>
               ) : null}
-              <label className="remember-worker-field">
-                <input
-                  checked={rememberMe}
-                  type="checkbox"
-                  onChange={(event) => updateRememberMe(event.target.checked)}
-                />
-                <span>Remember me</span>
-              </label>
+              <div className="worker-form-options">
+                <label className="remember-worker-field">
+                  <input
+                    checked={rememberMe}
+                    type="checkbox"
+                    onChange={(event) => updateRememberMe(event.target.checked)}
+                  />
+                  <span>Remember me</span>
+                </label>
+                <button
+                  aria-pressed={groupMode}
+                  className={
+                    groupMode
+                      ? "worker-group-toggle active"
+                      : "worker-group-toggle"
+                  }
+                  type="button"
+                  onClick={() => updateGroupMode(!groupMode)}
+                >
+                  Group
+                </button>
+              </div>
               <button
                 className="primary-button"
                 disabled={submitting}
@@ -958,7 +1045,7 @@ export function StaffSettingsPage({ navigateTo }) {
 
 export function StaffSignInsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
-  const [date, setDate] = useState(todayInVancouver());
+  const [date, setDate] = useStaffPageDate();
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
@@ -1232,7 +1319,7 @@ export function StaffSignInsPage({ navigateTo }) {
 
 export function StaffCompanySummaryPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
-  const [date, setDate] = useState(todayInVancouver());
+  const [date, setDate] = useStaffPageDate();
   const [records, setRecords] = useState({ rows: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -1450,7 +1537,7 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  navigateTo(item.path);
+                  navigateTo(staffNavPath(item.path));
                 }}
               >
                 {item.label}
@@ -1839,6 +1926,38 @@ function useStaffSession(navigateTo) {
   }, [navigateTo]);
 
   return { staff };
+}
+
+function useStaffPageDate() {
+  const [date, setDate] = useState(readStaffDateFromUrl);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("date") === date) return;
+    url.searchParams.set("date", date);
+    window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+  }, [date]);
+
+  return [date, setDate];
+}
+
+function readStaffDateFromUrl() {
+  if (typeof window === "undefined") return todayInVancouver();
+  const date = new URLSearchParams(window.location.search).get("date");
+  return isISODate(date) ? date : todayInVancouver();
+}
+
+function staffNavPath(path) {
+  if (!path.startsWith("/staff/sign-ins")) return path;
+  const date = readStaffDateFromUrl();
+  const url = new URL(path, "https://safetyfirst.local");
+  url.searchParams.set("date", date);
+  return `${url.pathname}${url.search}`;
+}
+
+function isISODate(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
 }
 
 async function readApiJson(response) {
