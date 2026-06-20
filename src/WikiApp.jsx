@@ -470,7 +470,7 @@ function RoadmapPage() {
       <section className="wiki-section">
         <h2>First public launch criteria</h2>
         <ul>
-          <li>50 article pages published as source-cited drafts for the first public content base.</li>
+          <li>100 article pages published as source-cited drafts for the first public content base.</li>
           <li>Every article has official sources, related topics, aliases, review dates, and checklists.</li>
           <li>Search works for worker-language terms such as tie off, silica dust, crane pick, and toolbox talk.</li>
           <li>Correction process, disclaimer, and review badges are visible.</li>
@@ -479,6 +479,8 @@ function RoadmapPage() {
       </section>
       <RoadmapTable title="First 25 articles" rows={getRoadmapByPhase("MVP 25")} />
       <RoadmapTable title="Batch 2 articles" rows={getRoadmapByPhase("Batch 2")} />
+      <RoadmapTable title="Batch 3 articles" rows={getRoadmapByPhase("Batch 3")} />
+      <RoadmapTable title="Batch 4 articles" rows={getRoadmapByPhase("Batch 4")} />
       <RoadmapTable title="Full 100-topic roadmap" rows={articleRoadmap} />
     </article>
   );

@@ -54,8 +54,8 @@ for (const article of wikiArticles) {
   }
 }
 
-if (wikiArticles.length < 50) {
-  errors.push(`Wiki expansion requires at least 50 articles; found ${wikiArticles.length}`);
+if (wikiArticles.length < 100) {
+  errors.push(`Wiki expansion requires at least 100 articles; found ${wikiArticles.length}`);
 }
 
 if (errors.length) {
