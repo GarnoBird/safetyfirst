@@ -36,35 +36,53 @@ const DEFAULT_SYSTEM_STATUS = {
   sms: "not connected",
 };
 
-const OTHER_TRADE = "Other";
-const WORKER_TRADE_OPTIONS = [
-  "General contractor",
-  "Construction labourer",
-  "Carpentry",
-  "Concrete forming",
-  "Concrete finishing",
-  "Rebar / ironworker",
-  "Crane / rigging",
-  "Equipment operator",
-  "Electrical",
-  "Mechanical",
-  "Plumbing",
-  "HVAC",
-  "Sprinkler fitting",
-  "Sheet metal",
-  "Drywall",
-  "Insulation",
-  "Painting",
-  "Flooring",
-  "Tile setting",
-  "Glazing",
-  "Roofing",
-  "Waterproofing",
-  "Masonry",
-  "Elevator",
-  "Traffic control",
-  "Safety",
-  OTHER_TRADE,
+const OTHER_COMPANY = "Other";
+const WORKER_COMPANY_OPTIONS = [
+  "Ainsworth",
+  "AllWest",
+  "Angels Install",
+  "Appia",
+  "Apple Display Products",
+  "Aurora Glazing",
+  "Best",
+  "Britcom",
+  "Centura",
+  "Creekside Fire",
+  "CrissCross",
+  "Dell Core",
+  "Dominion",
+  "Enersolv",
+  "Enersolv HVAC",
+  "Fortis BC",
+  "Fraser Shading",
+  "Gabs",
+  "Greer Spray Foam",
+  "ICS Floor Leveling",
+  "Inform",
+  "JP Metal",
+  "Kieth Panel Systems",
+  "LMS",
+  "Maple Leaf Aluminum",
+  "Matakana Scaffold",
+  "Mercroft",
+  "Moscone",
+  "Mountain Stone Work",
+  "National Tile",
+  "New Way",
+  "New York Paint",
+  OTHER_COMPANY,
+  "Oxford Hoist Install",
+  "Pacific Water Proofing",
+  "Pro-Bell",
+  "Quolous",
+  "Starline Windows",
+  "Summit Sheet",
+  "Tanti",
+  "Telus",
+  "TK Elevators",
+  "Tucavan",
+  "United Scaffold",
+  "West Coast Cleaning",
 ];
 
 export function WorkerSignInQr({ navigateTo }) {
@@ -137,9 +155,8 @@ export function WorkerSignInPage() {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    trade: "",
-    otherTrade: "",
-    company: "",
+    companyName: "",
+    otherCompanyName: "",
   });
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -149,11 +166,12 @@ export function WorkerSignInPage() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const updateTrade = (value) => {
+  const updateCompanyName = (value) => {
     setForm((current) => ({
       ...current,
-      trade: value,
-      otherTrade: value === OTHER_TRADE ? current.otherTrade : "",
+      companyName: value,
+      otherCompanyName:
+        value === OTHER_COMPANY ? current.otherCompanyName : "",
     }));
   };
 
@@ -162,19 +180,21 @@ export function WorkerSignInPage() {
     setSubmitting(true);
     setStatus({ type: "", message: "" });
 
-    const trade =
-      form.trade === OTHER_TRADE ? form.otherTrade.trim() : form.trade;
-    if (!trade) {
+    const companyName =
+      form.companyName === OTHER_COMPANY
+        ? form.otherCompanyName.trim()
+        : form.companyName;
+    if (!companyName) {
       setSubmitting(false);
-      setStatus({ type: "error", message: "Trade is required." });
+      setStatus({ type: "error", message: "Company name is required." });
       return;
     }
 
     const payload = {
       name: form.name,
       phone: formatPhoneNumber(form.phone),
-      trade,
-      company: form.company,
+      trade: companyName,
+      company: companyName,
     };
 
     try {
@@ -188,7 +208,12 @@ export function WorkerSignInPage() {
         throw new Error(responsePayload.error || "Sign-in failed.");
       }
 
-      setForm({ name: "", phone: "", trade: "", otherTrade: "", company: "" });
+      setForm({
+        name: "",
+        phone: "",
+        companyName: "",
+        otherCompanyName: "",
+      });
       setStatus({
         type: "success",
         message: `Sign-in submitted - ${formatShortDate(
@@ -239,42 +264,34 @@ export function WorkerSignInPage() {
                 />
               </label>
               <label>
-                <span>Trade</span>
+                <span>Company Name</span>
                 <select
                   required
-                  value={form.trade}
-                  onChange={(event) => updateTrade(event.target.value)}
+                  value={form.companyName}
+                  onChange={(event) => updateCompanyName(event.target.value)}
                 >
                   <option value="" disabled>
-                    Select trade
+                    Select company
                   </option>
-                  {WORKER_TRADE_OPTIONS.map((trade) => (
-                    <option key={trade} value={trade}>
-                      {trade}
+                  {WORKER_COMPANY_OPTIONS.map((company) => (
+                    <option key={company} value={company}>
+                      {company}
                     </option>
                   ))}
                 </select>
               </label>
-              {form.trade === OTHER_TRADE ? (
+              {form.companyName === OTHER_COMPANY ? (
                 <label>
-                  <span>Specific trade</span>
+                  <span>Company Name</span>
                   <input
                     required
-                    value={form.otherTrade}
+                    value={form.otherCompanyName}
                     onChange={(event) =>
-                      updateField("otherTrade", event.target.value)
+                      updateField("otherCompanyName", event.target.value)
                     }
                   />
                 </label>
               ) : null}
-              <label>
-                <span>Company</span>
-                <input
-                  required
-                  value={form.company}
-                  onChange={(event) => updateField("company", event.target.value)}
-                />
-              </label>
               <button
                 className="primary-button"
                 disabled={submitting}
