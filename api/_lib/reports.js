@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { getVancouverDate } from "./date.js";
 import { getRequiredEnv } from "./http.js";
+import { normalizeReportRecipientEmails } from "./settings.js";
 import { listSignIns } from "./signins.js";
 import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
 
@@ -119,6 +120,8 @@ export async function sendSignInReportEmail({
   if (!report.rows.length) return { skipped: true, rowCount: 0 };
   assertEmailConfig();
 
+  const recipientEmails = normalizeReportRecipientEmails(recipientEmail);
+  const recipientEmailText = recipientEmails.join(", ");
   const reportFormat = normalizeReportFormat(format);
   const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
   const from = getRequiredEnv("REPORT_FROM_EMAIL");
@@ -130,7 +133,7 @@ export async function sendSignInReportEmail({
 
   const { data, error } = await resend.emails.send({
     from,
-    to: [recipientEmail],
+    to: recipientEmails,
     subject,
     html: `<p>Attached are the worker sign-ins for ${escapeHtml(date)}.</p><p>Rows: ${report.rows.length}</p>${dashboardLink}`,
     attachments: reportAttachments(report, reportFormat),
@@ -140,7 +143,7 @@ export async function sendSignInReportEmail({
     await recordReportRun({
       date,
       kind,
-      recipientEmail,
+      recipientEmail: recipientEmailText,
       rowCount: report.rows.length,
       status: "failed",
       staffId,
@@ -154,7 +157,7 @@ export async function sendSignInReportEmail({
   await recordReportRun({
     date,
     kind,
-    recipientEmail,
+    recipientEmail: recipientEmailText,
     rowCount: report.rows.length,
     status: "sent",
     staffId,
@@ -164,7 +167,8 @@ export async function sendSignInReportEmail({
     skipped: false,
     rowCount: report.rows.length,
     emailId: data?.id,
-    recipientEmail,
+    recipientEmail: recipientEmailText,
+    recipientEmails,
     format: reportFormat,
   };
 }
@@ -180,6 +184,8 @@ async function sendCompanySummaryReportEmail({
 
   assertEmailConfig();
 
+  const recipientEmails = normalizeReportRecipientEmails(recipientEmail);
+  const recipientEmailText = recipientEmails.join(", ");
   const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
   const from = getRequiredEnv("REPORT_FROM_EMAIL");
   const subject = `Company summary - ${date}`;
@@ -190,7 +196,7 @@ async function sendCompanySummaryReportEmail({
 
   const { data, error } = await resend.emails.send({
     from,
-    to: [recipientEmail],
+    to: recipientEmails,
     subject,
     html: companySummaryEmailHtml(report, dashboardLink),
     attachments: reportAttachments(
@@ -208,7 +214,7 @@ async function sendCompanySummaryReportEmail({
     await recordReportRun({
       date,
       kind,
-      recipientEmail,
+      recipientEmail: recipientEmailText,
       rowCount: report.totalWorkers,
       status: "failed",
       staffId,
@@ -222,7 +228,7 @@ async function sendCompanySummaryReportEmail({
   await recordReportRun({
     date,
     kind,
-    recipientEmail,
+    recipientEmail: recipientEmailText,
     rowCount: report.totalWorkers,
     status: "sent",
     staffId,
@@ -233,7 +239,8 @@ async function sendCompanySummaryReportEmail({
     rowCount: report.totalWorkers,
     companyCount: report.totalCompanies,
     emailId: data?.id,
-    recipientEmail,
+    recipientEmail: recipientEmailText,
+    recipientEmails,
     format: "both",
     reportType: "company",
   };

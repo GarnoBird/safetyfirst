@@ -683,9 +683,9 @@ export function StaffHomePage({ navigateTo }) {
       setMessage(
         payload.skipped
           ? "No rows to email for today."
-          : `Report emailed to ${
-              payload.recipientEmail || settings.report_recipient_email
-            }.`,
+          : `Report emailed to ${formatReportRecipientSummary(
+              payload.recipientEmail || settings.report_recipient_email,
+            )}.`,
       );
     } catch (error) {
       setMessage(error.message);
@@ -735,7 +735,9 @@ export function StaffHomePage({ navigateTo }) {
 
         <StaffActionCard
           eyebrow="Today"
-          text={`Exports today's worker sign-ins as CSV, XML, or emails both files to ${settings.report_recipient_email}.`}
+          text={`Exports today's worker sign-ins as CSV, XML, or emails both files to ${formatReportRecipientSummary(
+            settings.report_recipient_email,
+          )}.`}
           title="Export Reports"
         >
           <div className="staff-card-actions">
@@ -797,6 +799,12 @@ export function StaffSettingsPage({ navigateTo }) {
   const [saving, setSaving] = useState(false);
   const [emailing, setEmailing] = useState(false);
   const [message, setMessage] = useState("");
+  const [recipientDraft, setRecipientDraft] = useState("");
+
+  const reportRecipients = useMemo(
+    () => parseReportRecipients(settings.report_recipient_email),
+    [settings.report_recipient_email],
+  );
 
   useEffect(() => {
     if (!staff) return;
@@ -827,18 +835,65 @@ export function StaffSettingsPage({ navigateTo }) {
     setSettings((current) => ({ ...current, [field]: value }));
   };
 
+  const addReportRecipient = (value) => {
+    const emails = splitReportRecipientValues(value);
+    if (!emails.length) return false;
+
+    const invalidEmail = emails.find((email) => !isValidReportRecipientEmail(email));
+    if (invalidEmail) {
+      setMessage(`Enter a valid email address: ${invalidEmail}`);
+      return false;
+    }
+
+    const nextRecipients = [...reportRecipients];
+    emails.forEach((email) => {
+      if (!nextRecipients.includes(email)) nextRecipients.push(email);
+    });
+
+    if (nextRecipients.length === reportRecipients.length) {
+      setRecipientDraft("");
+      return true;
+    }
+
+    updateSetting(
+      "report_recipient_email",
+      formatReportRecipients(nextRecipients),
+    );
+    setRecipientDraft("");
+    setMessage("");
+    return true;
+  };
+
+  const removeReportRecipient = (emailToRemove) => {
+    updateSetting(
+      "report_recipient_email",
+      formatReportRecipients(
+        reportRecipients.filter((email) => email !== emailToRemove),
+      ),
+    );
+  };
+
+  const handleReportRecipientKeyDown = (event) => {
+    if (!["Enter", ",", "Tab"].includes(event.key)) return;
+    if (!recipientDraft.trim()) return;
+    event.preventDefault();
+    addReportRecipient(recipientDraft);
+  };
+
   const persistSettings = async () => {
+    const settingsToSave = settleReportRecipientDraft(settings, recipientDraft);
     const payload = await readApiJson(
       await fetch("/api/staff/settings", {
         method: "PATCH",
         credentials: "include",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settingsToSave),
       }),
     );
     setSettings(payload.settings || DEFAULT_SITE_SETTINGS);
     setSystem(payload.system || DEFAULT_SYSTEM_STATUS);
-    return payload.settings || settings;
+    setRecipientDraft("");
+    return payload.settings || settingsToSave;
   };
 
   const saveSettings = async (event) => {
@@ -873,9 +928,9 @@ export function StaffSettingsPage({ navigateTo }) {
       setMessage(
         payload.skipped
           ? "No rows to email for today."
-          : `Report emailed to ${
-              payload.recipientEmail || savedSettings.report_recipient_email
-            }.`,
+          : `Report emailed to ${formatReportRecipientSummary(
+              payload.recipientEmail || savedSettings.report_recipient_email,
+            )}.`,
       );
     } catch (error) {
       setMessage(error.message);
@@ -951,14 +1006,29 @@ export function StaffSettingsPage({ navigateTo }) {
         >
           <label>
             <span>Send reports to</span>
-            <input
-              required
-              type="email"
-              value={settings.report_recipient_email}
-              onChange={(event) =>
-                updateSetting("report_recipient_email", event.target.value)
-              }
-            />
+            <div className="email-recipient-entry">
+              {reportRecipients.map((email) => (
+                <button
+                  aria-label={`Remove ${email}`}
+                  className="email-recipient-chip"
+                  key={email}
+                  type="button"
+                  onClick={() => removeReportRecipient(email)}
+                >
+                  <span>{email}</span>
+                  <strong aria-hidden="true">x</strong>
+                </button>
+              ))}
+              <input
+                required={reportRecipients.length === 0}
+                autoComplete="email"
+                inputMode="email"
+                placeholder="Type email, press enter"
+                value={recipientDraft}
+                onChange={(event) => setRecipientDraft(event.target.value)}
+                onKeyDown={handleReportRecipientKeyDown}
+              />
+            </div>
           </label>
           <label className="settings-checkbox">
             <input
@@ -1143,7 +1213,9 @@ export function StaffSignInsPage({ navigateTo }) {
     setMessage(
       payload.skipped
         ? "No rows to email for this date."
-        : `Report emailed to ${payload.recipientEmail || staff.email}.`,
+        : `Report emailed to ${formatReportRecipientSummary(
+            payload.recipientEmail || staff.email,
+          )}.`,
     );
   };
 
@@ -1409,7 +1481,9 @@ export function StaffCompanySummaryPage({ navigateTo }) {
     setMessage(
       payload.skipped
         ? "No rows to email for this date."
-        : `Report emailed to ${payload.recipientEmail || staff.email}.`,
+        : `Report emailed to ${formatReportRecipientSummary(
+            payload.recipientEmail || staff.email,
+          )}.`,
     );
   };
 
@@ -2492,6 +2566,63 @@ function staffExportUrl(date, format, type = "people") {
   const params = { date, format };
   if (type === "company") params.type = "company";
   return `/api/staff/signins/export?${new URLSearchParams(params)}`;
+}
+
+function parseReportRecipients(value) {
+  const seen = new Set();
+  return splitReportRecipientValues(value)
+    .filter((email) => {
+      if (seen.has(email)) return false;
+      seen.add(email);
+      return true;
+    });
+}
+
+function formatReportRecipients(emails) {
+  return emails.filter(Boolean).join(", ");
+}
+
+function normalizeReportRecipientInput(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function splitReportRecipientValues(value) {
+  return String(value || "")
+    .split(/[,\n;]/)
+    .map(normalizeReportRecipientInput)
+    .filter(Boolean);
+}
+
+function isValidReportRecipientEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function settleReportRecipientDraft(settings, draft) {
+  const emails = parseReportRecipients(settings.report_recipient_email);
+  const draftEmails = splitReportRecipientValues(draft);
+
+  for (const draftEmail of draftEmails) {
+    if (!isValidReportRecipientEmail(draftEmail)) {
+      throw new Error(`Enter a valid email address: ${draftEmail}`);
+    }
+    if (!emails.includes(draftEmail)) emails.push(draftEmail);
+  }
+
+  if (!emails.length) {
+    throw new Error("Add at least one report recipient email.");
+  }
+
+  return {
+    ...settings,
+    report_recipient_email: formatReportRecipients(emails),
+  };
+}
+
+function formatReportRecipientSummary(value) {
+  const emails = parseReportRecipients(value);
+  if (!emails.length) return "no recipients";
+  if (emails.length === 1) return emails[0];
+  return `${emails.length} recipients`;
 }
 
 function trendRangeParams(preset, customFrom, customTo, today) {

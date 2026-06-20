@@ -3,9 +3,12 @@ import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
 const SETTINGS_ID = "default";
 const MAX_TEXT_LENGTH = 120;
 const MAX_MESSAGE_LENGTH = 320;
+const MAX_REPORT_RECIPIENTS = 10;
+const MAX_REPORT_RECIPIENTS_LENGTH = 600;
 const SETTINGS_SELECT =
   "id, site_name, site_location, timezone, signout_cutoff_time, signout_reminders_enabled, signout_reminder_message, report_recipient_email, report_auto_enabled, report_auto_time, report_format, updated_at, updated_by_staff_id";
 const REPORT_FORMATS = ["csv", "xml", "both"];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const DEFAULT_SETTINGS = {
   site_name: "Safety First",
@@ -85,7 +88,7 @@ function validateSettingsInput(body) {
     timezone: cleanTimezone(input.timezone),
     signout_cutoff_time: cleanCutoffTime(input.signout_cutoff_time),
     signout_reminder_message: cleanReminderMessage(input.signout_reminder_message),
-    report_recipient_email: cleanEmail(input.report_recipient_email),
+    report_recipient_email: cleanReportRecipientEmails(input.report_recipient_email),
     report_auto_enabled: cleanBoolean(input.report_auto_enabled),
     report_auto_time: cleanTime(input.report_auto_time, "Auto-report time"),
     report_format: cleanReportFormat(input.report_format),
@@ -93,7 +96,7 @@ function validateSettingsInput(body) {
 }
 
 function normalizeSettings(row) {
-  return {
+  const settings = {
     ...DEFAULT_SETTINGS,
     ...row,
     signout_cutoff_time: String(
@@ -107,6 +110,12 @@ function normalizeSettings(row) {
       : DEFAULT_SETTINGS.report_format,
     signout_reminders_enabled: false,
   };
+
+  settings.report_recipient_email = safeReportRecipientEmails(
+    settings.report_recipient_email,
+  );
+
+  return settings;
 }
 
 function cleanText(value, label, maxLength) {
@@ -140,12 +149,49 @@ function cleanTime(value, label) {
   return time;
 }
 
-function cleanEmail(value) {
-  const email = cleanText(value, "Report recipient email", 180).toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return fail("Report recipient email must be valid.");
+export function normalizeReportRecipientEmails(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return fail("At least one report recipient email is required.");
+  if (raw.length > MAX_REPORT_RECIPIENTS_LENGTH) {
+    return fail(
+      `Report recipient emails must be ${MAX_REPORT_RECIPIENTS_LENGTH} characters or less.`,
+    );
   }
-  return email;
+
+  const emails = [];
+  const seen = new Set();
+  raw
+    .split(/[,\n;]/)
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean)
+    .forEach((email) => {
+      if (!EMAIL_PATTERN.test(email)) {
+        return fail(`Report recipient email is invalid: ${email}`);
+      }
+      if (!seen.has(email)) {
+        seen.add(email);
+        emails.push(email);
+      }
+    });
+
+  if (!emails.length) return fail("At least one report recipient email is required.");
+  if (emails.length > MAX_REPORT_RECIPIENTS) {
+    return fail(`Use ${MAX_REPORT_RECIPIENTS} report recipient emails or fewer.`);
+  }
+
+  return emails;
+}
+
+function cleanReportRecipientEmails(value) {
+  return normalizeReportRecipientEmails(value).join(", ");
+}
+
+function safeReportRecipientEmails(value) {
+  try {
+    return cleanReportRecipientEmails(value);
+  } catch {
+    return DEFAULT_SETTINGS.report_recipient_email;
+  }
 }
 
 function cleanReportFormat(value) {

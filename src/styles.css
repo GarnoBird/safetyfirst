@@ -1704,6 +1704,60 @@ p {
   resize: vertical;
 }
 
+.email-recipient-entry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 48px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: #fff;
+}
+
+.settings-section-body .email-recipient-entry input {
+  flex: 1 1 210px;
+  width: auto;
+  min-width: 180px;
+  min-height: 34px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.settings-section-body .email-recipient-entry input:focus-visible {
+  outline-offset: 3px;
+}
+
+.email-recipient-chip {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+  min-height: 34px;
+  border-color: #c8d9d4;
+  padding: 0 10px;
+  color: #173b38;
+  font-weight: 800;
+  background: #eef7f3;
+}
+
+.email-recipient-chip span {
+  overflow: hidden;
+  max-width: min(420px, 70vw);
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: inherit;
+  text-overflow: ellipsis;
+}
+
+.email-recipient-chip strong {
+  color: #245f5b;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .settings-checkbox {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
@@ -2889,6 +2943,15 @@ p {
   .company-mapping-control {
     grid-template-columns: 1fr;
     min-width: 220px;
+  }
+
+  .settings-section-body .email-recipient-entry input {
+    flex-basis: 150px;
+    min-width: 120px;
+  }
+
+  .email-recipient-chip span {
+    max-width: 72vw;
   }
 
   .trend-planning-list div {
