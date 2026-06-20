@@ -12,7 +12,12 @@ const STAFF_SORT_LABELS = {
 
 const STAFF_MOBILE_NAV_ITEMS = [
   { id: "home", label: "HOME", path: "/staff/home" },
-  { id: "sign-ins", label: "ON SITE", path: "/staff/sign-ins" },
+  { id: "sign-ins-people", label: "ON SITE - PEOPLE", path: "/staff/sign-ins" },
+  {
+    id: "sign-ins-company",
+    label: "ON SITE - COMPANY",
+    path: "/staff/sign-ins/company",
+  },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
 
@@ -1001,7 +1006,7 @@ export function StaffSignInsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="sign-ins" contentWide navigateTo={navigateTo}>
+    <StaffShell active="sign-ins-people" contentWide navigateTo={navigateTo}>
       <section className="staff-toolbar staff-toolbar-desktop">
         <label className="field">
           <span>Date</span>
@@ -1188,6 +1193,183 @@ export function StaffSignInsPage({ navigateTo }) {
           onClose={() => setSelectedSignIn(null)}
         />
       ) : null}
+    </StaffShell>
+  );
+}
+
+export function StaffCompanySummaryPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [date, setDate] = useState(todayInVancouver());
+  const [records, setRecords] = useState({ rows: [] });
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const companyRows = useMemo(
+    () => summarizeCompanies(records.rows),
+    [records.rows],
+  );
+
+  const totalWorkers = records.rows.length;
+  const totalCompanies = companyRows.length;
+
+  useEffect(() => {
+    if (!staff) return;
+    let active = true;
+    setLoading(true);
+    setMessage("");
+
+    const params = new URLSearchParams({
+      date,
+      sort: "company",
+      dir: "asc",
+      group: "none",
+    });
+    fetch(`/api/staff/signins?${params}`, { credentials: "include" })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Records failed to load.");
+        if (active) setRecords(payload);
+      })
+      .catch((error) => {
+        if (active) setMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [date, staff]);
+
+  const changeDateBy = (days) => {
+    setDate((current) => addDaysToISODate(current, days));
+  };
+
+  const emailReport = async () => {
+    setMessage("");
+    const response = await fetch("/api/staff/signins/email-report", {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ date, format: "both" }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setMessage(payload.error || "Email report failed.");
+      return;
+    }
+    setMessage(
+      payload.skipped
+        ? "No rows to email for this date."
+        : `Report emailed to ${payload.recipientEmail || staff.email}.`,
+    );
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="sign-ins-company" contentWide navigateTo={navigateTo}>
+      <section className="staff-toolbar staff-summary-toolbar staff-toolbar-desktop">
+        <label className="field">
+          <span>Date</span>
+          <input
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </label>
+        <div className="staff-actions staff-report-buttons">
+          <a className="staff-report-button" href={staffExportUrl(date, "csv")}>
+            Export CSV
+          </a>
+          <a className="staff-report-button" href={staffExportUrl(date, "xml")}>
+            Export XML
+          </a>
+          <button className="staff-report-button primary" type="button" onClick={emailReport}>
+            Email report
+          </button>
+        </div>
+      </section>
+
+      <section className="staff-toolbar staff-toolbar-mobile staff-summary-toolbar-mobile">
+        <div className="field staff-date-field">
+          <span>Date</span>
+          <div className="staff-date-stepper">
+            <button
+              aria-label="Previous day"
+              type="button"
+              onClick={() => changeDateBy(-1)}
+            >
+              {"<"}
+            </button>
+            <label className="staff-date-picker">
+              <span>{formatLongDate(date)}</span>
+              <input
+                aria-label="Choose date"
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
+            <button
+              aria-label="Next day"
+              type="button"
+              onClick={() => changeDateBy(1)}
+            >
+              {">"}
+            </button>
+          </div>
+        </div>
+        <details className="staff-export-menu">
+          <summary>Export</summary>
+          <div className="staff-export-menu-panel">
+            <a href={staffExportUrl(date, "csv")}>
+              <strong>CSV</strong>
+              <span>Download spreadsheet</span>
+            </a>
+            <a href={staffExportUrl(date, "xml")}>
+              <strong>XML</strong>
+              <span>Download XML file</span>
+            </a>
+            <button type="button" onClick={emailReport}>
+              <strong>Email Report</strong>
+              <span>Send this roster</span>
+            </button>
+          </div>
+        </details>
+      </section>
+
+      {message ? <p className="staff-message">{message}</p> : null}
+
+      <section className="staff-table-panel staff-company-summary-panel">
+        <div className="staff-company-metrics">
+          <div>
+            <strong>{totalCompanies}</strong>
+            <span>Total Companies on site</span>
+          </div>
+          <div>
+            <strong>{totalWorkers}</strong>
+            <span>Total Workers on site</span>
+          </div>
+        </div>
+
+        <div className="desktop-roster">
+          <div className="staff-table-heading">
+            <strong>Company summary</strong>
+            <span>{formatLongDate(date)}</span>
+          </div>
+          <CompanySummaryTable loading={loading} rows={companyRows} />
+        </div>
+
+        <div className="mobile-roster">
+          <CompactCompanySummaryList
+            loading={loading}
+            rows={companyRows}
+            totalWorkers={totalWorkers}
+          />
+        </div>
+      </section>
     </StaffShell>
   );
 }
@@ -1431,6 +1613,36 @@ function DesktopSignInTable({ dir, loading, rows, sort, onSelect, onSort }) {
   );
 }
 
+function CompanySummaryTable({ loading, rows }) {
+  return (
+    <div className="staff-table-scroll">
+      <table className="staff-table company-summary-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Number of workers for that company</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.company}>
+              <td>{row.company}</td>
+              <td className="company-count-cell">{row.count}</td>
+            </tr>
+          ))}
+          {!rows.length ? (
+            <tr>
+              <td colSpan="2" className="staff-table-empty">
+                {loading ? "Loading..." : "No sign-ins for this date."}
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function SortableStaffHeader({ activeDir, field, label, sort, onSort }) {
   const active = sort === field;
   return (
@@ -1444,6 +1656,39 @@ function SortableStaffHeader({ activeDir, field, label, sort, onSort }) {
         {active ? activeDir : "Sort"}
       </button>
     </div>
+  );
+}
+
+function CompactCompanySummaryList({ loading, rows, totalWorkers }) {
+  const companyLabel = rows.length === 1 ? "1 company" : `${rows.length} companies`;
+  const workerLabel =
+    totalWorkers === 1 ? "1 worker" : `${totalWorkers} workers`;
+
+  return (
+    <section className="compact-signin-list company-summary-list" aria-label="Company summary">
+      <div className="compact-signin-list-title">
+        <h2>{companyLabel}</h2>
+        <span>{workerLabel}</span>
+      </div>
+      <div className="compact-company-rows">
+        {rows.map((row) => (
+          <div className="compact-company-row" key={row.company}>
+            <div className="compact-person">
+              <span className="row-mark" />
+              <span>
+                <strong>{row.company}</strong>
+              </span>
+            </div>
+            <strong>{row.count}</strong>
+          </div>
+        ))}
+        {!rows.length ? (
+          <p className="empty-state compact-empty">
+            {loading ? "Loading..." : "No sign-ins for this date."}
+          </p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
@@ -1693,6 +1938,18 @@ function filterRowsBySearch(rows, search) {
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query)),
   );
+}
+
+function summarizeCompanies(rows) {
+  const companies = new Map();
+  rows.forEach((row) => {
+    const company = String(row.company || row.trade || "Unassigned").trim() || "Unassigned";
+    companies.set(company, (companies.get(company) || 0) + 1);
+  });
+
+  return [...companies.entries()]
+    .map(([company, count]) => ({ company, count }))
+    .sort((a, b) => b.count - a.count || a.company.localeCompare(b.company));
 }
 
 function groupSignInRows(rows, group) {

@@ -14,6 +14,7 @@ import {
 import { loadSafetyData, resetSafetyData, saveSafetyData } from "./storage.js";
 import {
   StaffHomePage,
+  StaffCompanySummaryPage,
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
@@ -80,6 +81,10 @@ export default function App() {
 
   if (routePath === "/staff/sign-ins") {
     return <StaffSignInsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/sign-ins/company") {
+    return <StaffCompanySummaryPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/settings") {

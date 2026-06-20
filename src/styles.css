@@ -964,7 +964,7 @@ p {
   z-index: 20;
   display: grid;
   gap: 4px;
-  width: min(220px, calc(100vw - 24px));
+  width: min(270px, calc(100vw - 24px));
   border: 1px solid #d9e3de;
   border-radius: 8px;
   padding: 6px;
@@ -1043,6 +1043,10 @@ p {
   background: #fff;
 }
 
+.staff-summary-toolbar {
+  grid-template-columns: minmax(230px, 286px) minmax(0, 1fr);
+}
+
 .staff-toolbar-mobile {
   display: none;
 }
@@ -1109,6 +1113,39 @@ p {
   color: #111715;
   font-size: 1.45rem;
   line-height: 1;
+}
+
+.staff-company-summary-panel {
+  gap: 12px;
+}
+
+.staff-company-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.staff-company-metrics div {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.staff-company-metrics strong {
+  color: #111715;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.staff-company-metrics span {
+  color: var(--muted);
+  font-size: 0.83rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
 }
 
 .staff-card-actions {
@@ -1775,6 +1812,24 @@ p {
   text-align: center;
 }
 
+.company-summary-table th:last-child,
+.company-summary-table td:last-child {
+  text-align: right;
+}
+
+.company-summary-table tbody tr {
+  cursor: default;
+}
+
+.company-summary-table tbody tr:hover {
+  background: transparent;
+}
+
+.company-count-cell {
+  color: #245f5b;
+  font-weight: 900;
+}
+
 .staff-sort-header {
   display: flex;
   gap: 8px;
@@ -1905,6 +1960,23 @@ p {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 82px 48px;
   align-items: center;
+}
+
+.compact-company-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  align-items: center;
+  min-height: 39px;
+  border-top: 1px solid #dfe7e2;
+  padding: 0 14px 0 10px;
+  column-gap: 8px;
+}
+
+.compact-company-row > strong {
+  color: #245f5b;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-align: right;
 }
 
 .compact-signin-row {
@@ -2234,6 +2306,10 @@ p {
     background: transparent;
   }
 
+  .staff-summary-toolbar-mobile {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+  }
+
   .staff-actions {
     grid-column: 1 / -1;
     justify-content: flex-start;
@@ -2331,6 +2407,10 @@ p {
     grid-template-columns: minmax(0, 1.58fr) minmax(0, 1.28fr) minmax(0, 0.96fr);
     gap: 6px;
     padding: 0;
+  }
+
+  .staff-summary-toolbar-mobile {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
   }
 
   .staff-list-controls {
