@@ -1252,7 +1252,7 @@ export function StaffCompanySummaryPage({ navigateTo }) {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ date, format: "both" }),
+      body: JSON.stringify({ date, format: "both", type: "company" }),
     });
     const payload = await response.json();
     if (!response.ok) {
@@ -1280,10 +1280,10 @@ export function StaffCompanySummaryPage({ navigateTo }) {
           />
         </label>
         <div className="staff-actions staff-report-buttons">
-          <a className="staff-report-button" href={staffExportUrl(date, "csv")}>
+          <a className="staff-report-button" href={staffExportUrl(date, "csv", "company")}>
             Export CSV
           </a>
-          <a className="staff-report-button" href={staffExportUrl(date, "xml")}>
+          <a className="staff-report-button" href={staffExportUrl(date, "xml", "company")}>
             Export XML
           </a>
           <button className="staff-report-button primary" type="button" onClick={emailReport}>
@@ -1324,11 +1324,11 @@ export function StaffCompanySummaryPage({ navigateTo }) {
         <details className="staff-export-menu">
           <summary>Export</summary>
           <div className="staff-export-menu-panel">
-            <a href={staffExportUrl(date, "csv")}>
+            <a href={staffExportUrl(date, "csv", "company")}>
               <strong>CSV</strong>
               <span>Download spreadsheet</span>
             </a>
-            <a href={staffExportUrl(date, "xml")}>
+            <a href={staffExportUrl(date, "xml", "company")}>
               <strong>XML</strong>
               <span>Download XML file</span>
             </a>
@@ -1816,8 +1816,10 @@ async function readApiJson(response) {
   return payload;
 }
 
-function staffExportUrl(date, format) {
-  return `/api/staff/signins/export?${new URLSearchParams({ date, format })}`;
+function staffExportUrl(date, format, type = "people") {
+  const params = { date, format };
+  if (type === "company") params.type = "company";
+  return `/api/staff/signins/export?${new URLSearchParams(params)}`;
 }
 
 function publicUrl(path) {

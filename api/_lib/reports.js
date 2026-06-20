@@ -5,6 +5,7 @@ import { listSignIns } from "./signins.js";
 import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
 
 const REPORT_HEADERS = ["Signed In At", "Name", "Phone", "Trade", "Company"];
+const COMPANY_REPORT_HEADERS = ["Company", "Number of workers for that company"];
 
 export async function buildSignInReport(date = getVancouverDate()) {
   const rows = await listSignIns({ date, sort: "signed_in_at", dir: "asc" });
@@ -13,6 +14,25 @@ export async function buildSignInReport(date = getVancouverDate()) {
     rows,
     csv: rowsToCsv(rows),
     xml: rowsToXml(date, rows),
+  };
+}
+
+export async function buildCompanySummaryReport(date = getVancouverDate()) {
+  const signIns = await listSignIns({ date, sort: "company", dir: "asc" });
+  const companies = summarizeCompanies(signIns);
+  return {
+    date,
+    signIns,
+    companies,
+    totalCompanies: companies.length,
+    totalWorkers: signIns.length,
+    csv: companySummaryToCsv({ companies, date, totalWorkers: signIns.length }),
+    xml: companySummaryToXml({
+      companies,
+      date,
+      totalCompanies: companies.length,
+      totalWorkers: signIns.length,
+    }),
   };
 }
 
@@ -29,6 +49,20 @@ export function rowsToCsv(rows) {
       .join(","),
   );
   return [REPORT_HEADERS.join(","), ...body].join("\n");
+}
+
+export function companySummaryToCsv({ companies, date, totalWorkers }) {
+  return [
+    ["Metric", "Value"].map(escapeCsv).join(","),
+    ["Date", date].map(escapeCsv).join(","),
+    ["Total Companies on site", companies.length].map(escapeCsv).join(","),
+    ["Total Workers on site", totalWorkers].map(escapeCsv).join(","),
+    "",
+    COMPANY_REPORT_HEADERS.map(escapeCsv).join(","),
+    ...companies.map((row) =>
+      [row.company, row.workerCount].map(escapeCsv).join(","),
+    ),
+  ].join("\n");
 }
 
 export function rowsToXml(date, rows) {
@@ -49,16 +83,40 @@ ${body}
 </signIns>`;
 }
 
+export function companySummaryToXml({
+  companies,
+  date,
+  totalCompanies,
+  totalWorkers,
+}) {
+  const body = companies
+    .map(
+      (row) => `  <company>
+    <name>${escapeXml(row.company)}</name>
+    <workerCount>${escapeXml(row.workerCount)}</workerCount>
+  </company>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<companySummary date="${escapeXml(date)}" totalCompanies="${escapeXml(totalCompanies)}" totalWorkers="${escapeXml(totalWorkers)}">
+${body}
+</companySummary>`;
+}
+
 export async function sendSignInReportEmail({
   date,
   recipientEmail,
   kind,
   staffId,
   format = "both",
+  reportType = "people",
 }) {
+  if (reportType === "company") {
+    return sendCompanySummaryReportEmail({ date, kind, recipientEmail, staffId });
+  }
+
   const report = await buildSignInReport(date);
   if (!report.rows.length) return { skipped: true, rowCount: 0 };
-
   assertEmailConfig();
 
   const reportFormat = normalizeReportFormat(format);
@@ -111,6 +169,76 @@ export async function sendSignInReportEmail({
   };
 }
 
+async function sendCompanySummaryReportEmail({
+  date,
+  recipientEmail,
+  kind,
+  staffId,
+}) {
+  const report = await buildCompanySummaryReport(date);
+  if (!report.totalWorkers) return { skipped: true, rowCount: 0 };
+
+  assertEmailConfig();
+
+  const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
+  const from = getRequiredEnv("REPORT_FROM_EMAIL");
+  const subject = `Company summary - ${date}`;
+  const appUrl = process.env.APP_PUBLIC_URL;
+  const dashboardLink = appUrl
+    ? `<p><a href="${escapeHtml(new URL("/staff/sign-ins/company", appUrl).href)}">Open company summary</a></p>`
+    : "";
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [recipientEmail],
+    subject,
+    html: companySummaryEmailHtml(report, dashboardLink),
+    attachments: reportAttachments(
+      {
+        date: report.date,
+        csv: report.csv,
+        xml: report.xml,
+        filenamePrefix: "worker-company-summary",
+      },
+      "both",
+    ),
+  });
+
+  if (error) {
+    await recordReportRun({
+      date,
+      kind,
+      recipientEmail,
+      rowCount: report.totalWorkers,
+      status: "failed",
+      staffId,
+    });
+    const sendError = new Error("Report email could not be sent.");
+    sendError.statusCode = 502;
+    sendError.cause = error;
+    throw sendError;
+  }
+
+  await recordReportRun({
+    date,
+    kind,
+    recipientEmail,
+    rowCount: report.totalWorkers,
+    status: "sent",
+    staffId,
+  });
+
+  return {
+    skipped: false,
+    rowCount: report.totalWorkers,
+    companyCount: report.totalCompanies,
+    emailId: data?.id,
+    recipientEmail,
+    format: "both",
+    reportType: "company",
+  };
+}
+
 function assertEmailConfig() {
   const missing = ["RESEND_API_KEY", "REPORT_FROM_EMAIL"].filter(
     (name) => !process.env[name],
@@ -135,10 +263,11 @@ function normalizeReportFormat(format) {
 
 function reportAttachments(report, format) {
   const attachments = [];
+  const filenamePrefix = report.filenamePrefix || "worker-sign-ins";
 
   if (format === "csv" || format === "both") {
     attachments.push({
-      filename: `worker-sign-ins-${report.date}.csv`,
+      filename: `${filenamePrefix}-${report.date}.csv`,
       content: encodeAttachment(report.csv),
       contentType: "text/csv; charset=utf-8",
     });
@@ -146,13 +275,59 @@ function reportAttachments(report, format) {
 
   if (format === "xml" || format === "both") {
     attachments.push({
-      filename: `worker-sign-ins-${report.date}.xml`,
+      filename: `${filenamePrefix}-${report.date}.xml`,
       content: encodeAttachment(report.xml),
       contentType: "application/xml; charset=utf-8",
     });
   }
 
   return attachments;
+}
+
+function summarizeCompanies(rows) {
+  const companies = new Map();
+  rows.forEach((row) => {
+    const company = String(row.company || row.trade || "Unassigned").trim() || "Unassigned";
+    companies.set(company, (companies.get(company) || 0) + 1);
+  });
+
+  return [...companies.entries()]
+    .map(([company, workerCount]) => ({ company, workerCount }))
+    .sort((a, b) => b.workerCount - a.workerCount || a.company.localeCompare(b.company));
+}
+
+function companySummaryEmailHtml(report, dashboardLink) {
+  const companyRows = report.companies
+    .map(
+      (row) => `<tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #e3ebe7;">${escapeHtml(row.company)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e3ebe7;text-align:right;font-weight:700;">${escapeHtml(row.workerCount)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  return `<div style="font-family:Inter,Arial,sans-serif;color:#17211f;line-height:1.45;">
+    <h1 style="margin:0 0 12px;font-size:22px;">Company summary - ${escapeHtml(report.date)}</h1>
+    <div style="display:inline-block;margin:0 10px 14px 0;padding:10px 14px;border:1px solid #d9e3de;border-radius:8px;background:#f7faf9;">
+      <div style="font-size:12px;color:#5e6d69;font-weight:700;text-transform:uppercase;">Total Companies on site</div>
+      <div style="font-size:26px;font-weight:800;">${escapeHtml(report.totalCompanies)}</div>
+    </div>
+    <div style="display:inline-block;margin:0 0 14px;padding:10px 14px;border:1px solid #d9e3de;border-radius:8px;background:#f7faf9;">
+      <div style="font-size:12px;color:#5e6d69;font-weight:700;text-transform:uppercase;">Total Workers on site</div>
+      <div style="font-size:26px;font-weight:800;">${escapeHtml(report.totalWorkers)}</div>
+    </div>
+    <table style="width:100%;max-width:560px;border-collapse:collapse;border:1px solid #d9e3de;border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background:#eef3f1;">
+          <th style="padding:9px 10px;text-align:left;font-size:12px;text-transform:uppercase;color:#43514e;">Company</th>
+          <th style="padding:9px 10px;text-align:right;font-size:12px;text-transform:uppercase;color:#43514e;">Workers</th>
+        </tr>
+      </thead>
+      <tbody>${companyRows}</tbody>
+    </table>
+    <p style="margin-top:14px;color:#5e6d69;">CSV and XML versions are attached.</p>
+    ${dashboardLink}
+  </div>`;
 }
 
 export async function hasSentAutoReport(date) {

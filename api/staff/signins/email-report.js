@@ -12,14 +12,16 @@ export default async function handler(req, res) {
     const body = await readJson(req);
     const date = assertDateString(body.date || getVancouverDate());
     const settings = await getSiteSettings();
+    const reportType = body.type === "company" ? "company" : "people";
     const format = ["csv", "xml", "both"].includes(body.format)
       ? body.format
       : settings.report_format;
     const result = await sendSignInReportEmail({
       date,
       recipientEmail: settings.report_recipient_email,
-      format,
+      format: reportType === "company" ? "both" : format,
       kind: "manual",
+      reportType,
       staffId: staff.id,
     });
 
