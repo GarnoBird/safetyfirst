@@ -5,8 +5,10 @@ const MAX_TEXT_LENGTH = 120;
 const MAX_MESSAGE_LENGTH = 320;
 const MAX_REPORT_RECIPIENTS = 10;
 const MAX_REPORT_RECIPIENTS_LENGTH = 600;
-const SETTINGS_SELECT =
+const SITE_SETTINGS_SELECT =
   "id, site_name, site_location, timezone, signout_cutoff_time, signout_reminders_enabled, signout_reminder_message, report_recipient_email, report_auto_enabled, report_auto_time, report_format, updated_at, updated_by_staff_id";
+const STAFF_REPORT_SETTINGS_SELECT =
+  "id, staff_id, recipient_emails, auto_enabled, auto_time, timezone, report_format, created_at, updated_at, updated_by_staff_id";
 const REPORT_FORMATS = ["csv", "xml", "both"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,21 +28,29 @@ const DEFAULT_SETTINGS = {
 
 export async function getSiteSettings() {
   const row = await loadSettingsRow();
-  if (row) return normalizeSettings(row);
+  if (row) return normalizeSiteSettings(row);
 
   const inserted = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("site_settings")
       .insert({ id: SETTINGS_ID })
-      .select(SETTINGS_SELECT)
+      .select(SITE_SETTINGS_SELECT)
       .single(),
     "Site settings could not be created.",
   );
-  return normalizeSettings(inserted);
+  return normalizeSiteSettings(inserted);
+}
+
+export async function getStaffSettings(staffId) {
+  const [siteSettings, reportSettings] = await Promise.all([
+    getSiteSettings(),
+    getStaffReportSettings(staffId),
+  ]);
+  return mergeStaffSettings(siteSettings, reportSettings);
 }
 
 export async function updateSiteSettings(body, staffId) {
-  const updates = validateSettingsInput(body);
+  const updates = validateSiteSettingsInput(body);
   const row = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("site_settings")
@@ -51,11 +61,100 @@ export async function updateSiteSettings(body, staffId) {
         updated_at: new Date().toISOString(),
         updated_by_staff_id: staffId,
       })
-      .select(SETTINGS_SELECT)
+      .select(SITE_SETTINGS_SELECT)
       .single(),
     "Site settings could not be saved.",
   );
-  return normalizeSettings(row);
+  return normalizeSiteSettings(row);
+}
+
+export async function updateStaffSettings(body, staffId) {
+  const input = body && typeof body === "object" ? body : {};
+  const siteUpdates = validateSiteSettingsInput(input);
+  const reportUpdates = validateReportSettingsInput(input);
+  const now = new Date().toISOString();
+  const supabase = getSupabaseServiceClient();
+
+  const siteRow = throwIfSupabaseError(
+    await supabase
+      .from("site_settings")
+      .upsert({
+        id: SETTINGS_ID,
+        ...siteUpdates,
+        signout_reminders_enabled: false,
+        updated_at: now,
+        updated_by_staff_id: staffId,
+      })
+      .select(SITE_SETTINGS_SELECT)
+      .single(),
+    "Site settings could not be saved.",
+  );
+
+  const reportRow = throwIfSupabaseError(
+    await supabase
+      .from("staff_report_settings")
+      .upsert(
+        {
+          staff_id: staffId,
+          ...reportUpdates,
+          updated_at: now,
+          updated_by_staff_id: staffId,
+        },
+        { onConflict: "staff_id" },
+      )
+      .select(STAFF_REPORT_SETTINGS_SELECT)
+      .single(),
+    "Report settings could not be saved.",
+  );
+
+  return mergeStaffSettings(
+    normalizeSiteSettings(siteRow),
+    normalizeStaffReportSettings(reportRow),
+  );
+}
+
+export async function getStaffReportSettings(staffId) {
+  const row = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("staff_report_settings")
+      .select(STAFF_REPORT_SETTINGS_SELECT)
+      .eq("staff_id", staffId)
+      .maybeSingle(),
+    "Report settings could not be loaded.",
+  );
+
+  if (row) return normalizeStaffReportSettings(row);
+  return createStaffReportSettingsFromSite(staffId);
+}
+
+export async function listActiveStaffReportSettings() {
+  const supabase = getSupabaseServiceClient();
+  const rows = throwIfSupabaseError(
+    await supabase
+      .from("staff_report_settings")
+      .select(STAFF_REPORT_SETTINGS_SELECT)
+      .eq("auto_enabled", true),
+    "Report settings could not be loaded.",
+  );
+  if (!rows.length) return [];
+
+  const staffIds = [...new Set(rows.map((row) => row.staff_id).filter(Boolean))];
+  const staffRows = throwIfSupabaseError(
+    await supabase
+      .from("staff_profiles")
+      .select("id, username, email, role, active")
+      .in("id", staffIds)
+      .eq("active", true),
+    "Staff profiles could not be loaded.",
+  );
+  const activeStaff = new Map(staffRows.map((staff) => [staff.id, staff]));
+
+  return rows
+    .filter((row) => activeStaff.has(row.staff_id))
+    .map((row) => ({
+      ...normalizeStaffReportSettings(row),
+      staff: activeStaff.get(row.staff_id),
+    }));
 }
 
 export function getSettingsSystemStatus() {
@@ -73,14 +172,38 @@ async function loadSettingsRow() {
   return throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("site_settings")
-      .select(SETTINGS_SELECT)
+      .select(SITE_SETTINGS_SELECT)
       .eq("id", SETTINGS_ID)
       .maybeSingle(),
     "Site settings could not be loaded.",
   );
 }
 
-function validateSettingsInput(body) {
+async function createStaffReportSettingsFromSite(staffId) {
+  const siteSettings = await getSiteSettings();
+  const row = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("staff_report_settings")
+      .upsert(
+        {
+          staff_id: staffId,
+          recipient_emails: siteSettings.report_recipient_email,
+          auto_enabled: siteSettings.report_auto_enabled,
+          auto_time: siteSettings.report_auto_time,
+          timezone: siteSettings.timezone,
+          report_format: siteSettings.report_format,
+          updated_by_staff_id: staffId,
+        },
+        { onConflict: "staff_id" },
+      )
+      .select(STAFF_REPORT_SETTINGS_SELECT)
+      .single(),
+    "Report settings could not be created.",
+  );
+  return normalizeStaffReportSettings(row, siteSettings);
+}
+
+function validateSiteSettingsInput(body) {
   const input = body && typeof body === "object" ? body : {};
   return {
     site_name: cleanText(input.site_name, "Site name", MAX_TEXT_LENGTH),
@@ -88,17 +211,27 @@ function validateSettingsInput(body) {
     timezone: cleanTimezone(input.timezone),
     signout_cutoff_time: cleanCutoffTime(input.signout_cutoff_time),
     signout_reminder_message: cleanReminderMessage(input.signout_reminder_message),
-    report_recipient_email: cleanReportRecipientEmails(input.report_recipient_email),
-    report_auto_enabled: cleanBoolean(input.report_auto_enabled),
-    report_auto_time: cleanTime(input.report_auto_time, "Auto-report time"),
+  };
+}
+
+function validateReportSettingsInput(body) {
+  const input = body && typeof body === "object" ? body : {};
+  return {
+    recipient_emails: cleanReportRecipientEmails(
+      input.recipient_emails ?? input.report_recipient_email,
+    ),
+    auto_enabled: cleanBoolean(input.auto_enabled ?? input.report_auto_enabled),
+    auto_time: cleanTime(input.auto_time ?? input.report_auto_time, "Auto-report time"),
+    timezone: cleanTimezone(input.report_timezone ?? input.timezone),
     report_format: cleanReportFormat(input.report_format),
   };
 }
 
-function normalizeSettings(row) {
+function normalizeSiteSettings(row) {
   const settings = {
     ...DEFAULT_SETTINGS,
     ...row,
+    timezone: safeTimezone(row?.timezone),
     signout_cutoff_time: String(
       row?.signout_cutoff_time || DEFAULT_SETTINGS.signout_cutoff_time,
     ).slice(0, 5),
@@ -118,6 +251,41 @@ function normalizeSettings(row) {
   return settings;
 }
 
+function normalizeStaffReportSettings(row, fallback = DEFAULT_SETTINGS) {
+  return {
+    id: row?.id || null,
+    staff_id: row?.staff_id || null,
+    recipient_emails: safeReportRecipientEmails(
+      row?.recipient_emails || fallback.report_recipient_email,
+    ),
+    auto_enabled:
+      row?.auto_enabled === undefined
+        ? Boolean(fallback.report_auto_enabled)
+        : Boolean(row.auto_enabled),
+    auto_time: String(
+      row?.auto_time || fallback.report_auto_time || DEFAULT_SETTINGS.report_auto_time,
+    ).slice(0, 5),
+    timezone: safeTimezone(row?.timezone || fallback.timezone),
+    report_format: REPORT_FORMATS.includes(row?.report_format)
+      ? row.report_format
+      : fallback.report_format || DEFAULT_SETTINGS.report_format,
+    created_at: row?.created_at || null,
+    updated_at: row?.updated_at || null,
+    updated_by_staff_id: row?.updated_by_staff_id || null,
+  };
+}
+
+function mergeStaffSettings(siteSettings, reportSettings) {
+  return {
+    ...siteSettings,
+    report_recipient_email: reportSettings.recipient_emails,
+    report_auto_enabled: reportSettings.auto_enabled,
+    report_auto_time: reportSettings.auto_time,
+    report_timezone: reportSettings.timezone,
+    report_format: reportSettings.report_format,
+  };
+}
+
 function cleanText(value, label, maxLength) {
   const cleaned = String(value || "").trim();
   if (!cleaned) return fail(`${label} is required.`);
@@ -135,6 +303,14 @@ function cleanTimezone(value) {
     return fail("Timezone must be a valid IANA timezone.");
   }
   return timezone;
+}
+
+function safeTimezone(value) {
+  try {
+    return cleanTimezone(value);
+  } catch {
+    return DEFAULT_SETTINGS.timezone;
+  }
 }
 
 function cleanCutoffTime(value) {

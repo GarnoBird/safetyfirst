@@ -111,9 +111,16 @@ export async function sendSignInReportEmail({
   staffId,
   format = "both",
   reportType = "people",
+  recordRun = true,
 }) {
   if (reportType === "company") {
-    return sendCompanySummaryReportEmail({ date, kind, recipientEmail, staffId });
+    return sendCompanySummaryReportEmail({
+      date,
+      kind,
+      recipientEmail,
+      staffId,
+      recordRun,
+    });
   }
 
   const report = await buildSignInReport(date);
@@ -140,28 +147,32 @@ export async function sendSignInReportEmail({
   });
 
   if (error) {
-    await recordReportRun({
-      date,
-      kind,
-      recipientEmail: recipientEmailText,
-      rowCount: report.rows.length,
-      status: "failed",
-      staffId,
-    });
+    if (recordRun) {
+      await recordReportRun({
+        date,
+        kind,
+        recipientEmail: recipientEmailText,
+        rowCount: report.rows.length,
+        status: "failed",
+        staffId,
+      });
+    }
     const sendError = new Error("Report email could not be sent.");
     sendError.statusCode = 502;
     sendError.cause = error;
     throw sendError;
   }
 
-  await recordReportRun({
-    date,
-    kind,
-    recipientEmail: recipientEmailText,
-    rowCount: report.rows.length,
-    status: "sent",
-    staffId,
-  });
+  if (recordRun) {
+    await recordReportRun({
+      date,
+      kind,
+      recipientEmail: recipientEmailText,
+      rowCount: report.rows.length,
+      status: "sent",
+      staffId,
+    });
+  }
 
   return {
     skipped: false,
@@ -178,6 +189,7 @@ async function sendCompanySummaryReportEmail({
   recipientEmail,
   kind,
   staffId,
+  recordRun = true,
 }) {
   const report = await buildCompanySummaryReport(date);
   if (!report.totalWorkers) return { skipped: true, rowCount: 0 };
@@ -211,28 +223,32 @@ async function sendCompanySummaryReportEmail({
   });
 
   if (error) {
-    await recordReportRun({
-      date,
-      kind,
-      recipientEmail: recipientEmailText,
-      rowCount: report.totalWorkers,
-      status: "failed",
-      staffId,
-    });
+    if (recordRun) {
+      await recordReportRun({
+        date,
+        kind,
+        recipientEmail: recipientEmailText,
+        rowCount: report.totalWorkers,
+        status: "failed",
+        staffId,
+      });
+    }
     const sendError = new Error("Report email could not be sent.");
     sendError.statusCode = 502;
     sendError.cause = error;
     throw sendError;
   }
 
-  await recordReportRun({
-    date,
-    kind,
-    recipientEmail: recipientEmailText,
-    rowCount: report.totalWorkers,
-    status: "sent",
-    staffId,
-  });
+  if (recordRun) {
+    await recordReportRun({
+      date,
+      kind,
+      recipientEmail: recipientEmailText,
+      rowCount: report.totalWorkers,
+      status: "sent",
+      staffId,
+    });
+  }
 
   return {
     skipped: false,
@@ -351,7 +367,22 @@ export async function hasSentAutoReport(date) {
   return rows.length > 0;
 }
 
-async function recordReportRun({
+export async function getAutoReportRunForStaff(date, staffId) {
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("report_runs")
+      .select("id, report_date, kind, status, row_count, sent_at, triggered_by_staff_id")
+      .eq("report_date", date)
+      .eq("kind", "auto")
+      .eq("triggered_by_staff_id", staffId)
+      .order("sent_at", { ascending: false })
+      .limit(1),
+    "Report run status could not be checked.",
+  );
+  return rows[0] || null;
+}
+
+export async function recordReportRun({
   date,
   kind,
   recipientEmail,
@@ -360,16 +391,38 @@ async function recordReportRun({
   staffId = null,
 }) {
   return throwIfSupabaseError(
-    await getSupabaseServiceClient().from("report_runs").insert({
-      report_date: date,
-      kind,
-      recipient_email: recipientEmail,
-      row_count: rowCount,
-      status,
-      triggered_by_staff_id: staffId,
-      sent_at: new Date().toISOString(),
-    }),
+    await getSupabaseServiceClient()
+      .from("report_runs")
+      .insert({
+        report_date: date,
+        kind,
+        recipient_email: recipientEmail,
+        row_count: rowCount,
+        status,
+        triggered_by_staff_id: staffId,
+        sent_at: new Date().toISOString(),
+      })
+      .select("id, report_date, kind, status, row_count, sent_at, triggered_by_staff_id")
+      .single(),
     "Report run could not be recorded.",
+  );
+}
+
+export async function updateReportRunStatus(runId, { status, rowCount }) {
+  const updates = {
+    status,
+    sent_at: new Date().toISOString(),
+  };
+  if (rowCount !== undefined) updates.row_count = rowCount;
+
+  return throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("report_runs")
+      .update(updates)
+      .eq("id", runId)
+      .select("id, report_date, kind, status, row_count, sent_at, triggered_by_staff_id")
+      .single(),
+    "Report run could not be updated.",
   );
 }
 

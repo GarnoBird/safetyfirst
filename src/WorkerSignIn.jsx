@@ -1042,10 +1042,23 @@ export function StaffSettingsPage({ navigateTo }) {
               <strong>Auto Report</strong>
               <small>
                 {settings.report_auto_enabled
-                  ? "On - sends daily at 8:00 a.m. when sign-ins exist."
+                  ? `On - sends daily after ${formatReportAutoTime(
+                      settings.report_auto_time,
+                    )} when sign-ins exist.`
                   : "Off - no daily automatic report."}
               </small>
             </span>
+          </label>
+          <label>
+            <span>Auto Report time</span>
+            <input
+              required
+              type="time"
+              value={settings.report_auto_time}
+              onChange={(event) =>
+                updateSetting("report_auto_time", event.target.value)
+              }
+            />
           </label>
           <label>
             <span>Email attachment format</span>
@@ -2623,6 +2636,17 @@ function formatReportRecipientSummary(value) {
   if (!emails.length) return "no recipients";
   if (emails.length === 1) return emails[0];
   return `${emails.length} recipients`;
+}
+
+function formatReportAutoTime(value) {
+  const [rawHour, rawMinute] = String(value || "08:00").slice(0, 5).split(":");
+  const hour = Number(rawHour);
+  const minute = /^\d{2}$/.test(rawMinute) ? rawMinute : "00";
+  if (!Number.isFinite(hour) || hour < 0 || hour > 23) return "08:00 a.m.";
+
+  const suffix = hour >= 12 ? "p.m." : "a.m.";
+  const displayHour = hour % 12 || 12;
+  return `${String(displayHour).padStart(2, "0")}:${minute} ${suffix}`;
 }
 
 function trendRangeParams(preset, customFrom, customTo, today) {
