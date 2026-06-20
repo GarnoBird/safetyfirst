@@ -8,6 +8,7 @@ import {
   contentCreationPipeline,
   databaseSchema,
   getArticleBySlug,
+  getCitationById,
   getRegulationById,
   getRoadmapByPhase,
   getSourceById,
@@ -223,7 +224,7 @@ function WikiHome({ query, navigateTo }) {
         <ArticleList articles={wikiArticles} compact />
         <p className="wiki-more">
           <a href="/wiki/roadmap" onClick={makeNavigate(navigateTo, "/wiki/roadmap")}>
-            View the full 100-topic roadmap
+            View the 100-article review roadmap
           </a>
         </p>
       </section>
@@ -249,7 +250,9 @@ function ArticlePage({ slug, navigateTo }) {
     "Supervisor checklist",
     "Common mistakes",
     "Related topics",
+    "Pages that link here",
     "Official sources",
+    "Official citations",
     "Review and version history",
     "Disclaimer",
   ];
@@ -268,7 +271,11 @@ function ArticlePage({ slug, navigateTo }) {
 
       <section className="wiki-section" id="summary">
         <h2>Summary</h2>
-        <p>{article.summary}</p>
+        {(article.summaryParagraphs?.length ? article.summaryParagraphs : [article.summary]).map((paragraph) => (
+          <p key={paragraph}>
+            <RichText text={paragraph} navigateTo={navigateTo} />
+          </p>
+        ))}
         {article.aliases.length ? (
           <p className="wiki-small">
             <b>Also searched as:</b> {article.aliases.join(", ")}
@@ -276,18 +283,24 @@ function ArticlePage({ slug, navigateTo }) {
         ) : null}
       </section>
 
-      <ArticleSection title="When this applies" items={article.sections.whenApplies} />
-      <ArticleSection title="Legal requirements" items={article.sections.legalRequirements} ordered />
-      <ArticleSection title="Best practice" items={article.sections.bestPractice} />
-      <ArticleSection title="Required documents" items={article.sections.requiredDocuments} />
+      <ArticleSection title="When this applies" items={article.sections.whenApplies} navigateTo={navigateTo} />
+      <ArticleSection
+        title="Legal requirements"
+        items={article.sections.legalRequirements}
+        navigateTo={navigateTo}
+        ordered
+      />
+      <ArticleSection title="Best practice" items={article.sections.bestPractice} navigateTo={navigateTo} />
+      <ArticleSection title="Required documents" items={article.sections.requiredDocuments} navigateTo={navigateTo} />
       <ArticleSection
         title="Step-by-step safe procedure"
         items={article.sections.procedure}
+        navigateTo={navigateTo}
         ordered
       />
-      <ChecklistSection title="Worker checklist" items={article.sections.workerChecklist} />
-      <ChecklistSection title="Supervisor checklist" items={article.sections.supervisorChecklist} />
-      <ArticleSection title="Common mistakes" items={article.sections.commonMistakes} />
+      <ChecklistSection title="Worker checklist" items={article.sections.workerChecklist} navigateTo={navigateTo} />
+      <ChecklistSection title="Supervisor checklist" items={article.sections.supervisorChecklist} navigateTo={navigateTo} />
+      <ArticleSection title="Common mistakes" items={article.sections.commonMistakes} navigateTo={navigateTo} />
 
       <section className="wiki-section" id="related-topics">
         <h2>Related topics</h2>
@@ -311,6 +324,24 @@ function ArticlePage({ slug, navigateTo }) {
           })}
         </ul>
       </section>
+
+      {article.backlinks?.length ? (
+        <section className="wiki-section" id="pages-that-link-here">
+          <h2>Pages that link here</h2>
+          <ul>
+            {article.backlinks.map((backlink) => (
+              <li key={backlink.slug}>
+                <a
+                  href={`/wiki/articles/${backlink.slug}`}
+                  onClick={makeNavigate(navigateTo, `/wiki/articles/${backlink.slug}`)}
+                >
+                  {backlink.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="wiki-section" id="official-sources">
         <h2>Official sources</h2>
@@ -338,6 +369,29 @@ function ArticlePage({ slug, navigateTo }) {
           })}
         </ul>
       </section>
+
+      {article.citations?.length ? (
+        <section className="wiki-section" id="official-citations">
+          <h2>Official citations</h2>
+          <ul>
+            {article.citations.map((citation) => (
+              <li key={citation.id}>
+                {citation.url ? (
+                  <a href={citation.url} target="_blank" rel="noreferrer">
+                    {citation.title}
+                  </a>
+                ) : (
+                  citation.title
+                )}{" "}
+                <span className="wiki-small">
+                  {citation.publisher}
+                  {citation.locator ? ` - ${citation.locator}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="wiki-section" id="review-and-version-history">
         <h2>Review and version history</h2>
@@ -466,15 +520,25 @@ function SourcesPage() {
 function RoadmapPage() {
   return (
     <article className="wiki-article">
-      <PageTitle title="Roadmap" subtitle="Published draft batches and the full 100-topic plan" />
+      <PageTitle title="Roadmap" subtitle="100 deep draft articles moving through qualified review" />
       <section className="wiki-section">
-        <h2>First public launch criteria</h2>
+        <h2>Current state</h2>
+        <p>
+          The roadmap now tracks review and completion work. All 100 planned articles have Markdown
+          source files, generated wiki data, related-topic links, backlinks, checklists, and official
+          citation tokens. They remain deep drafts until qualified BC safety/source reviewers confirm
+          the exact legal references and field wording.
+        </p>
+      </section>
+      <section className="wiki-section">
+        <h2>Completion criteria</h2>
         <ul>
-          <li>100 article pages published as source-cited drafts for the first public content base.</li>
-          <li>Every article has official sources, related topics, aliases, review dates, and checklists.</li>
-          <li>Search works for worker-language terms such as tie off, silica dust, crane pick, and toolbox talk.</li>
+          <li>100 article pages pass depth, citation, link, backlink, and source validation.</li>
+          <li>Every article has official sources, exact citation tokens, related topics, aliases, review dates, and checklists.</li>
+          <li>Search works across worker-language terms such as tie off, silica dust, crane pick, and toolbox talk.</li>
+          <li>Highest-risk articles receive qualified source/legal review before being treated as launch-ready.</li>
           <li>Correction process, disclaimer, and review badges are visible.</li>
-          <li>Qualified safety/source review is completed before treating content as public launch ready.</li>
+          <li>Regulation and guideline changes trigger scheduled article review.</li>
         </ul>
       </section>
       <RoadmapTable title="First 25 articles" rows={getRoadmapByPhase("MVP 25")} />
@@ -646,7 +710,7 @@ function TableOfContents({ items }) {
   );
 }
 
-function ArticleSection({ title, items, ordered = false }) {
+function ArticleSection({ title, items, navigateTo, ordered = false }) {
   if (!items?.length) return null;
   const List = ordered ? "ol" : "ul";
   return (
@@ -654,21 +718,23 @@ function ArticleSection({ title, items, ordered = false }) {
       <h2>{title}</h2>
       <List>
         {items.map((item) => (
-          <li key={item}>{item}</li>
+          <li key={item}>
+            <RichText text={item} navigateTo={navigateTo} />
+          </li>
         ))}
       </List>
     </section>
   );
 }
 
-function ChecklistSection({ title, items }) {
+function ChecklistSection({ title, items, navigateTo }) {
   return (
     <section className="wiki-section wiki-checklist" id={anchorFor(title)}>
       <h2>{title}</h2>
       <ul>
         {items.map((item) => (
           <li key={item}>
-            <span aria-hidden="true" /> {item}
+            <span aria-hidden="true" /> <RichText text={item} navigateTo={navigateTo} />
           </li>
         ))}
       </ul>
@@ -683,11 +749,76 @@ function ArticleList({ articles, compact = false, empty = "No articles." }) {
       {articles.map((article) => (
         <li key={article.slug}>
           <a href={`/wiki/articles/${article.slug}`}>{article.title}</a>
-          {compact ? null : <p>{article.summary}</p>}
+          {compact ? null : <p>{plainWikiText(article.summary)}</p>}
         </li>
       ))}
     </ul>
   );
+}
+
+function RichText({ text, navigateTo }) {
+  const value = String(text || "");
+  const parts = value.split(/(\[\[[^\]]+\]\]|\{\{cite:[^}]+\}\}|\{\{review:source\}\})/g);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    const wikiMatch = part.match(/^\[\[([^|\]]+)(?:\|([^\]]+))?\]\]$/);
+    if (wikiMatch) {
+      const slug = wikiMatch[1].trim();
+      const article = getArticleBySlug(slug);
+      const label = wikiMatch[2]?.trim() || article?.title || slug;
+      return article ? (
+        <a
+          key={`${part}-${index}`}
+          href={`/wiki/articles/${slug}`}
+          onClick={makeNavigate(navigateTo, `/wiki/articles/${slug}`)}
+        >
+          {label}
+        </a>
+      ) : (
+        <span className="wiki-missing-link" key={`${part}-${index}`}>
+          {label}
+        </span>
+      );
+    }
+
+    const citationMatch = part.match(/^\{\{cite:([^}]+)\}\}$/);
+    if (citationMatch) {
+      const citation = getCitationById(citationMatch[1].trim());
+      return citation?.url ? (
+        <sup className="wiki-citation" key={`${part}-${index}`}>
+          <a href={citation.url} target="_blank" rel="noreferrer" title={citation.title}>
+            [{citation.id}]
+          </a>
+        </sup>
+      ) : (
+        <sup className="wiki-citation missing" key={`${part}-${index}`}>
+          [{citationMatch[1].trim()}]
+        </sup>
+      );
+    }
+
+    if (part === "{{review:source}}") {
+      return (
+        <span className="wiki-source-review" key={`${part}-${index}`}>
+          source review needed
+        </span>
+      );
+    }
+
+    return part;
+  });
+}
+
+function plainWikiText(text) {
+  return String(text || "")
+    .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, "$2")
+    .replace(/\[\[([^\]]+)\]\]/g, "$1")
+    .replace(/\{\{cite:[^}]+\}\}/g, "")
+    .replace(/\{\{review:source\}\}/g, "source review needed")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function WikiList({ title, items }) {

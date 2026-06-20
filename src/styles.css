@@ -3506,6 +3506,28 @@ p {
   color: #202122;
 }
 
+.wiki-citation {
+  margin-left: 2px;
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: super;
+}
+
+.wiki-citation a {
+  text-decoration: none;
+}
+
+.wiki-citation.missing,
+.wiki-missing-link,
+.wiki-source-review {
+  color: #8a4b00;
+}
+
+.wiki-source-review {
+  border-bottom: 1px dotted currentColor;
+  font-size: 0.9em;
+}
+
 .wiki-columns-list {
   columns: 2;
 }

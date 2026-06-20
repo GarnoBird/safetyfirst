@@ -1,3 +1,5 @@
+import { generatedWikiArticles, generatedWikiCitations } from "./generatedWikiArticles.js";
+
 const REVIEW_DATE = "2026-06-19";
 
 export const sourceHierarchy = [
@@ -3680,7 +3682,11 @@ const mvpArticleDefinitions = [
   },
 ];
 
-const scaffoldedArticleSlugs = new Set(mvpArticleDefinitions.map((article) => article.slug));
+const scaffoldedArticleSlugs = new Set(
+  (generatedWikiArticles.length ? generatedWikiArticles : mvpArticleDefinitions).map(
+    (article) => article.slug,
+  ),
+);
 
 export const articleRoadmap = [
   "Fall Protection",
@@ -3795,13 +3801,20 @@ export const articleRoadmap = [
         : index < 75
           ? "Batch 3"
           : "Batch 4",
-  status: scaffoldedArticleSlugs.has(slugify(title)) ? "Article page scaffolded" : "Planned",
+  status: scaffoldedArticleSlugs.has(slugify(title))
+    ? "Deep draft - needs qualified review"
+    : "Planned",
 }));
 
-export const wikiArticles = mvpArticleDefinitions.map(createArticle);
+const fallbackWikiArticles = mvpArticleDefinitions.map(createArticle);
+
+export const wikiArticles = generatedWikiArticles.length ? generatedWikiArticles : fallbackWikiArticles;
 
 export const sourceMap = Object.fromEntries(wikiSources.map((source) => [source.id, source]));
 export const regulationMap = Object.fromEntries(regulationRefs.map((ref) => [ref.id, ref]));
+export const citationMap = Object.fromEntries(
+  generatedWikiCitations.map((citation) => [citation.id, citation]),
+);
 export const articleMap = Object.fromEntries(wikiArticles.map((article) => [article.slug, article]));
 
 export const synonymIndex = [
@@ -4169,25 +4182,25 @@ export const buildPhases = [
   {
     title: "MVP Content",
     tasks: [
-      "Publish the first 25 article pages as source-cited drafts.",
-      "Fully draft Fall Protection, Silica Exposure Control, and Cardiac Arrest on Site.",
-      "Add first 100 roadmap and category browsing.",
+      "Publish 100 article pages as Markdown-backed, source-cited deep drafts.",
+      "Keep legal requirements, best practice, sample procedure, and checklist content visibly separated.",
+      "Track the first 100 articles as a review/completion roadmap instead of empty scaffolding.",
     ],
   },
   {
     title: "Search & Linking",
     tasks: [
       "Search title, summary, aliases, tags, tasks, hazards, documents, and regulation refs.",
-      "Show related topics and source references on article pages.",
+      "Show related topics, in-body wiki links, backlinks, official citations, and source references on article pages.",
       "Use synonym redirects to support worker-language searches.",
     ],
   },
   {
     title: "Review & Launch",
     tasks: [
-      "Run citation and link validation.",
+      "Run depth, citation, link, backlink, and source validation.",
       "Add correction process, public disclaimer, and confidence badges.",
-      "Launch after qualified safety/source review of the MVP 25.",
+      "Launch after qualified safety/source review of the highest-risk article groups.",
     ],
   },
 ];
@@ -4195,10 +4208,11 @@ export const buildPhases = [
 export const codexExecutionTasks = [
   "Scaffold the wiki route inside the current Vite app.",
   "Define structured article/source/regulation data.",
-  "Create category, roadmap, strategy, governance, and database model pages.",
+  "Move article bodies into Markdown and generate React-ready wiki data.",
+  "Create category, review roadmap, strategy, governance, and database model pages.",
   "Implement full-text client search over article metadata and body sections.",
-  "Render article pages with the standard template and print-friendly checklists.",
-  "Add validation script for missing citations, duplicate slugs, and broken related links.",
+  "Render article pages with wiki links, citation tokens, backlinks, and print-friendly checklists.",
+  "Add validation scripts for depth, missing citations, duplicate slugs, broken links, and orphan articles.",
   "Document the content folder structure and editorial template.",
   "Run build and validation.",
 ];
@@ -4213,6 +4227,10 @@ export function getSourceById(id) {
 
 export function getRegulationById(id) {
   return regulationMap[id];
+}
+
+export function getCitationById(id) {
+  return citationMap[id];
 }
 
 export function getRoadmapByPhase(phase) {
@@ -4233,12 +4251,15 @@ export function searchWiki(query) {
         [
           article.title,
           article.summary,
+          (article.summaryParagraphs || []).join(" "),
           article.category,
           article.aliases.join(" "),
           article.trades.join(" "),
           article.hazards.join(" "),
           article.tasks.join(" "),
           article.requiredDocuments.join(" "),
+          (article.wikiLinks || []).join(" "),
+          (article.citationIds || []).join(" "),
           Object.values(article.sections)
             .flat()
             .join(" "),
