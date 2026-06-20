@@ -46,18 +46,22 @@ sourceIds:
   - "worksafebc-ohs-guidelines"
 regulationRefs:
   - "ohsr-11-2"
+  - "ohsr-11-3"
   - "ohsr-11-4"
   - "ohsr-11-5"
   - "ohsr-11-6"
   - "ohsr-11-9"
   - "ohsr-11-10"
+  - "ohsr-32-4"
 citations:
   - "ohsr-11-2"
+  - "ohsr-11-3"
   - "ohsr-11-4"
   - "ohsr-11-5"
   - "ohsr-11-6"
   - "ohsr-11-9"
   - "ohsr-11-10"
+  - "ohsr-32-4"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -121,11 +125,11 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 ## Required documents
 
 - Fall protection plan: records the site-specific control expected before the task starts. {{cite:ohsr-11-2}}
-- Rescue plan: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-11-4}}
-- Equipment inspection record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-11-5}}
-- Manufacturer instructions: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-11-6}}
-- Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-11-9}}
-- Anchor approval record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-11-10}}
+- Rescue plan: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-11-3}}
+- Equipment inspection record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-11-4}}
+- Manufacturer instructions: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-11-5}}
+- Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-11-6}}
+- Anchor approval record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-11-9}}
 
 ## Step-by-step safe procedure
 
@@ -195,11 +199,13 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 ## Official sources
 
 - {{cite:ohsr-11-2}}
+- {{cite:ohsr-11-3}}
 - {{cite:ohsr-11-4}}
 - {{cite:ohsr-11-5}}
 - {{cite:ohsr-11-6}}
 - {{cite:ohsr-11-9}}
 - {{cite:ohsr-11-10}}
+- {{cite:ohsr-32-4}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

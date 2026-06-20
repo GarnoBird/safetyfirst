@@ -55,6 +55,7 @@ regulationRefs:
   - "ohsr-5-55"
   - "ohsr-8-32"
   - "ohsr-8-39"
+  - "ohsr-8-3"
 citations:
   - "ohsr-6-110"
   - "ohsr-6-111"
@@ -63,6 +64,7 @@ citations:
   - "ohsr-5-55"
   - "ohsr-8-32"
   - "ohsr-8-39"
+  - "ohsr-8-3"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
   - "worksafebc-silica"
@@ -207,6 +209,7 @@ Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [
 - {{cite:ohsr-5-55}}
 - {{cite:ohsr-8-32}}
 - {{cite:ohsr-8-39}}
+- {{cite:ohsr-8-3}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-silica}}

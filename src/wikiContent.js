@@ -1,5 +1,11 @@
 import { generatedWikiArticles, generatedWikiCitations } from "./generatedWikiArticles.js";
 import {
+  generatedWikiQualityMetrics,
+  generatedWikiSearchIndex,
+  generatedWikiSourceCoverage,
+  generatedWikiSourceNotes,
+} from "./generatedWikiSearch.js";
+import {
   glossaryTerms,
   maturityLevels,
   reviewerChecklist,
@@ -986,7 +992,113 @@ export const detailedRegulationRefs = [
   },
 ];
 
-export const regulationRefs = [...baseRegulationRefs, ...detailedRegulationRefs];
+const ohsrPartUrls = Object.fromEntries(
+  baseRegulationRefs.map((ref) => [ref.id.replace("ohsr-part-", ""), ref.url]),
+);
+
+const additionalDetailedRegulationRefs = [
+  regSection("ohsr-3-1", "3", "Section 3.1", "When OHS program required"),
+  regSection("ohsr-3-2", "3", "Section 3.2", "Small operations"),
+  regSection("ohsr-3-3", "3", "Section 3.3", "Contents of occupational health and safety program"),
+  regSection("ohsr-3-5", "3", "Section 3.5", "Workplace inspection general requirement"),
+  regSection("ohsr-3-8", "3", "Section 3.8", "Participation of committee or representative"),
+  regSection("ohsr-3-22", "3", "Section 3.22", "Young or new worker definitions"),
+  regSection("ohsr-3-23", "3", "Section 3.23", "Young or new worker orientation and training"),
+  regSection("ohsr-3-24", "3", "Section 3.24", "Additional orientation and training"),
+  regSection("ohsr-3-25", "3", "Section 3.25", "Documentation of orientation and training"),
+  regSection("ohsr-3-26", "3", "Section 3.26", "Joint committee evaluation"),
+  regSection("ohsr-3-27", "3", "Section 3.27", "Joint committee and representative training"),
+  regSection("ohsr-4-1", "4", "Section 4.1", "Safe workplace"),
+  regSection("ohsr-4-11", "4", "Section 4.11", "Startup"),
+  regSection("ohsr-4-12", "4", "Section 4.12", "Circumvention of safeguards"),
+  regSection("ohsr-4-13", "4", "Section 4.13", "Risk assessment"),
+  regSection("ohsr-4-14", "4", "Section 4.14", "Emergency procedures"),
+  regSection("ohsr-4-16", "4", "Section 4.16", "Training"),
+  regSection("ohsr-4-17", "4", "Section 4.17", "Notification of fire departments"),
+  regSection("ohsr-5-1-1", "5", "Section 5.1.1", "Designation as hazardous substances"),
+  regSection("ohsr-5-97", "5", "Section 5.97", "Emergency planning definitions and application"),
+  regSection("ohsr-5-98", "5", "Section 5.98", "Worker participation in emergency planning"),
+  regSection("ohsr-5-99", "5", "Section 5.99", "Hazardous substance inventory"),
+  regSection("ohsr-5-100", "5", "Section 5.100", "Hazardous substance risk assessment"),
+  regSection("ohsr-5-101", "5", "Section 5.101", "Emergency response plan"),
+  regSection("ohsr-5-102", "5", "Section 5.102", "Emergency procedures, protection and notification"),
+  regSection("ohsr-5-103", "5", "Section 5.103", "Emergency procedures and safe work"),
+  regSection("ohsr-5-104", "5", "Section 5.104", "Emergency training and drills"),
+  regSection("ohsr-7-1", "7", "Section 7.1", "Noise, vibration, radiation and temperature definitions"),
+  regSection("ohsr-7-14", "7", "Section 7.14", "Information about vibration hazards"),
+  regSection("ohsr-8-2", "8", "Section 8.2", "Responsibility to provide personal protective equipment"),
+  regSection("ohsr-8-3", "8", "Section 8.3", "Selection, use and maintenance of personal protective equipment"),
+  regSection("ohsr-10-3", "10", "Section 10.3", "When lockout required"),
+  regSection("ohsr-10-4", "10", "Section 10.4", "Lockout procedures"),
+  regSection("ohsr-10-5", "10", "Section 10.5", "Access to energy isolating devices"),
+  regSection("ohsr-10-8", "10", "Section 10.8", "Removal of locks"),
+  regSection("ohsr-10-10", "10", "Section 10.10", "Alternative lockout procedures"),
+  regSection("ohsr-10-11", "10", "Section 10.11", "Locks not required"),
+  regSection("ohsr-10-12", "10", "Section 10.12", "Work on energized equipment"),
+  regSection("ohsr-12-2", "12", "Section 12.2", "Safeguarding requirement"),
+  regSection("ohsr-12-3", "12", "Section 12.3", "Safeguarding standards"),
+  regSection("ohsr-12-4", "12", "Section 12.4", "Effectiveness of safeguards"),
+  regSection("ohsr-12-5", "12", "Section 12.5", "Fixed guards"),
+  regSection("ohsr-12-10", "12", "Section 12.10", "Identifying unsafe equipment"),
+  regSection("ohsr-12-11", "12", "Section 12.11", "Operating controls"),
+  regSection("ohsr-12-24", "12", "Section 12.24", "Screw-type conveyors"),
+  regSection("ohsr-13-2", "13", "Section 13.2", "Ladder and scaffold standards"),
+  regSection("ohsr-13-3", "13", "Section 13.3", "Inspections"),
+  regSection("ohsr-13-4", "13", "Section 13.4", "Manufactured ladders"),
+  regSection("ohsr-13-5", "13", "Section 13.5", "Position and stability"),
+  regSection("ohsr-13-6", "13", "Section 13.6", "Use restrictions"),
+  regSection("ohsr-13-7", "13", "Section 13.7", "Access"),
+  regSection("ohsr-13-8", "13", "Section 13.8", "General requirements"),
+  regSection("ohsr-13-9", "13", "Section 13.9", "Lines supporting work platforms"),
+  regSection("ohsr-13-10", "13", "Section 13.10", "Hooks and clamps"),
+  regSection("ohsr-13-12", "13", "Section 13.12", "Removal from service"),
+  regSection("ohsr-13-23", "13", "Section 13.23", "Ladder testing"),
+  regSection("ohsr-16-7", "16", "Section 16.7", "Boarding and leaving mobile equipment"),
+  regSection("ohsr-16-8", "16", "Section 16.8", "Rider restrictions"),
+  regSection("ohsr-16-9", "16", "Section 16.9", "Unattended mobile equipment"),
+  regSection("ohsr-16-10", "16", "Section 16.10", "Clearance of swinging loads or parts"),
+  regSection("ohsr-16-11", "16", "Section 16.11", "Loads elevated over cabs"),
+  regSection("ohsr-16-12", "16", "Section 16.12", "Securing loads"),
+  regSection("ohsr-16-13", "16", "Section 16.13", "Securing elevated parts"),
+  regSection("ohsr-16-14", "16", "Section 16.14", "Air brake competency"),
+  regSection("ohsr-16-20", "16", "Section 16.20", "Seats"),
+  regSection("ohsr-20-6", "20", "Section 20.6", "Design loads"),
+  regSection("ohsr-20-9", "20", "Section 20.9", "Protection from falling materials"),
+  regSection("ohsr-20-10", "20", "Section 20.10", "Chutes"),
+  regSection("ohsr-20-13", "20", "Section 20.13", "Thrust-out crane landing platforms"),
+  regSection("ohsr-20-14", "20", "Section 20.14", "Temporary support"),
+  regSection("ohsr-20-14-1", "20", "Section 20.14.1", "Fills"),
+  regSection("ohsr-20-14-2", "20", "Section 20.14.2", "Stockpiles"),
+  regSection("ohsr-20-14-3", "20", "Section 20.14.3", "Unstable face of stockpile"),
+  regSection("ohsr-20-15", "20", "Section 20.15", "Drawings and special procedures"),
+  regSection("ohsr-32-5", "32", "Section 32.5", "Inspection of evacuation and rescue equipment"),
+  regSection("ohsr-34-8", "34", "Section 34.8", "Rope access rescue"),
+];
+
+export const regulationRefs = uniqueRegulationRefs([
+  ...baseRegulationRefs,
+  ...detailedRegulationRefs,
+  ...additionalDetailedRegulationRefs,
+]);
+
+function regSection(id, partNumber, part, title) {
+  return {
+    id,
+    instrument: "WorkSafeBC OHS Regulation",
+    part,
+    title,
+    url: ohsrPartUrls[partNumber],
+  };
+}
+
+function uniqueRegulationRefs(refs) {
+  const seen = new Set();
+  return refs.filter((ref) => {
+    if (seen.has(ref.id)) return false;
+    seen.add(ref.id);
+    return true;
+  });
+}
 
 export const wikiCategories = [
   {
@@ -4305,6 +4417,10 @@ export const articleRoadmap = [
 const fallbackWikiArticles = mvpArticleDefinitions.map(createArticle);
 
 export const wikiArticles = generatedWikiArticles.length ? generatedWikiArticles : fallbackWikiArticles;
+export const wikiSearchIndex = generatedWikiSearchIndex;
+export const wikiQualityMetrics = generatedWikiQualityMetrics;
+export const wikiSourceCoverage = generatedWikiSourceCoverage;
+export const wikiSourceNotes = generatedWikiSourceNotes;
 
 export const sourceMap = Object.fromEntries(wikiSources.map((source) => [source.id, source]));
 export const regulationMap = Object.fromEntries(regulationRefs.map((ref) => [ref.id, ref]));
@@ -4314,6 +4430,8 @@ export const citationMap = Object.fromEntries(
 export const articleMap = Object.fromEntries(wikiArticles.map((article) => [article.slug, article]));
 export const redirectMap = Object.fromEntries(wikiRedirects.map((redirect) => [redirect.from, redirect.to]));
 export const glossaryMap = Object.fromEntries(glossaryTerms.map((term) => [term.slug, term]));
+export const sourceNoteMap = Object.fromEntries(wikiSourceNotes.map((note) => [note.id, note]));
+export const qualityMetricMap = Object.fromEntries(wikiQualityMetrics.map((metric) => [metric.slug, metric]));
 
 export {
   glossaryTerms,
@@ -4748,6 +4866,20 @@ export function getCitationById(id) {
   return citationMap[id];
 }
 
+export function getSourceNoteById(id) {
+  return sourceNoteMap[id];
+}
+
+export function getSourceNotesForArticle(slug) {
+  const article = getArticleBySlug(slug);
+  const articleSourceNoteIds = new Set(article?.sourceNoteIds || []);
+  return wikiSourceNotes.filter((note) => articleSourceNoteIds.has(note.id) || (note.relatedArticles || []).includes(slug));
+}
+
+export function getWikiQualityMetric(slug) {
+  return qualityMetricMap[slug] || null;
+}
+
 export function getRoadmapByPhase(phase) {
   return articleRoadmap.filter((item) => item.phase === phase);
 }
@@ -4818,6 +4950,44 @@ export function getWikiReviewBacklog() {
 export function searchWiki(query, filters = {}) {
   const normalizedQuery = normalize(query);
 
+  if (wikiSearchIndex.length) {
+    return wikiSearchIndex
+      .filter((entry) => matchesFilters(entry, filters))
+      .map((entry) => {
+        const article = getArticleBySlug(entry.slug);
+        if (!article) return null;
+
+        const title = normalize(entry.title);
+        const aliases = entry.aliases || [];
+        const redirects = entry.redirectTerms || [];
+        const glossary = entry.glossaryTerms || [];
+        const exactTitle = normalizedQuery && title === normalizedQuery ? 70 : 0;
+        const titleHit = normalizedQuery && title.includes(normalizedQuery) ? 45 : 0;
+        const alias = normalizedQuery && aliases.some((item) => normalize(item).includes(normalizedQuery)) ? 36 : 0;
+        const redirect = normalizedQuery && redirects.some((item) => normalize(item).includes(normalizedQuery)) ? 34 : 0;
+        const glossaryHit = normalizedQuery && glossary.some((item) => normalize(item).includes(normalizedQuery)) ? 30 : 0;
+        const hazard = normalizedQuery && (entry.hazards || []).some((item) => normalize(item).includes(normalizedQuery)) ? 24 : 0;
+        const task = normalizedQuery && (entry.tasks || []).some((item) => normalize(item).includes(normalizedQuery)) ? 20 : 0;
+        const document =
+          normalizedQuery && (entry.documents || []).some((item) => normalize(item).includes(normalizedQuery)) ? 18 : 0;
+        const regulation =
+          normalizedQuery && (entry.regulationRefs || []).some((item) => normalize(item).includes(normalizedQuery)) ? 18 : 0;
+        const body = normalizedQuery && normalize(entry.searchText || "").includes(normalizedQuery) ? 10 : 0;
+        const noQuery = normalizedQuery ? 0 : 1;
+        const score = exactTitle + titleHit + alias + redirect + glossaryHit + hazard + task + document + regulation + body + noQuery;
+
+        return score > 0
+          ? {
+              ...article,
+              searchSnippet: entry.snippet,
+              searchScore: score,
+            }
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.searchScore - a.searchScore || a.title.localeCompare(b.title));
+  }
+
   const synonymTargets = synonymIndex
     .filter((entry) => normalize(entry.term).includes(normalizedQuery))
     .map((entry) => entry.target);
@@ -4864,10 +5034,14 @@ export function searchWiki(query, filters = {}) {
 }
 
 function matchesFilters(article, filters = {}) {
-  if (filters.hazard && !article.hazards.includes(filters.hazard)) return false;
-  if (filters.trade && !article.trades.includes(filters.trade)) return false;
-  if (filters.document && !article.requiredDocuments.includes(filters.document)) return false;
-  if (filters.regulation && !article.regulationRefs.includes(filters.regulation)) return false;
+  const hazards = article.hazards || [];
+  const trades = article.trades || [];
+  const documents = article.requiredDocuments || article.documents || [];
+  const regulationRefs = article.regulationRefs || [];
+  if (filters.hazard && !hazards.includes(filters.hazard)) return false;
+  if (filters.trade && !trades.includes(filters.trade)) return false;
+  if (filters.document && !documents.includes(filters.document)) return false;
+  if (filters.regulation && !regulationRefs.includes(filters.regulation)) return false;
   if (filters.maturity && article.maturity !== filters.maturity) return false;
   return true;
 }

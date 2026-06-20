@@ -49,6 +49,8 @@ regulationRefs:
   - "ohsr-3-18"
   - "ohsr-3-19"
   - "ohsr-3-21"
+  - "ohsr-4-13"
+  - "ohsr-4-14"
   - "ohsr-32-4"
 citations:
   - "ohsr-3-16"
@@ -56,6 +58,8 @@ citations:
   - "ohsr-3-18"
   - "ohsr-3-19"
   - "ohsr-3-21"
+  - "ohsr-4-13"
+  - "ohsr-4-14"
   - "ohsr-32-4"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
@@ -125,7 +129,7 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - First aid record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-3-18}}
 - Emergency transportation plan: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-3-19}}
 - Training/certification record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-3-21}}
-- Inspection record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-32-4}}
+- Inspection record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-4-13}}
 
 ## Step-by-step safe procedure
 
@@ -199,6 +203,8 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - {{cite:ohsr-3-18}}
 - {{cite:ohsr-3-19}}
 - {{cite:ohsr-3-21}}
+- {{cite:ohsr-4-13}}
+- {{cite:ohsr-4-14}}
 - {{cite:ohsr-32-4}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}

@@ -27,7 +27,7 @@ const articles = [
       "Site-specific safe work procedure",
     ],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-11-2", "ohsr-11-3", "ohsr-11-4", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-11-10"],
+    citations: ["ohsr-11-2", "ohsr-11-3", "ohsr-11-4", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-11-10", "ohsr-4-54"],
     summary: [
       "Fall protection starts with choosing the control that actually prevents a worker from falling, not with handing out a harness. In BC construction, the basic question is whether the work exposes a worker to a fall hazard and whether the site can use [[guardrails|guardrails]], [[fall-restraint|fall restraint]], [[fall-arrest|fall arrest]], another equivalent system, or a work method that removes the exposure. {{cite:ohsr-11-2}}",
       "A supervisor should be able to point to the fall hazard, the chosen control, the anchor or barrier, and the rescue method before the crew starts. If the job relies on personal fall protection, the setup has to match the equipment instructions, anchor requirements, inspection requirements, and the site condition, including swing-fall paths and sharp edges. {{cite:ohsr-11-6}}",
@@ -119,7 +119,7 @@ const articles = [
     tasks: ["Writing a fall protection plan", "Reviewing edge work", "Planning rescue", "Changing fall protection controls"],
     documents: ["Fall protection plan", "Rescue plan", "Site drawing or sketch", "Equipment inspection record", "Training/instruction record", "Manufacturer instructions"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-11-3", "ohsr-11-2", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-32-4"],
+    citations: ["ohsr-11-3", "ohsr-11-2", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-11-10", "ohsr-32-4", "ohsr-4-13"],
     summary: [
       "A fall protection plan is the site-specific explanation of how a crew will control a fall hazard when the regulation requires a written plan. It should name the hazard, the selected system, the procedures workers must follow, and the rescue method if a worker falls. {{cite:ohsr-11-3}}",
       "The useful version is short enough to brief at the work face and specific enough that a worker can find the anchor, understand the travel limit, and know when to stop. A plan that only says '100 percent tie off' is not enough if it does not explain anchors, clearance, swing-fall risk, equipment inspection, and rescue. {{cite:ohsr-11-6}}",
@@ -211,7 +211,7 @@ const articles = [
     tasks: ["Using harnesses", "Connecting to anchors", "Working near unguarded edges", "Inspecting fall arrest equipment"],
     documents: ["Fall protection plan", "Rescue plan", "Equipment inspection record", "Manufacturer instructions", "Training/instruction record", "Anchor approval record"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-11-2", "ohsr-11-4", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-11-10"],
+    citations: ["ohsr-11-2", "ohsr-11-3", "ohsr-11-4", "ohsr-11-5", "ohsr-11-6", "ohsr-11-9", "ohsr-11-10", "ohsr-32-4"],
     summary: [
       "Fall arrest is a last-line fall protection system that stops a worker after a fall has started. It is not the same as [[fall-restraint|fall restraint]], because the worker may still fall, hit lower levels, swing into structure, or hang suspended until rescue starts. {{cite:ohsr-11-2}}",
       "A fall arrest setup is only as reliable as the whole chain: harness, connector, lifeline, anchor, clearance, edge protection, compatibility, inspection, and rescue. A single weak part can make the system unsuitable for the work. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}",
@@ -303,7 +303,7 @@ const articles = [
     tasks: ["Installing guardrails", "Inspecting guardrails", "Protecting slab edges", "Covering openings"],
     documents: ["Guardrail inspection record", "Site-specific safe work procedure", "Deficiency/corrective action log", "Fall protection plan", "Manufacturer or engineered instructions", "Toolbox talk record"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-4-54", "ohsr-4-55", "ohsr-4-59", "ohsr-4-60", "ohsr-11-2", "ohsr-11-3"],
+    citations: ["ohsr-4-54", "ohsr-4-55", "ohsr-4-59", "ohsr-4-60", "ohsr-11-2", "ohsr-11-3", "ohsr-20-6", "ohsr-4-1"],
     summary: [
       "Guardrails are usually the simplest and most visible way to keep workers away from edges and openings. They protect the whole crew when they are complete, strong enough, properly installed, and kept in place until another reviewed control is ready. {{cite:ohsr-4-54}}",
       "A guardrail problem is a fall protection problem. Missing midrails, loose posts, removed sections, unprotected openings, and hidden covers can expose workers who were not planning to use a harness. Guardrails connect directly to [[floor-openings-and-covers|Floor Openings and Covers]], [[fall-protection|Fall Protection]], and [[leading-edge-work|Leading Edge Work]].",
@@ -395,7 +395,7 @@ const articles = [
     tasks: ["Cutting concrete", "Grinding concrete", "Drilling masonry", "Chipping", "Sweeping dust"],
     documents: ["Exposure control plan", "Safe work procedure", "Respiratory protection program", "Fit test record", "Training/instruction record", "Equipment inspection record"],
     sourceIds: [...standardSourceIds, "worksafebc-silica"],
-    citations: ["ohsr-6-110", "ohsr-6-111", "ohsr-6-112", "ohsr-5-54", "ohsr-5-55", "ohsr-8-32", "ohsr-8-39"],
+    citations: ["ohsr-6-110", "ohsr-6-111", "ohsr-6-112", "ohsr-5-54", "ohsr-5-55", "ohsr-8-32", "ohsr-8-39", "ohsr-8-3"],
     summary: [
       "Silica exposure control is about preventing workers from breathing respirable crystalline silica during tasks such as cutting, grinding, drilling, coring, chipping, crushing, or cleaning concrete, masonry, stone, tile, or rock. The dust that matters most is often too fine to judge by sight. {{cite:ohsr-6-110}}",
       "Effective control usually combines wet methods, local exhaust, HEPA cleanup, restricted access, training, and a respirator program when respiratory protection is required. Respirators are not a substitute for dust control; they are one part of the system when exposure cannot be controlled another way. {{cite:ohsr-6-111}}",
@@ -487,7 +487,7 @@ const articles = [
     tasks: ["Choosing a respirator", "Fit testing", "Seal checking", "Using cartridges", "Storing respiratory protection"],
     documents: ["Respiratory protection program", "Fit test record", "Exposure control plan", "Training/instruction record", "Manufacturer instructions", "Inspection and maintenance record"],
     sourceIds: [...standardSourceIds, "worksafebc-ppe"],
-    citations: ["ohsr-8-32", "ohsr-8-39", "ohsr-8-4", "ohsr-8-7", "ohsr-5-54", "ohsr-6-112"],
+    citations: ["ohsr-8-32", "ohsr-8-39", "ohsr-8-4", "ohsr-8-7", "ohsr-8-2", "ohsr-8-3", "ohsr-5-54", "ohsr-6-112"],
     summary: [
       "Respirators protect workers only when the right respirator is selected, fitted, used, maintained, and backed by a respiratory protection program. A dust mask grabbed from a box is not enough for silica, asbestos, lead, or chemical exposure unless the whole program and exposure control decision support that choice. {{cite:ohsr-8-32}}",
       "Respirators should follow exposure control, not replace it. For tasks like concrete cutting, asbestos disturbance, lead work, or chemical use, the employer still needs to control the source and work method before relying on respiratory protection. {{cite:ohsr-5-54}}",
@@ -579,7 +579,7 @@ const articles = [
     tasks: ["Renovation", "Demolition", "Cutting into old materials", "Restoration", "Hazardous materials review"],
     documents: ["Asbestos inventory", "Qualified assessment", "Exposure control plan", "Safe work procedure", "Training/instruction record", "Waste and containment records"],
     sourceIds: [...standardSourceIds, "worksafebc-asbestos"],
-    citations: ["ohsr-6-4", "ohsr-6-5", "ohsr-6-6", "ohsr-6-7", "ohsr-6-8", "ohsr-20-112"],
+    citations: ["ohsr-6-4", "ohsr-6-5", "ohsr-6-6", "ohsr-6-7", "ohsr-6-8", "ohsr-20-112", "ohsr-8-32", "ohsr-8-39"],
     summary: [
       "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}",
       "The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}",
@@ -763,7 +763,7 @@ const articles = [
     tasks: ["Entering tanks", "Entering vaults", "Entering manholes", "Atmospheric testing", "Permit-controlled work"],
     documents: ["Confined space entry program", "Entry permit", "Hazard assessment", "Atmospheric test record", "Rescue plan", "Lockout/isolation record"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-9-5", "ohsr-9-13", "ohsr-9-14", "ohsr-9-24", "ohsr-9-25", "ohsr-9-34", "ohsr-9-37"],
+    citations: ["ohsr-9-5", "ohsr-9-13", "ohsr-9-14", "ohsr-9-24", "ohsr-9-25", "ohsr-9-34", "ohsr-9-37", "ohsr-9-39"],
     summary: [
       "Confined space entry is not just working in a tight place. The key issue is whether the space has limited entry or exit and hazards such as poor atmosphere, engulfment, moving equipment, stored energy, or rescue difficulty. {{cite:ohsr-9-5}}",
       "A safe entry depends on the entry program, hazard assessment, isolation, atmospheric testing, ventilation, standby arrangements, communication, permit controls, and rescue service. If rescue is not planned before entry, the entry is not ready. {{cite:ohsr-9-25}} {{cite:ohsr-9-37}}",
@@ -855,7 +855,7 @@ const articles = [
     tasks: ["Planning rescue", "Standby duties", "Retrieval setup", "Emergency response", "Permit entry"],
     documents: ["Confined space rescue plan", "Entry permit", "Atmospheric test record", "Rescue equipment inspection", "Training/drill record", "Emergency contact plan"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-9-37", "ohsr-9-39", "ohsr-9-40", "ohsr-9-34", "ohsr-9-25", "ohsr-9-5", "ohsr-32-4"],
+    citations: ["ohsr-9-37", "ohsr-9-39", "ohsr-9-40", "ohsr-9-34", "ohsr-9-25", "ohsr-9-5", "ohsr-32-4", "ohsr-32-5"],
     summary: [
       "Confined space rescue has to be planned before entry because a delayed or improvised rescue can injure both the entrant and the would-be rescuer. The rescue method must match the space, atmosphere, access, work, and available people or rescue service. {{cite:ohsr-9-37}}",
       "Calling emergency services may be part of the plan, but it is not the whole plan unless the site has confirmed the service can respond, access the space, and perform the required rescue in time for the hazard. {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}",
@@ -947,7 +947,7 @@ const articles = [
     tasks: ["Planning lifts", "Operating cranes", "Hoisting materials", "Coordinating exclusion zones", "Using hoists"],
     documents: ["Lift plan", "Crane certification record", "Operator qualification record", "Rigging inspection record", "Communication plan", "Equipment inspection record"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-14-2", "ohsr-14-16", "ohsr-14-17", "ohsr-15-2", "ohsr-15-20", "ohsr-15-31", "ohsr-19-24-1"],
+    citations: ["ohsr-14-2", "ohsr-14-16", "ohsr-14-17", "ohsr-15-2", "ohsr-15-20", "ohsr-15-31", "ohsr-19-24-1", "ohsr-16-10"],
     summary: [
       "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, exclusion zones, weather, and nearby power lines. {{cite:ohsr-14-2}}",
       "Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.",
@@ -1039,7 +1039,7 @@ const articles = [
     tasks: ["Selecting slings", "Inspecting rigging", "Hooking loads", "Landing loads", "Using hand signals"],
     documents: ["Rigging inspection record", "Lift plan", "Manufacturer instructions", "Training/competency record", "Load weight information", "Deficiency log"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-15-2", "ohsr-15-3", "ohsr-15-4", "ohsr-15-20", "ohsr-15-31", "ohsr-14-2"],
+    citations: ["ohsr-15-2", "ohsr-15-3", "ohsr-15-4", "ohsr-15-20", "ohsr-15-31", "ohsr-14-2", "ohsr-14-16", "ohsr-16-10"],
     summary: [
       "Rigging is the connection between the load and the crane, hoist, forklift attachment, or lifting device. If the wrong sling, shackle, hook, hitch, angle, edge protection, or lifting point is used, the load can shift, fall, or crush workers during landing. {{cite:ohsr-15-4}}",
       "Basic rigging work still requires competent judgement. A worker needs to know the load weight, center of gravity, sling angle, condition of rigging, communication method, and where people will stand before the lift starts. {{cite:ohsr-15-2}}",
@@ -1131,7 +1131,7 @@ const articles = [
     tasks: ["Working near overhead lines", "Crane setup", "Scaffold setup", "Mobile equipment operation", "Material handling"],
     documents: ["Power-line risk assessment", "Written assurance or authorization", "Work procedure", "Traffic/equipment control plan", "Emergency response plan", "Training/instruction record"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-19-24-1", "ohsr-19-25", "ohsr-19-29", "ohsr-14-2", "ohsr-15-20", "ohsr-10-6"],
+    citations: ["ohsr-19-24-1", "ohsr-19-25", "ohsr-19-29", "ohsr-14-2", "ohsr-15-20", "ohsr-10-3", "ohsr-10-4", "ohsr-10-6"],
     summary: [
       "Power-line work is high risk because workers and equipment can be injured without touching the conductor directly. Cranes, pump booms, ladders, scaffolds, dump boxes, rebar, roofing materials, and long tools can enter an unsafe distance quickly. {{cite:ohsr-19-24-1}}",
       "The field control starts by identifying overhead and nearby high-voltage conductors, establishing limits, getting required assurances or authorizations, and keeping mobile equipment, loads, and workers out of the danger zone. {{cite:ohsr-19-25}}",
@@ -1223,7 +1223,7 @@ const articles = [
     tasks: ["First aid assessment", "Assigning attendants", "Checking supplies", "Planning transport", "Recording treatment"],
     documents: ["First aid assessment", "First aid procedures", "First aid record", "Emergency transportation plan", "Training/certification record", "Inspection record"],
     sourceIds: [...standardSourceIds, "worksafebc-first-aid-requirements"],
-    citations: ["ohsr-3-16", "ohsr-3-17", "ohsr-3-18", "ohsr-3-19", "ohsr-3-21", "ohsr-32-4"],
+    citations: ["ohsr-3-16", "ohsr-3-17", "ohsr-3-18", "ohsr-3-19", "ohsr-3-21", "ohsr-4-13", "ohsr-4-14", "ohsr-32-4"],
     summary: [
       "Occupational first aid requirements tell the employer what first aid resources, attendants, procedures, communication, supplies, facilities, records, and transportation arrangements are needed for the workplace. On construction sites, the answer can change with crew size, location, access, remoteness, and hazard level. {{cite:ohsr-3-16}}",
       "The useful field test is whether a worker can get first aid quickly, the attendant can be contacted, supplies are available, and transportation has been planned before a serious incident happens. {{cite:ohsr-3-18}}",
@@ -1315,7 +1315,7 @@ const articles = [
     tasks: ["Planning traffic control", "Deliveries", "Lane closures", "Pedestrian detours", "Flagging"],
     documents: ["Traffic control plan", "Risk assessment", "TCP training/authorization record", "Site drawing", "Inspection record", "Incident response plan"],
     sourceIds: standardSourceIds,
-    citations: ["ohsr-18-3", "ohsr-18-3-1", "ohsr-18-3-2", "ohsr-18-4", "ohsr-18-5", "ohsr-8-4"],
+    citations: ["ohsr-18-3", "ohsr-18-3-1", "ohsr-18-3-2", "ohsr-18-4", "ohsr-18-5", "ohsr-8-4", "ohsr-16-7", "ohsr-16-10"],
     summary: [
       "Traffic control protects workers, drivers, pedestrians, cyclists, and the public where construction work interacts with roads, lanes, sidewalks, parkades, deliveries, backing equipment, or temporary routes. The plan has to match the actual traffic speed, sight lines, work activity, and public interface. {{cite:ohsr-18-3}}",
       "Good traffic control is not just placing cones. It includes risk assessment, a traffic control plan where required, supervision, device placement, trained traffic control persons, pedestrian detours, delivery coordination, lighting, and high-visibility apparel. {{cite:ohsr-18-3-1}} {{cite:ohsr-18-3-2}}",

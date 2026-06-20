@@ -5,9 +5,12 @@ category: "High-Risk Work"
 status: "Deep draft"
 jurisdiction: "BC"
 difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
+confidenceLevel: "Draft reference page - source review needed"
+reviewTier: "Tier 3"
+maturity: "Draft"
+reviewPriority: "Support/reference review"
+lastReviewed: "2026-06-20"
+nextReview: "2026-12-20"
 legalReviewStatus: "Needs qualified review"
 safetyReviewStatus: "Needs field review"
 aliases:
@@ -64,6 +67,12 @@ related:
   - "workplace-inspections"
   - "corrective-actions"
   - "site-emergency-response-plan"
+  - "site-orientation"
+  - "training-records"
+  - "toolbox-talks"
+  - "worker-rights-and-responsibilities"
+  - "prime-contractor-duties"
+  - "occupational-first-aid-requirements"
 ---
 
 # Swing Stages
@@ -72,118 +81,124 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Use this page when facade work, envelope work, window installation, exterior repair could involve hazards or outcomes such as falls from height, suspension failure, dropped objects, weather exposure. It gives supervisors and crews a plain-language starting point for the controls, documents, and stop-work triggers that should be checked before work starts.
+Swing Stages is a BC construction safety reference page for facade work, envelope work, window installation, exterior repair. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.
 
-Swing Stages usually connects to other site controls, not just one task. Read it with [[work-platforms|Work Platforms]] and [[fall-protection|Fall Protection]] when planning the work, especially if access, weather, equipment, public protection, or nearby trades could change the risk.
+The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[work-platforms]], [[fall-protection]], [[fall-arrest]] so the topic does not sit apart from the rest of the site safety system.
 
-This is a source-cited draft, not a legal opinion. Legal points include citations where possible; anything marked source review needed must be checked by a qualified BC safety/source reviewer before it is used as a compliance checklist. {{cite:ohsr-part-13}}
+This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}
 
 ## When this applies
 
-- You are planning or supervising facade work, envelope work, window installation, exterior repair, and this topic affects the task. {{cite:ohsr-part-11}}
-- The work could involve hazards or outcomes such as falls from height, suspension failure, dropped objects, weather exposure, even if the trade or location is different.
-- The work could affect nearby trades, visitors, tenants, pedestrians, traffic, or the public.
-- Controls need to be chosen before production starts, not after a deficiency is found.
-- The crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as swing stage setup and inspection record must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- The work involves facade work, envelope work, window installation, exterior repair or the topic affects how the work is planned.
+- The work can expose workers, nearby trades, visitors, tenants, pedestrians, traffic, or the public to falls from height, suspension failure, dropped objects, weather exposure.
+- A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.
+- A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.
+- Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.
+- An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.
+- A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-13}}
-- Identify the hazards connected to this work and control them before workers are exposed. {{cite:ohsr-part-11}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:ohsr-part-32}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:worksafebc-ohs-regulation}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-guidelines}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:worksafebc-rights-responsibilities}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}
+- Identify the hazards connected to swing stages and control them before workers are exposed. {{cite:ohsr-part-11}}
+- Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}
+- Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}
+- Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}
+- Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}
+- Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}
+- A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}
 
 ## Best practice
 
-- Before work starts, walk the area with the crew and check whether today's setup also needs controls covered in [[fall-arrest|Fall Arrest]].
-- Use elimination, substitution, engineering, or isolation controls first when they are practicable; do not make PPE the whole plan.
-- Name the supervisor, qualified person, or competent worker who can approve changes in the field.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check nearby entrances, laydown areas, adjacent trades, and public routes for the same hazard before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep field instructions short enough to use in a toolbox talk, but specific enough that the crew knows what to do.
+- Start with the actual site condition and crew, then choose the control and document set that match that condition.
+- Use the most protective practical control before relying on reminders, signs, or PPE alone.
+- Name the person who can approve field changes and the condition that triggers a stop-work pause.
+- Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.
+- Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.
+- Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.
+- Record follow-up so the same issue is not reopened at every inspection.
 
 ## Required documents
 
-- Swing stage setup and inspection record: defines the control, location, responsible person, and review trigger. {{cite:ohsr-part-13}}
-- Manufacturer or engineering instructions: confirms the site condition was checked before the crew started work. {{cite:ohsr-part-11}}
-- Fall protection plan: supports follow-up if there is a deficiency, refusal, incident, or source-review question. {{cite:ohsr-part-32}}
-- Rescue plan: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-regulation}}
-- Worker training record: keeps the field procedure tied to official sources instead of memory or habit. {{cite:worksafebc-ohs-guidelines}}
-- Site-specific safe work procedure: helps employers, the prime contractor, and affected trades coordinate overlapping work. {{cite:worksafebc-rights-responsibilities}}
-- Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-13}}
-- Inspection or pre-use check record: creates evidence for the next scheduled safety/source review. {{cite:ohsr-part-11}}
+- Swing stage setup and inspection record: records the expected control before the task starts. {{cite:ohsr-part-13}
+- Manufacturer or engineering instructions: shows the crew had a current instruction source for the work. {{cite:ohsr-part-11}
+- Fall protection plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-32}
+- Rescue plan: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}
+- Worker training record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}
+- Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-rights-responsibilities}
+- Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-13}
+- Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:ohsr-part-11}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Read [[work-platforms|Work Platforms]] and the site procedure before setting up the work.
-3. List the hazards and possible outcomes, including falls from height, suspension failure, dropped objects, weather exposure, and identify everyone who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-13}}
-5. Prepare or update the required document set, including swing stage setup and inspection record.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Define how swing stages connects to today's work area, task, crew, and equipment.
+2. Read the related article that carries the closest legal or high-risk control before relying on this page alone.
+3. Identify the likely hazards, including falls from height, suspension failure, dropped objects, weather exposure, and who could be affected.
+4. Confirm the official source, site rule, or procedure that applies to the work. {{cite:ohsr-part-13}}
+5. Prepare or update Swing stage setup and inspection record and any supporting record that the site requires.
+6. Set up controls before production work starts and make sure workers understand the limits.
+7. Brief workers on the stop-work trigger, reporting path, and emergency or first aid contact route.
+8. Check the work during the shift for changed conditions, missing controls, or nearby work that affects the topic.
+9. Record deficiencies with an owner, interim control, and follow-up time.
+10. Update links, source notes, or procedures when review finds a missing citation or unclear field instruction.
 
 ## Worker checklist
 
-- [ ] I know how this topic affects my task today.
-- [ ] I know the main hazards: falls from height, suspension failure, dropped objects, weather exposure.
-- [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
+- [ ] I understand how swing stages affects my task today.
+- [ ] I know the likely hazards, including falls from height, suspension failure, dropped objects, weather exposure.
+- [ ] I know the control that must be in place before I start.
+- [ ] I know where Swing stage setup and inspection record or the related site procedure is kept.
 - [ ] I have the required PPE, tools, equipment, and instructions for the task.
 - [ ] I know who is supervising the work and who can answer questions.
-- [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
+- [ ] I know how to report a hazard, near miss, refusal, or changed condition.
+- [ ] I can name one condition that means the work must stop.
 - [ ] I know the emergency response or first aid contact path if something goes wrong.
 - [ ] I will not continue if the work no longer matches the plan.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:ohsr-part-11}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
-- [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
-- [ ] A change in conditions triggers a pause and review before work continues.
+- [ ] The topic has been checked against current source notes for Swing Stages.
+- [ ] Workers understand which part is legal requirement, best practice, sample procedure, and checklist.
+- [ ] Required documents are current and match the actual site condition.
+- [ ] Workers are trained, instructed, supervised, or otherwise competent for the assigned work.
+- [ ] Controls are installed before work starts and checked while work continues.
+- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
+- [ ] Deficiencies have an owner, due time, and interim control.
+- [ ] Changed conditions trigger a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] If the deficiency points to a broader issue, open [[anchor-points|Anchor Points]] and assign a separate corrective action.
+- [ ] Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}
 
 ## Common mistakes
 
-- Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
-- Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
-- Closing an inspection item without verifying the corrective action in the field.
+- Treating a support article as if it contains every legal detail for the task.
+- Using a generic instruction that does not match the actual crew, equipment, location, or sequence.
+- Starting work before the required document, briefing, inspection, or review is complete.
+- Relying on PPE or worker memory when a stronger control is practical.
+- Failing to update the plan after weather, access, equipment, crew, or adjacent work changes.
+- Closing a deficiency without checking the corrective action in the field.
 - Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Letting a familiar construction hazard continue because it has not caused an incident yet.
 
 ## Related topics
 
-- [[work-platforms|Work Platforms]]
-- [[fall-protection|Fall Protection]]
-- [[fall-arrest|Fall Arrest]]
-- [[anchor-points|Anchor Points]]
-- [[rope-access|Rope Access]]
-- [[fall-rescue-plan|Fall Rescue Plan]]
-- [[scaffold-inspection|Scaffold Inspection]]
-- [[site-specific-safety-plan|Site-Specific Safety Plan]]
-- [[supervisor-duties|Supervisor Duties]]
-- [[workplace-inspections|Workplace Inspections]]
-- [[corrective-actions|Corrective Actions]]
-- [[site-emergency-response-plan|Site Emergency Response Plan]]
+- [[work-platforms]]
+- [[fall-protection]]
+- [[fall-arrest]]
+- [[anchor-points]]
+- [[rope-access]]
+- [[fall-rescue-plan]]
+- [[scaffold-inspection]]
+- [[site-specific-safety-plan]]
+- [[supervisor-duties]]
+- [[workplace-inspections]]
+- [[corrective-actions]]
+- [[site-emergency-response-plan]]
+- [[site-orientation]]
+- [[training-records]]
+- [[toolbox-talks]]
+- [[worker-rights-and-responsibilities]]
+- [[prime-contractor-duties]]
+- [[occupational-first-aid-requirements]]
 
 ## Official sources
 
@@ -194,9 +209,16 @@ This is a source-cited draft, not a legal opinion. Legal points include citation
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-rights-responsibilities}}
 
+## Reviewer notes
+
+- Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.
+- Field reviewer should confirm that the checklist is useful for the intended construction audience.
+
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 3 hardening: Replaced scaffold wording with practical reference-page copy, review metadata, links, and source notes.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

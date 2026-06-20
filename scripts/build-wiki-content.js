@@ -158,6 +158,170 @@ function sourceForCitation(id) {
   };
 }
 
+const defaultResourceLinks = {
+  toolboxTalks: ["site-orientation-refresh", "housekeeping-and-access-routes"],
+  checklists: ["daily-site-inspection"],
+  quizzes: ["site-orientation-quiz"],
+  forms: ["hazard-report", "toolbox-talk-attendance"],
+};
+
+const fieldToolRules = [
+  {
+    terms: ["fall", "guardrail", "edge", "opening", "roof", "harness", "anchor", "scaffold", "ladder", "swing stage", "work platform"],
+    toolboxTalks: ["tie-off-planning-before-edge-work", "guardrails-and-floor-openings", "fall-rescue-readiness", "harness-inspection"],
+    checklists: ["fall-protection", "ladders", "scaffolds"],
+    quizzes: ["fall-protection-quiz", "ladders-and-scaffolds-quiz"],
+    forms: ["equipment-inspection", "training-matrix", "hazard-report"],
+  },
+  {
+    terms: ["silica", "dust", "respirator", "hepa", "wet cutting", "asbestos", "lead", "mould", "whmis", "chemical", "sds", "carbon monoxide", "ventilation"],
+    toolboxTalks: ["silica-dust-controls", "wet-cutting-and-hepa-cleanup", "respirator-fit-and-seal-checks", "whmis-labels-and-sds-access"],
+    checklists: ["silica-dust", "ppe", "whmis-sds"],
+    quizzes: ["silica-and-dust-quiz", "ppe-quiz", "whmis-sds-quiz"],
+    forms: ["hazard-report", "training-matrix", "site-safety-inspection"],
+  },
+  {
+    terms: ["confined", "atmosphere", "entry permit", "rescue", "standby"],
+    toolboxTalks: ["confined-space-entry-basics", "atmospheric-testing-awareness"],
+    checklists: ["confined-space-pre-entry", "emergency-response"],
+    quizzes: ["confined-spaces-quiz", "emergency-response-quiz"],
+    forms: ["hazard-report", "incident-report", "training-matrix"],
+  },
+  {
+    terms: ["excavation", "trench", "spoil", "utility", "underground", "shoring", "sloping"],
+    toolboxTalks: ["trench-cave-in-warning-signs", "underground-utility-awareness"],
+    checklists: ["excavations", "traffic-control"],
+    quizzes: ["excavation-and-trenching-quiz"],
+    forms: ["hazard-report", "site-safety-inspection"],
+  },
+  {
+    terms: ["crane", "hoist", "rigging", "lift", "sling", "signaller", "suspended load"],
+    toolboxTalks: ["crane-pick-communication", "rigging-inspection-basics", "exclusion-zones-under-suspended-loads"],
+    checklists: ["mobile-equipment"],
+    quizzes: ["cranes-rigging-quiz"],
+    forms: ["equipment-inspection", "hazard-report"],
+  },
+  {
+    terms: ["mobile equipment", "telehandler", "forklift", "skid steer", "delivery", "blind spot", "spotter"],
+    toolboxTalks: ["mobile-equipment-blind-spots", "spotter-communication", "seat-belts-and-rollover-risk"],
+    checklists: ["mobile-equipment"],
+    quizzes: ["mobile-equipment-quiz"],
+    forms: ["equipment-inspection", "site-safety-inspection", "hazard-report"],
+  },
+  {
+    terms: ["traffic", "pedestrian", "tcp", "flagger", "high visibility", "lane", "delivery"],
+    toolboxTalks: ["traffic-control-around-deliveries", "pedestrian-detours", "high-visibility-apparel"],
+    checklists: ["traffic-control"],
+    quizzes: ["traffic-control-quiz"],
+    forms: ["site-safety-inspection", "hazard-report"],
+  },
+  {
+    terms: ["first aid", "cardiac", "aed", "emergency", "evacuation", "fire", "hot work", "extinguisher", "muster"],
+    toolboxTalks: ["first-aid-access-and-reporting", "aed-location-and-emergency-access", "cardiac-arrest-response-basics", "hot-work-fire-watch", "emergency-muster-and-headcount"],
+    checklists: ["first-aid-kit-first-aid-room", "emergency-response", "hot-work"],
+    quizzes: ["first-aid-quiz", "emergency-response-quiz"],
+    forms: ["incident-report", "near-miss-report", "toolbox-talk-attendance"],
+  },
+  {
+    terms: ["lockout", "de-energization", "electrical", "power line", "temporary power", "tool", "guard", "powder"],
+    toolboxTalks: ["lockout-before-maintenance", "stored-energy-hazards", "overhead-power-line-awareness", "extension-cords-and-temporary-power", "power-tool-guards"],
+    checklists: ["power-tools", "daily-site-inspection"],
+    quizzes: ["electrical-safety-quiz", "lockout-tagout-quiz", "tool-and-equipment-safety-quiz"],
+    forms: ["equipment-inspection", "hazard-report", "training-matrix"],
+  },
+  {
+    terms: ["orientation", "young", "new worker", "supervisor", "prime", "worker rights", "refusal", "committee", "training record", "program"],
+    toolboxTalks: ["site-orientation-refresh", "new-worker-questions", "refusing-unsafe-work", "prime-contractor-coordination", "supervisor-stop-work-expectations"],
+    checklists: ["daily-site-inspection"],
+    quizzes: ["site-orientation-quiz", "young-new-workers-quiz", "supervisor-duties-quiz", "prime-contractor-site-coordination-quiz"],
+    forms: ["worker-orientation", "training-matrix", "subcontractor-safety-onboarding"],
+  },
+  {
+    terms: ["inspection", "incident", "near miss", "corrective", "documentation", "notice", "report"],
+    toolboxTalks: ["incident-and-near-miss-reporting", "site-orientation-refresh"],
+    checklists: ["daily-site-inspection", "incident-follow-up"],
+    quizzes: ["incident-reporting-quiz"],
+    forms: ["incident-report", "near-miss-report", "corrective-action-log", "site-safety-inspection"],
+  },
+  {
+    terms: ["ppe", "hard hat", "eye", "face", "glove", "boot", "hearing", "high visibility"],
+    toolboxTalks: ["eye-and-face-protection", "hearing-protection", "glove-selection", "high-visibility-apparel"],
+    checklists: ["ppe"],
+    quizzes: ["ppe-quiz"],
+    forms: ["equipment-inspection", "training-matrix"],
+  },
+];
+
+function inferRelatedResources(article) {
+  const haystack = normalizeForMatch(
+    [
+      article.slug,
+      article.title,
+      article.category,
+      article.markdown,
+      ...(article.aliases || []),
+      ...(article.trades || []),
+      ...(article.hazards || []),
+      ...(article.tasks || []),
+      ...(article.requiredDocuments || []),
+      ...(article.related || []),
+    ].join(" "),
+  );
+
+  const resources = {
+    toolboxTalks: [],
+    checklists: [],
+    quizzes: [],
+    forms: [],
+  };
+
+  for (const rule of fieldToolRules) {
+    if (rule.terms.some((term) => haystack.includes(normalizeForMatch(term)))) {
+      resources.toolboxTalks.push(...(rule.toolboxTalks || []));
+      resources.checklists.push(...(rule.checklists || []));
+      resources.quizzes.push(...(rule.quizzes || []));
+      resources.forms.push(...(rule.forms || []));
+    }
+  }
+
+  for (const key of Object.keys(resources)) {
+    if (!resources[key].length) resources[key].push(...defaultResourceLinks[key]);
+    resources[key] = unique(resources[key]).slice(0, 6);
+  }
+
+  return resources;
+}
+
+function mergeResourceLinks(explicit = {}, inferred = {}) {
+  return {
+    toolboxTalks: unique([...(explicit.toolboxTalks || []), ...(inferred.toolboxTalks || [])]),
+    checklists: unique([...(explicit.checklists || []), ...(inferred.checklists || [])]),
+    quizzes: unique([...(explicit.quizzes || []), ...(inferred.quizzes || [])]),
+    forms: unique([...(explicit.forms || []), ...(inferred.forms || [])]),
+  };
+}
+
+function sourceNoteIdsFor(citationIds, sourceIds) {
+  return unique([
+    ...citationIds
+      .map((id) => {
+        const exact = id.match(/^ohsr-(\d+)-/);
+        const broad = id.match(/^ohsr-part-(\d+)$/);
+        const part = exact?.[1] || broad?.[1];
+        return part ? `worksafebc-ohsr-part-${Number(part)}` : "";
+      })
+      .filter(Boolean),
+    ...sourceIds.map((id) => `source-note-${id}`),
+  ]);
+}
+
+function normalizeForMatch(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function articleFromMarkdown(path, content) {
   const [frontmatter, markdown] = parseFrontmatter(content);
   const slug = frontmatter.slug || path.split("/").pop().replace(/\.md$/, "");
@@ -177,7 +341,19 @@ function articleFromMarkdown(path, content) {
     ...sourceIds,
   ]);
   const workflow = workflowForArticle(slug);
-  const linkedResources = articleResourceLinks[slug] || {};
+  const inferredResources = inferRelatedResources({
+    slug,
+    title,
+    category: frontmatter.category || "Uncategorized",
+    markdown,
+    aliases: frontmatter.aliases || [],
+    trades: frontmatter.trades || ["All construction trades"],
+    hazards: frontmatter.hazards || [],
+    tasks: frontmatter.tasks || [],
+    requiredDocuments: frontmatter.requiredDocuments || [],
+    related,
+  });
+  const linkedResources = mergeResourceLinks(articleResourceLinks[slug], inferredResources);
 
   return {
     slug,
@@ -201,6 +377,7 @@ function articleFromMarkdown(path, content) {
     regulationRefs,
     citationIds,
     citations: citationIds.map(sourceForCitation),
+    sourceNoteIds: sourceNoteIdsFor(citationIds, sourceIds),
     sourceReviewFlagCount: countSourceReviewFlags(markdown),
     wikiLinks,
     outboundArticleLinks: unique([...wikiLinks, ...related]),

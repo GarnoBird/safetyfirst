@@ -49,14 +49,18 @@ regulationRefs:
   - "ohsr-11-5"
   - "ohsr-11-6"
   - "ohsr-11-9"
+  - "ohsr-11-10"
   - "ohsr-32-4"
+  - "ohsr-4-13"
 citations:
   - "ohsr-11-3"
   - "ohsr-11-2"
   - "ohsr-11-5"
   - "ohsr-11-6"
   - "ohsr-11-9"
+  - "ohsr-11-10"
   - "ohsr-32-4"
+  - "ohsr-4-13"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -124,7 +128,7 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - Site drawing or sketch: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-11-5}}
 - Equipment inspection record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-11-6}}
 - Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-11-9}}
-- Manufacturer instructions: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-32-4}}
+- Manufacturer instructions: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-11-10}}
 
 ## Step-by-step safe procedure
 
@@ -198,7 +202,9 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - {{cite:ohsr-11-5}}
 - {{cite:ohsr-11-6}}
 - {{cite:ohsr-11-9}}
+- {{cite:ohsr-11-10}}
 - {{cite:ohsr-32-4}}
+- {{cite:ohsr-4-13}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

@@ -5,10 +5,13 @@ category: "Construction Activities"
 status: "Deep draft"
 jurisdiction: "BC"
 difficulty: "Basic"
-confidenceLevel: "Source-cited deep draft"
-lastReviewed: "2026-06-19"
-nextReview: "2026-09-19"
-legalReviewStatus: "Needs qualified review"
+confidenceLevel: "Tier 2 source-cited draft"
+reviewTier: "Tier 2"
+maturity: "Draft"
+reviewPriority: "Common field-use review"
+lastReviewed: "2026-06-20"
+nextReview: "2026-09-20"
+legalReviewStatus: "Tier 2 source review in progress"
 safetyReviewStatus: "Needs field review"
 aliases:
   - "step ladder"
@@ -19,7 +22,8 @@ trades:
 hazards:
   - "Falls from height"
   - "Access/egress"
-tasks: []
+tasks:
+
 requiredDocuments:
   - "Inspection record where required"
   - "Manufacturer instructions"
@@ -31,9 +35,21 @@ sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 regulationRefs:
-  - "ohsr-part-13"
+  - "ohsr-13-2"
+  - "ohsr-13-3"
+  - "ohsr-13-4"
+  - "ohsr-13-5"
+  - "ohsr-13-6"
+  - "ohsr-13-7"
+  - "ohsr-13-12"
 citations:
-  - "ohsr-part-13"
+  - "ohsr-13-2"
+  - "ohsr-13-3"
+  - "ohsr-13-4"
+  - "ohsr-13-5"
+  - "ohsr-13-6"
+  - "ohsr-13-7"
+  - "ohsr-13-12"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -49,6 +65,11 @@ related:
   - "work-platforms"
   - "scaffold-inspection"
   - "ladder-inspection"
+  - "corrective-actions"
+  - "training-records"
+  - "toolbox-talks"
+  - "worker-rights-and-responsibilities"
+  - "prime-contractor-duties"
 ---
 
 # Ladders
@@ -57,126 +78,144 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Use this page when this work could involve hazards or outcomes such as falls from height, access/egress. It gives supervisors and crews a plain-language starting point for the controls, documents, and stop-work triggers that should be checked before work starts.
+Ladders are access tools, not default work platforms. The practical field decision is whether the ladder is the right equipment, set on stable footing, inspected, positioned, and limited to work that can be done without overreaching or carrying awkward loads.
 
-Ladders usually connects to other site controls, not just one task. Read it with [[fall-protection|Fall Protection]] and [[scaffolds|Scaffolds]] when planning the work, especially if access, weather, equipment, public protection, or nearby trades could change the risk.
+On site, this topic usually overlaps with [[fall-protection]], [[scaffolds]], [[site-orientation]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.
 
-This is a source-cited draft, not a legal opinion. Legal points include citations where possible; anything marked source review needed must be checked by a qualified BC safety/source reviewer before it is used as a compliance checklist. {{cite:ohsr-part-13}}
+This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}
 
 ## When this applies
 
-- You are planning or supervising this work, and this topic affects the task. {{cite:worksafebc-ohs-regulation}}
-- The work could involve hazards or outcomes such as falls from height, access/egress, even if the trade or location is different.
-- The work could affect nearby trades, visitors, tenants, pedestrians, traffic, or the public.
-- Controls need to be chosen before production starts, not after a deficiency is found.
-- The crew, equipment, weather, access route, public interface, or work sequence has changed.
-- A required document such as inspection record where required must be prepared, reviewed, updated, or kept available.
-- A worker is new to the task, unfamiliar with the site, or unsure which control applies.
+- The task involves ladders on a BC construction site.
+- The work can expose workers or nearby people to falls from height, access/egress.
+- The setup, access, equipment, crew, weather, traffic, public interface, or work sequence has changed since the last review.
+- A required document such as Inspection record where required must be prepared, reviewed, updated, or kept available.
+- A supervisor is assigning the work to a young worker, new worker, subcontractor, or crew that has not done the task on this site.
+- An inspection, near miss, refusal, or worker concern suggests the current control is not working.
+- The prime contractor or another employer needs coordination because overlapping work can affect the same area.
 
 ## Legal requirements
 
-- Confirm the applicable WorkSafeBC OHS Regulation part, guideline, policy, and any Workers Compensation Act duty before directing the work. {{cite:ohsr-part-13}}
-- Identify the hazards connected to this work and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}
-- Provide workers with the information, instruction, training, supervision, PPE, and equipment needed for the task. {{cite:worksafebc-ohs-guidelines}}
-- Keep legal duties separate from best practice notes, owner requirements, manufacturer instructions, and sample field procedures. {{review:source}}
-- Use required written plans, procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-part-13}}
-- Stop and reassess the work when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:worksafebc-ohs-regulation}}
-- Coordinate the work with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{cite:worksafebc-ohs-guidelines}}
-- Verify exact section numbers before treating this draft as a compliance checklist for enforcement, orders, permits, or legal advice. {{review:source}}
+- Check the current WorkSafeBC source for the work condition before directing the task. {{cite:ohsr-13-2}}
+- Use the cited requirements and site procedure to identify the hazard and control it before workers are exposed. {{cite:ohsr-13-3}}
+- Provide information, instruction, training, supervision, PPE, or equipment that fits the task and worker. {{cite:ohsr-13-4}}
+- Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-13-5}}
+- Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-13-6}}
+- Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-13-2}}
+- Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}
+- A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}
 
 ## Best practice
 
-- Before work starts, walk the area with the crew and check whether today's setup also needs controls covered in [[site-orientation|Site Orientation]].
-- Use elimination, substitution, engineering, or isolation controls first when they are practicable; do not make PPE the whole plan.
-- Name the supervisor, qualified person, or competent worker who can approve changes in the field.
-- Use photos, sketches, labels, tags, or simple maps when they help workers understand the control without exposing private information.
-- Check nearby entrances, laydown areas, adjacent trades, and public routes for the same hazard before closing the action.
-- Review the procedure after an incident, near miss, failed inspection, crew change, equipment change, or weather event.
-- Keep field instructions short enough to use in a toolbox talk, but specific enough that the crew knows what to do.
+- Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.
+- Use the field condition, not habit, to decide whether Inspection record where required is current enough for today's work.
+- Name the person who can approve field changes, and stop work when that person is not available for a material change.
+- Keep the work area, access route, emergency route, public interface, and adjacent trades in the same review.
+- Use photos, sketches, tags, barricades, or labels when a worker could misunderstand the control in the field.
+- Review the control after weather, shift change, equipment substitution, failed inspection, or a near miss.
+- Write corrective actions with an owner, interim control, and due time so deficiencies do not become standing site conditions.
 
 ## Required documents
 
-- Inspection record where required: defines the control, location, responsible person, and review trigger. {{cite:ohsr-part-13}}
-- Manufacturer instructions: confirms the site condition was checked before the crew started work. {{cite:worksafebc-ohs-regulation}}
-- Site-specific safe work procedure: supports follow-up if there is a deficiency, refusal, incident, or source-review question. {{cite:worksafebc-ohs-guidelines}}
-- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-part-13}}
-- Inspection or pre-use check record: keeps the field procedure tied to official sources instead of memory or habit. {{cite:worksafebc-ohs-regulation}}
-- Corrective action record when a deficiency is found: helps employers, the prime contractor, and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}
+- Inspection record where required: records the site-specific control expected before the task starts. {{cite:ohsr-13-2}
+- Manufacturer instructions: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-13-3}
+- Site-specific safe work procedure: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-13-4}
+- Worker instruction or training record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-13-5}
+- Inspection or pre-use check record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-13-6}
+- Corrective action record when a deficiency is found: shows workers received task-specific instruction before doing the work. {{cite:ohsr-13-7}
 
 ## Step-by-step safe procedure
 
-1. Define the exact task, location, workers, equipment, materials, and expected duration.
-2. Read [[fall-protection|Fall Protection]] and the site procedure before setting up the work.
-3. List the hazards and possible outcomes, including falls from height, access/egress, and identify everyone who could be affected.
-4. Confirm the official source, owner/client requirement, manufacturer instruction, and site rule that apply. {{cite:ohsr-part-13}}
-5. Prepare or update the required document set, including inspection record where required.
-6. Set up the controls before production work starts and check that they match the actual site condition.
-7. Brief workers on the control, stop-work triggers, emergency contact path, and who can change the plan.
-8. Inspect the work area during the task and document deficiencies or corrective actions.
-9. Stop work if the site condition, crew, equipment, adjacent work, weather, or public exposure changes.
-10. Close the task by recording what was checked, what changed, and what must be reviewed before the next shift.
+1. Define the exact location, task, crew, equipment, materials, access route, and expected duration for ladders.
+2. Walk the work area and identify the hazard, the people exposed, and any adjacent work that could change the risk.
+3. Review the official source and the site procedure, then confirm Inspection record where required matches the actual field condition. {{cite:ohsr-13-2}}
+4. Choose controls in order of effectiveness and set them up before production work starts.
+5. Confirm required equipment, PPE, signs, barriers, permits, inspections, and records are available and understandable.
+6. Brief workers on the control, limits, communication, emergency contact path, and stop-work triggers.
+7. Check the control during the task, especially after deliveries, weather, crew changes, equipment movement, or public interaction.
+8. Stop work if the condition no longer matches the plan, if a required control is missing, or if a worker reports a hazard.
+9. Record deficiencies and corrective actions before the area returns to normal production.
+10. Update the site procedure or orientation if the same deficiency could affect another crew or shift.
 
 ## Worker checklist
 
-- [ ] I know how this topic affects my task today.
-- [ ] I know the main hazards: falls from height, access/egress.
+- [ ] I know how ladders affects my task today.
+- [ ] I know the main hazards, including falls from height, access/egress.
 - [ ] I know which control must be in place before I start.
-- [ ] I know where the required document or procedure is kept.
-- [ ] I have the required PPE, tools, equipment, and instructions for the task.
-- [ ] I know who is supervising the work and who can answer questions.
+- [ ] I know where Inspection record where required or the site procedure is kept.
+- [ ] I have the PPE, tools, equipment, and instructions required for the task.
+- [ ] I know who is supervising the work and who can approve a change.
 - [ ] I know how to report a hazard, refusal, near miss, or changed condition.
-- [ ] I can explain one stop-work trigger for this task.
+- [ ] I can name one condition that means the work must stop.
 - [ ] I know the emergency response or first aid contact path if something goes wrong.
 - [ ] I will not continue if the work no longer matches the plan.
 
 ## Supervisor checklist
 
-- [ ] The article and official sources have been checked for this task. {{cite:worksafebc-ohs-regulation}}
-- [ ] The crew understands the legal requirement, best practice, sample procedure, and checklist are separate.
-- [ ] Required documents are available, current, and matched to the site condition.
+- [ ] The work area has been checked against the cited sources for Ladders.
+- [ ] Workers understand what is legal requirement, best practice, sample procedure, and checklist.
+- [ ] Required documents are current and matched to the actual site condition.
 - [ ] Workers are trained, instructed, supervised, or otherwise competent for the work assigned.
-- [ ] Controls are installed before work starts and are still effective during the task.
+- [ ] Controls are installed before work starts and remain effective during the task.
 - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and environmental conditions are considered.
-- [ ] Deficiencies are assigned to an owner with a due date and interim control.
+- [ ] Deficiencies have an owner, due date, and interim control.
 - [ ] A change in conditions triggers a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] If the deficiency points to a broader issue, open [[site-specific-safety-plan|Site-Specific Safety Plan]] and assign a separate corrective action.
+- [ ] The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}
 
 ## Common mistakes
 
 - Treating a broad source link as if it proves every site-specific requirement.
-- Using a generic procedure that does not match the actual crew, equipment, location, or sequence.
+- Using a procedure that does not match the actual crew, equipment, location, or sequence.
 - Starting work before the required document, inspection, briefing, or competent review is complete.
-- Relying on PPE alone when stronger engineering or administrative controls are practicable.
-- Failing to update the plan after weather, access, equipment, crew, or nearby work changes.
+- Relying on PPE alone when stronger engineering or administrative controls are practical.
+- Failing to update the control after weather, access, equipment, crew, or nearby work changes.
 - Closing an inspection item without verifying the corrective action in the field.
 - Not telling nearby trades or the prime contractor when the hazard can affect them.
-- Letting workers continue because the hazard feels normal for construction.
+- Letting workers continue because the hazard feels routine for construction.
 
 ## Related topics
 
-- [[fall-protection|Fall Protection]]
-- [[scaffolds|Scaffolds]]
-- [[site-orientation|Site Orientation]]
-- [[site-specific-safety-plan|Site-Specific Safety Plan]]
-- [[mobile-equipment|Mobile Equipment]]
-- [[traffic-control|Traffic Control]]
-- [[workplace-inspections|Workplace Inspections]]
-- [[hot-work|Hot Work]]
-- [[roof-work|Roof Work]]
-- [[work-platforms|Work Platforms]]
-- [[scaffold-inspection|Scaffold Inspection]]
-- [[ladder-inspection|Ladder Inspection]]
+- [[fall-protection]]
+- [[scaffolds]]
+- [[site-orientation]]
+- [[site-specific-safety-plan]]
+- [[mobile-equipment]]
+- [[traffic-control]]
+- [[workplace-inspections]]
+- [[hot-work]]
+- [[roof-work]]
+- [[work-platforms]]
+- [[scaffold-inspection]]
+- [[ladder-inspection]]
+- [[corrective-actions]]
+- [[training-records]]
+- [[toolbox-talks]]
+- [[worker-rights-and-responsibilities]]
+- [[prime-contractor-duties]]
 
 ## Official sources
 
-- {{cite:ohsr-part-13}}
+- {{cite:ohsr-13-2}}
+- {{cite:ohsr-13-3}}
+- {{cite:ohsr-13-4}}
+- {{cite:ohsr-13-5}}
+- {{cite:ohsr-13-6}}
+- {{cite:ohsr-13-7}}
+- {{cite:ohsr-13-12}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## Reviewer notes
+
+- Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Reviewer should confirm each exact section supports the article's legal bullets.
+- Field reviewer should confirm the checklist fits common BC construction practice.
+
 ## Version history
 
-- 0.2 deep draft: Moved to Markdown source, expanded field content, added wiki links, citation tokens, and backlink-ready related topics.
+- 0.3 Tier 2 hardening: Added exact citations, practical field procedure, stronger checklist wording, and draft review metadata.
+- 0.2 deep draft: Moved to Markdown source with wiki links and citation tokens.
 - 0.1 scaffold: Initial structured article draft.
 
 ## Disclaimer

@@ -53,6 +53,8 @@ regulationRefs:
   - "ohsr-6-7"
   - "ohsr-6-8"
   - "ohsr-20-112"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
 citations:
   - "ohsr-6-4"
   - "ohsr-6-5"
@@ -60,6 +62,8 @@ citations:
   - "ohsr-6-7"
   - "ohsr-6-8"
   - "ohsr-20-112"
+  - "ohsr-8-32"
+  - "ohsr-8-39"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
   - "worksafebc-asbestos"
@@ -203,6 +207,8 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - {{cite:ohsr-6-7}}
 - {{cite:ohsr-6-8}}
 - {{cite:ohsr-20-112}}
+- {{cite:ohsr-8-32}}
+- {{cite:ohsr-8-39}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-asbestos}}

@@ -53,6 +53,8 @@ regulationRefs:
   - "ohsr-19-29"
   - "ohsr-14-2"
   - "ohsr-15-20"
+  - "ohsr-10-3"
+  - "ohsr-10-4"
   - "ohsr-10-6"
 citations:
   - "ohsr-19-24-1"
@@ -60,6 +62,8 @@ citations:
   - "ohsr-19-29"
   - "ohsr-14-2"
   - "ohsr-15-20"
+  - "ohsr-10-3"
+  - "ohsr-10-4"
   - "ohsr-10-6"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
@@ -128,7 +132,7 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - Work procedure: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-19-29}}
 - Traffic/equipment control plan: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-14-2}}
 - Emergency response plan: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-15-20}}
-- Training/instruction record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-10-6}}
+- Training/instruction record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-10-3}}
 
 ## Step-by-step safe procedure
 
@@ -202,6 +206,8 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - {{cite:ohsr-19-29}}
 - {{cite:ohsr-14-2}}
 - {{cite:ohsr-15-20}}
+- {{cite:ohsr-10-3}}
+- {{cite:ohsr-10-4}}
 - {{cite:ohsr-10-6}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}

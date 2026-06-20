@@ -54,6 +54,8 @@ regulationRefs:
   - "ohsr-18-4"
   - "ohsr-18-5"
   - "ohsr-8-4"
+  - "ohsr-16-7"
+  - "ohsr-16-10"
 citations:
   - "ohsr-18-3"
   - "ohsr-18-3-1"
@@ -61,6 +63,8 @@ citations:
   - "ohsr-18-4"
   - "ohsr-18-5"
   - "ohsr-8-4"
+  - "ohsr-16-7"
+  - "ohsr-16-10"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -203,6 +207,8 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - {{cite:ohsr-18-4}}
 - {{cite:ohsr-18-5}}
 - {{cite:ohsr-8-4}}
+- {{cite:ohsr-16-7}}
+- {{cite:ohsr-16-10}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

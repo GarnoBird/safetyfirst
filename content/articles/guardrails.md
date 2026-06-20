@@ -50,6 +50,8 @@ regulationRefs:
   - "ohsr-4-60"
   - "ohsr-11-2"
   - "ohsr-11-3"
+  - "ohsr-20-6"
+  - "ohsr-4-1"
 citations:
   - "ohsr-4-54"
   - "ohsr-4-55"
@@ -57,6 +59,8 @@ citations:
   - "ohsr-4-60"
   - "ohsr-11-2"
   - "ohsr-11-3"
+  - "ohsr-20-6"
+  - "ohsr-4-1"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -199,6 +203,8 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - {{cite:ohsr-4-60}}
 - {{cite:ohsr-11-2}}
 - {{cite:ohsr-11-3}}
+- {{cite:ohsr-20-6}}
+- {{cite:ohsr-4-1}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

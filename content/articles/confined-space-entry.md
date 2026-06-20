@@ -54,6 +54,7 @@ regulationRefs:
   - "ohsr-9-25"
   - "ohsr-9-34"
   - "ohsr-9-37"
+  - "ohsr-9-39"
 citations:
   - "ohsr-9-5"
   - "ohsr-9-13"
@@ -62,6 +63,7 @@ citations:
   - "ohsr-9-25"
   - "ohsr-9-34"
   - "ohsr-9-37"
+  - "ohsr-9-39"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -205,6 +207,7 @@ Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout
 - {{cite:ohsr-9-25}}
 - {{cite:ohsr-9-34}}
 - {{cite:ohsr-9-37}}
+- {{cite:ohsr-9-39}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

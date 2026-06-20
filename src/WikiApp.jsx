@@ -13,8 +13,11 @@ import {
   getRegulationById,
   getRoadmapByPhase,
   getSearchSuggestion,
+  getSourceNoteById,
+  getSourceNotesForArticle,
   getSourceById,
   getWikiFilterOptions,
+  getWikiQualityMetric,
   getWikiReviewBacklog,
   governanceModel,
   glossaryTerms,
@@ -29,6 +32,9 @@ import {
   wikiRedirects,
   wikiArticles,
   wikiCategories,
+  wikiQualityMetrics,
+  wikiSourceCoverage,
+  wikiSourceNotes,
   wikiSources,
 } from "./wikiContent.js";
 
@@ -37,8 +43,10 @@ const WIKI_NAV = [
   { label: "Article index", path: "/wiki/articles" },
   { label: "Categories", path: "/wiki/categories" },
   { label: "Sources", path: "/wiki/sources" },
+  { label: "Source notes", path: "/wiki/source-notes" },
   { label: "Glossary", path: "/wiki/glossary" },
   { label: "Redirects", path: "/wiki/redirects" },
+  { label: "Article quality", path: "/wiki/quality" },
   { label: "Roadmap", path: "/wiki/roadmap" },
   { label: "Review backlog", path: "/wiki/review-backlog" },
   { label: "Governance", path: "/wiki/governance" },
@@ -108,12 +116,30 @@ export default function WikiApp({ routePath, navigateTo }) {
       return <SourcesPage />;
     }
 
+    if (normalizedPath === "/wiki/source-notes") {
+      return <SourceNotesPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath.startsWith("/wiki/source-notes/")) {
+      const id = normalizedPath.replace("/wiki/source-notes/", "");
+      return <SourceNotePage id={id} navigateTo={navigateWithinWiki} />;
+    }
+
     if (normalizedPath === "/wiki/glossary") {
       return <GlossaryPage navigateTo={navigateWithinWiki} />;
     }
 
+    if (normalizedPath.startsWith("/wiki/glossary/")) {
+      const slug = normalizedPath.replace("/wiki/glossary/", "");
+      return <GlossaryTermPage slug={slug} navigateTo={navigateWithinWiki} />;
+    }
+
     if (normalizedPath === "/wiki/redirects") {
       return <RedirectsPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath === "/wiki/quality") {
+      return <ArticleQualityPage navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath === "/wiki/roadmap") {
@@ -319,6 +345,8 @@ function ArticlePage({ slug, navigateTo }) {
     ...(article.relatedQuizzes || []),
     ...(article.relatedForms || []),
   ];
+  const sourceNotes = getSourceNotesForArticle(article.slug);
+  const qualityMetric = getWikiQualityMetric(article.slug);
   const sectionHeadings = [
     "Summary",
     "Review status",
@@ -335,6 +363,8 @@ function ArticlePage({ slug, navigateTo }) {
     "Pages that link here",
     "Official sources",
     "Official citations",
+    "Source notes",
+    "Article quality",
     "Report an issue with this article",
     "Version history",
     "Disclaimer",
@@ -490,6 +520,12 @@ function ArticlePage({ slug, navigateTo }) {
           </ul>
         </section>
       ) : null}
+
+      {sourceNotes.length ? (
+        <SourceNotesSection sourceNotes={sourceNotes} navigateTo={navigateTo} />
+      ) : null}
+
+      <ArticleQualitySection article={article} qualityMetric={qualityMetric} />
 
       <CorrectionForm article={article} />
 
@@ -671,6 +707,120 @@ function SourcesPage() {
   );
 }
 
+function SourceNotesPage({ navigateTo }) {
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Source notes" subtitle="Paraphrased review notes for official and supporting sources" />
+      <section className="wiki-section">
+        <h2>Coverage summary</h2>
+        <ul className="wiki-inline-list">
+          <li>
+            <b>Articles</b>: {wikiSourceCoverage.articleCount}
+          </li>
+          <li>
+            <b>Source notes</b>: {wikiSourceCoverage.sourceNoteCount}
+          </li>
+          <li>
+            <b>Articles with source notes</b>: {wikiSourceCoverage.articlesWithSourceNotes}
+          </li>
+          <li>
+            <b>Open source-review articles</b>: {wikiSourceCoverage.unresolvedSourceReviewArticles.length}
+          </li>
+        </ul>
+      </section>
+      <section className="wiki-section">
+        <h2>Source note index</h2>
+        <table className="wiki-table">
+          <thead>
+            <tr>
+              <th>Source note</th>
+              <th>Type</th>
+              <th>Last checked</th>
+              <th>Related articles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {wikiSourceNotes.map((note) => (
+              <tr key={note.id}>
+                <td>
+                  <a
+                    href={`/wiki/source-notes/${note.id}`}
+                    onClick={makeNavigate(navigateTo, `/wiki/source-notes/${note.id}`)}
+                  >
+                    {note.title}
+                  </a>
+                  <br />
+                  <span className="wiki-small">{note.publisher}</span>
+                </td>
+                <td>{note.sourceType}</td>
+                <td>{note.lastChecked}</td>
+                <td>{note.relatedArticles.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </article>
+  );
+}
+
+function SourceNotePage({ id, navigateTo }) {
+  const note = getSourceNoteById(id);
+  if (!note) return <NotFoundPage path={`/wiki/source-notes/${id}`} />;
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title={note.title} subtitle="Source note" />
+      <section className="wiki-section">
+        <h2>Source details</h2>
+        <table className="wiki-table">
+          <tbody>
+            <tr>
+              <th>Publisher</th>
+              <td>{note.publisher}</td>
+            </tr>
+            <tr>
+              <th>Type</th>
+              <td>{note.sourceType}</td>
+            </tr>
+            <tr>
+              <th>Jurisdiction</th>
+              <td>{note.jurisdiction}</td>
+            </tr>
+            <tr>
+              <th>Last checked</th>
+              <td>{note.lastChecked}</td>
+            </tr>
+            <tr>
+              <th>Official link</th>
+              <td>
+                <a href={note.url} target="_blank" rel="noreferrer">
+                  {note.url}
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section className="wiki-section">
+        <h2>Plain-language review note</h2>
+        <p>{note.summary}</p>
+        <p className="wiki-small">
+          Source notes support human review. They are not legal advice and do not replace the official source.
+        </p>
+      </section>
+      <section className="wiki-section">
+        <h2>Related articles</h2>
+        <ArticleList
+          articles={note.relatedArticles.map((slug) => getArticleBySlug(slug)).filter(Boolean)}
+          compact
+          navigateTo={navigateTo}
+        />
+      </section>
+    </article>
+  );
+}
+
 function RoadmapPage() {
   return (
     <article className="wiki-article">
@@ -723,7 +873,14 @@ function GlossaryPage({ navigateTo }) {
               const article = getArticleBySlug(term.targetArticle);
               return (
                 <tr key={term.slug}>
-                  <td>{term.term}</td>
+                  <td>
+                    <a
+                      href={`/wiki/glossary/${term.slug}`}
+                      onClick={makeNavigate(navigateTo, `/wiki/glossary/${term.slug}`)}
+                    >
+                      {term.term}
+                    </a>
+                  </td>
                   <td>{term.definition}</td>
                   <td>
                     {article ? (
@@ -743,6 +900,57 @@ function GlossaryPage({ navigateTo }) {
           </tbody>
         </table>
       </section>
+    </article>
+  );
+}
+
+function GlossaryTermPage({ slug, navigateTo }) {
+  const term = glossaryTerms.find((item) => item.slug === slug);
+  if (!term) return <NotFoundPage path={`/wiki/glossary/${slug}`} />;
+  const article = getArticleBySlug(term.targetArticle);
+  const relatedTerms = glossaryTerms
+    .filter((item) => item.targetArticle === term.targetArticle && item.slug !== term.slug)
+    .slice(0, 12);
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title={term.term} subtitle="Glossary term" />
+      <section className="wiki-section">
+        <h2>Plain meaning</h2>
+        <p>{term.definition}</p>
+      </section>
+      <section className="wiki-section">
+        <h2>Main article</h2>
+        {article ? (
+          <p>
+            <a
+              href={`/wiki/articles/${article.slug}`}
+              onClick={makeNavigate(navigateTo, `/wiki/articles/${article.slug}`)}
+            >
+              {article.title}
+            </a>
+          </p>
+        ) : (
+          <p>{term.targetArticle}</p>
+        )}
+      </section>
+      {relatedTerms.length ? (
+        <section className="wiki-section">
+          <h2>Related glossary terms</h2>
+          <ul>
+            {relatedTerms.map((item) => (
+              <li key={item.slug}>
+                <a
+                  href={`/wiki/glossary/${item.slug}`}
+                  onClick={makeNavigate(navigateTo, `/wiki/glossary/${item.slug}`)}
+                >
+                  {item.term}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </article>
   );
 }
@@ -790,6 +998,73 @@ function RedirectsPage({ navigateTo }) {
                 </tr>
               );
             })}
+          </tbody>
+        </table>
+      </section>
+    </article>
+  );
+}
+
+function ArticleQualityPage({ navigateTo }) {
+  const rows = [...wikiQualityMetrics].sort(
+    (a, b) => b.issues.length - a.issues.length || a.reviewTier.localeCompare(b.reviewTier) || a.title.localeCompare(b.title),
+  );
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Article quality" subtitle="Generated completion metrics for maintainers" />
+      <section className="wiki-section">
+        <h2>Quality summary</h2>
+        <ul className="wiki-inline-list">
+          <li>
+            <b>Articles</b>: {wikiArticles.length}
+          </li>
+          <li>
+            <b>Tier 1 citation gaps</b>: {wikiSourceCoverage.weakTierOne.length}
+          </li>
+          <li>
+            <b>Tier 2 citation gaps</b>: {wikiSourceCoverage.weakTierTwo.length}
+          </li>
+          <li>
+            <b>Missing source notes</b>: {wikiSourceCoverage.articlesMissingSourceNotes.length}
+          </li>
+        </ul>
+      </section>
+      <section className="wiki-section">
+        <h2>Article quality table</h2>
+        <table className="wiki-table">
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Tier</th>
+              <th>Exact citations</th>
+              <th>Source flags</th>
+              <th>Links</th>
+              <th>Tools</th>
+              <th>Issues</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((metric) => (
+              <tr key={metric.slug}>
+                <td>
+                  <a
+                    href={`/wiki/articles/${metric.slug}`}
+                    onClick={makeNavigate(navigateTo, `/wiki/articles/${metric.slug}`)}
+                  >
+                    {metric.title}
+                  </a>
+                </td>
+                <td>{metric.reviewTier}</td>
+                <td>{metric.exactCitationCount}</td>
+                <td>{metric.sourceReviewFlagCount}</td>
+                <td>
+                  {metric.outboundLinkCount} out / {metric.inboundLinkCount} in
+                </td>
+                <td>{metric.relatedToolCount}</td>
+                <td>{metric.issues.length ? metric.issues.join("; ") : "No generated issues"}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </section>
@@ -1057,7 +1332,7 @@ function ArticleList({ articles, compact = false, empty = "No articles.", naviga
           >
             {article.title}
           </a>
-          {compact ? null : <p>{plainWikiText(article.summary)}</p>}
+          {compact ? null : <p>{plainWikiText(article.searchSnippet || article.summary)}</p>}
         </li>
       ))}
     </ul>
@@ -1155,6 +1430,69 @@ function RelatedFieldTools({ article, navigateTo }) {
         <ResourceList title="Related quizzes" ids={article.relatedQuizzes} path="/training-quiz" navigateTo={navigateTo} />
         <ResourceList title="Related checklists" ids={article.relatedChecklists} path="/safety-lab/checklists" navigateTo={navigateTo} />
       </div>
+    </section>
+  );
+}
+
+function SourceNotesSection({ sourceNotes, navigateTo }) {
+  return (
+    <section className="wiki-section" id="source-notes">
+      <h2>Source notes</h2>
+      <ul>
+        {sourceNotes.map((note) => (
+          <li key={note.id}>
+            <a
+              href={`/wiki/source-notes/${note.id}`}
+              onClick={makeNavigate(navigateTo, `/wiki/source-notes/${note.id}`)}
+            >
+              {note.title}
+            </a>{" "}
+            <span className="wiki-small">
+              {note.publisher}; last checked {note.lastChecked}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function ArticleQualitySection({ article, qualityMetric }) {
+  if (!qualityMetric) return null;
+
+  return (
+    <section className="wiki-section" id="article-quality">
+      <h2>Article quality</h2>
+      <table className="wiki-table">
+        <tbody>
+          <tr>
+            <th>Exact official citations</th>
+            <td>{qualityMetric.exactCitationCount}</td>
+          </tr>
+          <tr>
+            <th>Outbound / inbound links</th>
+            <td>
+              {qualityMetric.outboundLinkCount} outbound; {qualityMetric.inboundLinkCount} inbound
+            </td>
+          </tr>
+          <tr>
+            <th>Related field tools</th>
+            <td>{qualityMetric.relatedToolCount}</td>
+          </tr>
+          <tr>
+            <th>Source notes</th>
+            <td>{qualityMetric.sourceNoteCount}</td>
+          </tr>
+          <tr>
+            <th>Open source-review flags</th>
+            <td>{article.sourceReviewFlagCount || qualityMetric.sourceReviewFlagCount}</td>
+          </tr>
+          <tr>
+            <th>Generated issues</th>
+            <td>{qualityMetric.issues.length ? qualityMetric.issues.join("; ") : "No generated issues"}</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   );
 }

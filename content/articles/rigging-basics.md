@@ -53,6 +53,8 @@ regulationRefs:
   - "ohsr-15-20"
   - "ohsr-15-31"
   - "ohsr-14-2"
+  - "ohsr-14-16"
+  - "ohsr-16-10"
 citations:
   - "ohsr-15-2"
   - "ohsr-15-3"
@@ -60,6 +62,8 @@ citations:
   - "ohsr-15-20"
   - "ohsr-15-31"
   - "ohsr-14-2"
+  - "ohsr-14-16"
+  - "ohsr-16-10"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -202,6 +206,8 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - {{cite:ohsr-15-20}}
 - {{cite:ohsr-15-31}}
 - {{cite:ohsr-14-2}}
+- {{cite:ohsr-14-16}}
+- {{cite:ohsr-16-10}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 

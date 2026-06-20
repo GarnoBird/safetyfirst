@@ -53,6 +53,8 @@ regulationRefs:
   - "ohsr-8-39"
   - "ohsr-8-4"
   - "ohsr-8-7"
+  - "ohsr-8-2"
+  - "ohsr-8-3"
   - "ohsr-5-54"
   - "ohsr-6-112"
 citations:
@@ -60,6 +62,8 @@ citations:
   - "ohsr-8-39"
   - "ohsr-8-4"
   - "ohsr-8-7"
+  - "ohsr-8-2"
+  - "ohsr-8-3"
   - "ohsr-5-54"
   - "ohsr-6-112"
   - "worksafebc-ohs-regulation"
@@ -129,8 +133,8 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - Fit test record: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-8-39}}
 - Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-8-4}}
 - Training/instruction record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-8-7}}
-- Manufacturer instructions: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-5-54}}
-- Inspection and maintenance record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-6-112}}
+- Manufacturer instructions: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-8-2}}
+- Inspection and maintenance record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-8-3}}
 
 ## Step-by-step safe procedure
 
@@ -203,6 +207,8 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - {{cite:ohsr-8-39}}
 - {{cite:ohsr-8-4}}
 - {{cite:ohsr-8-7}}
+- {{cite:ohsr-8-2}}
+- {{cite:ohsr-8-3}}
 - {{cite:ohsr-5-54}}
 - {{cite:ohsr-6-112}}
 - {{cite:worksafebc-ohs-regulation}}

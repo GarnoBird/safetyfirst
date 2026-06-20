@@ -54,6 +54,7 @@ regulationRefs:
   - "ohsr-9-25"
   - "ohsr-9-5"
   - "ohsr-32-4"
+  - "ohsr-32-5"
 citations:
   - "ohsr-9-37"
   - "ohsr-9-39"
@@ -62,6 +63,7 @@ citations:
   - "ohsr-9-25"
   - "ohsr-9-5"
   - "ohsr-32-4"
+  - "ohsr-32-5"
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
 related:
@@ -205,6 +207,7 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - {{cite:ohsr-9-25}}
 - {{cite:ohsr-9-5}}
 - {{cite:ohsr-32-4}}
+- {{cite:ohsr-32-5}}
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
