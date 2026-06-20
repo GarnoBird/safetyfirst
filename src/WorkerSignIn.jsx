@@ -42,6 +42,8 @@ const DEFAULT_SYSTEM_STATUS = {
 };
 
 const OTHER_COMPANY = "Other";
+const WORKER_REMEMBER_COOKIE = "sf_worker_signin_profile";
+const WORKER_REMEMBER_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 const WORKER_COMPANY_OPTIONS = [
   "Ainsworth",
   "AllWest",
@@ -89,6 +91,13 @@ const WORKER_COMPANY_OPTIONS = [
   "West Coast Cleaning",
   OTHER_COMPANY,
 ];
+
+const EMPTY_WORKER_SIGNIN_FORM = {
+  name: "",
+  phone: "",
+  companyName: "",
+  otherCompanyName: "",
+};
 
 export function WorkerSignInQr({ navigateTo }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -157,27 +166,43 @@ export function WorkerSignOutQr({ navigateTo }) {
 }
 
 export function WorkerSignInPage() {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    companyName: "",
-    otherCompanyName: "",
-  });
+  const [rememberedProfile] = useState(readRememberedWorkerProfile);
+  const [form, setForm] = useState(
+    rememberedProfile || EMPTY_WORKER_SIGNIN_FORM,
+  );
+  const [rememberMe, setRememberMe] = useState(Boolean(rememberedProfile));
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const submitted = status.type === "success";
 
   const updateField = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      const nextForm = { ...current, [field]: value };
+      if (rememberMe) writeRememberedWorkerProfile(nextForm);
+      return nextForm;
+    });
   };
 
   const updateCompanyName = (value) => {
-    setForm((current) => ({
-      ...current,
-      companyName: value,
-      otherCompanyName:
-        value === OTHER_COMPANY ? current.otherCompanyName : "",
-    }));
+    setForm((current) => {
+      const nextForm = {
+        ...current,
+        companyName: value,
+        otherCompanyName:
+          value === OTHER_COMPANY ? current.otherCompanyName : "",
+      };
+      if (rememberMe) writeRememberedWorkerProfile(nextForm);
+      return nextForm;
+    });
+  };
+
+  const updateRememberMe = (checked) => {
+    setRememberMe(checked);
+    if (checked) {
+      writeRememberedWorkerProfile(form);
+      return;
+    }
+    clearRememberedWorkerProfile();
   };
 
   const submitSignIn = async (event) => {
@@ -213,12 +238,12 @@ export function WorkerSignInPage() {
         throw new Error(responsePayload.error || "Sign-in failed.");
       }
 
-      setForm({
-        name: "",
-        phone: "",
-        companyName: "",
-        otherCompanyName: "",
-      });
+      if (rememberMe) {
+        writeRememberedWorkerProfile(form);
+      } else {
+        clearRememberedWorkerProfile();
+        setForm(EMPTY_WORKER_SIGNIN_FORM);
+      }
       setStatus({
         type: "success",
         message: `Sign-in submitted - ${formatShortDate(
@@ -297,6 +322,14 @@ export function WorkerSignInPage() {
                   />
                 </label>
               ) : null}
+              <label className="remember-worker-field">
+                <input
+                  checked={rememberMe}
+                  type="checkbox"
+                  onChange={(event) => updateRememberMe(event.target.checked)}
+                />
+                <span>Remember me</span>
+              </label>
               <button
                 className="primary-button"
                 disabled={submitting}
@@ -1820,6 +1853,63 @@ function staffExportUrl(date, format, type = "people") {
   const params = { date, format };
   if (type === "company") params.type = "company";
   return `/api/staff/signins/export?${new URLSearchParams(params)}`;
+}
+
+function readRememberedWorkerProfile() {
+  if (typeof document === "undefined") return null;
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(`${WORKER_REMEMBER_COOKIE}=`));
+  if (!cookie) return null;
+
+  try {
+    const payload = JSON.parse(decodeURIComponent(cookie.split("=").slice(1).join("=")));
+    return normalizeRememberedWorkerProfile(payload);
+  } catch {
+    clearRememberedWorkerProfile();
+    return null;
+  }
+}
+
+function writeRememberedWorkerProfile(form) {
+  if (typeof document === "undefined") return;
+  const profile = normalizeRememberedWorkerProfile(form);
+  const attributes = [
+    `${WORKER_REMEMBER_COOKIE}=${encodeURIComponent(JSON.stringify(profile))}`,
+    `Max-Age=${WORKER_REMEMBER_COOKIE_MAX_AGE_SECONDS}`,
+    "Path=/",
+    "SameSite=Lax",
+  ];
+  if (window.location.protocol === "https:") attributes.push("Secure");
+  document.cookie = attributes.join("; ");
+}
+
+function clearRememberedWorkerProfile() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${WORKER_REMEMBER_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
+}
+
+function normalizeRememberedWorkerProfile(profile) {
+  const companyValue = String(
+    profile?.companyName || profile?.company || profile?.trade || "",
+  ).trim();
+  const rememberedCompany =
+    companyValue && !WORKER_COMPANY_OPTIONS.includes(companyValue)
+      ? OTHER_COMPANY
+      : companyValue;
+  const rememberedOtherCompany =
+    rememberedCompany === OTHER_COMPANY && companyValue === OTHER_COMPANY
+      ? String(profile?.otherCompanyName || "").trim()
+      : rememberedCompany === OTHER_COMPANY
+        ? String(profile?.otherCompanyName || companyValue || "").trim()
+        : "";
+
+  return {
+    name: String(profile?.name || "").trim(),
+    phone: String(profile?.phone || "").trim(),
+    companyName: rememberedCompany,
+    otherCompanyName: rememberedOtherCompany,
+  };
 }
 
 function publicUrl(path) {
