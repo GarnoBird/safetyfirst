@@ -1464,11 +1464,9 @@ function SearchFilters({ filters, setFilters }) {
     <section className="wiki-section wiki-search-filters" aria-label="Search filters">
       <h2>Filters</h2>
       <div className="wiki-filter-grid">
-        <FilterSelect label="Hazard" value={filters.hazard} options={options.hazards} onChange={(value) => updateFilter("hazard", value)} />
+        <FilterSelect label="Hazard group" value={filters.hazardGroup} options={options.hazardGroups} onChange={(value) => updateFilter("hazardGroup", value)} />
         <FilterSelect label="Trade" value={filters.trade} options={options.trades} onChange={(value) => updateFilter("trade", value)} />
-        <FilterSelect label="Required document" value={filters.document} options={options.documents} onChange={(value) => updateFilter("document", value)} />
-        <FilterSelect label="Regulation section" value={filters.regulation} options={options.regulations} onChange={(value) => updateFilter("regulation", value)} />
-        <FilterSelect label="Article maturity" value={filters.maturity} options={options.maturities} onChange={(value) => updateFilter("maturity", value)} />
+        <FilterSelect label="Document group" value={filters.documentGroup} options={options.documentGroups} onChange={(value) => updateFilter("documentGroup", value)} />
       </div>
       {hasActiveFilters(filters) ? <button className="wiki-small-button" type="button" onClick={() => setFilters(emptyFilters())}>Clear filters</button> : null}
     </section>
@@ -1611,18 +1609,16 @@ function articlesForCategory(category) {
 }
 
 function emptyFilters() {
-  return { hazard: "", trade: "", document: "", regulation: "", maturity: "" };
+  return { hazardGroup: "", trade: "", documentGroup: "" };
 }
 
 function getInitialFilters() {
   if (typeof window === "undefined") return emptyFilters();
   const params = new URLSearchParams(window.location.search);
   return {
-    hazard: params.get("hazard") || "",
+    hazardGroup: params.get("hazardGroup") || params.get("hazard") || "",
     trade: params.get("trade") || "",
-    document: params.get("document") || "",
-    regulation: params.get("regulation") || "",
-    maturity: params.get("maturity") || "",
+    documentGroup: params.get("documentGroup") || params.get("document") || "",
   };
 }
 

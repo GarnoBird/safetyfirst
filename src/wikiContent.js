@@ -5121,14 +5121,360 @@ export function getRoadmapByPhase(phase) {
 
 export function getWikiFilterOptions() {
   const uniqueSorted = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const tradeOptions = uniqueSorted(wikiArticles.flatMap((article) => article.trades || []))
+    .filter((trade) => trade !== "All construction trades");
   return {
-    hazards: uniqueSorted(wikiArticles.flatMap((article) => article.hazards || [])),
-    trades: uniqueSorted(wikiArticles.flatMap((article) => article.trades || [])),
-    documents: uniqueSorted(wikiArticles.flatMap((article) => article.requiredDocuments || [])),
+    hazardGroups: WIKI_HAZARD_GROUPS.map((group) => group.label),
+    hazards: WIKI_HAZARD_GROUPS.map((group) => group.label),
+    trades: tradeOptions,
+    documentGroups: WIKI_DOCUMENT_GROUPS.map((group) => group.label),
+    documents: WIKI_DOCUMENT_GROUPS.map((group) => group.label),
     regulations: uniqueSorted(wikiArticles.flatMap((article) => article.regulationRefs || [])),
     maturities: maturityLevels,
   };
 }
+
+const WIKI_HAZARD_GROUPS = [
+  {
+    label: "Falls",
+    terms: [
+      "fall from",
+      "falls from",
+      "fall through",
+      "falls through",
+      "fall into",
+      "falls into",
+      "fall onto",
+      "falls onto",
+      "open edge",
+      "open edges",
+      "floor opening",
+      "floor openings",
+      "fragile surface",
+      "swing fall",
+      "suspension trauma",
+      "ladder failure",
+    ],
+  },
+  {
+    label: "Dropped objects / struck-by",
+    terms: [
+      "struck",
+      "dropped",
+      "falling object",
+      "falling material",
+      "flying debris",
+      "flying particle",
+      "projectile",
+      "head impact",
+      "impalement",
+    ],
+  },
+  {
+    label: "Cranes / hoisting / rigging",
+    terms: [
+      "crane",
+      "hoist",
+      "rigging",
+      "lift",
+      "load chart",
+      "dropped load",
+      "blind lift",
+      "boom",
+      "swing",
+      "tipover",
+    ],
+  },
+  {
+    label: "Mobile equipment / traffic",
+    terms: [
+      "mobile equipment",
+      "traffic",
+      "vehicle",
+      "pedestrian",
+      "backing",
+      "driver",
+      "poor visibility",
+      "equipment contact",
+      "roadwork",
+    ],
+  },
+  {
+    label: "Electrical / energization",
+    terms: [
+      "electric",
+      "electrical",
+      "energized",
+      "energization",
+      "arc flash",
+      "power line",
+      "shock",
+      "electrocution",
+      "lockout",
+      "stored energy",
+      "step potential",
+    ],
+  },
+  {
+    label: "Excavation / ground disturbance",
+    terms: [
+      "excavation",
+      "trench",
+      "cave-in",
+      "ground",
+      "utility",
+      "underground",
+      "engulfment",
+      "shoring",
+      "daylighting",
+    ],
+  },
+  {
+    label: "Confined space / atmosphere",
+    terms: [
+      "confined",
+      "atmosphere",
+      "oxygen",
+      "asphyxiation",
+      "toxic atmosphere",
+      "flammable atmosphere",
+      "ventilation",
+      "carbon monoxide",
+      "gas release",
+      "gas leak",
+    ],
+  },
+  {
+    label: "Dust / silica / asbestos / lead",
+    terms: [
+      "dust",
+      "silica",
+      "asbestos",
+      "lead",
+      "airborne",
+      "respirable",
+      "lung",
+      "fibre",
+      "fibres",
+      "respirator",
+      "poor fit",
+      "filter bypass",
+    ],
+  },
+  {
+    label: "Chemicals / WHMIS",
+    terms: [
+      "chemical",
+      "whmis",
+      "sds",
+      "hazardous product",
+      "hazardous material",
+      "compressed gas",
+      "cylinder",
+      "solvent",
+      "concrete burns",
+      "corrosive",
+    ],
+  },
+  {
+    label: "Fire / explosion / hot work",
+    terms: [
+      "fire",
+      "explosion",
+      "hot work",
+      "burn",
+      "flammable",
+      "combustible",
+      "fume",
+      "spark",
+      "welding",
+    ],
+  },
+  {
+    label: "Noise / heat / cold",
+    terms: [
+      "noise",
+      "hearing",
+      "heat",
+      "cold",
+      "hypothermia",
+      "frostbite",
+      "dehydration",
+      "weather exposure",
+    ],
+  },
+  {
+    label: "Emergency / medical / rescue",
+    terms: [
+      "emergency",
+      "medical",
+      "first aid",
+      "rescue",
+      "cardiac",
+      "aed",
+      "delayed treatment",
+      "delayed response",
+      "evacuation",
+      "muster",
+    ],
+  },
+  {
+    label: "Access / housekeeping / public interface",
+    terms: [
+      "access",
+      "egress",
+      "housekeeping",
+      "blocked",
+      "public",
+      "slip",
+      "slips",
+      "poor access",
+      "material handling",
+      "walkway",
+    ],
+  },
+  {
+    label: "Training / supervision / coordination",
+    terms: [
+      "training",
+      "instruction",
+      "supervision",
+      "coordination",
+      "communication",
+      "uncoordinated",
+      "competency",
+      "expired tickets",
+      "new worker",
+      "missed hazards",
+      "lack of participation",
+    ],
+  },
+];
+
+const WIKI_DOCUMENT_GROUPS = [
+  {
+    label: "Plans and procedures",
+    terms: [
+      "plan",
+      "procedure",
+      "program",
+      "safe work",
+      "site-specific",
+      "assessment",
+      "map",
+      "route",
+      "method",
+    ],
+  },
+  {
+    label: "Permits and notices",
+    terms: [
+      "permit",
+      "notice",
+      "authorization",
+      "written assurance",
+      "approval",
+    ],
+  },
+  {
+    label: "Training and orientation records",
+    terms: [
+      "training",
+      "orientation",
+      "instruction",
+      "worker instruction",
+      "worker training",
+    ],
+  },
+  {
+    label: "Inspections and pre-use checks",
+    terms: [
+      "inspection",
+      "pre-use",
+      "pre use",
+      "checklist",
+      "maintenance",
+      "test record",
+      "testing record",
+    ],
+  },
+  {
+    label: "Emergency and first aid documents",
+    terms: [
+      "emergency",
+      "first aid",
+      "rescue",
+      "evacuation",
+      "muster",
+      "aed",
+      "transportation",
+      "contact list",
+      "contact information",
+    ],
+  },
+  {
+    label: "Engineering / manufacturer documents",
+    terms: [
+      "engineering",
+      "engineer",
+      "manufacturer",
+      "drawing",
+      "specification",
+      "load chart",
+      "certification record",
+      "anchor documentation",
+    ],
+  },
+  {
+    label: "Exposure control and air monitoring",
+    terms: [
+      "exposure",
+      "air monitoring",
+      "atmospheric",
+      "respiratory",
+      "fit test",
+      "hazardous materials survey",
+      "asbestos inventory",
+      "hearing conservation",
+    ],
+  },
+  {
+    label: "Corrective action and incident records",
+    terms: [
+      "corrective",
+      "deficiency",
+      "incident",
+      "investigation",
+      "close-out",
+      "follow-up",
+      "refusal",
+      "hazard report",
+    ],
+  },
+  {
+    label: "Certifications / competency records",
+    terms: [
+      "certificate",
+      "certification",
+      "ticket",
+      "qualified",
+      "competency",
+      "competence",
+    ],
+  },
+  {
+    label: "Briefing / toolbox / sign-off records",
+    terms: [
+      "briefing",
+      "toolbox",
+      "sign-off",
+      "signoff",
+      "attendance",
+      "crew attendance",
+      "sign-in",
+    ],
+  },
+];
 
 export function getSearchSuggestion(query) {
   const normalizedQuery = normalize(query);
@@ -5273,12 +5619,30 @@ function matchesFilters(article, filters = {}) {
   const trades = article.trades || [];
   const documents = article.requiredDocuments || article.documents || [];
   const regulationRefs = article.regulationRefs || [];
-  if (filters.hazard && !hazards.includes(filters.hazard)) return false;
-  if (filters.trade && !trades.includes(filters.trade)) return false;
-  if (filters.document && !documents.includes(filters.document)) return false;
+  const hazardFilter = filters.hazardGroup || filters.hazard;
+  const documentFilter = filters.documentGroup || filters.document;
+  if (hazardFilter && !matchesGroupedFilter(hazards, hazardFilter, WIKI_HAZARD_GROUPS)) return false;
+  if (filters.trade && !trades.includes(filters.trade) && !trades.includes("All construction trades")) return false;
+  if (documentFilter && !matchesGroupedFilter(documents, documentFilter, WIKI_DOCUMENT_GROUPS)) return false;
   if (filters.regulation && !regulationRefs.includes(filters.regulation)) return false;
   if (filters.maturity && article.maturity !== filters.maturity) return false;
   return true;
+}
+
+function matchesGroupedFilter(values, selectedFilter, groups) {
+  const group = groups.find((item) => item.label === selectedFilter);
+  if (!group) return values.includes(selectedFilter);
+  return values.some((value) => group.terms.some((term) => valueMatchesGroupTerm(value, term)));
+}
+
+function valueMatchesGroupTerm(value, term) {
+  const normalizedValue = normalize(value);
+  const normalizedTerm = normalize(term);
+  return (
+    normalizedValue === normalizedTerm ||
+    normalizedValue.includes(normalizedTerm) ||
+    normalizedTerm.includes(normalizedValue)
+  );
 }
 
 export function slugify(value) {
