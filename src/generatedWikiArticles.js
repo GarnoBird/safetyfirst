@@ -8,7 +8,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "AEDs on Construction Sites is a BC construction safety reference page for emergency response, first aid planning, site orientation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cardiac-arrest-on-site]], [[occupational-first-aid-requirements]], [[first-aid-assessment]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -17,6 +17,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "AED",
       "defibrillator",
@@ -255,9 +268,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -279,11 +297,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to aeds on construction sites and control them before workers are exposed. {{cite:ohsr-part-32}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -338,7 +356,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -361,7 +379,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Anchor Points is a BC construction safety reference page for anchor points. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[fall-arrest]], [[fall-restraint]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -370,6 +388,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "tie off point",
       "anchorage",
@@ -570,9 +601,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -594,11 +630,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to anchor points and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-guidelines}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -651,7 +687,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -674,7 +710,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}",
       "The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}",
-      "Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -683,6 +719,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "ACM",
       "asbestos containing material",
@@ -984,9 +1033,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -1011,8 +1065,8 @@ export const generatedWikiArticles = [
         "Control asbestos fibre release during work that could disturb asbestos-containing material. {{cite:ohsr-6-7}}",
         "Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}",
         "Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}",
-        "Use appropriate respiratory protection and PPE when required by the asbestos work procedure. {{review:source}}",
-        "Confirm notification, waste handling, clearance, and documentation requirements with current WorkSafeBC and environmental sources before publication. {{review:source}}"
+        "Use appropriate respiratory protection and PPE when required by the asbestos work procedure. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Confirm notification, waste handling, clearance, and documentation requirements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Stop work immediately when suspect material is discovered outside the reviewed scope.",
@@ -1065,7 +1119,7 @@ export const generatedWikiArticles = [
         "Waste and cleanup follow the reviewed procedure.",
         "Records are kept for assessment, procedure, training, waste, and clearance if required.",
         "General dust controls are not substituted for asbestos controls.",
-        "Current WorkSafeBC asbestos requirements are checked before source-checked maturity is assigned. {{review:source}}"
+        "Asbestos requirements need official-source confirmation. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Assuming material is asbestos-free because it is hidden, painted, or not labelled.",
@@ -1088,7 +1142,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Carbon Monoxide is a BC construction safety reference page for temporary heating, generator use, equipment operation indoors, parkade work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ventilation]], [[confined-space-entry]], [[mobile-equipment]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -1097,6 +1151,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "CO",
       "exhaust gas",
@@ -1331,9 +1398,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -1355,11 +1427,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to carbon monoxide and control them before workers are exposed. {{cite:ohsr-part-9}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-20}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -1414,7 +1486,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -1437,7 +1509,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Cardiac Arrest on Site is a BC construction safety reference page for emergency response, first aid response. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[occupational-first-aid-requirements]], [[site-emergency-response-plan]], [[site-orientation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -1446,6 +1518,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "CPR",
       "AED",
@@ -1699,9 +1784,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -1723,11 +1813,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to cardiac arrest on site and control them before workers are exposed. {{cite:ohsr-part-32}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -1781,7 +1871,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -1804,7 +1894,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Cold Stress is a BC construction safety reference page for outdoor work, night work, roof work, concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-emergency-response-plan]], [[occupational-first-aid-requirements]], [[first-aid-assessment]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -1813,6 +1903,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "cold exposure",
       "hypothermia",
@@ -2028,9 +2131,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -2052,11 +2160,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-7}}",
         "Identify the hazards connected to cold stress and control them before workers are exposed. {{cite:ohsr-part-3}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-7}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -2111,7 +2219,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -2134,7 +2242,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Compressed Gas Cylinders is a BC construction safety reference page for welding, cutting, temporary heating, cylinder transport. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[welding-and-cutting]], [[hot-work]], [[fire-prevention-plan]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -2143,6 +2251,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "gas cylinders",
       "oxygen cylinders",
@@ -2369,9 +2490,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -2393,11 +2519,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to compressed gas cylinders and control them before workers are exposed. {{cite:ohsr-part-12}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-4}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -2452,7 +2578,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -2475,7 +2601,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Concrete Formwork is a BC construction safety reference page for formwork erection, concrete pouring, stripping, reshoring. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[falsework]], [[concrete-pumping]], [[leading-edge-work]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -2484,6 +2610,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "formwork",
       "forms",
@@ -2713,9 +2852,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -2737,11 +2881,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to concrete formwork and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-13}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -2796,7 +2940,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -2819,7 +2963,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Concrete Pumping is a BC construction safety reference page for concrete placing, pump setup, line cleaning, boom operation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[mobile-equipment]], [[traffic-control]], [[electrical-safety-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -2828,6 +2972,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "pump truck",
       "boom pump",
@@ -3058,9 +3215,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -3082,11 +3244,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to concrete pumping and control them before workers are exposed. {{cite:ohsr-part-16}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-19}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -3141,7 +3303,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -3164,7 +3326,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Confined space entry is not just working in a tight place. The key issue is whether the space has limited entry or exit and hazards such as poor atmosphere, engulfment, moving equipment, stored energy, or rescue difficulty. {{cite:ohsr-9-5}}",
       "A safe entry depends on the entry program, hazard assessment, isolation, atmospheric testing, ventilation, standby arrangements, communication, permit controls, and rescue service. If rescue is not planned before entry, the entry is not ready. {{cite:ohsr-9-25}} {{cite:ohsr-9-37}}",
-      "Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout|Lockout]], [[ventilation|Ventilation]], and [[respirators|Respirators]]. This is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout|Lockout]], [[ventilation|Ventilation]], and [[respirators|Respirators]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -3173,6 +3335,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "confined space",
       "entry permit",
@@ -3435,9 +3610,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -3463,7 +3643,7 @@ export const generatedWikiArticles = [
         "Test the atmosphere as required before and during entry. {{cite:ohsr-9-25}}",
         "Provide a standby person where required by the confined space classification and controls. {{cite:ohsr-9-34}}",
         "Provide rescue services before entry where required. {{cite:ohsr-9-37}}",
-        "Confirm classification, testing frequency, standby level, and rescue requirements against the current regulation before source-checked status. {{review:source}}"
+        "Confirm classification, testing frequency, standby level, and rescue requirements against the current regulation before source-checked status. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Treat every entry as a system: permit, isolation, testing, ventilation, communication, standby, and rescue.",
@@ -3516,7 +3696,7 @@ export const generatedWikiArticles = [
         "Changing work conditions trigger a permit pause and reassessment.",
         "The prime contractor and affected employers are coordinated when multiple crews are involved.",
         "Records are kept for permits, tests, training, and deficiencies.",
-        "Classification and rescue assumptions are source reviewed before public-ready maturity. {{review:source}}"
+        "Classification and rescue assumptions are source reviewed before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a short entry as safe because the worker will only be inside for a minute.",
@@ -3539,7 +3719,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Confined space rescue has to be planned before entry because a delayed or improvised rescue can injure both the entrant and the would-be rescuer. The rescue method must match the space, atmosphere, access, work, and available people or rescue service. {{cite:ohsr-9-37}}",
       "Calling emergency services may be part of the plan, but it is not the whole plan unless the site has confirmed the service can respond, access the space, and perform the required rescue in time for the hazard. {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}",
-      "Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review. {{review:source}}"
+      "Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -3548,6 +3728,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "space rescue",
       "entry rescue",
@@ -3833,9 +4026,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -3861,7 +4059,7 @@ export const generatedWikiArticles = [
         "Use atmospheric testing information to decide whether rescue personnel could be exposed to the same hazard. {{cite:ohsr-9-25}}",
         "Tie rescue planning to the confined space entry program. {{cite:ohsr-9-5}}",
         "Account for emergency rescue and evacuation worker safety in the site emergency plan. {{cite:ohsr-32-4}}",
-        "Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources. {{review:source}}"
+        "Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Prefer non-entry rescue when it can be set up without creating new hazards.",
@@ -3914,7 +4112,7 @@ export const generatedWikiArticles = [
         "The crew understands that unplanned entry rescue is not allowed.",
         "Rescue changes trigger permit suspension and reassessment.",
         "Training and drill records are maintained where required by the program.",
-        "Rescue assumptions are source checked before public-ready maturity. {{review:source}}"
+        "Rescue assumptions are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Writing 'call 911' without checking access, response, and rescue capability.",
@@ -3937,7 +4135,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Corrective Actions is a BC construction safety reference page for inspection follow-up, incident follow-up, hazard correction. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[workplace-inspections]], [[incident-investigation]], [[supervisor-duties]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -3946,6 +4144,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "action item",
       "deficiency",
@@ -4489,9 +4700,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -4513,11 +4729,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to corrective actions and control them before workers are exposed. {{cite:ohsr-part-4}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -4572,7 +4788,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -4595,7 +4811,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Crane Operator/Signaller Responsibilities is a BC construction safety reference page for hoisting, rigging, crane operation, signalling. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cranes-and-hoists]], [[rigging-basics]], [[lift-plans]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -4604,6 +4820,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "crane signaller",
       "signal person",
@@ -4830,9 +5059,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -4854,11 +5088,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-14}}",
         "Identify the hazards connected to crane operator/signaller responsibilities and control them before workers are exposed. {{cite:ohsr-part-15}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-14}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -4913,7 +5147,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -4936,7 +5170,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, exclusion zones, weather, and nearby power lines. {{cite:ohsr-14-2}}",
       "Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.",
-      "This Tier 1 draft supports field planning and still needs qualified source review before public-ready use. {{review:source}}"
+      "This Tier 1 draft supports field planning and still needs qualified source review before public-ready use. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -4945,6 +5179,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "crane pick",
       "hoisting",
@@ -5225,9 +5472,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -5253,7 +5505,7 @@ export const generatedWikiArticles = [
         "Use standard or agreed hand signals and communication methods for crane operations. {{cite:ohsr-15-20}}",
         "Inspect slings and rigging before use. {{cite:ohsr-15-31}}",
         "Control minimum distances and authorization requirements near high-voltage conductors. {{cite:ohsr-19-24-1}}",
-        "Confirm critical lift, logbook, operator credential, and inspection details against current official sources. {{review:source}}"
+        "Confirm critical lift, logbook, operator credential, and inspection details against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Plan exclusion zones before the load is rigged, not while the load is already in the air.",
@@ -5306,7 +5558,7 @@ export const generatedWikiArticles = [
         "Affected trades and public routes are controlled.",
         "Wind, visibility, ground/support conditions, and load path are monitored.",
         "Deficiencies stop the lift until corrected.",
-        "Current certification and critical-lift requirements are source checked before public-ready maturity. {{review:source}}"
+        "Current certification and critical-lift requirements are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Starting a pick before exclusion zones are set.",
@@ -5329,7 +5581,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Cranes Near Power Lines is a BC construction safety reference page for crane lift, boom truck work, concrete pumping, hoisting near lines. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cranes-and-hoists]], [[lift-plans]], [[electrical-safety-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -5338,6 +5590,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "crane power lines",
       "Plan for 10",
@@ -5590,9 +5855,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -5614,11 +5884,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-19}}",
         "Identify the hazards connected to cranes near power lines and control them before workers are exposed. {{cite:ohsr-part-14}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-15}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-19}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -5673,7 +5943,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -5696,7 +5966,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "De-Energization is a BC construction safety reference page for electrical work, maintenance, temporary power changes, equipment repair. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[lockout]], [[temporary-power]], [[electrical-safety-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -5705,6 +5975,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "deenergize",
       "zero energy",
@@ -5934,9 +6217,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -5958,11 +6246,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-10}}",
         "Identify the hazards connected to de-energization and control them before workers are exposed. {{cite:ohsr-part-19}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-12}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-10}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -6017,7 +6305,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -6040,7 +6328,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Demolition planning starts before the first wall is cut. The site needs hazardous-material checks, utility isolation, structure review, dust control, fall protection, public protection, debris handling, and a stop point when conditions differ from the plan.",
       "On site, this topic usually overlaps with [[hazardous-materials-before-demolition]], [[asbestos-basics]], [[lead-exposure-control]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -6049,6 +6337,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "demo plan",
       "demolition plan",
@@ -6342,9 +6643,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -6369,8 +6675,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-20-9}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-20-10}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-20-112}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -6425,7 +6731,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -6448,7 +6754,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Dust Control Methods is a BC construction safety reference page for cutting, grinding, drilling, demolition. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[silica-exposure-control]], [[wet-cutting]], [[hepa-vacuums]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -6457,6 +6763,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "dust control",
       "HEPA vacuum",
@@ -6743,9 +7062,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -6767,11 +7091,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to dust control methods and control them before workers are exposed. {{cite:ohsr-part-6}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -6826,7 +7150,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -6849,7 +7173,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Power-line work is high risk because workers and equipment can be injured without touching the conductor directly. Cranes, pump booms, ladders, scaffolds, dump boxes, rebar, roofing materials, and long tools can enter an unsafe distance quickly. {{cite:ohsr-19-24-1}}",
       "The field control starts by identifying overhead and nearby high-voltage conductors, establishing limits, getting required assurances or authorizations, and keeping mobile equipment, loads, and workers out of the danger zone. {{cite:ohsr-19-25}}",
-      "Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review. {{review:source}}"
+      "Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -6858,6 +7182,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "power line",
       "overhead line",
@@ -7121,9 +7458,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -7148,8 +7490,8 @@ export const generatedWikiArticles = [
         "Coordinate crane setup and operation with crane and hoist standards when hoisting equipment is part of the exposure. {{cite:ohsr-14-2}}",
         "Use clear signalling and communication where equipment movement could approach the hazard. {{cite:ohsr-15-20}}",
         "Use de-energization and lockout principles where equipment or circuits are intentionally isolated for work. {{cite:ohsr-10-6}}",
-        "Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy. {{review:source}}",
-        "Confirm emergency work exceptions and utility-owner procedures before field publication. {{review:source}}"
+        "Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Confirm emergency work exceptions and utility-owner procedures before field publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Mark power lines on the site map, lift plan, orientation, and delivery route.",
@@ -7202,7 +7544,7 @@ export const generatedWikiArticles = [
         "Crane, rigging, and delivery plans address power-line exposure.",
         "Controls are rechecked when equipment moves or conditions change.",
         "Records are kept for authorization, briefing, and deficiencies.",
-        "Distance and authorization wording is source checked before public-ready status. {{review:source}}"
+        "Distance and authorization wording is source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Planning the lift first and checking power lines after the crane arrives.",
@@ -7225,7 +7567,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Emergency Transportation is a BC construction safety reference page for first aid planning, emergency response, site logistics. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[first-aid-assessment]], [[occupational-first-aid-requirements]], [[site-emergency-response-plan]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -7234,6 +7576,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "transport plan",
       "ambulance access",
@@ -7481,9 +7836,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -7505,11 +7865,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to emergency transportation and control them before workers are exposed. {{cite:ohsr-part-32}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -7564,7 +7924,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -7587,7 +7947,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Employer Duties is a BC construction safety reference page for hiring, planning, worker instruction, subcontractor work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[prime-contractor-duties]], [[supervisor-duties]], [[worker-rights-and-responsibilities]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -7596,6 +7956,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "employer responsibilities",
       "company duties",
@@ -7819,9 +8192,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -7843,11 +8221,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to employer duties and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -7902,7 +8280,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -7925,7 +8303,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Evacuation is a BC construction safety reference page for emergency response, site orientation, fire planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-emergency-response-plan]], [[fire-prevention-plan]], [[emergency-transportation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -7934,6 +8312,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "muster",
       "evacuation drill",
@@ -8155,9 +8546,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -8179,11 +8575,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-32}}",
         "Identify the hazards connected to evacuation and control them before workers are exposed. {{cite:ohsr-part-4}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-20}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-32}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -8238,7 +8634,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -8261,7 +8657,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Excavation and trenching work can change from routine to fatal quickly when soil, water, utilities, nearby loads, traffic, or weather shift. A trench does not have to be deep for a worker to be struck, trapped, buried, or exposed to a service strike. {{cite:ohsr-20-81}}",
       "A useful excavation plan checks utilities before digging, controls surcharge loads and spoil piles, provides safe access and egress, protects workers from cave-in, and keeps mobile equipment and traffic from adding load or striking workers. {{cite:ohsr-20-79}} {{cite:ohsr-20-86}}",
-      "Use this page with [[underground-utilities|Underground Utilities]], [[excavation-spoil-piles|Excavation Spoil Piles]], [[traffic-control|Traffic Control]], and [[mobile-equipment|Mobile Equipment]]. This Tier 1 draft needs qualified source review. {{review:source}}"
+      "Use this page with [[underground-utilities|Underground Utilities]], [[excavation-spoil-piles|Excavation Spoil Piles]], [[traffic-control|Traffic Control]], and [[mobile-equipment|Mobile Equipment]]. This Tier 1 draft needs qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -8270,6 +8666,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "trench",
       "excavation",
@@ -8524,9 +8933,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -8605,7 +9019,7 @@ export const generatedWikiArticles = [
         "The excavation is inspected after weather, vibration, water, or work sequence changes.",
         "Emergency response is realistic for entrapment, utility strike, and restricted access.",
         "Deficiencies have interim controls and assigned follow-up.",
-        "Exact regulatory thresholds and exemptions are source checked before public-ready status. {{review:source}}"
+        "Exact regulatory thresholds and exemptions are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Letting a worker enter to 'just check something' before support is in place.",
@@ -8628,7 +9042,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Excavation Spoil Piles is a BC construction safety reference page for excavation, trenching, utility work, earthmoving. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[excavation-and-trenching]], [[underground-utilities]], [[mobile-equipment]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -8637,6 +9051,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "spoil pile",
       "excavated material",
@@ -8833,9 +9260,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -8857,11 +9289,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to excavation spoil piles and control them before workers are exposed. {{cite:ohsr-part-16}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -8916,7 +9348,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -8939,7 +9371,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Eye and Face Protection is a BC construction safety reference page for grinding, cutting, welding, concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ppe-basics]], [[welding-and-cutting]], [[power-tools]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -8948,6 +9380,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "safety glasses",
       "goggles",
@@ -9186,9 +9631,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -9210,11 +9660,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-8}}",
         "Identify the hazards connected to eye and face protection and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-12}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-8}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -9268,7 +9718,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -9291,7 +9741,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fall arrest is a last-line fall protection system that stops a worker after a fall has started. It is not the same as [[fall-restraint|fall restraint]], because the worker may still fall, hit lower levels, swing into structure, or hang suspended until rescue starts. {{cite:ohsr-11-2}}",
       "A fall arrest setup is only as reliable as the whole chain: harness, connector, lifeline, anchor, clearance, edge protection, compatibility, inspection, and rescue. A single weak part can make the system unsuitable for the work. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}",
-      "Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]]. This is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -9300,6 +9750,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "harness",
       "lanyard",
@@ -9614,9 +10077,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -9642,7 +10110,7 @@ export const generatedWikiArticles = [
         "Inspect and maintain fall protection equipment before use and as required by the system. {{cite:ohsr-11-9}}",
         "Remove equipment from service when it has arrested a fall or when damage, defects, or uncertainty make it unreliable. {{cite:ohsr-11-10}}",
         "Include rescue planning when fall arrest could leave a worker suspended. {{cite:ohsr-11-3}}",
-        "Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements. {{review:source}}"
+        "Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Use restraint or guardrails instead of arrest when the work can be arranged to prevent a fall.",
@@ -9695,7 +10163,7 @@ export const generatedWikiArticles = [
         "Manufacturer instructions are available for unusual or specialized equipment.",
         "Workers are supervised when using a new system or changed anchor layout.",
         "Inspection records identify deficiencies and corrective actions.",
-        "Legal references in this article have been source checked before being used as a site standard. {{review:source}}"
+        "Legal references in this article have been source checked before being used as a site standard. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Not checking fall clearance below the worker.",
@@ -9718,7 +10186,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "A fall protection plan is the site-specific explanation of how a crew will control a fall hazard when the regulation requires a written plan. It should name the hazard, the selected system, the procedures workers must follow, and the rescue method if a worker falls. {{cite:ohsr-11-3}}",
       "The useful version is short enough to brief at the work face and specific enough that a worker can find the anchor, understand the travel limit, and know when to stop. A plan that only says '100 percent tie off' is not enough if it does not explain anchors, clearance, swing-fall risk, equipment inspection, and rescue. {{cite:ohsr-11-6}}",
-      "This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist. {{review:source}}"
+      "This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -9727,6 +10195,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "fall plan",
       "tie off plan",
@@ -10026,9 +10507,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -10054,7 +10540,7 @@ export const generatedWikiArticles = [
         "The selected system still has to meet the underlying Part 11 duty to use fall protection. {{cite:ohsr-11-2}}",
         "Anchors and equipment referenced by the plan must match the applicable Part 11 requirements. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}",
         "Equipment inspections and removal from service must be addressed when the plan depends on personal fall protection equipment. {{cite:ohsr-11-9}}",
-        "Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication. {{review:source}}"
+        "Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Put the plan in the language the crew uses, but keep the legal citations tied to the official terms.",
@@ -10107,7 +10593,7 @@ export const generatedWikiArticles = [
         "Changes are recorded and communicated before work continues.",
         "The plan is coordinated with nearby trades and the prime contractor.",
         "Deficiencies have owners, interim controls, and follow-up dates.",
-        "The current legal wording has been checked before calling the plan source checked. {{review:source}}"
+        "The legal wording needs official-source confirmation before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Using a generic plan that does not name the actual edge, anchor, or rescue method.",
@@ -10130,7 +10616,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fall protection starts with choosing the control that actually prevents a worker from falling, not with handing out a harness. In BC construction, the basic question is whether the work exposes a worker to a fall hazard and whether the site can use [[guardrails|guardrails]], [[fall-restraint|fall restraint]], [[fall-arrest|fall arrest]], another equivalent system, or a work method that removes the exposure. {{cite:ohsr-11-2}}",
       "A supervisor should be able to point to the fall hazard, the chosen control, the anchor or barrier, and the rescue method before the crew starts. If the job relies on personal fall protection, the setup has to match the equipment instructions, anchor requirements, inspection requirements, and the site condition, including swing-fall paths and sharp edges. {{cite:ohsr-11-6}}",
-      "This article is a Tier 1 draft. It gives practical BC construction guidance, but the legal wording and section references still need qualified source review before anyone treats it as a compliance checklist. {{review:source}}"
+      "This article is a Tier 1 draft. It gives practical BC construction guidance, but the legal wording and section references still need qualified source review before anyone treats it as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -10139,6 +10625,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "tie off",
       "working at heights",
@@ -10519,9 +11018,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -10547,7 +11051,7 @@ export const generatedWikiArticles = [
         "Confirm anchor points are adequate for the intended fall protection system before workers connect to them. {{cite:ohsr-11-6}}",
         "Inspect and maintain fall protection equipment so damaged, worn, altered, or suspect equipment is not used. {{cite:ohsr-11-9}}",
         "Remove fall protection equipment from service after a fall arrest or when damage, defects, or uncertainty make it unreliable. {{cite:ohsr-11-10}}",
-        "Confirm the exact section wording and any applicable guideline before using this draft for enforcement, bidding, or legal advice. {{review:source}}"
+        "Confirm the exact section wording and any applicable guideline before using this draft for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Use guardrails or equivalent edge protection before personal fall protection when the work area can be protected that way.",
@@ -10600,7 +11104,7 @@ export const generatedWikiArticles = [
         "The rescue method can be started quickly with available people, access, and equipment.",
         "Adjacent trades, material deliveries, weather, and changing floor openings are controlled.",
         "Fall protection deficiencies are recorded with an owner, interim control, and follow-up time.",
-        "Any legal wording in this draft has been checked against the current WorkSafeBC source before being relied on. {{review:source}}"
+        "Any legal wording in this draft has been checked against the current WorkSafeBC source before being relied on. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a harness as the plan when the anchor, clearance, travel path, and rescue method have not been checked.",
@@ -10623,7 +11127,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fall Rescue Plan is a BC construction safety reference page for fall rescue plan. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[fall-arrest]], [[rope-access]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -10632,6 +11136,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "rescue plan",
       "suspension trauma plan",
@@ -10920,9 +11437,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -10944,11 +11466,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to fall rescue plan and control them before workers are exposed. {{cite:ohsr-part-32}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-3}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -11002,7 +11524,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -11025,7 +11547,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fall Restraint is a BC construction safety reference page for fall restraint. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[anchor-points]], [[guardrails]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -11034,6 +11556,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "travel restraint",
       "restraint line",
@@ -11266,9 +11801,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -11290,11 +11830,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to fall restraint and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-guidelines}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -11347,7 +11887,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -11370,7 +11910,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Falsework is a BC construction safety reference page for temporary support, concrete work, bridge or slab support, reshoring. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[concrete-formwork]], [[workplace-inspections]], [[corrective-actions]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -11379,6 +11919,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "temporary supports",
       "shoring",
@@ -11569,9 +12122,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -11593,11 +12151,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to falsework and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-prevention-manual}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -11652,7 +12210,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -11675,7 +12233,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fire Extinguishers is a BC construction safety reference page for hot work, temporary heating, fuel storage, site emergency response. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fire-prevention-plan]], [[hot-work]], [[evacuation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -11684,6 +12242,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "extinguisher",
       "ABC extinguisher",
@@ -11934,9 +12505,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -11958,11 +12534,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-12}}",
         "Identify the hazards connected to fire extinguishers and control them before workers are exposed. {{cite:ohsr-part-4}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-20}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-12}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -12017,7 +12593,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -12040,7 +12616,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Fire Prevention Plan is a BC construction safety reference page for site setup, hot work, temporary heating, emergency planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[hot-work]], [[fire-extinguishers]], [[evacuation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -12049,6 +12625,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "fire plan",
       "construction fire safety plan",
@@ -12330,9 +12919,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -12354,11 +12948,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-4}}",
         "Identify the hazards connected to fire prevention plan and control them before workers are exposed. {{cite:ohsr-part-12}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-20}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-4}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -12413,7 +13007,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -12436,7 +13030,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "The first aid assessment is the bridge between site risk and first aid services. It should explain supplies, attendants, facilities, communication, emergency transportation, and how the plan changes when the work changes.",
       "On site, this topic usually overlaps with [[occupational-first-aid-requirements]], [[first-aid-room]], [[emergency-transportation]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -12445,6 +13039,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "first aid risk assessment",
       "OFA assessment",
@@ -12759,9 +13366,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -12786,8 +13398,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-3-19}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-3-21}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-3-16}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -12842,7 +13454,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -12865,7 +13477,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "First Aid Room is a BC construction safety reference page for first aid setup, emergency response, site layout planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[occupational-first-aid-requirements]], [[first-aid-assessment]], [[emergency-transportation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -12874,6 +13486,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "first aid facility",
       "OFA room",
@@ -13098,9 +13723,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -13122,11 +13752,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to first aid room and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-first-aid-requirements}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -13181,7 +13811,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -13204,7 +13834,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Floor Openings and Covers is a BC construction safety reference page for decking, concrete work, formwork, demolition. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[guardrails]], [[leading-edge-work]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -13213,6 +13843,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "hole cover",
       "floor hole",
@@ -13442,9 +14085,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -13466,11 +14114,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-4}}",
         "Identify the hazards connected to floor openings and covers and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-20}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-4}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -13525,7 +14173,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -13548,7 +14196,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Gloves is a BC construction safety reference page for material handling, concrete work, chemical handling, welding. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ppe-basics]], [[whmis-basics]], [[material-handling]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -13557,6 +14205,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "work gloves",
       "cut resistant gloves",
@@ -13768,9 +14429,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -13792,11 +14458,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-8}}",
         "Identify the hazards connected to gloves and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-8}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -13850,7 +14516,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -13873,7 +14539,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Guardrails are usually the simplest and most visible way to keep workers away from edges and openings. They protect the whole crew when they are complete, strong enough, properly installed, and kept in place until another reviewed control is ready. {{cite:ohsr-4-54}}",
       "A guardrail problem is a fall protection problem. Missing midrails, loose posts, removed sections, unprotected openings, and hidden covers can expose workers who were not planning to use a harness. Guardrails connect directly to [[floor-openings-and-covers|Floor Openings and Covers]], [[fall-protection|Fall Protection]], and [[leading-edge-work|Leading Edge Work]].",
-      "This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. {{review:source}}"
+      "This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -13882,6 +14548,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "edge rails",
       "handrails",
@@ -14153,9 +14832,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -14180,8 +14864,8 @@ export const generatedWikiArticles = [
         "Use toeboards where required to control falling-object hazards from elevated work areas. {{cite:ohsr-4-60}}",
         "If guardrails are not in place and workers are exposed, use another required fall protection system. {{cite:ohsr-11-2}}",
         "If the work requires a fall protection plan, address the temporary removal or replacement of guardrails in that plan. {{cite:ohsr-11-3}}",
-        "Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. {{review:source}}",
-        "Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. {{review:source}}"
+        "Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Use guardrails as the default control for common work areas instead of relying on each worker to tie off.",
@@ -14234,7 +14918,7 @@ export const generatedWikiArticles = [
         "Toeboards or falling-object controls are considered where workers or the public are below. {{cite:ohsr-4-60}}",
         "Inspections are repeated after work sequence, weather, or trade changes.",
         "Corrections are documented and verified in the field.",
-        "Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. {{review:source}}"
+        "Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Using caution tape, cones, or verbal warnings as if they were guardrails.",
@@ -14257,7 +14941,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Hard Hats is a BC construction safety reference page for general site work, crane work, demolition, scaffold work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ppe-basics]], [[hoarding-and-public-protection]], [[cranes-and-hoists]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -14266,6 +14950,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "hard hat",
       "safety headgear",
@@ -14475,9 +15172,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -14499,11 +15201,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-8}}",
         "Identify the hazards connected to hard hats and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ppe}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-8}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -14557,7 +15259,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -14580,7 +15282,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Hazardous Materials Before Demolition is a BC construction safety reference page for renovation, demolition, restoration, tenant improvement. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[demolition-planning]], [[asbestos-basics]], [[lead-exposure-control]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -14589,6 +15291,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "hazmat survey",
       "hazardous materials survey",
@@ -14865,9 +15580,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -14889,11 +15609,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to hazardous materials before demolition and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-6}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -14948,7 +15668,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -14971,7 +15691,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Hearing Protection is a BC construction safety reference page for grinding, saw cutting, demolition, equipment operation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[noise-exposure]], [[site-orientation]], [[training-records]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -14980,6 +15700,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "ear plugs",
       "ear muffs",
@@ -15218,9 +15951,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -15242,11 +15980,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-7}}",
         "Identify the hazards connected to hearing protection and control them before workers are exposed. {{cite:ohsr-part-8}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-7}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -15301,7 +16039,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -15324,7 +16062,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Heat Stress is a BC construction safety reference page for outdoor work, roof work, concrete work, restoration work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-emergency-response-plan]], [[occupational-first-aid-requirements]], [[roof-work]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -15333,6 +16071,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "heat illness",
       "hot work environment",
@@ -15574,9 +16325,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -15598,11 +16354,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-7}}",
         "Identify the hazards connected to heat stress and control them before workers are exposed. {{cite:ohsr-part-3}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-7}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -15657,7 +16413,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -15680,7 +16436,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "HEPA Vacuums is a BC construction safety reference page for concrete drilling, grinding, cleanup, lead work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[dust-control-methods]], [[silica-exposure-control]], [[wet-cutting]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -15689,6 +16445,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "HEPA vacuum",
       "dust extractor",
@@ -15938,9 +16707,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -15962,11 +16736,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to hepa vacuums and control them before workers are exposed. {{cite:ohsr-part-6}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -16021,7 +16795,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -16044,7 +16818,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "High Visibility Apparel is a BC construction safety reference page for traffic control, deliveries, equipment work, night work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[traffic-control]], [[traffic-control-persons]], [[mobile-equipment]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -16053,6 +16827,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "hi-vis",
       "high vis",
@@ -16286,9 +17073,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -16310,11 +17102,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-8}}",
         "Identify the hazards connected to high visibility apparel and control them before workers are exposed. {{cite:ohsr-part-18}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-16}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-8}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -16368,7 +17160,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -16391,7 +17183,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Hoarding and Public Protection is a BC construction safety reference page for site setup, demolition, overhead work, traffic/public interface. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[traffic-control]], [[traffic-control-plans]], [[fire-prevention-plan]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -16400,6 +17192,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "hoarding",
       "public protection",
@@ -16634,9 +17439,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -16658,11 +17468,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to hoarding and public protection and control them before workers are exposed. {{cite:ohsr-part-4}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-18}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -16717,7 +17527,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -16740,7 +17550,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Hot work should be treated as an ignition-control job. Before welding, cutting, burning, soldering, or grinding starts, the crew needs fuel control, fire watch, extinguisher access, emergency notification, and follow-up after the sparks stop.",
       "On site, this topic usually overlaps with [[fire-prevention-plan]], [[fire-extinguishers]], [[whmis-basics]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -16749,6 +17559,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "welding",
       "cutting",
@@ -17066,9 +17889,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -17093,8 +17921,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-4-17}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-5-99}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-4-1}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -17149,7 +17977,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -17172,7 +18000,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Housekeeping is a production control because poor access, stored material, trailing cords, slurry, waste, and debris create falls, fires, struck-by hazards, and emergency-access delays.",
       "On site, this topic usually overlaps with [[workplace-inspections]], [[corrective-actions]], [[dust-control-methods]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -17181,6 +18009,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "clean up",
       "site cleanup",
@@ -17439,9 +18280,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -17466,8 +18312,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-4-13}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-20-9}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-4-1}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -17522,7 +18368,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -17545,7 +18391,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Incident Investigation is a BC construction safety reference page for incident investigation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[workplace-inspections]], [[corrective-actions]], [[supervisor-duties]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -17554,6 +18400,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "accident investigation",
       "near miss",
@@ -17877,9 +18736,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -17901,11 +18765,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to incident investigation and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-guidelines}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -17959,7 +18823,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -17982,7 +18846,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "JHSC Requirements is a BC construction safety reference page for committee meetings, inspections, incident review, recommendations. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[worker-rights-and-responsibilities]], [[workplace-inspections]], [[incident-investigation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -17991,6 +18855,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "joint committee",
       "JOHSC",
@@ -18210,9 +19087,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -18234,11 +19116,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to jhsc requirements and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -18293,7 +19175,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -18316,7 +19198,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Ladder Inspection is a BC construction safety reference page for access, short-duration work, inspection before use. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ladders]], [[fall-protection]], [[workplace-inspections]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -18325,6 +19207,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "ladder checklist",
       "ladder pre-use inspection",
@@ -18523,9 +19418,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -18547,11 +19447,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}",
         "Identify the hazards connected to ladder inspection and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -18605,7 +19505,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -18628,7 +19528,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Ladders are access tools, not default work platforms. The practical field decision is whether the ladder is the right equipment, set on stable footing, inspected, positioned, and limited to work that can be done without overreaching or carrying awkward loads.",
       "On site, this topic usually overlaps with [[fall-protection]], [[scaffolds]], [[site-orientation]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -18637,6 +19537,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "step ladder",
       "extension ladder",
@@ -18923,9 +19836,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -18950,8 +19868,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-13-5}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-13-6}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-13-2}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -19004,7 +19922,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -19027,7 +19945,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Lead Exposure Control is a BC construction safety reference page for paint removal, demolition, welding/cutting, abrasive blasting. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[hazardous-materials-before-demolition]], [[demolition-planning]], [[respirators]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -19036,6 +19954,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "lead paint",
       "lead dust",
@@ -19289,9 +20220,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -19313,11 +20249,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-6}}",
         "Identify the hazards connected to lead exposure control and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-6}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -19372,7 +20308,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -19395,7 +20331,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Leading Edge Work is a BC construction safety reference page for decking, formwork, roof work, concrete edge work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[fall-protection-plan]], [[anchor-points]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -19404,6 +20340,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "leading edge",
       "deck edge",
@@ -19630,9 +20579,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -19654,11 +20608,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to leading edge work and control them before workers are exposed. {{cite:ohsr-part-20}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -19713,7 +20667,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -19736,7 +20690,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Lift Plans is a BC construction safety reference page for crane pick, rigging, tilt-up, concrete pump setup. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cranes-and-hoists]], [[rigging-basics]], [[cranes-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -19745,6 +20699,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "crane lift plan",
       "critical lift plan",
@@ -19987,9 +20954,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -20011,11 +20983,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-14}}",
         "Identify the hazards connected to lift plans and control them before workers are exposed. {{cite:ohsr-part-15}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-16}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-14}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -20070,7 +21042,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -20093,7 +21065,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Lockout controls hazardous energy before repair, adjustment, cleaning, clearing jams, or maintenance. A worker's personal lock and a verified zero-energy state are the core field controls.",
       "On site, this topic usually overlaps with [[de-energization]], [[power-tools]], [[temporary-power]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -20102,6 +21074,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "LOTO",
       "lock out",
@@ -20365,9 +21350,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -20392,8 +21382,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-10-6}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-10-7}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-10-3}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -20448,7 +21438,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -20471,7 +21461,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Material Handling is a BC construction safety reference page for deliveries, storage, manual lifting, hoisting. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[housekeeping]], [[mobile-equipment]], [[rigging-basics]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -20480,6 +21470,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "manual handling",
       "safe lifting",
@@ -20726,9 +21729,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -20750,11 +21758,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-4}}",
         "Identify the hazards connected to material handling and control them before workers are exposed. {{cite:ohsr-part-14}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-15}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-4}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -20809,7 +21817,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -20832,7 +21840,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Mobile Elevating Work Platforms is a BC construction safety reference page for elevated work, installation, maintenance, exterior work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[work-platforms]], [[fall-protection]], [[electrical-safety-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -20841,6 +21849,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "MEWP",
       "EWP",
@@ -21074,9 +22095,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -21098,11 +22124,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}",
         "Identify the hazards connected to mobile elevating work platforms and control them before workers are exposed. {{cite:ohsr-part-16}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-11}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -21157,7 +22183,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -21180,7 +22206,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Mobile equipment planning needs separation, visibility, load control, parking control, riders, communication, and maintenance discipline. The blind spot or swing radius that feels normal to the operator can be invisible to pedestrians.",
       "On site, this topic usually overlaps with [[traffic-control]], [[excavation-and-trenching]], [[cranes-and-hoists]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -21189,6 +22215,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "equipment",
       "telehandler",
@@ -21534,9 +22573,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -21561,8 +22605,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-16-10}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-16-11}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-16-7}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -21616,7 +22660,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -21639,7 +22683,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Mould in Restoration is a BC construction safety reference page for restoration, water damage cleanup, demolition, drywall removal. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[hazardous-materials-before-demolition]], [[respirators]], [[whmis-basics]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -21648,6 +22692,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "mould remediation",
       "mold remediation",
@@ -21904,9 +22961,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -21928,11 +22990,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to mould in restoration and control them before workers are exposed. {{cite:ohsr-part-20}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -21987,7 +23049,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -22010,7 +23072,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Noise Exposure is a BC construction safety reference page for saw cutting, grinding, concrete work, equipment operation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[hearing-protection]], [[power-tools]], [[demolition-planning]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -22019,6 +23081,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "construction noise",
       "loud tools",
@@ -22252,9 +23327,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -22276,11 +23356,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-7}}",
         "Identify the hazards connected to noise exposure and control them before workers are exposed. {{cite:ohsr-part-8}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-7}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -22335,7 +23415,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -22358,7 +23438,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Notice of Project is a BC construction safety reference page for project startup, tower crane activity, construction planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[prime-contractor-duties]], [[ohs-program]], [[cranes-and-hoists]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -22367,6 +23447,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "NOP",
       "notice to worksafebc",
@@ -22591,9 +23684,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -22615,11 +23713,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to notice of project and control them before workers are exposed. {{cite:ohsr-part-14}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -22673,7 +23771,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -22696,7 +23794,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Occupational first aid requirements tell the employer what first aid resources, attendants, procedures, communication, supplies, facilities, records, and transportation arrangements are needed for the workplace. On construction sites, the answer can change with crew size, location, access, remoteness, and hazard level. {{cite:ohsr-3-16}}",
       "The useful field test is whether a worker can get first aid quickly, the attendant can be contacted, supplies are available, and transportation has been planned before a serious incident happens. {{cite:ohsr-3-18}}",
-      "Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review. {{review:source}}"
+      "Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -22705,6 +23803,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "first aid requirements",
       "OFA",
@@ -23201,9 +24312,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -23228,8 +24344,8 @@ export const generatedWikiArticles = [
         "Maintain first aid records as required while protecting worker privacy. {{cite:ohsr-3-19}}",
         "Ensure first aid attendants carry out their assigned responsibilities within the regulation. {{cite:ohsr-3-21}}",
         "Coordinate emergency rescue and evacuation worker safety where site emergency response requires it. {{cite:ohsr-32-4}}",
-        "Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication. {{review:source}}",
-        "Do not use this article as medical advice or as a substitute for certified first aid training. {{review:source}}"
+        "Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Do not use this article as medical advice or as a substitute for certified first aid training. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Post first aid contact information where workers actually enter, gather, and call from.",
@@ -23282,7 +24398,7 @@ export const generatedWikiArticles = [
         "Emergency access, gate control, hoists, and traffic plans support transport.",
         "Deficiencies in supplies, posting, rooms, or attendant coverage are corrected promptly.",
         "The plan is reviewed after incident or site changes.",
-        "Current first aid amendments and assessment tables are source checked before public-ready maturity. {{review:source}}"
+        "Current first aid amendments and assessment tables are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Using last month's crew count after the site has grown.",
@@ -23305,7 +24421,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "OHS Program is a BC construction safety reference page for program setup, site safety planning, employer safety management. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[employer-duties]], [[supervisor-duties]], [[site-orientation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -23314,6 +24430,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "safety program",
       "health and safety program",
@@ -23561,9 +24690,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -23585,11 +24719,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to ohs program and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -23644,7 +24778,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -23667,7 +24801,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Powder-Actuated Tools is a BC construction safety reference page for fastening to concrete, fastening to steel, interior construction, formwork fastening. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[power-tools]], [[eye-and-face-protection]], [[hearing-protection]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -23676,6 +24810,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "Hilti gun",
       "Ramset",
@@ -23883,9 +25030,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -23907,11 +25059,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-12}}",
         "Identify the hazards connected to powder-actuated tools and control them before workers are exposed. {{cite:ohsr-part-8}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-7}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-12}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -23966,7 +25118,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -23989,7 +25141,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Power Tools is a BC construction safety reference page for cutting, grinding, drilling, fastening. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[eye-and-face-protection]], [[hearing-protection]], [[respirators]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -23998,6 +25150,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "portable power tools",
       "saws",
@@ -24243,9 +25408,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -24267,11 +25437,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-12}}",
         "Identify the hazards connected to power tools and control them before workers are exposed. {{cite:ohsr-part-8}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-19}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-12}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -24326,7 +25496,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -24349,7 +25519,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "PPE is the backup control, not the whole safety plan. The useful field decision is whether the hazard was controlled as far upstream as practical before workers rely on hard hats, glasses, gloves, boots, hearing protection, high-visibility clothing, or respirators.",
       "On site, this topic usually overlaps with [[hard-hats]], [[eye-and-face-protection]], [[high-visibility-apparel]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -24358,6 +25528,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "PPE",
       "personal protective equipment",
@@ -24648,9 +25831,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -24675,8 +25863,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-8-7}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-8-32}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-8-2}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -24731,7 +25919,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -24754,7 +25942,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Prime Contractor Duties is a BC construction safety reference page for site coordination, subcontractor coordination, project startup. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[employer-duties]], [[supervisor-duties]], [[worker-rights-and-responsibilities]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -24763,6 +25951,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "prime contractor",
       "site prime",
@@ -25211,9 +26412,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -25235,11 +26441,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to prime contractor duties and control them before workers are exposed. {{cite:ohsr-part-20}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-regulation}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -25294,7 +26500,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -25317,7 +26523,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Rebar Impalement Protection is a BC construction safety reference page for rebar installation, concrete work, formwork, deck work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[concrete-formwork]], [[floor-openings-and-covers]], [[fall-protection]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -25326,6 +26532,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "rebar caps",
       "impalement hazard",
@@ -25554,9 +26773,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -25578,11 +26802,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to rebar impalement protection and control them before workers are exposed. {{cite:ohsr-part-4}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-11}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -25637,7 +26861,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -25660,7 +26884,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Refusal of Unsafe Work is a BC construction safety reference page for unsafe task reporting, supervisor investigation, work refusal follow-up. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[worker-rights-and-responsibilities]], [[supervisor-duties]], [[corrective-actions]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -25669,6 +26893,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "right to refuse",
       "unsafe work refusal",
@@ -25896,9 +27133,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -25920,11 +27162,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to refusal of unsafe work and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -25979,7 +27221,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -26002,7 +27244,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Respirators protect workers only when the right respirator is selected, fitted, used, maintained, and backed by a respiratory protection program. A dust mask grabbed from a box is not enough for silica, asbestos, lead, or chemical exposure unless the whole program and exposure control decision support that choice. {{cite:ohsr-8-32}}",
       "Respirators should follow exposure control, not replace it. For tasks like concrete cutting, asbestos disturbance, lead work, or chemical use, the employer still needs to control the source and work method before relying on respiratory protection. {{cite:ohsr-5-54}}",
-      "Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -26011,6 +27253,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "dust mask",
       "half mask",
@@ -26357,9 +27612,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -26384,8 +27644,8 @@ export const generatedWikiArticles = [
         "Provide instruction and training for PPE use, limits, inspection, maintenance, and storage where required. {{cite:ohsr-8-7}}",
         "Tie respirator selection to the exposure control plan when the hazard requires written exposure control. {{cite:ohsr-5-54}}",
         "For silica work, confirm respiratory protection requirements against the silica exposure control plan. {{cite:ohsr-6-112}}",
-        "Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. {{review:source}}",
-        "Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. {{review:source}}"
+        "Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Select the respirator from the hazard and exposure, not from what happens to be in the gang box.",
@@ -26438,7 +27698,7 @@ export const generatedWikiArticles = [
         "Facial hair, eyewear, hard hats, and other PPE do not break the respirator seal.",
         "Cleaning, storage, cartridge change, and replacement records are maintained as needed.",
         "Respirator problems trigger a pause and exposure control review.",
-        "Respirator legal claims are source checked before public-ready maturity is assigned. {{review:source}}"
+        "Respirator legal claims are confirmed before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Calling any disposable mask a respirator without checking the hazard and program.",
@@ -26461,7 +27721,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Rigging is the connection between the load and the crane, hoist, forklift attachment, or lifting device. If the wrong sling, shackle, hook, hitch, angle, edge protection, or lifting point is used, the load can shift, fall, or crush workers during landing. {{cite:ohsr-15-4}}",
       "Basic rigging work still requires competent judgement. A worker needs to know the load weight, center of gravity, sling angle, condition of rigging, communication method, and where people will stand before the lift starts. {{cite:ohsr-15-2}}",
-      "Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]]. This is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -26470,6 +27730,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "sling",
       "shackle",
@@ -26734,9 +28007,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -26761,8 +28039,8 @@ export const generatedWikiArticles = [
         "Use recognized hand signals or communication methods for crane work. {{cite:ohsr-15-20}}",
         "Inspect slings before use and remove defective rigging from service. {{cite:ohsr-15-31}}",
         "Coordinate rigging requirements with the crane and hoist standards that apply to the lifting equipment. {{cite:ohsr-14-2}}",
-        "Confirm current rejection criteria for each rigging type before publishing a field checklist. {{review:source}}",
-        "Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply. {{review:source}}"
+        "Confirm current rejection criteria for each rigging type before publishing a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Use a short pre-lift talk for unusual loads, blind lifts, multiple riggers, or congested landing areas.",
@@ -26815,7 +28093,7 @@ export const generatedWikiArticles = [
         "Workers are protected from suspended loads and landing pinch points.",
         "Tag lines, if used, can be handled from a safe position.",
         "Lift changes trigger a pause and review.",
-        "Rejection criteria and legal wording are source checked before public-ready status. {{review:source}}"
+        "Rejection criteria and legal wording are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Using a sling because it is nearby instead of because it is rated and suitable.",
@@ -26838,7 +28116,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Roof Work is a BC construction safety reference page for roofing, membrane work, roof access, material staging. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[guardrails]], [[fall-restraint]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -26847,6 +28125,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "roofing",
       "flat roof",
@@ -27112,9 +28403,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -27136,11 +28432,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to roof work and control them before workers are exposed. {{cite:ohsr-part-20}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-13}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -27195,7 +28491,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -27218,7 +28514,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Rope Access is a BC construction safety reference page for exterior access, inspection, repair work, difficult access work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-protection]], [[anchor-points]], [[fall-rescue-plan]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -27227,6 +28523,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "rope access system",
       "industrial rope access",
@@ -27436,9 +28745,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -27460,11 +28774,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-34}}",
         "Identify the hazards connected to rope access and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-34}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -27519,7 +28833,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -27542,7 +28856,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Safety Footwear is a BC construction safety reference page for general construction, concrete work, demolition, excavation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[ppe-basics]], [[material-handling]], [[housekeeping]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -27551,6 +28865,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "safety boots",
       "steel toes",
@@ -27749,9 +29076,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -27773,11 +29105,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-8}}",
         "Identify the hazards connected to safety footwear and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ppe}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-8}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -27830,7 +29162,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -27853,7 +29185,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Scaffold Inspection is a BC construction safety reference page for scaffold erection, scaffold use, daily inspection, alteration review. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[scaffolds]], [[work-platforms]], [[guardrails]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -27862,6 +29194,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "scaffold tag",
       "scaffold checklist",
@@ -28082,9 +29427,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -28106,11 +29456,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}",
         "Identify the hazards connected to scaffold inspection and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-4}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -28165,7 +29515,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -28188,7 +29538,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "A scaffold is only as good as its setup, access, platform, ties, inspection, and use rules. Crews need to know whether the scaffold is ready for use, what has changed since the last inspection, and who can modify it.",
       "On site, this topic usually overlaps with [[fall-protection]], [[guardrails]], [[ladders]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -28197,6 +29547,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "scaffold",
       "frame scaffold",
@@ -28488,9 +29851,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -28515,8 +29883,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-13-9}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-13-10}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-13-2}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -28569,7 +29937,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -28592,7 +29960,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Serious Injury Reporting is a BC construction safety reference page for emergency response, incident notification, scene protection. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[incident-investigation]], [[corrective-actions]], [[occupational-first-aid-requirements]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -28601,6 +29969,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "serious incident",
       "fatality reporting",
@@ -28796,9 +30177,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -28820,11 +30206,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to serious injury reporting and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -28879,7 +30265,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -28902,7 +30288,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Silica exposure control is about preventing workers from breathing respirable crystalline silica during tasks such as cutting, grinding, drilling, coring, chipping, crushing, or cleaning concrete, masonry, stone, tile, or rock. The dust that matters most is often too fine to judge by sight. {{cite:ohsr-6-110}}",
       "Effective control usually combines wet methods, local exhaust, HEPA cleanup, restricted access, training, and a respirator program when respiratory protection is required. Respirators are not a substitute for dust control; they are one part of the system when exposure cannot be controlled another way. {{cite:ohsr-6-111}}",
-      "Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [[respirators|Respirators]], and [[dust-control-methods|Dust Control Methods]]. It is a Tier 1 draft pending qualified source review. {{review:source}}"
+      "Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [[respirators|Respirators]], and [[dust-control-methods|Dust Control Methods]]. It is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -28911,6 +30297,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "silica dust",
       "concrete dust",
@@ -29212,9 +30611,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -29240,7 +30644,7 @@ export const generatedWikiArticles = [
         "Use written work procedures where required to control worker exposure. {{cite:ohsr-5-55}}",
         "Use a respiratory protection program when respirators are required as part of the control strategy. {{cite:ohsr-8-32}}",
         "Fit test respirators where the regulation requires fit testing for the respirator being used. {{cite:ohsr-8-39}}",
-        "Confirm current exposure limits, monitoring expectations, and guideline wording before marking this article source checked. {{review:source}}"
+        "Confirm current exposure limits, monitoring expectations, and guideline wording before marking this article source checked. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Plan the job around wet cutting or tool-mounted extraction before workers mobilize.",
@@ -29293,7 +30697,7 @@ export const generatedWikiArticles = [
         "Dry sweeping and blowdown are prevented.",
         "Controls are checked during the task, not only at setup.",
         "Waste and slurry are managed without creating new exposure.",
-        "Exposure-limit and monitoring assumptions have been source reviewed before public-ready status. {{review:source}}"
+        "Exposure-limit and monitoring assumptions have been source reviewed before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Calling a paper mask a respirator without a respiratory protection program.",
@@ -29316,7 +30720,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "An emergency response plan has to work during a bad day, with the actual access, address, people, equipment, communication gaps, weather, and first aid coverage on the site.",
       "On site, this topic usually overlaps with [[cardiac-arrest-on-site]], [[occupational-first-aid-requirements]], [[site-orientation]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -29325,6 +30729,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "ERP",
       "emergency plan",
@@ -29721,9 +31138,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -29748,8 +31170,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-5-101}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-5-102}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-4-13}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -29803,7 +31225,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -29826,7 +31248,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Site orientation should connect a worker to the real hazards and rules of the site, not just a signature sheet. New workers need to know where to go, who supervises them, what tasks they may do, and how to report unsafe work.",
       "On site, this topic usually overlaps with [[young-new-worker-orientation]], [[worker-rights-and-responsibilities]], [[occupational-first-aid-requirements]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -29835,6 +31257,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "new worker orientation",
       "worker orientation",
@@ -30363,9 +31798,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -30390,8 +31830,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-3-25}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-4-16}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-3-22}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -30445,7 +31885,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -30468,7 +31908,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Site-Specific Safety Plan is a BC construction safety reference page for project startup, prime contractor coordination, orientation, high-risk work planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[prime-contractor-duties]], [[ohs-program]], [[site-orientation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -30477,6 +31917,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "SSSP",
       "site safety plan",
@@ -31046,9 +32499,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -31070,11 +32528,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to site-specific safety plan and control them before workers are exposed. {{cite:ohsr-part-20}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -31129,7 +32587,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -31152,7 +32610,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Supervisor Duties is a BC construction safety reference page for pre-job planning, task supervision, hazard correction. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[employer-duties]], [[worker-rights-and-responsibilities]], [[toolbox-talks]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -31161,6 +32619,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "foreman duties",
       "foreperson duties",
@@ -31522,9 +32993,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -31546,11 +33022,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to supervisor duties and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -31605,7 +33081,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -31628,7 +33104,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Suspension Trauma is a BC construction safety reference page for fall arrest work, rescue planning, emergency response. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[fall-rescue-plan]], [[fall-arrest]], [[fall-protection]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -31637,6 +33113,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "suspension intolerance",
       "harness trauma",
@@ -31859,9 +33348,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -31883,11 +33377,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-11}}",
         "Identify the hazards connected to suspension trauma and control them before workers are exposed. {{cite:ohsr-part-32}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-3}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-11}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -31942,7 +33436,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -31965,7 +33459,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Swing Stages is a BC construction safety reference page for facade work, envelope work, window installation, exterior repair. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[work-platforms]], [[fall-protection]], [[fall-arrest]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -31974,6 +33468,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "swing stage",
       "suspended scaffold",
@@ -32190,9 +33697,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -32214,11 +33726,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}",
         "Identify the hazards connected to swing stages and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -32273,7 +33785,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -32296,7 +33808,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Temporary Power is a BC construction safety reference page for site setup, power distribution, tool use, temporary lighting. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[electrical-safety-near-power-lines]], [[de-energization]], [[lockout]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -32305,6 +33817,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "temp power",
       "temporary electrical",
@@ -32542,9 +34067,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -32566,11 +34096,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-19}}",
         "Identify the hazards connected to temporary power and control them before workers are exposed. {{cite:ohsr-part-10}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-4}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-19}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -32625,7 +34155,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -32648,7 +34178,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Tilt-Up Construction is a BC construction safety reference page for panel casting, panel lifting, temporary bracing, crane pick. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cranes-and-hoists]], [[rigging-basics]], [[lift-plans]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -32657,6 +34187,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "tilt-up",
       "tilt wall",
@@ -32871,9 +34414,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -32895,11 +34443,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to tilt-up construction and control them before workers are exposed. {{cite:ohsr-part-14}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-16}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -32954,7 +34502,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -32977,7 +34525,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Toolbox Talks is a BC construction safety reference page for pre-job briefing, crew communication, daily planning. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[supervisor-duties]], [[young-new-worker-orientation]], [[training-records]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -32986,6 +34534,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "tailgate meeting",
       "safety meeting",
@@ -33509,9 +35070,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -33533,11 +35099,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to toolbox talks and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:bccsa}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -33592,7 +35158,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -33615,7 +35181,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Traffic control persons need clear authority, visibility, communication, positioning, escape routes, and supervision. They should not be left to fix a poor traffic setup by hand signals alone.",
       "On site, this topic usually overlaps with [[traffic-control]], [[traffic-control-plans]], [[high-visibility-apparel]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -33624,6 +35190,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "TCP",
       "flagger",
@@ -33870,9 +35449,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -33897,8 +35481,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-18-4}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-18-5}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-18-3}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -33953,7 +35537,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -33976,7 +35560,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "A traffic control plan turns moving vehicles, workers, equipment, and pedestrians into a controlled work zone. It needs to match the road, speed, visibility, work sequence, and setup in the field.",
       "On site, this topic usually overlaps with [[traffic-control]], [[traffic-control-persons]], [[high-visibility-apparel]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -33985,6 +35569,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "TCP plan",
       "traffic management plan",
@@ -34231,9 +35828,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -34258,8 +35860,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-18-4}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-18-5}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-18-3}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -34314,7 +35916,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -34337,7 +35939,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Traffic control protects workers, drivers, pedestrians, cyclists, and the public where construction work interacts with roads, lanes, sidewalks, parkades, deliveries, backing equipment, or temporary routes. The plan has to match the actual traffic speed, sight lines, work activity, and public interface. {{cite:ohsr-18-3}}",
       "Good traffic control is not just placing cones. It includes risk assessment, a traffic control plan where required, supervision, device placement, trained traffic control persons, pedestrian detours, delivery coordination, lighting, and high-visibility apparel. {{cite:ohsr-18-3-1}} {{cite:ohsr-18-3-2}}",
-      "Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. {{review:source}}"
+      "Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Intermediate",
@@ -34346,6 +35948,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 1",
     "maturity": "Draft",
     "reviewPriority": "High-risk legal/source hardening",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 1",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "TCP",
       "flagger",
@@ -34686,9 +36301,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.",
       "Field reviewer should confirm the checklist fits BC construction site practice for the intended audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -34713,8 +36333,8 @@ export const generatedWikiArticles = [
         "Provide supervision for traffic control as required by the regulation. {{cite:ohsr-18-4}}",
         "Place temporary traffic control devices in accordance with the applicable requirements. {{cite:ohsr-18-5}}",
         "Use appropriate high-visibility and PPE controls for workers exposed to traffic. {{cite:ohsr-8-4}}",
-        "Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. {{review:source}}",
-        "Confirm whether additional road authority permits or standards apply to the specific road or municipality. {{review:source}}"
+        "Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Confirm whether additional road authority permits or standards apply to the specific road or municipality. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Separate pedestrians from vehicle movement with physical controls where practical.",
@@ -34767,7 +36387,7 @@ export const generatedWikiArticles = [
         "Deliveries, concrete pours, crane picks, and emergency access are coordinated.",
         "The setup is inspected after weather, darkness, traffic changes, or device movement.",
         "Incidents and near misses trigger plan review.",
-        "Current road authority and training requirements are source checked before public-ready status. {{review:source}}"
+        "Current road authority and training requirements are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Using a generic cone layout that does not match traffic speed or sight distance.",
@@ -34790,7 +36410,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Training Records is a BC construction safety reference page for onboarding, task assignment, competency tracking. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-orientation]], [[young-new-worker-orientation]], [[supervisor-duties]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -34799,6 +36419,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "competency record",
       "ticket record",
@@ -35342,9 +36975,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -35366,11 +37004,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to training records and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-young-new-workers}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -35425,7 +37063,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -35448,7 +37086,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Underground Utilities is a BC construction safety reference page for excavation, drilling, trenching, utility crossing. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[excavation-and-trenching]], [[excavation-spoil-piles]], [[site-emergency-response-plan]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -35457,6 +37095,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "utility locates",
       "BC 1 Call",
@@ -35665,9 +37316,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -35689,11 +37345,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-20}}",
         "Identify the hazards connected to underground utilities and control them before workers are exposed. {{cite:ohsr-part-19}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-32}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-20}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -35748,7 +37404,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -35771,7 +37427,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Ventilation is a BC construction safety reference page for silica work, lead work, mould remediation, hot work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[carbon-monoxide]], [[silica-exposure-control]], [[lead-exposure-control]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -35780,6 +37436,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "local exhaust",
       "air movement",
@@ -36048,9 +37717,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -36072,11 +37746,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-4}}",
         "Identify the hazards connected to ventilation and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-9}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-4}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -36131,7 +37805,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -36154,7 +37828,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Welding and Cutting is a BC construction safety reference page for hot work, steel work, demolition, repair work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[hot-work]], [[fire-extinguishers]], [[compressed-gas-cylinders]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -36163,6 +37837,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "welding",
       "cutting",
@@ -36399,9 +38086,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -36423,11 +38115,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-12}}",
         "Identify the hazards connected to welding and cutting and control them before workers are exposed. {{cite:ohsr-part-5}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-12}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -36482,7 +38174,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -36505,7 +38197,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Wet Cutting is a BC construction safety reference page for concrete cutting, coring, masonry cutting, tile cutting. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[silica-exposure-control]], [[dust-control-methods]], [[respirators]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -36514,6 +38206,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "water control",
       "wet saw",
@@ -36752,9 +38457,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -36776,11 +38486,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to wet cutting and control them before workers are exposed. {{cite:ohsr-part-6}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-8}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -36835,7 +38545,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -36858,7 +38568,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "WHMIS Basics is a BC construction safety reference page for whmis basics. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[respirators]], [[ppe-basics]], [[site-orientation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -36867,6 +38577,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "SDS",
       "MSDS",
@@ -37109,9 +38832,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -37133,11 +38861,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-5}}",
         "Identify the hazards connected to whmis basics and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-ohs-guidelines}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-5}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -37191,7 +38919,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -37214,7 +38942,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Work Platforms is a BC construction safety reference page for elevated work, scaffold work, interior finishing, exterior work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[scaffolds]], [[swing-stages]], [[mobile-elevating-work-platforms]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -37223,6 +38951,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "temporary work platform",
       "platform",
@@ -37452,9 +39193,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -37476,11 +39222,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-13}}",
         "Identify the hazards connected to work platforms and control them before workers are exposed. {{cite:ohsr-part-11}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-4}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-13}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -37535,7 +39281,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -37558,7 +39304,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Worker Rights and Responsibilities is a BC construction safety reference page for daily work, hazard reporting, safety participation. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[refusal-of-unsafe-work]], [[site-orientation]], [[young-new-worker-orientation]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -37567,6 +39313,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "worker rights",
       "worker duties",
@@ -38101,9 +39860,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -38125,11 +39889,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to worker rights and responsibilities and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:workers-compensation-act}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -38183,7 +39947,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",
@@ -38206,7 +39970,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Workplace inspections are a field feedback loop. They find changed conditions, assign corrective action, and give supervisors a way to prove hazards were checked before people kept working.",
       "On site, this topic usually overlaps with [[corrective-actions]], [[incident-investigation]], [[supervisor-duties]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.",
-      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}"
+      "This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -38215,6 +39979,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 2",
     "maturity": "Draft",
     "reviewPriority": "Common field-use review",
+    "prepStatus": "Needs human source review",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "site inspection",
       "safety inspection",
@@ -38801,9 +40578,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should confirm each exact section supports the article's legal bullets.",
       "Field reviewer should confirm the checklist fits common BC construction practice."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -38828,8 +40610,8 @@ export const generatedWikiArticles = [
         "Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-4-13}}",
         "Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-4-14}}",
         "Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-3-5}}",
-        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}",
-        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}"
+        "Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Check whether the hazard can be eliminated, isolated, engineered out, or scheduled differently before relying on PPE or reminders.",
@@ -38884,7 +40666,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due date, and interim control.",
         "A change in conditions triggers a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}"
+        "The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a broad source link as if it proves every site-specific requirement.",
@@ -38907,7 +40689,7 @@ export const generatedWikiArticles = [
     "summaryParagraphs": [
       "Young/New Worker Orientation is a BC construction safety reference page for orientation, onboarding, task assignment. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-orientation]], [[worker-rights-and-responsibilities]], [[supervisor-duties]] so the topic does not sit apart from the rest of the site safety system.",
-      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. {{review:source}}"
+      "This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}"
     ],
     "jurisdiction": "BC",
     "difficulty": "Basic",
@@ -38916,6 +40698,19 @@ export const generatedWikiArticles = [
     "reviewTier": "Tier 3",
     "maturity": "Draft",
     "reviewPriority": "Support/reference review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-20",
+    "prepReviewTier": "Tier 3",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
     "aliases": [
       "young worker",
       "new worker",
@@ -39142,9 +40937,14 @@ export const generatedWikiArticles = [
       "0.1 scaffold: Initial structured article draft."
     ],
     "reviewerNotes": [
-      "Tier 3 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}",
+      "Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}",
       "Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.",
       "Field reviewer should confirm that the checklist is useful for the intended construction audience."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
     ],
     "review": {
       "lastReviewed": "2026-06-20",
@@ -39166,11 +40966,11 @@ export const generatedWikiArticles = [
         "Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-3}}",
         "Identify the hazards connected to young/new worker orientation and control them before workers are exposed. {{cite:worksafebc-ohs-regulation}}",
         "Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:worksafebc-young-new-workers}}",
-        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. {{review:source}}",
+        "Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
         "Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-3}}",
-        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. {{review:source}}",
-        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. {{review:source}}",
-        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. {{review:source}}"
+        "Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}",
+        "A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}"
       ],
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
@@ -39225,7 +41025,7 @@ export const generatedWikiArticles = [
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information.",
-        "Source-review flags remain open until a qualified reviewer checks the article. {{review:source}}"
+        "Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}"
       ],
       "commonMistakes": [
         "Treating a support article as if it contains every legal detail for the task.",

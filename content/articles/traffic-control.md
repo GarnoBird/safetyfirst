@@ -80,6 +80,17 @@ related:
   - "worker-rights-and-responsibilities"
   - "emergency-transportation"
   - "first-aid-assessment"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Traffic Control
@@ -92,7 +103,7 @@ Traffic control protects workers, drivers, pedestrians, cyclists, and the public
 
 Good traffic control is not just placing cones. It includes risk assessment, a traffic control plan where required, supervision, device placement, trained traffic control persons, pedestrian detours, delivery coordination, lighting, and high-visibility apparel. {{cite:ohsr-18-3-1}} {{cite:ohsr-18-3-2}}
 
-Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. {{review:source}}
+Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -112,8 +123,8 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - Provide supervision for traffic control as required by the regulation. {{cite:ohsr-18-4}}
 - Place temporary traffic control devices in accordance with the applicable requirements. {{cite:ohsr-18-5}}
 - Use appropriate high-visibility and PPE controls for workers exposed to traffic. {{cite:ohsr-8-4}}
-- Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. {{review:source}}
-- Confirm whether additional road authority permits or standards apply to the specific road or municipality. {{review:source}}
+- Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Confirm whether additional road authority permits or standards apply to the specific road or municipality. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -171,7 +182,7 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - [ ] Deliveries, concrete pours, crane picks, and emergency access are coordinated.
 - [ ] The setup is inspected after weather, darkness, traffic changes, or device movement.
 - [ ] Incidents and near misses trigger plan review.
-- [ ] Current road authority and training requirements are source checked before public-ready status. {{review:source}}
+- [ ] Current road authority and training requirements are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -212,9 +223,14 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

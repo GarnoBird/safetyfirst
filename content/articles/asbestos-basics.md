@@ -80,6 +80,17 @@ related:
   - "site-specific-safety-plan"
   - "training-records"
   - "worker-rights-and-responsibilities"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Asbestos Basics
@@ -92,7 +103,7 @@ Asbestos basics for construction start with a simple rule: do not disturb suspec
 
 The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}
 
-Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
+Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -112,8 +123,8 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Control asbestos fibre release during work that could disturb asbestos-containing material. {{cite:ohsr-6-7}}
 - Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}
 - Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}
-- Use appropriate respiratory protection and PPE when required by the asbestos work procedure. {{review:source}}
-- Confirm notification, waste handling, clearance, and documentation requirements with current WorkSafeBC and environmental sources before publication. {{review:source}}
+- Use appropriate respiratory protection and PPE when required by the asbestos work procedure. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Confirm notification, waste handling, clearance, and documentation requirements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -171,7 +182,7 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - [ ] Waste and cleanup follow the reviewed procedure.
 - [ ] Records are kept for assessment, procedure, training, waste, and clearance if required.
 - [ ] General dust controls are not substituted for asbestos controls.
-- [ ] Current WorkSafeBC asbestos requirements are checked before source-checked maturity is assigned. {{review:source}}
+- [ ] Asbestos requirements need official-source confirmation. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -213,9 +224,14 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-asbestos}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

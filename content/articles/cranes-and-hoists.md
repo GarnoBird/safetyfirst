@@ -80,6 +80,17 @@ related:
   - "workplace-inspections"
   - "supervisor-duties"
   - "worker-rights-and-responsibilities"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Cranes and Hoists
@@ -92,7 +103,7 @@ Crane and hoist safety depends on planning the lift before the load moves. The p
 
 Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.
 
-This Tier 1 draft supports field planning and still needs qualified source review before public-ready use. {{review:source}}
+This Tier 1 draft supports field planning and still needs qualified source review before public-ready use. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -113,7 +124,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - Use standard or agreed hand signals and communication methods for crane operations. {{cite:ohsr-15-20}}
 - Inspect slings and rigging before use. {{cite:ohsr-15-31}}
 - Control minimum distances and authorization requirements near high-voltage conductors. {{cite:ohsr-19-24-1}}
-- Confirm critical lift, logbook, operator credential, and inspection details against current official sources. {{review:source}}
+- Confirm critical lift, logbook, operator credential, and inspection details against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -171,7 +182,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - [ ] Affected trades and public routes are controlled.
 - [ ] Wind, visibility, ground/support conditions, and load path are monitored.
 - [ ] Deficiencies stop the lift until corrected.
-- [ ] Current certification and critical-lift requirements are source checked before public-ready maturity. {{review:source}}
+- [ ] Current certification and critical-lift requirements are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -212,9 +223,14 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

@@ -5,13 +5,10 @@ import {
   generatedWikiSourceCoverage,
   generatedWikiSourceNotes,
 } from "./generatedWikiSearch.js";
-import { generatedWikiReviewPacks } from "./generatedWikiReviewPacks.js";
+import { generatedWikiReviewIssues } from "./generatedWikiReviewIssues.js";
 import {
   glossaryTerms,
   maturityLevels,
-  reviewChecklistTemplates,
-  reviewQueueDefinitions,
-  reviewerChecklist,
   searchSuggestionTerms,
   tierOneArticleSlugs,
   wikiRedirects,
@@ -4424,7 +4421,7 @@ export const wikiSearchIndex = generatedWikiSearchIndex;
 export const wikiQualityMetrics = generatedWikiQualityMetrics;
 export const wikiSourceCoverage = generatedWikiSourceCoverage;
 export const wikiSourceNotes = generatedWikiSourceNotes;
-export const wikiReviewPacks = generatedWikiReviewPacks;
+export const wikiReviewIssues = generatedWikiReviewIssues;
 
 export const sourceMap = Object.fromEntries(wikiSources.map((source) => [source.id, source]));
 export const regulationMap = Object.fromEntries(regulationRefs.map((ref) => [ref.id, ref]));
@@ -4436,14 +4433,11 @@ export const redirectMap = Object.fromEntries(wikiRedirects.map((redirect) => [r
 export const glossaryMap = Object.fromEntries(glossaryTerms.map((term) => [term.slug, term]));
 export const sourceNoteMap = Object.fromEntries(wikiSourceNotes.map((note) => [note.id, note]));
 export const qualityMetricMap = Object.fromEntries(wikiQualityMetrics.map((metric) => [metric.slug, metric]));
-export const reviewPackMap = Object.fromEntries(wikiReviewPacks.map((pack) => [pack.slug, pack]));
+export const reviewIssueMap = Object.fromEntries(wikiReviewIssues.map((row) => [row.slug, row]));
 
 export {
   glossaryTerms,
   maturityLevels,
-  reviewChecklistTemplates,
-  reviewQueueDefinitions,
-  reviewerChecklist,
   searchSuggestionTerms,
   tierOneArticleSlugs,
   wikiRedirects,
@@ -4890,8 +4884,12 @@ export function getWikiQualityMetric(slug) {
   return qualityMetricMap[slug] || null;
 }
 
-export function getWikiReviewPackBySlug(slug) {
-  return reviewPackMap[slug] || null;
+export function getWikiReviewIssuesForArticle(slug) {
+  return reviewIssueMap[slug]?.issues || [];
+}
+
+export function getWikiReviewIssueArticle(slug) {
+  return reviewIssueMap[slug] || null;
 }
 
 export function getArticleDraftBlockers(article) {
@@ -5023,68 +5021,6 @@ export function getWikiReviewBacklog() {
       counts[article.reviewTier] = (counts[article.reviewTier] || 0) + 1;
       return counts;
     }, {}),
-  };
-}
-
-export function getWikiReviewerQueues() {
-  const metricsBySlug = qualityMetricMap;
-  const todayTime = Date.now();
-  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-  const sortByTierAndTitle = (a, b) =>
-    String(a.reviewTier || "").localeCompare(String(b.reviewTier || "")) || a.title.localeCompare(b.title);
-  const withQueueMeta = (article) => ({
-    article,
-    metric: metricsBySlug[article.slug],
-    checklist: getArticleReviewChecklist(article),
-    blockers: getArticleDraftBlockers(article),
-  });
-
-  const staleOrUpcoming = [...wikiArticles]
-    .filter((article) => {
-      const nextTime = Date.parse(article.review?.nextReview || "");
-      return Number.isFinite(nextTime) && nextTime - todayTime <= thirtyDays;
-    })
-    .sort((a, b) => String(a.review?.nextReview || "").localeCompare(String(b.review?.nextReview || "")));
-
-  const sourceMismatch = [...wikiArticles]
-    .filter((article) => {
-      const metric = metricsBySlug[article.slug];
-      return (
-        (metric?.issues || []).length ||
-        !(article.sourceNoteIds || []).length ||
-        (article.sourceNoteIds || []).some((id) => !sourceNoteMap[id])
-      );
-    })
-    .sort(sortByTierAndTitle);
-
-  const readyForHumanReview = [...wikiArticles]
-    .filter((article) => {
-      const metric = metricsBySlug[article.slug];
-      const checklist = getArticleReviewChecklist(article);
-      const openItems = checklist.filter((item) => !item.complete && item.id !== "unresolved-flags");
-      return (
-        (metric?.issues || []).length === 0 &&
-        openItems.length === 0 &&
-        (article.sourceNoteIds || []).length > 0 &&
-        (article.outboundArticleLinks || []).length >= 8 &&
-        (article.backlinks || []).length >= 1 &&
-        article.maturity === "Draft"
-      );
-    })
-    .sort((a, b) => {
-      const tierWeight = { "Tier 1": 0, "Tier 2": 1, "Tier 3": 2 };
-      return (tierWeight[a.reviewTier] ?? 9) - (tierWeight[b.reviewTier] ?? 9) || a.title.localeCompare(b.title);
-    });
-
-  return {
-    "tier-1-source-review": tierOneArticleSlugs.map(getArticleBySlug).filter(Boolean).map(withQueueMeta),
-    "most-source-flags": [...wikiArticles]
-      .filter((article) => (article.sourceReviewFlagCount || 0) > 0)
-      .sort((a, b) => b.sourceReviewFlagCount - a.sourceReviewFlagCount || sortByTierAndTitle(a, b))
-      .map(withQueueMeta),
-    "stale-review": staleOrUpcoming.map(withQueueMeta),
-    "citation-source-mismatch": sourceMismatch.map(withQueueMeta),
-    "ready-for-human-review": readyForHumanReview.map(withQueueMeta),
   };
 }
 

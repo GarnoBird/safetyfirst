@@ -82,6 +82,17 @@ related:
   - "confined-space-entry"
   - "training-records"
   - "worker-rights-and-responsibilities"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Respirators
@@ -94,7 +105,7 @@ Respirators protect workers only when the right respirator is selected, fitted, 
 
 Respirators should follow exposure control, not replace it. For tasks like concrete cutting, asbestos disturbance, lead work, or chemical use, the employer still needs to control the source and work method before relying on respiratory protection. {{cite:ohsr-5-54}}
 
-Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
+Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -114,8 +125,8 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - Provide instruction and training for PPE use, limits, inspection, maintenance, and storage where required. {{cite:ohsr-8-7}}
 - Tie respirator selection to the exposure control plan when the hazard requires written exposure control. {{cite:ohsr-5-54}}
 - For silica work, confirm respiratory protection requirements against the silica exposure control plan. {{cite:ohsr-6-112}}
-- Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. {{review:source}}
-- Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. {{review:source}}
+- Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -173,7 +184,7 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - [ ] Facial hair, eyewear, hard hats, and other PPE do not break the respirator seal.
 - [ ] Cleaning, storage, cartridge change, and replacement records are maintained as needed.
 - [ ] Respirator problems trigger a pause and exposure control review.
-- [ ] Respirator legal claims are source checked before public-ready maturity is assigned. {{review:source}}
+- [ ] Respirator legal claims are confirmed before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -215,9 +226,14 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-ppe}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

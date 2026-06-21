@@ -80,6 +80,17 @@ related:
   - "occupational-first-aid-requirements"
   - "workplace-inspections"
   - "supervisor-duties"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Electrical Safety Near Power Lines
@@ -92,7 +103,7 @@ Power-line work is high risk because workers and equipment can be injured withou
 
 The field control starts by identifying overhead and nearby high-voltage conductors, establishing limits, getting required assurances or authorizations, and keeping mobile equipment, loads, and workers out of the danger zone. {{cite:ohsr-19-25}}
 
-Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review. {{review:source}}
+Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -112,8 +123,8 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - Coordinate crane setup and operation with crane and hoist standards when hoisting equipment is part of the exposure. {{cite:ohsr-14-2}}
 - Use clear signalling and communication where equipment movement could approach the hazard. {{cite:ohsr-15-20}}
 - Use de-energization and lockout principles where equipment or circuits are intentionally isolated for work. {{cite:ohsr-10-6}}
-- Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy. {{review:source}}
-- Confirm emergency work exceptions and utility-owner procedures before field publication. {{review:source}}
+- Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Confirm emergency work exceptions and utility-owner procedures before field publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -171,7 +182,7 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - [ ] Crane, rigging, and delivery plans address power-line exposure.
 - [ ] Controls are rechecked when equipment moves or conditions change.
 - [ ] Records are kept for authorization, briefing, and deficiencies.
-- [ ] Distance and authorization wording is source checked before public-ready status. {{review:source}}
+- [ ] Distance and authorization wording is source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -212,9 +223,14 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

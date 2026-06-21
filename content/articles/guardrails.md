@@ -76,6 +76,17 @@ related:
   - "housekeeping"
   - "workplace-inspections"
   - "corrective-actions"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Guardrails
@@ -88,7 +99,7 @@ Guardrails are usually the simplest and most visible way to keep workers away fr
 
 A guardrail problem is a fall protection problem. Missing midrails, loose posts, removed sections, unprotected openings, and hidden covers can expose workers who were not planning to use a harness. Guardrails connect directly to [[floor-openings-and-covers|Floor Openings and Covers]], [[fall-protection|Fall Protection]], and [[leading-edge-work|Leading Edge Work]].
 
-This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. {{review:source}}
+This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -108,8 +119,8 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - Use toeboards where required to control falling-object hazards from elevated work areas. {{cite:ohsr-4-60}}
 - If guardrails are not in place and workers are exposed, use another required fall protection system. {{cite:ohsr-11-2}}
 - If the work requires a fall protection plan, address the temporary removal or replacement of guardrails in that plan. {{cite:ohsr-11-3}}
-- Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. {{review:source}}
-- Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. {{review:source}}
+- Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -167,7 +178,7 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - [ ] Toeboards or falling-object controls are considered where workers or the public are below. {{cite:ohsr-4-60}}
 - [ ] Inspections are repeated after work sequence, weather, or trade changes.
 - [ ] Corrections are documented and verified in the field.
-- [ ] Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. {{review:source}}
+- [ ] Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -208,9 +219,14 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

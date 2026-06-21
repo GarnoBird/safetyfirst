@@ -24,7 +24,6 @@ import {
   WorkerSignOutPage,
   WorkerSignOutQr,
 } from "./WorkerSignIn.jsx";
-import WikiApp from "./WikiApp.jsx";
 import {
   csvFieldsFor,
   daysUntil,
@@ -52,6 +51,7 @@ const VIEWS = [
 const SafetyLabApp = lazy(() => import("./SafetyLabApp.jsx"));
 const TrainingQuizApp = lazy(() => import("./TrainingQuizApp.jsx"));
 const DemoApp = lazy(() => import("./DemoApp.jsx"));
+const WikiApp = lazy(() => import("./WikiApp.jsx"));
 
 export default function App() {
   const routePath = useRoutePath();
@@ -97,7 +97,11 @@ export default function App() {
   }
 
   if (routePath === "/wiki" || routePath.startsWith("/wiki/")) {
-    return <WikiApp routePath={routePath} navigateTo={navigateTo} />;
+    return (
+      <Suspense fallback={<div className="route-loading">Loading Wiki...</div>}>
+        <WikiApp routePath={routePath} navigateTo={navigateTo} />
+      </Suspense>
+    );
   }
 
   if (routePath === "/safety-lab" || routePath.startsWith("/safety-lab/")) {

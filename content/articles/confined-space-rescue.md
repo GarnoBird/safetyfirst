@@ -79,6 +79,17 @@ related:
   - "worker-rights-and-responsibilities"
   - "training-records"
   - "incident-investigation"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Confined Space Rescue
@@ -91,7 +102,7 @@ Confined space rescue has to be planned before entry because a delayed or improv
 
 Calling emergency services may be part of the plan, but it is not the whole plan unless the site has confirmed the service can respond, access the space, and perform the required rescue in time for the hazard. {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}
 
-Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review. {{review:source}}
+Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -112,7 +123,7 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - Use atmospheric testing information to decide whether rescue personnel could be exposed to the same hazard. {{cite:ohsr-9-25}}
 - Tie rescue planning to the confined space entry program. {{cite:ohsr-9-5}}
 - Account for emergency rescue and evacuation worker safety in the site emergency plan. {{cite:ohsr-32-4}}
-- Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources. {{review:source}}
+- Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -170,7 +181,7 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - [ ] The crew understands that unplanned entry rescue is not allowed.
 - [ ] Rescue changes trigger permit suspension and reassessment.
 - [ ] Training and drill records are maintained where required by the program.
-- [ ] Rescue assumptions are source checked before public-ready maturity. {{review:source}}
+- [ ] Rescue assumptions are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -211,9 +222,14 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

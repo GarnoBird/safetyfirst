@@ -1,49 +1,96 @@
 # Safety Wiki Review Report
 
-Last generated: 2026-06-19
+Generated: 2026-06-21T17:01:36.805Z
 
-## Pages created
+## Summary
 
-- docs/source-policy.md
-- docs/wiki-content-map.md
-- 23 major topic draft pages in content/topics/
-- 50 toolbox talks in toolbox-talks/
-- 17 checklists in checklists/
-- 11 form templates in forms/
-- 23 quizzes in training/
+- Articles: 100
+- Articles with unresolved review issues: 100
+- Unresolved claim-level review issues: 633
+- Source notes: 53
+- Articles with source notes: 100
+- Articles with unresolved source-review flags: 100
 
-## Pages updated
+## Review Flow
 
-- package.json: adds expansion verification command.
+- Open `/wiki/review`.
+- Pick one article from the list.
+- Answer only the issues you can answer now.
+- Use **Yes, correct** when the claim is acceptable.
+- Use **No, changes needed** and add the correction when wording must change.
+- Save. Completed answers disappear from the page; unfinished issues stay for later.
 
-## Topics still missing
+## Articles Needing Review By Tier
 
-- Detailed section-by-section WorkSafeBC citation notes.
-- Employer-specific procedures reviewed by a competent person.
-- Trade-specific subpages for concrete, roofing, electrical, mechanical, demolition, restoration, and public protection.
-- Source-specific pages for OHS Guidelines and Prevention Manual policy entries.
+- Tier 3: 71 articles
+- Tier 1: 15 articles
+- Tier 2: 14 articles
 
-## Source gaps
+## Highest Review Issue Counts
 
-- Most generated pages cite source candidates but do not yet include exact section-level legal analysis.
-- Needs verification against current WorkSafeBC/OHS source.
-- CSA/ANSI/manufacturer requirements are not reproduced and need source access before use.
+- AEDs on Construction Sites: 7 issues (Tier 3) - /wiki/review/item/aeds-on-construction-sites
+- Anchor Points: 7 issues (Tier 3) - /wiki/review/item/anchor-points
+- Carbon Monoxide: 7 issues (Tier 3) - /wiki/review/item/carbon-monoxide
+- Cardiac Arrest on Site: 7 issues (Tier 3) - /wiki/review/item/cardiac-arrest-on-site
+- Cold Stress: 7 issues (Tier 3) - /wiki/review/item/cold-stress
+- Compressed Gas Cylinders: 7 issues (Tier 3) - /wiki/review/item/compressed-gas-cylinders
+- Concrete Formwork: 7 issues (Tier 3) - /wiki/review/item/concrete-formwork
+- Concrete Pumping: 7 issues (Tier 3) - /wiki/review/item/concrete-pumping
+- Corrective Actions: 7 issues (Tier 3) - /wiki/review/item/corrective-actions
+- Crane Operator/Signaller Responsibilities: 7 issues (Tier 3) - /wiki/review/item/crane-operator-signaller-responsibilities
+- Cranes Near Power Lines: 7 issues (Tier 3) - /wiki/review/item/cranes-near-power-lines
+- De-Energization: 7 issues (Tier 3) - /wiki/review/item/de-energization
+- Dust Control Methods: 7 issues (Tier 3) - /wiki/review/item/dust-control-methods
+- Emergency Transportation: 7 issues (Tier 3) - /wiki/review/item/emergency-transportation
+- Employer Duties: 7 issues (Tier 3) - /wiki/review/item/employer-duties
+- Evacuation: 7 issues (Tier 3) - /wiki/review/item/evacuation
+- Excavation Spoil Piles: 7 issues (Tier 3) - /wiki/review/item/excavation-spoil-piles
+- Eye and Face Protection: 7 issues (Tier 3) - /wiki/review/item/eye-and-face-protection
+- Fall Rescue Plan: 7 issues (Tier 3) - /wiki/review/item/fall-rescue-plan
+- Fall Restraint: 7 issues (Tier 3) - /wiki/review/item/fall-restraint
+- Falsework: 7 issues (Tier 3) - /wiki/review/item/falsework
+- Fire Extinguishers: 7 issues (Tier 3) - /wiki/review/item/fire-extinguishers
+- Fire Prevention Plan: 7 issues (Tier 3) - /wiki/review/item/fire-prevention-plan
+- First Aid Room: 7 issues (Tier 3) - /wiki/review/item/first-aid-room
+- Floor Openings and Covers: 7 issues (Tier 3) - /wiki/review/item/floor-openings-and-covers
+- Gloves: 7 issues (Tier 3) - /wiki/review/item/gloves
+- Hard Hats: 7 issues (Tier 3) - /wiki/review/item/hard-hats
+- Hazardous Materials Before Demolition: 7 issues (Tier 3) - /wiki/review/item/hazardous-materials-before-demolition
+- Hearing Protection: 7 issues (Tier 3) - /wiki/review/item/hearing-protection
+- Heat Stress: 7 issues (Tier 3) - /wiki/review/item/heat-stress
 
-## Legal/regulatory items requiring human verification
+## Highest Source-Review Flag Counts
 
-- Any legal threshold, certification, inspection interval, reporting deadline, qualified-person requirement, exposure limit, or record-retention period.
-- Any statement that a written plan, permit, rescue service, engineered document, or specific training card is legally required.
-- Any emergency/medical instruction beyond calling 911, activating site first aid, and following trained first aid/AED procedures.
+- AEDs on Construction Sites: 7 flags - /wiki/review/item/aeds-on-construction-sites
+- Anchor Points: 7 flags - /wiki/review/item/anchor-points
+- Carbon Monoxide: 7 flags - /wiki/review/item/carbon-monoxide
+- Cardiac Arrest on Site: 7 flags - /wiki/review/item/cardiac-arrest-on-site
+- Cold Stress: 7 flags - /wiki/review/item/cold-stress
+- Compressed Gas Cylinders: 7 flags - /wiki/review/item/compressed-gas-cylinders
+- Concrete Formwork: 7 flags - /wiki/review/item/concrete-formwork
+- Concrete Pumping: 7 flags - /wiki/review/item/concrete-pumping
+- Corrective Actions: 7 flags - /wiki/review/item/corrective-actions
+- Crane Operator/Signaller Responsibilities: 7 flags - /wiki/review/item/crane-operator-signaller-responsibilities
+- Cranes Near Power Lines: 7 flags - /wiki/review/item/cranes-near-power-lines
+- De-Energization: 7 flags - /wiki/review/item/de-energization
+- Dust Control Methods: 7 flags - /wiki/review/item/dust-control-methods
+- Emergency Transportation: 7 flags - /wiki/review/item/emergency-transportation
+- Employer Duties: 7 flags - /wiki/review/item/employer-duties
+- Evacuation: 7 flags - /wiki/review/item/evacuation
+- Excavation Spoil Piles: 7 flags - /wiki/review/item/excavation-spoil-piles
+- Eye and Face Protection: 7 flags - /wiki/review/item/eye-and-face-protection
+- Fall Rescue Plan: 7 flags - /wiki/review/item/fall-rescue-plan
+- Fall Restraint: 7 flags - /wiki/review/item/fall-restraint
+- Falsework: 7 flags - /wiki/review/item/falsework
+- Fire Extinguishers: 7 flags - /wiki/review/item/fire-extinguishers
+- Fire Prevention Plan: 7 flags - /wiki/review/item/fire-prevention-plan
+- First Aid Room: 7 flags - /wiki/review/item/first-aid-room
+- Floor Openings and Covers: 7 flags - /wiki/review/item/floor-openings-and-covers
 
-## Verification commands
+## Quality Follow-Up
 
-- npm run verify:wiki-expansion
-- npm run validate:wiki
-- npm run build
+- No generated quality issues reported.
 
-## Recommended next phase
+## Boundary
 
-1. Assign a qualified BC safety reviewer to the high-risk topics: fall protection, confined spaces, excavation, silica, cranes/rigging, lockout, electrical, first aid, and emergency response.
-2. Build source-note files for the exact OHS Regulation and guideline sections supporting each page.
-3. Convert reviewed topic pages into the public React wiki index after source review.
-4. Add a source-change monitoring workflow for WorkSafeBC and BC Laws pages.
+This report is a review queue summary. It is not legal approval, source approval, safety approval, or a statement that any article is compliant or complete.

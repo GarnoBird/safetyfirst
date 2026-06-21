@@ -77,6 +77,17 @@ related:
   - "training-records"
   - "supervisor-duties"
   - "worker-rights-and-responsibilities"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Occupational First Aid Requirements
@@ -89,7 +100,7 @@ Occupational first aid requirements tell the employer what first aid resources, 
 
 The useful field test is whether a worker can get first aid quickly, the attendant can be contacted, supplies are available, and transportation has been planned before a serious incident happens. {{cite:ohsr-3-18}}
 
-Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review. {{review:source}}
+Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -109,8 +120,8 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - Maintain first aid records as required while protecting worker privacy. {{cite:ohsr-3-19}}
 - Ensure first aid attendants carry out their assigned responsibilities within the regulation. {{cite:ohsr-3-21}}
 - Coordinate emergency rescue and evacuation worker safety where site emergency response requires it. {{cite:ohsr-32-4}}
-- Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication. {{review:source}}
-- Do not use this article as medical advice or as a substitute for certified first aid training. {{review:source}}
+- Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Do not use this article as medical advice or as a substitute for certified first aid training. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -168,7 +179,7 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - [ ] Emergency access, gate control, hoists, and traffic plans support transport.
 - [ ] Deficiencies in supplies, posting, rooms, or attendant coverage are corrected promptly.
 - [ ] The plan is reviewed after incident or site changes.
-- [ ] Current first aid amendments and assessment tables are source checked before public-ready maturity. {{review:source}}
+- [ ] Current first aid amendments and assessment tables are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -210,9 +221,14 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - {{cite:worksafebc-ohs-guidelines}}
 - {{cite:worksafebc-first-aid-requirements}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

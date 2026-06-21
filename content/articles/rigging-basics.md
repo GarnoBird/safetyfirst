@@ -79,6 +79,17 @@ related:
   - "traffic-control"
   - "ppe-basics"
   - "corrective-actions"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Rigging Basics
@@ -91,7 +102,7 @@ Rigging is the connection between the load and the crane, hoist, forklift attach
 
 Basic rigging work still requires competent judgement. A worker needs to know the load weight, center of gravity, sling angle, condition of rigging, communication method, and where people will stand before the lift starts. {{cite:ohsr-15-2}}
 
-Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
+Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -111,8 +122,8 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - Use recognized hand signals or communication methods for crane work. {{cite:ohsr-15-20}}
 - Inspect slings before use and remove defective rigging from service. {{cite:ohsr-15-31}}
 - Coordinate rigging requirements with the crane and hoist standards that apply to the lifting equipment. {{cite:ohsr-14-2}}
-- Confirm current rejection criteria for each rigging type before publishing a field checklist. {{review:source}}
-- Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply. {{review:source}}
+- Confirm current rejection criteria for each rigging type before publishing a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -170,7 +181,7 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - [ ] Workers are protected from suspended loads and landing pinch points.
 - [ ] Tag lines, if used, can be handled from a safe position.
 - [ ] Lift changes trigger a pause and review.
-- [ ] Rejection criteria and legal wording are source checked before public-ready status. {{review:source}}
+- [ ] Rejection criteria and legal wording are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -211,9 +222,14 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

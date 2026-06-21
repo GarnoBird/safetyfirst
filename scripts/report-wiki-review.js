@@ -1,71 +1,87 @@
-import {
-  getWikiReviewerQueues,
-  getWikiReviewBacklog,
-  reviewQueueDefinitions,
-  wikiArticles,
-  wikiQualityMetrics,
-  wikiSourceCoverage,
-} from "../src/wikiContent.js";
+import { writeFile } from "node:fs/promises";
 
-const backlog = getWikiReviewBacklog();
-const issueMetrics = [...wikiQualityMetrics]
+import { wikiArticles, wikiQualityMetrics, wikiReviewIssues, wikiSourceCoverage } from "../src/wikiContent.js";
+
+const issueRows = wikiReviewIssues
+  .map((row) => ({
+    slug: row.slug || row.articleSlug,
+    title: row.title || row.articleTitle || row.slug || row.articleSlug,
+    tier: row.reviewTier || "Unassigned",
+    maturity: row.maturity || "Draft",
+    prepStatus: row.prepStatus || "Needs AI prep",
+    issueCount: row.issues?.length || 0,
+  }))
+  .filter((row) => row.issueCount > 0)
+  .sort((a, b) => b.issueCount - a.issueCount || a.title.localeCompare(b.title));
+
+const issueCount = issueRows.reduce((sum, row) => sum + row.issueCount, 0);
+const tierCounts = issueRows.reduce((counts, row) => {
+  counts[row.tier] = (counts[row.tier] || 0) + 1;
+  return counts;
+}, {});
+const qualityRows = [...wikiQualityMetrics]
   .filter((metric) => metric.issues?.length)
-  .sort((a, b) => b.issues.length - a.issues.length || a.title.localeCompare(b.title));
+  .sort((a, b) => b.issues.length - a.issues.length || a.title.localeCompare(b.title))
+  .slice(0, 20);
 const mostSourceFlags = [...wikiArticles]
   .filter((article) => (article.sourceReviewFlagCount || 0) > 0)
   .sort((a, b) => b.sourceReviewFlagCount - a.sourceReviewFlagCount || a.title.localeCompare(b.title))
-  .slice(0, 15);
-const oldest = backlog.oldestReview.slice(0, 15);
-const reviewerQueues = getWikiReviewerQueues();
+  .slice(0, 25);
+
+const lines = [
+  "# Safety Wiki Review Report",
+  "",
+  `Generated: ${new Date().toISOString()}`,
+  "",
+  "## Summary",
+  "",
+  `- Articles: ${wikiArticles.length}`,
+  `- Articles with unresolved review issues: ${issueRows.length}`,
+  `- Unresolved claim-level review issues: ${issueCount}`,
+  `- Source notes: ${wikiSourceCoverage.sourceNoteCount}`,
+  `- Articles with source notes: ${wikiSourceCoverage.articlesWithSourceNotes}`,
+  `- Articles with unresolved source-review flags: ${wikiSourceCoverage.unresolvedSourceReviewArticles.length}`,
+  "",
+  "## Review Flow",
+  "",
+  "- Open `/wiki/review`.",
+  "- Pick one article from the list.",
+  "- Answer only the issues you can answer now.",
+  "- Use **Yes, correct** when the claim is acceptable.",
+  "- Use **No, changes needed** and add the correction when wording must change.",
+  "- Save. Completed answers disappear from the page; unfinished issues stay for later.",
+  "",
+  "## Articles Needing Review By Tier",
+  "",
+  ...Object.entries(tierCounts).map(([tier, count]) => `- ${tier}: ${count} articles`),
+  "",
+  "## Highest Review Issue Counts",
+  "",
+  ...issueRows.slice(0, 30).map((row) => `- ${row.title}: ${row.issueCount} issues (${row.tier}) - /wiki/review/item/${row.slug}`),
+  "",
+  "## Highest Source-Review Flag Counts",
+  "",
+  ...mostSourceFlags.map(
+    (article) =>
+      `- ${article.title}: ${article.sourceReviewFlagCount || 0} flags - /wiki/review/item/${article.slug}`,
+  ),
+  "",
+  "## Quality Follow-Up",
+  "",
+  ...(qualityRows.length
+    ? qualityRows.map((metric) => `- ${metric.title}: ${metric.issues.join("; ")}`)
+    : ["- No generated quality issues reported."]),
+  "",
+  "## Boundary",
+  "",
+  "This report is a review queue summary. It is not legal approval, source approval, safety approval, or a statement that any article is compliant or complete.",
+];
+
+await writeFile("docs/safety-wiki-review-report.md", `${lines.join("\n")}\n`, "utf8");
 
 console.log("BC Construction Safety Wiki review report");
 console.log("===========================================");
 console.log(`Articles: ${wikiArticles.length}`);
-console.log(`Source notes: ${wikiSourceCoverage.sourceNoteCount}`);
-console.log(`Articles with source notes: ${wikiSourceCoverage.articlesWithSourceNotes}`);
-console.log(`Unresolved source-review articles: ${wikiSourceCoverage.unresolvedSourceReviewArticles.length}`);
-console.log(`Weak Tier 1 citation coverage: ${wikiSourceCoverage.weakTierOne.length}`);
-console.log(`Weak Tier 2 citation coverage: ${wikiSourceCoverage.weakTierTwo.length}`);
-console.log("");
-
-printSection(
-  "Reviewer queues",
-  reviewQueueDefinitions.map((queue) => `${queue.title}: ${reviewerQueues[queue.id]?.length || 0} articles`),
-);
-
-printSection(
-  "Highest source-review flag counts",
-  mostSourceFlags.map((article) => `${article.slug}: ${article.sourceReviewFlagCount} flags`),
-);
-
-printSection(
-  "Quality issues",
-  issueMetrics.slice(0, 20).map((metric) => `${metric.slug}: ${metric.issues.join("; ")}`),
-);
-
-printSection(
-  "Oldest review dates",
-  oldest.map((article) => `${article.slug}: last reviewed ${article.review?.lastReviewed || "unknown"}`),
-);
-
-for (const queue of reviewQueueDefinitions) {
-  const rows = (reviewerQueues[queue.id] || []).slice(0, 10);
-  printSection(
-    queue.title,
-    rows.map(({ article, metric, blockers }) => {
-      const blockerText = blockers.length ? blockers.slice(0, 2).join("; ") : "no generated blockers";
-      return `${article.slug}: ${metric?.exactCitationCount || 0} exact citations, ${article.sourceReviewFlagCount || 0} source flags, ${blockerText}`;
-    }),
-  );
-}
-
-function printSection(title, rows) {
-  console.log(title);
-  console.log("-".repeat(title.length));
-  if (!rows.length) {
-    console.log("None");
-  } else {
-    for (const row of rows) console.log(`- ${row}`);
-  }
-  console.log("");
-}
+console.log(`Articles needing review: ${issueRows.length}`);
+console.log(`Unresolved claim-level issues: ${issueCount}`);
+console.log("Wrote docs/safety-wiki-review-report.md");

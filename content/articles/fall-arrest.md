@@ -77,6 +77,17 @@ related:
   - "swing-stages"
   - "rope-access"
   - "workplace-inspections"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Fall Arrest
@@ -89,7 +100,7 @@ Fall arrest is a last-line fall protection system that stops a worker after a fa
 
 A fall arrest setup is only as reliable as the whole chain: harness, connector, lifeline, anchor, clearance, edge protection, compatibility, inspection, and rescue. A single weak part can make the system unsuitable for the work. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}
 
-Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]]. This is a Tier 1 draft pending qualified source review. {{review:source}}
+Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -110,7 +121,7 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - Inspect and maintain fall protection equipment before use and as required by the system. {{cite:ohsr-11-9}}
 - Remove equipment from service when it has arrested a fall or when damage, defects, or uncertainty make it unreliable. {{cite:ohsr-11-10}}
 - Include rescue planning when fall arrest could leave a worker suspended. {{cite:ohsr-11-3}}
-- Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements. {{review:source}}
+- Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -168,7 +179,7 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - [ ] Manufacturer instructions are available for unusual or specialized equipment.
 - [ ] Workers are supervised when using a new system or changed anchor layout.
 - [ ] Inspection records identify deficiencies and corrective actions.
-- [ ] Legal references in this article have been source checked before being used as a site standard. {{review:source}}
+- [ ] Legal references in this article have been source checked before being used as a site standard. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -209,9 +220,14 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

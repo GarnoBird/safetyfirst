@@ -74,6 +74,17 @@ related:
   - "scaffolds"
   - "ladders"
   - "occupational-first-aid-requirements"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Fall Protection
@@ -86,7 +97,7 @@ Fall protection starts with choosing the control that actually prevents a worker
 
 A supervisor should be able to point to the fall hazard, the chosen control, the anchor or barrier, and the rescue method before the crew starts. If the job relies on personal fall protection, the setup has to match the equipment instructions, anchor requirements, inspection requirements, and the site condition, including swing-fall paths and sharp edges. {{cite:ohsr-11-6}}
 
-This article is a Tier 1 draft. It gives practical BC construction guidance, but the legal wording and section references still need qualified source review before anyone treats it as a compliance checklist. {{review:source}}
+This article is a Tier 1 draft. It gives practical BC construction guidance, but the legal wording and section references still need qualified source review before anyone treats it as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -107,7 +118,7 @@ This article is a Tier 1 draft. It gives practical BC construction guidance, but
 - Confirm anchor points are adequate for the intended fall protection system before workers connect to them. {{cite:ohsr-11-6}}
 - Inspect and maintain fall protection equipment so damaged, worn, altered, or suspect equipment is not used. {{cite:ohsr-11-9}}
 - Remove fall protection equipment from service after a fall arrest or when damage, defects, or uncertainty make it unreliable. {{cite:ohsr-11-10}}
-- Confirm the exact section wording and any applicable guideline before using this draft for enforcement, bidding, or legal advice. {{review:source}}
+- Confirm the exact section wording and any applicable guideline before using this draft for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -165,7 +176,7 @@ This article is a Tier 1 draft. It gives practical BC construction guidance, but
 - [ ] The rescue method can be started quickly with available people, access, and equipment.
 - [ ] Adjacent trades, material deliveries, weather, and changing floor openings are controlled.
 - [ ] Fall protection deficiencies are recorded with an owner, interim control, and follow-up time.
-- [ ] Any legal wording in this draft has been checked against the current WorkSafeBC source before being relied on. {{review:source}}
+- [ ] Any legal wording in this draft has been checked against the current WorkSafeBC source before being relied on. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -206,9 +217,14 @@ This article is a Tier 1 draft. It gives practical BC construction guidance, but
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

@@ -76,6 +76,17 @@ related:
   - "mobile-elevating-work-platforms"
   - "site-specific-safety-plan"
   - "toolbox-talks"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 1"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Fall Protection Plan
@@ -88,7 +99,7 @@ A fall protection plan is the site-specific explanation of how a crew will contr
 
 The useful version is short enough to brief at the work face and specific enough that a worker can find the anchor, understand the travel limit, and know when to stop. A plan that only says '100 percent tie off' is not enough if it does not explain anchors, clearance, swing-fall risk, equipment inspection, and rescue. {{cite:ohsr-11-6}}
 
-This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist. {{review:source}}
+This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -109,7 +120,7 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - The selected system still has to meet the underlying Part 11 duty to use fall protection. {{cite:ohsr-11-2}}
 - Anchors and equipment referenced by the plan must match the applicable Part 11 requirements. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}
 - Equipment inspections and removal from service must be addressed when the plan depends on personal fall protection equipment. {{cite:ohsr-11-9}}
-- Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication. {{review:source}}
+- Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -167,7 +178,7 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - [ ] Changes are recorded and communicated before work continues.
 - [ ] The plan is coordinated with nearby trades and the prime contractor.
 - [ ] Deficiencies have owners, interim controls, and follow-up dates.
-- [ ] The current legal wording has been checked before calling the plan source checked. {{review:source}}
+- [ ] The legal wording needs official-source confirmation before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -208,9 +219,14 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - {{cite:worksafebc-ohs-regulation}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 1 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

@@ -78,6 +78,17 @@ related:
   - "toolbox-talks"
   - "worker-rights-and-responsibilities"
   - "prime-contractor-duties"
+prepStatus: "Needs human source review"
+prepReviewedDate: "2026-06-20"
+prepReviewTier: "Tier 2"
+prepNotes:
+  - "Codex organized this article for human source and field review; this is not legal or safety approval."
+  - "Unresolved source-review flags identify claims a qualified reviewer must confirm before maturity changes."
+  - "Article remains Draft until qualified source/legal and field safety review are complete."
+reviewQuestions:
+  - "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?"
+  - "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?"
+  - "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
 ---
 
 # Traffic Control Persons
@@ -90,7 +101,7 @@ Traffic control persons need clear authority, visibility, communication, positio
 
 On site, this topic usually overlaps with [[traffic-control]], [[traffic-control-plans]], [[high-visibility-apparel]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.
 
-This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. {{review:source}}
+This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
 
 ## When this applies
 
@@ -110,8 +121,8 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-18-4}}
 - Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-18-5}}
 - Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-18-3}}
-- Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. {{review:source}}
-- A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. {{review:source}}
+- Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -171,7 +182,7 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - [ ] Deficiencies have an owner, due date, and interim control.
 - [ ] A change in conditions triggers a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] The legal wording still carries a review flag until a qualified reviewer checks the current source. {{review:source}}
+- [ ] The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -216,9 +227,14 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - {{cite:worksafebc-traffic-training}}
 - {{cite:worksafebc-ohs-guidelines}}
 
+## What a human reviewer must verify
+
+- Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?
+- Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?
+- Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Tier 2 source review is still required before changing maturity to Source checked or Ready for public use. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
 - Reviewer should confirm each exact section supports the article's legal bullets.
 - Field reviewer should confirm the checklist fits common BC construction practice.
 

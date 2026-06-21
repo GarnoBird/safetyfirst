@@ -3368,6 +3368,27 @@ p {
   font-size: 0.88rem;
 }
 
+.wiki-nav-group {
+  border-bottom: 1px solid #eaecf0;
+  padding: 5px 0;
+}
+
+.wiki-nav-group summary {
+  cursor: pointer;
+  color: #202122;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.wiki-nav-group ul {
+  margin-top: 5px;
+  padding-left: 12px;
+}
+
+.wiki-nav-group li {
+  font-size: 0.84rem;
+}
+
 .wiki-main {
   min-width: 0;
   padding: 24px 32px 56px;
@@ -3404,6 +3425,11 @@ p {
   margin: 14px 0 18px;
   padding: 10px 12px;
   background: #f8f9fa;
+}
+
+.wiki-simple-review-error {
+  border-color: #a33;
+  color: #8b0000;
 }
 
 .wiki-article-meta {
@@ -3528,6 +3554,7 @@ p {
 }
 
 .wiki-filter-field select,
+.wiki-filter-field input,
 .wiki-correction-form select,
 .wiki-correction-form textarea {
   width: 100%;
@@ -3550,6 +3577,13 @@ p {
   cursor: pointer;
 }
 
+.wiki-small-button:disabled {
+  color: #72777d;
+  background: #eaecf0;
+  border-color: #c8ccd1;
+  cursor: not-allowed;
+}
+
 .wiki-inline-actions {
   display: flex;
   flex-wrap: wrap;
@@ -3558,6 +3592,38 @@ p {
 
 .wiki-inline-actions .wiki-small-button {
   margin-top: 0;
+}
+
+.wiki-copy-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.wiki-copy-status {
+  color: #54595d;
+  font-size: 0.82rem;
+}
+
+.wiki-quick-assign {
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+}
+
+.wiki-quick-assign-row {
+  display: grid;
+  grid-template-columns: minmax(62px, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.wiki-quick-assign-row .wiki-small-button {
+  min-height: 24px;
+  margin-top: 0;
+  padding: 2px 6px;
+  font-size: 0.78rem;
 }
 
 .wiki-small-button[aria-pressed="true"] {
@@ -3586,6 +3652,553 @@ p {
   max-width: 820px;
 }
 
+.wiki-intake-post-return-card,
+.wiki-intake-decision-strip {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-intake-post-return-card h2,
+.wiki-intake-decision-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-intake-post-return-card .wiki-table,
+.wiki-intake-decision-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-intake-post-return-card .wiki-table th,
+.wiki-intake-decision-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-intake-start-card {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-intake-start-card h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-intake-start-card .wiki-table th {
+  width: 132px;
+}
+
+.wiki-reviewer-action-strip {
+  border-left: 4px solid #54595d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-reviewer-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-reviewer-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-reviewer-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-assigned-start-card {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-assigned-start-card h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-assigned-start-card .wiki-table th {
+  width: 132px;
+}
+
+.wiki-lead-snapshot-card,
+.wiki-lead-action-strip {
+  border-left: 4px solid #72777d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-lead-snapshot-card h2,
+.wiki-lead-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-lead-snapshot-card .wiki-table,
+.wiki-lead-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-lead-snapshot-card .wiki-table th,
+.wiki-lead-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-article-review-strip {
+  border-left: 4px solid #a2a9b1;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-article-review-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-article-review-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-article-review-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-article-quick-route {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-article-quick-route h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-article-quick-route .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-article-quick-route .wiki-table th {
+  width: 132px;
+}
+
+.wiki-review-packs-action-strip {
+  border-left: 4px solid #54595d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-packs-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-packs-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-review-packs-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-source-note-action-strip {
+  border-left: 4px solid #36c;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-source-note-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-source-note-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-source-note-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-source-note-start-card {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-source-note-start-card h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-source-note-start-card .wiki-table th {
+  width: 132px;
+}
+
+.wiki-quality-action-strip {
+  border-left: 4px solid #72777d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-quality-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-quality-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-quality-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-reviewer-no-wrong-door {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-reviewer-no-wrong-door h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-reviewer-no-wrong-door .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-reviewer-no-wrong-door .wiki-table th {
+  width: 132px;
+}
+
+.wiki-expert-lane-action-strip {
+  border-left: 4px solid #54595d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-expert-lane-action-strip h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-expert-lane-action-strip .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-expert-lane-action-strip .wiki-table th {
+  width: 132px;
+}
+
+.wiki-closeout-status-lock {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-closeout-status-lock h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-closeout-status-lock .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-closeout-status-lock .wiki-table th {
+  width: 132px;
+}
+
+.wiki-closeout-start-card {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-closeout-start-card h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-closeout-start-card .wiki-table th {
+  width: 132px;
+}
+
+.wiki-correction-start-card,
+.wiki-correction-next-action {
+  border-left: 4px solid #54595d;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-correction-start-card h2,
+.wiki-correction-next-action h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-correction-start-card .wiki-table,
+.wiki-correction-next-action .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-correction-start-card .wiki-table th,
+.wiki-correction-next-action .wiki-table th {
+  width: 132px;
+}
+
+.wiki-review-team-next-door {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-team-next-door h3 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-team-next-door .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-review-team-next-door .wiki-table th {
+  width: 132px;
+}
+
+.wiki-review-workflow-map {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-workflow-map h2,
+.wiki-review-workflow-map h3 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-workflow-map .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-review-workflow-map .wiki-table th {
+  width: auto;
+}
+
+.wiki-review-handoff-action {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-handoff-action h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-handoff-action .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-review-handoff-action .wiki-table th {
+  width: 132px;
+}
+
+.wiki-reviewer-one-page-assignment,
+.wiki-review-pack-start-card {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-reviewer-one-page-assignment h2,
+.wiki-review-pack-start-card h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-reviewer-one-page-assignment .wiki-table th,
+.wiki-review-pack-start-card .wiki-table th {
+  width: 132px;
+}
+
+.wiki-review-assignment-menu .wiki-table th {
+  width: auto;
+}
+
+.wiki-review-assignment-menu .wiki-table th:nth-child(4),
+.wiki-review-assignment-menu .wiki-table th:nth-child(5),
+.wiki-review-assignment-menu .wiki-table td:nth-child(4),
+.wiki-review-assignment-menu .wiki-table td:nth-child(5) {
+  white-space: nowrap;
+}
+
+.wiki-review-launch-board {
+  border-left: 4px solid #54595d;
+  padding-left: 12px;
+}
+
+.wiki-review-launch-board .wiki-table th {
+  width: auto;
+}
+
+.wiki-review-launch-board .wiki-table td:last-child {
+  white-space: nowrap;
+}
+
+.wiki-review-permission-matrix {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+}
+
+.wiki-review-permission-matrix .wiki-table th {
+  width: auto;
+}
+
+.wiki-review-pocket-card,
+.wiki-review-one-sheet {
+  border: 1px solid #a2a9b1;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.wiki-review-pocket-card ol {
+  margin-bottom: 8px;
+}
+
+.wiki-review-one-sheet .wiki-table th {
+  width: 112px;
+}
+
+.wiki-roadmap-next-action {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-roadmap-next-action h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-roadmap-next-action .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-roadmap-next-action .wiki-table th {
+  width: 132px;
+}
+
+.wiki-operations-next-action {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-operations-next-action h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-operations-next-action .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-operations-next-action .wiki-table th {
+  width: 132px;
+}
+
+.wiki-sprints-next-action {
+  border-left: 4px solid #202122;
+  padding-left: 12px;
+  background: #f8f9fa;
+}
+
+.wiki-sprints-next-action h2 {
+  margin-bottom: 4px;
+}
+
+.wiki-sprints-next-action .wiki-table {
+  margin-top: 8px;
+}
+
+.wiki-sprints-next-action .wiki-table th {
+  width: 132px;
+}
+
+.wiki-assigned-finish-card {
+  border-left: 4px solid #36c;
+  padding-left: 12px;
+}
+
+.wiki-review-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wiki-review-preset {
+  display: grid;
+  gap: 4px;
+  height: auto;
+  min-height: 86px;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  padding: 9px 10px;
+  color: #202122;
+  text-align: left;
+  white-space: normal;
+  background: #ffffff;
+}
+
+.wiki-review-preset.active {
+  border-color: #36c;
+  background: #f8fbff;
+}
+
+.wiki-review-context-actions {
+  margin: 6px 0 8px;
+}
+
+.wiki-review-context-preview {
+  border-left: 3px solid #a2a9b1;
+  margin: 8px 0 10px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-context-preview p {
+  margin: 5px 0;
+}
+
+.wiki-review-context-nearby {
+  color: #54595d;
+}
+
+.wiki-review-context-current {
+  color: #202122;
+  font-weight: 600;
+}
+
+.wiki-review-context-preview span {
+  color: #54595d;
+  font-weight: 600;
+}
+
+.wiki-article :target {
+  scroll-margin-top: 18px;
+}
+
+.wiki-article li:target,
+.wiki-article p:target {
+  background: #fff8d6;
+  outline: 2px solid #f0c36d;
+  outline-offset: 2px;
+}
+
+.wiki-review-issue-item:target {
+  background: #fff8d6;
+  outline: 2px solid #f0c36d;
+  outline-offset: 4px;
+}
+
+.wiki-review-preset strong,
+.wiki-review-preset span,
+.wiki-review-preset small {
+  display: block;
+}
+
+.wiki-review-preset span,
+.wiki-review-preset small {
+  color: #54595d;
+  font-size: 0.82rem;
+}
+
 .wiki-tool-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3595,6 +4208,179 @@ p {
 .wiki-tool-grid h3 {
   margin-bottom: 4px;
   font-size: 0.98rem;
+}
+
+.wiki-filter-label {
+  display: grid;
+  gap: 5px;
+  align-content: start;
+  color: #202122;
+  font-size: 0.92rem;
+}
+
+.wiki-filter-label input,
+.wiki-filter-label select {
+  max-width: 220px;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  padding: 6px 7px;
+  color: #202122;
+  background: #ffffff;
+  font: inherit;
+}
+
+.wiki-progress-meter {
+  height: 12px;
+  border: 1px solid #a2a9b1;
+  margin: 8px 0 4px;
+  background: #ffffff;
+}
+
+.wiki-progress-meter span {
+  display: block;
+  height: 100%;
+  background: #36c;
+}
+
+.wiki-review-claim {
+  border: 1px solid #a2a9b1;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+
+.wiki-review-guidance {
+  border: 1px solid #c8ccd1;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #f8f9fa;
+}
+
+.wiki-review-guidance h3 {
+  margin-bottom: 5px;
+  font-size: 0.98rem;
+}
+
+.wiki-review-example-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.wiki-review-example {
+  border: 1px solid #a2a9b1;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+
+.wiki-review-example h3 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-example blockquote {
+  margin: 10px 0;
+  border-left: 3px solid #a2a9b1;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  color: #202122;
+}
+
+.wiki-review-guidance ol {
+  margin: 0;
+  padding-left: 1.35em;
+}
+
+.wiki-decision-cheat-sheet {
+  margin-top: 8px;
+  font-size: 0.88rem;
+}
+
+.wiki-decision-cheat-sheet th {
+  width: 150px;
+}
+
+.wiki-intake-bucket {
+  border: 1px solid #c8ccd1;
+  padding: 10px 12px;
+  background: #f8f9fa;
+}
+
+.wiki-intake-bucket h3 {
+  margin-bottom: 4px;
+}
+
+.wiki-review-note-field {
+  display: grid;
+  gap: 4px;
+  max-width: 820px;
+  margin: 10px 0;
+}
+
+.wiki-review-note-field span {
+  color: #54595d;
+  font-size: 0.78rem;
+}
+
+.wiki-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  max-width: 820px;
+  margin: 10px 0;
+}
+
+.wiki-form-grid label {
+  display: grid;
+  gap: 4px;
+  color: #54595d;
+  font-size: 0.78rem;
+}
+
+.wiki-form-grid input,
+.wiki-form-grid select {
+  width: 100%;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  padding: 7px;
+  color: #202122;
+  background: #ffffff;
+  font: inherit;
+}
+
+.wiki-review-note-field textarea,
+.wiki-review-handoff textarea {
+  width: 100%;
+  border: 1px solid #a2a9b1;
+  border-radius: 2px;
+  padding: 7px;
+  color: #202122;
+  background: #ffffff;
+  font: inherit;
+}
+
+.wiki-review-note-field textarea {
+  min-height: 88px;
+}
+
+.wiki-review-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+  color: #202122;
+}
+
+.wiki-review-toggle input {
+  width: auto;
+  margin: 0;
+}
+
+.wiki-card-navigation {
+  margin: 8px 0 12px;
+}
+
+.wiki-review-handoff textarea {
+  min-height: 220px;
+  white-space: pre-wrap;
 }
 
 .wiki-correction-form {
@@ -3729,6 +4515,7 @@ p {
   .wiki-columns,
   .wiki-category-grid,
   .wiki-filter-grid,
+  .wiki-review-preset-grid,
   .wiki-tool-grid,
   .wiki-article-list.compact {
     grid-template-columns: 1fr;
