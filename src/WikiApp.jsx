@@ -20,6 +20,7 @@ import {
   getSourceById,
   getWikiFilterOptions,
   getWikiQualityMetric,
+  getWikiReviewPackBySlug,
   getWikiReviewerQueues,
   getWikiReviewBacklog,
   governanceModel,
@@ -38,6 +39,7 @@ import {
   wikiArticles,
   wikiCategories,
   wikiQualityMetrics,
+  wikiReviewPacks,
   wikiSourceCoverage,
   wikiSourceNotes,
   wikiSources,
@@ -52,6 +54,7 @@ const WIKI_NAV = [
   { label: "Glossary", path: "/wiki/glossary" },
   { label: "Redirects", path: "/wiki/redirects" },
   { label: "Article quality", path: "/wiki/quality" },
+  { label: "Review packs", path: "/wiki/review-packs" },
   { label: "Roadmap", path: "/wiki/roadmap" },
   { label: "Review backlog", path: "/wiki/review-backlog" },
   { label: "Reviewer", path: "/wiki/reviewer" },
@@ -146,6 +149,15 @@ export default function WikiApp({ routePath, navigateTo }) {
 
     if (normalizedPath === "/wiki/quality") {
       return <ArticleQualityPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath === "/wiki/review-packs") {
+      return <ReviewPacksPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath.startsWith("/wiki/review-packs/")) {
+      const slug = normalizedPath.replace("/wiki/review-packs/", "");
+      return <ReviewPackPage slug={slug} navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath === "/wiki/roadmap") {
@@ -358,10 +370,12 @@ function ArticlePage({ slug, navigateTo }) {
   const sourceNotes = getSourceNotesForArticle(article.slug);
   const qualityMetric = getWikiQualityMetric(article.slug);
   const draftBlockers = getArticleDraftBlockers(article);
+  const reviewPack = getWikiReviewPackBySlug(article.slug);
   const sectionHeadings = [
     "Summary",
     "Review status",
     "Why this is still Draft",
+    ...(reviewPack ? ["Review pack"] : []),
     "When this applies",
     "Legal requirements",
     "Best practice",
@@ -420,6 +434,7 @@ function ArticlePage({ slug, navigateTo }) {
 
       <ReviewBox article={article} />
       <DraftBlockersSection article={article} blockers={draftBlockers} />
+      {reviewPack ? <ReviewPackCallout pack={reviewPack} navigateTo={navigateTo} /> : null}
 
       <ArticleSection title="When this applies" items={article.sections.whenApplies} navigateTo={navigateTo} />
       <ArticleSection
@@ -1150,6 +1165,18 @@ function ReviewerPage({ navigateTo }) {
                     <span className="wiki-small">
                       {article.reviewTier}; next review {article.review?.nextReview || "not set"}
                     </span>
+                    {getWikiReviewPackBySlug(article.slug) ? (
+                      <>
+                        <br />
+                        <a
+                          className="wiki-small"
+                          href={`/wiki/review-packs/${article.slug}`}
+                          onClick={makeNavigate(navigateTo, `/wiki/review-packs/${article.slug}`)}
+                        >
+                          Open review pack
+                        </a>
+                      </>
+                    ) : null}
                   </td>
                   <td>
                     {article.maturity}
@@ -1196,6 +1223,379 @@ function ReviewerPage({ navigateTo }) {
         ))}
       </section>
     </article>
+  );
+}
+
+function ReviewPacksPage({ navigateTo }) {
+  const rows = [...wikiReviewPacks].sort((a, b) => a.title.localeCompare(b.title));
+  const totals = rows.reduce(
+    (summary, pack) => {
+      summary.claims += pack.claimsNeedingReview?.length || 0;
+      summary.sourceFlags += pack.sourceReviewFlagCount || 0;
+      summary.citations += pack.exactCitationIds?.length || 0;
+      return summary;
+    },
+    { claims: 0, sourceFlags: 0, citations: 0 },
+  );
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Tier 1 review packs" subtitle="Source-review packets for the highest-risk draft articles" />
+      <div className="wiki-notice">
+        Review packs do not approve articles. They collect the legal claims, citation coverage, source notes,
+        related field tools, and blockers a qualified reviewer needs before changing article maturity.
+      </div>
+
+      <section className="wiki-section">
+        <h2>Summary</h2>
+        <table className="wiki-table">
+          <tbody>
+            <tr>
+              <th>Review packs</th>
+              <td>{rows.length}</td>
+            </tr>
+            <tr>
+              <th>Open source-review flags</th>
+              <td>{totals.sourceFlags}</td>
+            </tr>
+            <tr>
+              <th>Claims needing source review</th>
+              <td>{totals.claims}</td>
+            </tr>
+            <tr>
+              <th>Exact official citations</th>
+              <td>{totals.citations}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section className="wiki-section">
+        <h2>Review pack index</h2>
+        {rows.length ? (
+          <table className="wiki-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Review status</th>
+                <th>Review load</th>
+                <th>Related tools</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((pack) => (
+                <tr key={pack.slug}>
+                  <td>
+                    <a
+                      href={`/wiki/review-packs/${pack.slug}`}
+                      onClick={makeNavigate(navigateTo, `/wiki/review-packs/${pack.slug}`)}
+                    >
+                      {pack.title}
+                    </a>
+                    <br />
+                    <a
+                      className="wiki-small"
+                      href={`/wiki/articles/${pack.slug}`}
+                      onClick={makeNavigate(navigateTo, `/wiki/articles/${pack.slug}`)}
+                    >
+                      Open article
+                    </a>
+                  </td>
+                  <td>
+                    {pack.maturity}; {pack.review?.legalReviewStatus || "source review open"}
+                    <br />
+                    <span className="wiki-small">{pack.review?.safetyReviewStatus || "safety review open"}</span>
+                  </td>
+                  <td>
+                    {(pack.claimsNeedingReview || []).length} claims need source review
+                    <br />
+                    <span className="wiki-small">
+                      {(pack.exactCitationIds || []).length} exact citations; {pack.sourceNotes?.length || 0} source notes
+                    </span>
+                  </td>
+                  <td>{reviewPackToolCount(pack)} field-tool links</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No review packs have been generated yet. Run <code>npm run build:wiki-review-packs</code>.</p>
+        )}
+      </section>
+    </article>
+  );
+}
+
+function ReviewPackPage({ slug, navigateTo }) {
+  const pack = getWikiReviewPackBySlug(slug);
+  const article = getArticleBySlug(slug);
+
+  if (!pack || !article) {
+    return <NotFoundPage path={`/wiki/review-packs/${slug}`} />;
+  }
+
+  const sectionHeadings = [
+    "Article review status",
+    "Reviewer checklist",
+    "Claims needing source review",
+    "Citation coverage",
+    "Source notes",
+    "Related field-use content",
+    "Draft blocker summary",
+    "Reviewer notes",
+    "Print packet",
+  ];
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title={`${pack.title} review pack`} subtitle="Tier 1 source and safety review packet" />
+      <div className="wiki-article-meta">
+        <span>{pack.reviewTier}</span>
+        <span>{pack.maturity}</span>
+        <span>{pack.review?.legalReviewStatus}</span>
+        <span>{pack.sourceReviewFlagCount} source flags</span>
+        <span>Generated {pack.generatedAt}</span>
+      </div>
+      <div className="wiki-notice">
+        This packet is a reviewer aid. It keeps unresolved source-review flags visible and does not mark the
+        article as source checked, safety reviewed, or ready for public use.
+      </div>
+
+      <p>
+        <a href={`/wiki/articles/${pack.slug}`} onClick={makeNavigate(navigateTo, `/wiki/articles/${pack.slug}`)}>
+          Open the article
+        </a>
+      </p>
+
+      <TableOfContents items={sectionHeadings} />
+
+      <section className="wiki-section" id="article-review-status">
+        <h2>Article review status</h2>
+        <table className="wiki-table">
+          <tbody>
+            <tr>
+              <th>Article maturity</th>
+              <td>{pack.maturity}</td>
+            </tr>
+            <tr>
+              <th>Legal/source review</th>
+              <td>{pack.review?.legalReviewStatus}</td>
+            </tr>
+            <tr>
+              <th>Safety review</th>
+              <td>{pack.review?.safetyReviewStatus}</td>
+            </tr>
+            <tr>
+              <th>Review window</th>
+              <td>
+                Last reviewed {pack.review?.lastReviewed}; next review {pack.review?.nextReview}
+              </td>
+            </tr>
+            <tr>
+              <th>Quality metrics</th>
+              <td>
+                {pack.qualityMetric?.exactCitationCount || 0} exact citations;{" "}
+                {pack.qualityMetric?.outboundLinkCount || 0} outbound article links;{" "}
+                {pack.qualityMetric?.relatedToolCount || 0} related field tools
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section className="wiki-section" id="reviewer-checklist">
+        <h2>Reviewer checklist</h2>
+        <ReviewChecklistSummary checklist={pack.reviewChecklist || []} />
+        <h3>Checklist templates</h3>
+        <ul>
+          {(pack.reviewChecklistTemplates || []).map((template) => (
+            <li key={template.id}>
+              <b>{template.title}</b>: {template.audience}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="wiki-section" id="claims-needing-source-review">
+        <h2>Claims needing source review</h2>
+        {(pack.claimsNeedingReview || []).length ? (
+          <ol>
+            {pack.claimsNeedingReview.map((claim) => (
+              <li key={claim.id || `${claim.section}-${claim.index}`}>
+                {claim.section ? <span className="wiki-small">{formatSectionName(claim.section)}: </span> : null}
+                <RichText text={claim.text} navigateTo={navigateTo} />
+                {(claim.citationIds || []).length ? (
+                  <div className="wiki-small">Citation tokens: {claim.citationIds.join(", ")}</div>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>No source-review claims are currently listed. Do not promote the article without human review.</p>
+        )}
+      </section>
+
+      <section className="wiki-section" id="citation-coverage">
+        <h2>Citation coverage</h2>
+        <p className="wiki-small">
+          Exact OHSR citation IDs: {(pack.exactCitationIds || []).join(", ") || "none"}
+        </p>
+        <ul>
+          {(pack.citations || []).map((citation) => (
+            <li key={citation.id}>
+              {citation.url ? (
+                <a href={citation.url} target="_blank" rel="noreferrer">
+                  {citation.title}
+                </a>
+              ) : (
+                citation.title
+              )}{" "}
+              <span className="wiki-small">
+                {citation.publisher}
+                {citation.locator ? ` - ${citation.locator}` : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="wiki-section" id="source-notes">
+        <h2>Source notes</h2>
+        <ul>
+          {(pack.sourceNotes || []).map((note) => (
+            <li key={note.id}>
+              <a
+                href={`/wiki/source-notes/${note.id}`}
+                onClick={makeNavigate(navigateTo, `/wiki/source-notes/${note.id}`)}
+              >
+                {note.title}
+              </a>{" "}
+              <span className="wiki-small">
+                {note.publisher}; {note.sourceType}; last checked {note.lastChecked}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="wiki-section" id="related-field-use-content">
+        <h2>Related field-use content</h2>
+        <div className="wiki-tool-grid">
+          <ReviewPackToolList
+            title="Toolbox talks"
+            items={pack.relatedTools?.toolboxTalks}
+            hrefFor={() => "/safety-lab/toolbox-talks"}
+            navigateTo={navigateTo}
+          />
+          <ReviewPackToolList
+            title="Checklists"
+            items={pack.relatedTools?.checklists}
+            hrefFor={() => "/safety-lab/checklists"}
+            navigateTo={navigateTo}
+          />
+          <ReviewPackToolList
+            title="Quizzes"
+            items={pack.relatedTools?.quizzes}
+            hrefFor={(item) => `/training-quiz/${item.id}`}
+            navigateTo={navigateTo}
+          />
+          <ReviewPackToolList
+            title="Forms"
+            items={pack.relatedTools?.forms}
+            hrefFor={() => "/safety-lab/forms"}
+            navigateTo={navigateTo}
+          />
+          <ReviewPackToolList
+            title="Safety packs"
+            items={pack.relatedTools?.safetyPacks}
+            hrefFor={(item) => `/safety-lab/safety-pack?pack=${item.id}`}
+            navigateTo={navigateTo}
+          />
+        </div>
+      </section>
+
+      <section className="wiki-section" id="draft-blocker-summary">
+        <h2>Draft blocker summary</h2>
+        <ul>
+          {(pack.draftBlockers || []).map((blocker) => (
+            <li key={blocker}>{blocker}</li>
+          ))}
+        </ul>
+      </section>
+
+      {(pack.reviewerNotes || []).length ? (
+        <ArticleSection title="Reviewer notes" items={pack.reviewerNotes} navigateTo={navigateTo} />
+      ) : null}
+
+      <section className="wiki-section" id="print-packet">
+        <h2>Print packet</h2>
+        <p>
+          Print this packet for source/legal review. It is not a worker handout and it is not a compliance
+          certificate.
+        </p>
+        <button className="wiki-small-button" type="button" onClick={() => window.print()}>
+          Print review pack
+        </button>
+      </section>
+    </article>
+  );
+}
+
+function ReviewPackCallout({ pack, navigateTo }) {
+  return (
+    <section className="wiki-section wiki-review-box" id="review-pack">
+      <h2>Review pack</h2>
+      <p>
+        A Tier 1 review packet is available for this article. It collects legal claims, citations, source notes,
+        field-tool links, and draft blockers for qualified review.
+      </p>
+      <p>
+        <a
+          href={`/wiki/review-packs/${pack.slug}`}
+          onClick={makeNavigate(navigateTo, `/wiki/review-packs/${pack.slug}`)}
+        >
+          Open review pack
+        </a>
+      </p>
+    </section>
+  );
+}
+
+function ReviewPackToolList({ title, items = [], hrefFor, navigateTo }) {
+  if (!items.length) return null;
+  return (
+    <section>
+      <h3>{title}</h3>
+      <ul>
+        {items.map((item) => {
+          const href = hrefFor(item);
+          return (
+            <li key={item.id}>
+              <a href={href} onClick={makeNavigate(navigateTo, href)}>
+                {item.title || formatResourceId(item.id)}
+              </a>
+              {item.topic || item.scenario ? (
+                <>
+                  <br />
+                  <span className="wiki-small">{item.topic || item.scenario}</span>
+                </>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function reviewPackToolCount(pack) {
+  const tools = pack.relatedTools || {};
+  return (
+    (tools.toolboxTalks || []).length +
+    (tools.checklists || []).length +
+    (tools.quizzes || []).length +
+    (tools.forms || []).length +
+    (tools.safetyPacks || []).length
   );
 }
 
@@ -1915,6 +2315,13 @@ function formatResourceId(id) {
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function formatSectionName(value) {
+  return String(value || "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function normalizeText(value) {

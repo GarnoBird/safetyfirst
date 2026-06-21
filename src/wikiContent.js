@@ -5,6 +5,7 @@ import {
   generatedWikiSourceCoverage,
   generatedWikiSourceNotes,
 } from "./generatedWikiSearch.js";
+import { generatedWikiReviewPacks } from "./generatedWikiReviewPacks.js";
 import {
   glossaryTerms,
   maturityLevels,
@@ -4423,6 +4424,7 @@ export const wikiSearchIndex = generatedWikiSearchIndex;
 export const wikiQualityMetrics = generatedWikiQualityMetrics;
 export const wikiSourceCoverage = generatedWikiSourceCoverage;
 export const wikiSourceNotes = generatedWikiSourceNotes;
+export const wikiReviewPacks = generatedWikiReviewPacks;
 
 export const sourceMap = Object.fromEntries(wikiSources.map((source) => [source.id, source]));
 export const regulationMap = Object.fromEntries(regulationRefs.map((ref) => [ref.id, ref]));
@@ -4434,6 +4436,7 @@ export const redirectMap = Object.fromEntries(wikiRedirects.map((redirect) => [r
 export const glossaryMap = Object.fromEntries(glossaryTerms.map((term) => [term.slug, term]));
 export const sourceNoteMap = Object.fromEntries(wikiSourceNotes.map((note) => [note.id, note]));
 export const qualityMetricMap = Object.fromEntries(wikiQualityMetrics.map((metric) => [metric.slug, metric]));
+export const reviewPackMap = Object.fromEntries(wikiReviewPacks.map((pack) => [pack.slug, pack]));
 
 export {
   glossaryTerms,
@@ -4885,6 +4888,10 @@ export function getSourceNotesForArticle(slug) {
 
 export function getWikiQualityMetric(slug) {
   return qualityMetricMap[slug] || null;
+}
+
+export function getWikiReviewPackBySlug(slug) {
+  return reviewPackMap[slug] || null;
 }
 
 export function getArticleDraftBlockers(article) {
