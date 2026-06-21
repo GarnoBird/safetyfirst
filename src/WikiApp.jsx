@@ -172,9 +172,10 @@ export default function WikiApp({ routePath, navigateTo }) {
 
   return (
     <div className="wiki-root">
-      <header className="wiki-header">
-        <a href="/wiki" onClick={makeNavigate(navigateWithinWiki, "/wiki")} className="wiki-brand">
-          BC Construction Safety Wiki
+      <header className="wiki-masthead">
+        <a href="/wiki" onClick={makeNavigate(navigateWithinWiki, "/wiki")} className="wiki-wordmark">
+          <span>BC Construction Safety Wiki</span>
+          <small>Plain-language safety reference</small>
         </a>
         <form className="wiki-search" onSubmit={submitSearch}>
           <input
@@ -190,7 +191,7 @@ export default function WikiApp({ routePath, navigateTo }) {
           Menu
         </button>
       </header>
-      <div className="wiki-layout">
+      <div className="wiki-page">
         <aside className={menuOpen ? "wiki-sidebar open" : "wiki-sidebar"}>
           <nav aria-label="Wiki navigation">
             <h2>Navigation</h2>
