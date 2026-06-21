@@ -119,8 +119,6 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - Use toeboards where required to control falling-object hazards from elevated work areas. {{cite:ohsr-4-60}}
 - If guardrails are not in place and workers are exposed, use another required fall protection system. {{cite:ohsr-11-2}}
 - If the work requires a fall protection plan, address the temporary removal or replacement of guardrails in that plan. {{cite:ohsr-11-3}}
-- Coordinate removal of rails with affected workers and the prime contractor before the exposure is created. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Confirm current section wording before publishing guardrail dimensions or load details in a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -178,7 +176,6 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - [ ] Toeboards or falling-object controls are considered where workers or the public are below. {{cite:ohsr-4-60}}
 - [ ] Inspections are repeated after work sequence, weather, or trade changes.
 - [ ] Corrections are documented and verified in the field.
-- [ ] Exact guardrail requirements are checked against current WorkSafeBC text before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

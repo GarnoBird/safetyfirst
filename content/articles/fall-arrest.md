@@ -121,7 +121,7 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - Inspect and maintain fall protection equipment before use and as required by the system. {{cite:ohsr-11-9}}
 - Remove equipment from service when it has arrested a fall or when damage, defects, or uncertainty make it unreliable. {{cite:ohsr-11-10}}
 - Include rescue planning when fall arrest could leave a worker suspended. {{cite:ohsr-11-3}}
-- Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Do not use non-standard fall arrest arrangements unless the equipment, anchor, compatibility, inspection, clearance, and rescue method are confirmed for the intended use. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}} {{cite:ohsr-11-9}} {{cite:ohsr-11-3}}
 
 ## Best practice
 
@@ -179,7 +179,6 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - [ ] Manufacturer instructions are available for unusual or specialized equipment.
 - [ ] Workers are supervised when using a new system or changed anchor layout.
 - [ ] Inspection records identify deficiencies and corrective actions.
-- [ ] Legal references in this article have been source checked before being used as a site standard. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

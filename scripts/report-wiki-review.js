@@ -2,6 +2,8 @@ import { writeFile } from "node:fs/promises";
 
 import { wikiArticles, wikiQualityMetrics, wikiReviewIssues, wikiSourceCoverage } from "../src/wikiContent.js";
 
+const reviewPhrase = "Needs verification against current WorkSafeBC/OHS source.";
+
 const issueRows = wikiReviewIssues
   .map((row) => ({
     slug: row.slug || row.articleSlug,
@@ -47,9 +49,11 @@ const lines = [
   "- Open `/wiki/review`.",
   "- Pick one article from the list.",
   "- Answer only the issues you can answer now.",
-  "- Use **Yes, correct** when the claim is acceptable.",
-  "- Use **No, changes needed** and add the correction when wording must change.",
+  "- Use **Yes, keep it** when the claim is acceptable.",
+  "- Use **Change wording** when the article needs corrected wording.",
+  "- Use **Remove item** when the issue text should be deleted from the article.",
   "- Save. Completed answers disappear from the page; unfinished issues stay for later.",
+  `- ${reviewPhrase}`,
   "",
   "## Articles Needing Review By Tier",
   "",
@@ -75,6 +79,7 @@ const lines = [
   "## Boundary",
   "",
   "This report is a review queue summary. It is not legal approval, source approval, safety approval, or a statement that any article is compliant or complete.",
+  reviewPhrase,
 ];
 
 await writeFile("docs/safety-wiki-review-report.md", `${lines.join("\n")}\n`, "utf8");

@@ -55,6 +55,14 @@ regulationRefs:
   - "ohsr-14-2"
   - "ohsr-14-16"
   - "ohsr-16-10"
+  - "ohsr-15-25"
+  - "ohsr-15-29"
+  - "ohsr-15-43"
+  - "ohsr-15-48"
+  - "ohsr-15-54"
+  - "ohsr-15-56"
+  - "ohsr-15-57"
+  - "ohsr-15-59"
 citations:
   - "ohsr-15-2"
   - "ohsr-15-3"
@@ -122,8 +130,8 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - Use recognized hand signals or communication methods for crane work. {{cite:ohsr-15-20}}
 - Inspect slings before use and remove defective rigging from service. {{cite:ohsr-15-31}}
 - Coordinate rigging requirements with the crane and hoist standards that apply to the lifting equipment. {{cite:ohsr-14-2}}
-- Confirm current rejection criteria for each rigging type before publishing a field checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Inspect rigging before use and remove it from service when the applicable wire rope, hook, wire rope sling, chain sling, synthetic web sling, or metal mesh sling rejection criteria apply. {{cite:ohsr-15-31}} {{cite:ohsr-15-25}} {{cite:ohsr-15-29}} {{cite:ohsr-15-43}} {{cite:ohsr-15-48}} {{cite:ohsr-15-54}} {{cite:ohsr-15-56}}
+- Apply below-the-hook lifting device requirements when those devices are used, and coordinate with crane critical-lift requirements when the lift meets the critical-lift conditions. {{cite:ohsr-15-57}} {{cite:ohsr-15-59}} {{cite:ohsr-14-42-1}}
 
 ## Best practice
 

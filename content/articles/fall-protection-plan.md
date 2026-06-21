@@ -120,7 +120,7 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - The selected system still has to meet the underlying Part 11 duty to use fall protection. {{cite:ohsr-11-2}}
 - Anchors and equipment referenced by the plan must match the applicable Part 11 requirements. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}
 - Equipment inspections and removal from service must be addressed when the plan depends on personal fall protection equipment. {{cite:ohsr-11-9}}
-- Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Include procedures for rescue or evacuation in the fall protection plan and coordinate those procedures with site emergency rescue planning. {{cite:ohsr-11-3}} {{cite:ohsr-32-4}}
 
 ## Best practice
 
@@ -178,7 +178,6 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - [ ] Changes are recorded and communicated before work continues.
 - [ ] The plan is coordinated with nearby trades and the prime contractor.
 - [ ] Deficiencies have owners, interim controls, and follow-up dates.
-- [ ] The legal wording needs official-source confirmation before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

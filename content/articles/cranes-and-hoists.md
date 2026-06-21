@@ -56,6 +56,12 @@ regulationRefs:
   - "ohsr-15-31"
   - "ohsr-19-24-1"
   - "ohsr-16-10"
+  - "ohsr-14-12"
+  - "ohsr-14-14"
+  - "ohsr-14-34"
+  - "ohsr-14-34-1"
+  - "ohsr-14-42"
+  - "ohsr-14-42-1"
 citations:
   - "ohsr-14-2"
   - "ohsr-14-16"
@@ -124,7 +130,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - Use standard or agreed hand signals and communication methods for crane operations. {{cite:ohsr-15-20}}
 - Inspect slings and rigging before use. {{cite:ohsr-15-31}}
 - Control minimum distances and authorization requirements near high-voltage conductors. {{cite:ohsr-19-24-1}}
-- Confirm critical lift, logbook, operator credential, and inspection details against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Keep the required crane instructions and records current, use qualified or certified operators where required, and apply tandem-lift or critical-lift requirements when those lift types are planned. {{cite:ohsr-14-12}} {{cite:ohsr-14-14}} {{cite:ohsr-14-34}} {{cite:ohsr-14-34-1}} {{cite:ohsr-14-42}} {{cite:ohsr-14-42-1}}
 
 ## Best practice
 
@@ -182,7 +188,6 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - [ ] Affected trades and public routes are controlled.
 - [ ] Wind, visibility, ground/support conditions, and load path are monitored.
 - [ ] Deficiencies stop the lift until corrected.
-- [ ] Current certification and critical-lift requirements are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

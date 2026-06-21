@@ -57,6 +57,11 @@ regulationRefs:
   - "ohsr-8-3"
   - "ohsr-5-54"
   - "ohsr-6-112"
+  - "ohsr-8-33"
+  - "ohsr-8-35"
+  - "ohsr-8-36"
+  - "ohsr-8-44"
+  - "ohsr-8-45"
 citations:
   - "ohsr-8-32"
   - "ohsr-8-39"
@@ -125,8 +130,8 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - Provide instruction and training for PPE use, limits, inspection, maintenance, and storage where required. {{cite:ohsr-8-7}}
 - Tie respirator selection to the exposure control plan when the hazard requires written exposure control. {{cite:ohsr-5-54}}
 - For silica work, confirm respiratory protection requirements against the silica exposure control plan. {{cite:ohsr-6-112}}
-- Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Select respirators for the hazard and maintain required respirator records, including fit test, instruction, cartridge/canister, air-supplying respirator, and maintenance records where they apply. {{cite:ohsr-8-33}} {{cite:ohsr-8-44}} {{cite:ohsr-8-45}}
+- For IDLH or oxygen-deficient atmospheres, emergency escape respirators, supplied-air systems, and confined space work, apply the specific respirator and confined-space requirements before work starts. {{cite:ohsr-8-35}} {{cite:ohsr-8-36}} {{cite:ohsr-9-5}}
 
 ## Best practice
 
@@ -184,7 +189,6 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - [ ] Facial hair, eyewear, hard hats, and other PPE do not break the respirator seal.
 - [ ] Cleaning, storage, cartridge change, and replacement records are maintained as needed.
 - [ ] Respirator problems trigger a pause and exposure control review.
-- [ ] Respirator legal claims are confirmed before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

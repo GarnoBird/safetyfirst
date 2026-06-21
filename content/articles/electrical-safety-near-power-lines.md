@@ -56,6 +56,7 @@ regulationRefs:
   - "ohsr-10-3"
   - "ohsr-10-4"
   - "ohsr-10-6"
+  - "ohsr-19-28"
 citations:
   - "ohsr-19-24-1"
   - "ohsr-19-25"
@@ -123,8 +124,8 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - Coordinate crane setup and operation with crane and hoist standards when hoisting equipment is part of the exposure. {{cite:ohsr-14-2}}
 - Use clear signalling and communication where equipment movement could approach the hazard. {{cite:ohsr-15-20}}
 - Use de-energization and lockout principles where equipment or circuits are intentionally isolated for work. {{cite:ohsr-10-6}}
-- Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Confirm emergency work exceptions and utility-owner procedures before field publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Use the current high-voltage minimum approach distance, written-assurance, and owner-authorization requirements before publishing distance tables or site instructions. {{cite:ohsr-19-24-1}} {{cite:ohsr-19-25}} {{cite:ohsr-19-29}}
+- Treat emergency work near high-voltage electrical equipment as a special case and confirm the required emergency-work conditions and utility-owner authorization before workers proceed. {{cite:ohsr-19-28}} {{cite:ohsr-19-29}}
 
 ## Best practice
 

@@ -4,127 +4,40 @@ Generated: 2026-06-21
 
 ## Summary
 
-- Files changed: 100
-- Review flags before: 633
-- Review flags after: 65
-- Review flags resolved: 568
-- Malformed citation tokens fixed: 656
-- Summary workflow flags resolved: 100
-- Reviewer-note workflow flags resolved: 100
-- Supervisor checklist noise items removed: 79
-- Generic legal placeholders removed: 287
-- Asbestos source-backed claims resolved: 2
+- Review flags at sprint baseline: 633
+- Files changed: 0
+- Review flags before this run: 1
+- Review flags after cleanup: 1
+- Review flags resolved this run: 0
+- Net review flags resolved from sprint baseline: 632
+- Malformed citation tokens fixed: 0
+- Summary workflow flags resolved: 0
+- Reviewer-note workflow flags resolved: 0
+- Supervisor checklist noise items removed: 0
+- Generic legal placeholders removed: 0
+- Asbestos source-backed claims resolved: 0
 
 ## Sources Used
 
 - WorkSafeBC Notice of Project page: asbestos, lead or similar exposure work activity requires at least 48 hours notice and submission of safe work procedures plus hazardous materials survey or alternate explanation.
 - WorkSafeBC OHS Regulation Part 6: asbestos waste handling and disposal are addressed in sections 6.25 to 6.28.
 - WorkSafeBC OHS Regulation Part 6: asbestos respiratory protection, protective clothing, and records are addressed in sections 6.29, 6.30, and 6.32.
+- WorkSafeBC OHS Regulation Part 8: respirator selection, IDLH/oxygen-deficient atmospheres, emergency escape respirators, records, maintenance, and inspection are addressed in sections 8.33, 8.35, 8.36, 8.44, and 8.45.
+- WorkSafeBC first aid requirements page: employers must assess first aid needs, use Schedule 3-A, keep procedures current, review assessments annually or after significant change, and follow amendments in effect November 1, 2024.
+- WorkSafeBC OHS Regulation Part 14: crane and hoist instructions, inspection/maintenance records, operator qualification, operator certification, tandem lifts, and critical lifts are addressed in sections 14.12, 14.14, 14.34, 14.34.1, 14.42, and 14.42.1.
+- WorkSafeBC OHS Regulation Part 15: rigging rejection criteria and below-the-hook lifting device requirements are addressed in sections 15.25, 15.29, 15.43, 15.48, 15.54, 15.56, 15.57, and 15.59.
+- WorkSafeBC OHS Regulation Part 18: traffic control person training is addressed in section 18.6.2.
+- WorkSafeBC OHS Regulation Part 19: high-voltage approach distance, written assurance, emergency work, and owner authorization are addressed in sections 19.24.1, 19.25, 19.28, and 19.29.
 - Generic article-status and reviewer-note flags were removed from the human queue because they are process metadata, not source claims.
 - Generic legal-requirement placeholders were removed rather than presented as law.
 
 ## Changed Articles
 
-- aeds-on-construction-sites: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- anchor-points: 7 -> 0 review flags; Fixed 6 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- asbestos-basics: 5 -> 0 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Resolved asbestos Notice of Project, waste, PPE, and records claims with exact WorkSafeBC/OHSR citations.
-- carbon-monoxide: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- cardiac-arrest-on-site: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- cold-stress: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- compressed-gas-cylinders: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- concrete-formwork: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- concrete-pumping: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- confined-space-entry: 4 -> 0 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 1 generic legal placeholder from Legal requirements.
-- confined-space-rescue: 4 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- corrective-actions: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- crane-operator-signaller-responsibilities: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- cranes-and-hoists: 4 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- cranes-near-power-lines: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- de-energization: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- demolition-planning: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- dust-control-methods: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- electrical-safety-near-power-lines: 5 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item.
-- emergency-transportation: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- employer-duties: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- evacuation: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- excavation-and-trenching: 3 -> 0 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item.
-- excavation-spoil-piles: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- eye-and-face-protection: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- fall-arrest: 4 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- fall-protection-plan: 4 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- fall-protection: 4 -> 0 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 1 generic legal placeholder from Legal requirements.
-- fall-rescue-plan: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- fall-restraint: 7 -> 0 review flags; Fixed 6 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- falsework: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- fire-extinguishers: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- fire-prevention-plan: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- first-aid-assessment: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- first-aid-room: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- floor-openings-and-covers: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- gloves: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- guardrails: 5 -> 3 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- hard-hats: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- hazardous-materials-before-demolition: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- hearing-protection: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- heat-stress: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- hepa-vacuums: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- high-visibility-apparel: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- hoarding-and-public-protection: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- hot-work: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- housekeeping: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- incident-investigation: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- jhsc-requirements: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- ladder-inspection: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- ladders: 5 -> 3 review flags; Fixed 6 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- lead-exposure-control: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- leading-edge-work: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- lift-plans: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- lockout: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- material-handling: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- mobile-elevating-work-platforms: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- mobile-equipment: 5 -> 3 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- mould-in-restoration: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- noise-exposure: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- notice-of-project: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- occupational-first-aid-requirements: 5 -> 3 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- ohs-program: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- powder-actuated-tools: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- power-tools: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- ppe-basics: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- prime-contractor-duties: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- rebar-impalement-protection: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- refusal-of-unsafe-work: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- respirators: 5 -> 3 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- rigging-basics: 5 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item.
-- roof-work: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- rope-access: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- safety-footwear: 7 -> 0 review flags; Fixed 6 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- scaffold-inspection: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- scaffolds: 5 -> 3 review flags; Fixed 6 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- serious-injury-reporting: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- silica-exposure-control: 4 -> 0 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 1 generic legal placeholder from Legal requirements.
-- site-emergency-response-plan: 5 -> 3 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- site-orientation: 5 -> 3 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- site-specific-safety-plan: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- supervisor-duties: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- suspension-trauma: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- swing-stages: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- temporary-power: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- tilt-up-construction: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- toolbox-talks: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- traffic-control-persons: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- traffic-control-plans: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- traffic-control: 5 -> 2 review flags; Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item.
-- training-records: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- underground-utilities: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- ventilation: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- welding-and-cutting: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- wet-cutting: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- whmis-basics: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- work-platforms: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- worker-rights-and-responsibilities: 7 -> 0 review flags; Fixed 7 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
-- workplace-inspections: 5 -> 3 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata.
-- young-new-worker-orientation: 7 -> 0 review flags; Fixed 8 malformed citation tokens. Resolved 1 summary review flag as article-status noise. Resolved 1 reviewer-note flag as workflow metadata. Removed 1 supervisor checklist review-noise item. Removed 4 generic legal placeholders from Legal requirements.
+- No article Markdown files changed.
+
+## Remaining Human Review Issues
+
+- traffic-control:128 — - Confirm whether the road owner, municipality, or Ministry of Transportation and Infrastructure requires a permit, approved traffic management plan, or additional road-use condition for the specific road. Reviewer question: identify the correct road-authority source for permit or approval requirements, or move this item to site-specific best practice if no single BC-wide source applies.
 
 ## Boundary
 

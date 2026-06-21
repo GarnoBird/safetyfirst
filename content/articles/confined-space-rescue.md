@@ -123,7 +123,7 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - Use atmospheric testing information to decide whether rescue personnel could be exposed to the same hazard. {{cite:ohsr-9-25}}
 - Tie rescue planning to the confined space entry program. {{cite:ohsr-9-5}}
 - Account for emergency rescue and evacuation worker safety in the site emergency plan. {{cite:ohsr-32-4}}
-- Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Confirm rescue service availability, rescue notification, and rescue-summoning arrangements before entry, and match rescue equipment and practice to the written confined space entry program. {{cite:ohsr-9-37}} {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}
 
 ## Best practice
 
@@ -181,7 +181,6 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - [ ] The crew understands that unplanned entry rescue is not allowed.
 - [ ] Rescue changes trigger permit suspension and reassessment.
 - [ ] Training and drill records are maintained where required by the program.
-- [ ] Rescue assumptions are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

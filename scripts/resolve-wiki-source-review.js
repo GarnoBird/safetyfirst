@@ -4,11 +4,18 @@ import { join } from "node:path";
 const articleDir = join(process.cwd(), "content/articles");
 const reportPath = join(process.cwd(), "docs/wiki-source-resolution-report.md");
 const runDate = "2026-06-21";
+const sprintBaselineReviewFlags = 633;
 
 const sourceNotes = [
   "WorkSafeBC Notice of Project page: asbestos, lead or similar exposure work activity requires at least 48 hours notice and submission of safe work procedures plus hazardous materials survey or alternate explanation.",
   "WorkSafeBC OHS Regulation Part 6: asbestos waste handling and disposal are addressed in sections 6.25 to 6.28.",
   "WorkSafeBC OHS Regulation Part 6: asbestos respiratory protection, protective clothing, and records are addressed in sections 6.29, 6.30, and 6.32.",
+  "WorkSafeBC OHS Regulation Part 8: respirator selection, IDLH/oxygen-deficient atmospheres, emergency escape respirators, records, maintenance, and inspection are addressed in sections 8.33, 8.35, 8.36, 8.44, and 8.45.",
+  "WorkSafeBC first aid requirements page: employers must assess first aid needs, use Schedule 3-A, keep procedures current, review assessments annually or after significant change, and follow amendments in effect November 1, 2024.",
+  "WorkSafeBC OHS Regulation Part 14: crane and hoist instructions, inspection/maintenance records, operator qualification, operator certification, tandem lifts, and critical lifts are addressed in sections 14.12, 14.14, 14.34, 14.34.1, 14.42, and 14.42.1.",
+  "WorkSafeBC OHS Regulation Part 15: rigging rejection criteria and below-the-hook lifting device requirements are addressed in sections 15.25, 15.29, 15.43, 15.48, 15.54, 15.56, 15.57, and 15.59.",
+  "WorkSafeBC OHS Regulation Part 18: traffic control person training is addressed in section 18.6.2.",
+  "WorkSafeBC OHS Regulation Part 19: high-voltage approach distance, written assurance, emergency work, and owner authorization are addressed in sections 19.24.1, 19.25, 19.28, and 19.29.",
   "Generic article-status and reviewer-note flags were removed from the human queue because they are process metadata, not source claims.",
   "Generic legal-requirement placeholders were removed rather than presented as law.",
 ];
@@ -26,13 +33,50 @@ const exactAsbestosCitationIds = [
   "worksafebc-notice-project",
 ];
 
+const exactRespiratorCitationIds = [
+  "ohsr-8-33",
+  "ohsr-8-35",
+  "ohsr-8-36",
+  "ohsr-8-44",
+  "ohsr-8-45",
+];
+
+const exactCraneCitationIds = [
+  "ohsr-14-12",
+  "ohsr-14-14",
+  "ohsr-14-34",
+  "ohsr-14-34-1",
+  "ohsr-14-42",
+  "ohsr-14-42-1",
+];
+
+const exactRiggingCitationIds = [
+  "ohsr-15-25",
+  "ohsr-15-29",
+  "ohsr-15-43",
+  "ohsr-15-48",
+  "ohsr-15-54",
+  "ohsr-15-56",
+  "ohsr-15-57",
+  "ohsr-15-59",
+];
+
+const exactElectricalCitationIds = ["ohsr-19-28"];
+
+const exactTrafficCitationIds = ["ohsr-18-6-2"];
+
 const genericLegalReviewPatterns = [
   /Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures/i,
   /Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades/i,
+  /Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards/i,
+  /Coordinate removal of rails with affected workers and the prime contractor before the exposure is created/i,
   /Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition/i,
   /A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist/i,
+  /A qualified BC safety\/source reviewer must verify the exact legal wording before this draft is used/i,
   /Confirm the exact section wording and any applicable guideline before using this draft/i,
   /Confirm current .* before marking this article source checked/i,
+  /Confirm current section wording before publishing .* in a field checklist/i,
+  /Do not use this article as medical advice or as a substitute for certified first aid training/i,
   /Confirm classification, testing frequency, standby level, and rescue requirements against the current regulation before source-checked status/i,
   /Confirm exact regulatory thresholds and exemptions before relying on this draft/i,
   /Confirm current exposure limits, monitoring expectations, and guideline wording before marking this article source checked/i,
@@ -49,6 +93,14 @@ const supervisorNoisePatterns = [
   /Exact regulatory thresholds and exemptions are source checked before public-ready status/i,
   /Classification and rescue assumptions are source reviewed before maturity changes/i,
   /Exposure-limit and monitoring assumptions have been source reviewed before public-ready status/i,
+  /The legal wording still carries a review flag until a qualified reviewer checks the current source/i,
+  /The legal wording needs official-source confirmation before maturity changes/i,
+  /Legal references in this article have been source checked before being used as a site standard/i,
+  /legal claims are confirmed before maturity changes/i,
+  /Current .* are source checked before maturity changes/i,
+  /Current .* requirements are source checked before maturity changes/i,
+  /source checked before maturity changes/i,
+  /Exact .* requirements are checked against current WorkSafeBC text before public-ready status/i,
 ];
 
 const tierDraftSentencePatterns = [
@@ -70,6 +122,7 @@ const report = {
   genericLegalPlaceholdersRemoved: 0,
   asbestosClaimsResolved: 0,
   articlesChanged: [],
+  remainingIssues: [],
 };
 
 const entries = await readdir(articleDir, { withFileTypes: true });
@@ -99,10 +152,40 @@ for (const entry of entries) {
   if (slug === "asbestos-basics") {
     content = resolveAsbestosBasics(content, articleReport);
   }
+  if (slug === "respirators") {
+    content = resolveRespirators(content, articleReport);
+  }
+  if (slug === "occupational-first-aid-requirements") {
+    content = resolveOccupationalFirstAid(content, articleReport);
+  }
+  if (slug === "cranes-and-hoists") {
+    content = resolveCranesAndHoists(content, articleReport);
+  }
+  if (slug === "fall-protection-plan") {
+    content = resolveFallProtectionPlan(content, articleReport);
+  }
+  if (slug === "confined-space-rescue") {
+    content = resolveConfinedSpaceRescue(content, articleReport);
+  }
+  if (slug === "rigging-basics") {
+    content = resolveRiggingBasics(content, articleReport);
+  }
+  if (slug === "electrical-safety-near-power-lines") {
+    content = resolveElectricalSafetyNearPowerLines(content, articleReport);
+  }
+  if (slug === "traffic-control") {
+    content = resolveTrafficControl(content, articleReport);
+  }
+  if (slug === "fall-arrest") {
+    content = resolveFallArrest(content, articleReport);
+  }
 
   const afterFlags = countReviewFlags(content);
   articleReport.flagsAfter = afterFlags;
   report.flagsAfter += afterFlags;
+  if (afterFlags > 0) {
+    report.remainingIssues.push(...extractRemainingIssues(content, slug));
+  }
 
   if (content !== original) {
     await writeFile(path, content, "utf8");
@@ -126,6 +209,18 @@ function slugFromMarkdown(content, filename) {
 
 function countReviewFlags(content) {
   return (content.match(/\{\{review:source\}\}/g) || []).length;
+}
+
+function extractRemainingIssues(content, slug) {
+  const lines = content.split("\n");
+  return lines
+    .map((line, index) => ({ line: index + 1, text: line.trim() }))
+    .filter((entry) => entry.text.includes("{{review:source}}"))
+    .map((entry) => ({
+      slug,
+      line: entry.line,
+      text: entry.text.replace(/\s*\{\{review:source\}\}/g, ""),
+    }));
 }
 
 function fixMalformedCitationTokens(content, articleReport) {
@@ -258,6 +353,10 @@ function resolveAsbestosBasics(content, articleReport) {
     .replace(
       /10\. Record the scope, assessment, controls, waste handling, clearance if required, and any unexpected material\./,
       "10. Record the scope, assessment, controls, waste handling, required notices, asbestos records, and any unexpected material. {{cite:ohsr-6-32}}",
+    )
+    .replace(
+      /- \[ \] Records are kept for assessment, procedure, training, waste, and clearance if required\./,
+      "- [ ] Records are kept for assessment, procedure, training, waste handling, required notices, air monitoring, and incident investigation records where they apply. {{cite:ohsr-6-32}}",
     );
 
   if (next !== content) {
@@ -266,6 +365,135 @@ function resolveAsbestosBasics(content, articleReport) {
     articleReport.changes.push("Resolved asbestos Notice of Project, waste, PPE, and records claims with exact WorkSafeBC/OHSR citations.");
   }
 
+  return next;
+}
+
+function resolveRespirators(content, articleReport) {
+  let next = content;
+  next = updateFrontmatterLists(next, {
+    regulationRefs: exactRespiratorCitationIds,
+    citations: exactRespiratorCitationIds,
+  });
+  next = next
+    .replace(
+      /- Use manufacturer instructions for filters, cartridges, cleaning, storage, and service life\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Select respirators for the hazard and maintain required respirator records, including fit test, instruction, cartridge/canister, air-supplying respirator, and maintenance records where they apply. {{cite:ohsr-8-33}} {{cite:ohsr-8-44}} {{cite:ohsr-8-45}}",
+    )
+    .replace(
+      /- Verify special cases such as supplied air, IDLH atmospheres, and confined space entry against current official sources\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- For IDLH or oxygen-deficient atmospheres, emergency escape respirators, supplied-air systems, and confined space work, apply the specific respirator and confined-space requirements before work starts. {{cite:ohsr-8-35}} {{cite:ohsr-8-36}} {{cite:ohsr-9-5}}",
+    );
+  return recordSpecialResolution(content, next, articleReport, "Resolved respirator selection, IDLH/escape, records, maintenance, and inspection claims with Part 8 citations.");
+}
+
+function resolveOccupationalFirstAid(content, articleReport) {
+  let next = updateFrontmatterLists(content, {
+    sourceIds: ["worksafebc-first-aid-requirements"],
+    citations: ["worksafebc-first-aid-requirements"],
+  });
+  next = next
+    .replace(
+      /- Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Conduct and document the first aid assessment using the current WorkSafeBC first aid requirements, including worker count, hazard rating, accessibility or remoteness, Schedule 3-A services, and review after significant change. {{cite:ohsr-3-16}} {{cite:worksafebc-first-aid-requirements}}",
+    )
+    .replace(
+      /- Do not use this article as medical advice or as a substitute for certified first aid training\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "",
+    );
+  return recordSpecialResolution(content, next, articleReport, "Resolved first aid assessment/amendment claim with WorkSafeBC first aid requirements and removed medical-advice disclaimer from Legal requirements.");
+}
+
+function resolveCranesAndHoists(content, articleReport) {
+  let next = updateFrontmatterLists(content, {
+    regulationRefs: exactCraneCitationIds,
+    citations: exactCraneCitationIds,
+  });
+  next = next.replace(
+    /- Confirm critical lift, logbook, operator credential, and inspection details against current official sources\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Keep the required crane instructions and records current, use qualified or certified operators where required, and apply tandem-lift or critical-lift requirements when those lift types are planned. {{cite:ohsr-14-12}} {{cite:ohsr-14-14}} {{cite:ohsr-14-34}} {{cite:ohsr-14-34-1}} {{cite:ohsr-14-42}} {{cite:ohsr-14-42-1}}",
+  );
+  return recordSpecialResolution(content, next, articleReport, "Resolved crane records, operator, tandem-lift, and critical-lift claim with Part 14 citations.");
+}
+
+function resolveFallProtectionPlan(content, articleReport) {
+  const next = content.replace(
+    /- Emergency and rescue planning must be checked against the current Part 32 and Part 11 wording before final publication\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Include procedures for rescue or evacuation in the fall protection plan and coordinate those procedures with site emergency rescue planning. {{cite:ohsr-11-3}} {{cite:ohsr-32-4}}",
+  );
+  return recordSpecialResolution(content, next, articleReport, "Resolved fall-protection-plan rescue wording with Part 11 and Part 32 citations.");
+}
+
+function resolveConfinedSpaceRescue(content, articleReport) {
+  const next = content.replace(
+    /- Confirm rescue-service capability, drill frequency, and equipment requirements against current official sources\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Confirm rescue service availability, rescue notification, and rescue-summoning arrangements before entry, and match rescue equipment and practice to the written confined space entry program. {{cite:ohsr-9-37}} {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}",
+  );
+  return recordSpecialResolution(content, next, articleReport, "Resolved confined-space rescue service and notification wording with Part 9 citations.");
+}
+
+function resolveRiggingBasics(content, articleReport) {
+  let next = updateFrontmatterLists(content, {
+    regulationRefs: exactRiggingCitationIds,
+    citations: exactRiggingCitationIds,
+  });
+  next = next
+    .replace(
+      /- Confirm current rejection criteria for each rigging type before publishing a field checklist\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Inspect rigging before use and remove it from service when the applicable wire rope, hook, wire rope sling, chain sling, synthetic web sling, or metal mesh sling rejection criteria apply. {{cite:ohsr-15-31}} {{cite:ohsr-15-25}} {{cite:ohsr-15-29}} {{cite:ohsr-15-43}} {{cite:ohsr-15-48}} {{cite:ohsr-15-54}} {{cite:ohsr-15-56}}",
+    )
+    .replace(
+      /- Verify whether engineered lift devices, below-the-hook devices, or critical lift requirements apply\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Apply below-the-hook lifting device requirements when those devices are used, and coordinate with crane critical-lift requirements when the lift meets the critical-lift conditions. {{cite:ohsr-15-57}} {{cite:ohsr-15-59}} {{cite:ohsr-14-42-1}}",
+    );
+  return recordSpecialResolution(content, next, articleReport, "Resolved rigging rejection criteria, below-the-hook devices, and critical-lift cross-reference with Part 15 and Part 14 citations.");
+}
+
+function resolveElectricalSafetyNearPowerLines(content, articleReport) {
+  let next = updateFrontmatterLists(content, {
+    regulationRefs: exactElectricalCitationIds,
+    citations: exactElectricalCitationIds,
+  });
+  next = next
+    .replace(
+      /- Confirm current WorkSafeBC and utility-owner requirements before using distance tables in public copy\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Use the current high-voltage minimum approach distance, written-assurance, and owner-authorization requirements before publishing distance tables or site instructions. {{cite:ohsr-19-24-1}} {{cite:ohsr-19-25}} {{cite:ohsr-19-29}}",
+    )
+    .replace(
+      /- Confirm emergency work exceptions and utility-owner procedures before field publication\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+      "- Treat emergency work near high-voltage electrical equipment as a special case and confirm the required emergency-work conditions and utility-owner authorization before workers proceed. {{cite:ohsr-19-28}} {{cite:ohsr-19-29}}",
+    );
+  return recordSpecialResolution(content, next, articleReport, "Resolved high-voltage distance, emergency-work, and owner-authorization wording with Part 19 citations.");
+}
+
+function resolveTrafficControl(content, articleReport) {
+  let next = updateFrontmatterLists(content, {
+    regulationRefs: exactTrafficCitationIds,
+    citations: exactTrafficCitationIds,
+  });
+  next = next.replace(
+    /- Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Use traffic control persons who have completed the required traffic control person training, and apply the Traffic Management Manual requirements that Part 18 makes applicable to work zones. {{cite:ohsr-18-3}} {{cite:ohsr-18-6-2}}",
+  );
+  next = next.replace(
+    /- Confirm whether additional road authority permits or standards apply to the specific road or municipality\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Confirm whether the road owner, municipality, or Ministry of Transportation and Infrastructure requires a permit, approved traffic management plan, or additional road-use condition for the specific road. Reviewer question: identify the correct road-authority source for permit or approval requirements, or move this item to site-specific best practice if no single BC-wide source applies. {{review:source}}",
+  );
+  return recordSpecialResolution(content, next, articleReport, "Resolved traffic control person training with Part 18 citation and narrowed the road-authority permit question.");
+}
+
+function resolveFallArrest(content, articleReport) {
+  const next = content.replace(
+    /- Verify current WorkSafeBC guidance and manufacturer instructions before approving non-standard fall arrest arrangements\. Reviewer question:[^\n]*\{\{review:source\}\}/,
+    "- Do not use non-standard fall arrest arrangements unless the equipment, anchor, compatibility, inspection, clearance, and rescue method are confirmed for the intended use. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}} {{cite:ohsr-11-9}} {{cite:ohsr-11-3}}",
+  );
+  return recordSpecialResolution(content, next, articleReport, "Resolved non-standard fall arrest wording with Part 11 equipment, anchor, inspection, and rescue citations.");
+}
+
+function recordSpecialResolution(original, next, articleReport, message) {
+  if (next !== original) {
+    const resolved = countReviewFlags(original) - countReviewFlags(next);
+    if (resolved > 0) articleReport.changes.push(message);
+  }
   return next;
 }
 
@@ -294,6 +522,16 @@ function normalizeBlankLines(value) {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+function updateFrontmatterLists(content, additions) {
+  const frontmatterEnd = content.indexOf("---", 4);
+  if (frontmatterEnd <= 0) return content;
+  let frontmatter = content.slice(0, frontmatterEnd);
+  for (const [key, values] of Object.entries(additions)) {
+    frontmatter = ensureYamlListItems(frontmatter, key, values);
+  }
+  return `${frontmatter}${content.slice(frontmatterEnd)}`;
 }
 
 function ensureYamlListItems(frontmatter, key, values) {
@@ -327,10 +565,12 @@ async function writeReport(data) {
     "",
     "## Summary",
     "",
+    `- Review flags at sprint baseline: ${sprintBaselineReviewFlags}`,
     `- Files changed: ${data.filesChanged}`,
-    `- Review flags before: ${data.flagsBefore}`,
-    `- Review flags after: ${data.flagsAfter}`,
-    `- Review flags resolved: ${data.flagsBefore - data.flagsAfter}`,
+    `- Review flags before this run: ${data.flagsBefore}`,
+    `- Review flags after cleanup: ${data.flagsAfter}`,
+    `- Review flags resolved this run: ${data.flagsBefore - data.flagsAfter}`,
+    `- Net review flags resolved from sprint baseline: ${sprintBaselineReviewFlags - data.flagsAfter}`,
     `- Malformed citation tokens fixed: ${data.malformedCitationsFixed}`,
     `- Summary workflow flags resolved: ${data.summaryNoiseResolved}`,
     `- Reviewer-note workflow flags resolved: ${data.reviewerNoteNoiseResolved}`,
@@ -350,6 +590,12 @@ async function writeReport(data) {
             `- ${article.slug}: ${article.flagsBefore} -> ${article.flagsAfter} review flags; ${article.changes.join(" ")}`,
         )
       : ["- No article Markdown files changed."]),
+    "",
+    "## Remaining Human Review Issues",
+    "",
+    ...(data.remainingIssues.length
+      ? data.remainingIssues.map((issue) => `- ${issue.slug}:${issue.line} — ${issue.text}`)
+      : ["- None."]),
     "",
     "## Boundary",
     "",

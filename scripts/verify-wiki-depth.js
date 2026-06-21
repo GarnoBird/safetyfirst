@@ -17,7 +17,7 @@ const requiredCounts = {
 for (const article of wikiArticles) {
   checkCount(article, "summaryParagraphs", article.summaryParagraphs || []);
   checkCount(article, "whenApplies", article.sections?.whenApplies || []);
-  checkCount(article, "legalRequirements", article.sections?.legalRequirements || []);
+  checkCount(article, "legalRequirements", article.sections?.legalRequirements || [], legalRequirementRangeFor(article));
   checkCount(article, "requiredDocuments", article.sections?.requiredDocuments || []);
   checkCount(article, "procedure", article.sections?.procedure || []);
   checkCount(article, "workerChecklist", article.sections?.workerChecklist || []);
@@ -37,8 +37,12 @@ for (const article of wikiArticles) {
   }
 }
 
-function checkCount(article, key, value) {
-  const [min, max] = requiredCounts[key];
+function legalRequirementRangeFor(article) {
+  return article.reviewTier === "Tier 3" ? [4, 10] : requiredCounts.legalRequirements;
+}
+
+function checkCount(article, key, value, overrideRange = null) {
+  const [min, max] = overrideRange || requiredCounts[key];
   if (value.length < min || value.length > max) {
     errors.push(`${article.slug}: ${key} count must be ${min}-${max}; found ${value.length}`);
   }

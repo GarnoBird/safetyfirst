@@ -194,7 +194,7 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - [ ] Unexpected suspect material triggers stop work and qualified review.
 - [ ] Adjacent trades and the prime contractor know the boundaries and restrictions.
 - [ ] Waste and cleanup follow the reviewed procedure.
-- [ ] Records are kept for assessment, procedure, training, waste, and clearance if required.
+- [ ] Records are kept for assessment, procedure, training, waste handling, required notices, air monitoring, and incident investigation records where they apply. {{cite:ohsr-6-32}}
 - [ ] General dust controls are not substituted for asbestos controls.
 
 ## Common mistakes

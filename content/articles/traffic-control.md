@@ -56,6 +56,7 @@ regulationRefs:
   - "ohsr-8-4"
   - "ohsr-16-7"
   - "ohsr-16-10"
+  - "ohsr-18-6-2"
 citations:
   - "ohsr-18-3"
   - "ohsr-18-3-1"
@@ -123,8 +124,8 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - Provide supervision for traffic control as required by the regulation. {{cite:ohsr-18-4}}
 - Place temporary traffic control devices in accordance with the applicable requirements. {{cite:ohsr-18-5}}
 - Use appropriate high-visibility and PPE controls for workers exposed to traffic. {{cite:ohsr-8-4}}
-- Confirm current traffic-control-person training, certification, and MOTI or municipal requirements before publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Confirm whether additional road authority permits or standards apply to the specific road or municipality. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Use traffic control persons who have completed the required traffic control person training, and apply the Traffic Management Manual requirements that Part 18 makes applicable to work zones. {{cite:ohsr-18-3}} {{cite:ohsr-18-6-2}}
+- Confirm whether the road owner, municipality, or Ministry of Transportation and Infrastructure requires a permit, approved traffic management plan, or additional road-use condition for the specific road. Reviewer question: identify the correct road-authority source for permit or approval requirements, or move this item to site-specific best practice if no single BC-wide source applies. {{review:source}}
 
 ## Best practice
 

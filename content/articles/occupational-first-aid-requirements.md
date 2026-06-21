@@ -120,8 +120,7 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - Maintain first aid records as required while protecting worker privacy. {{cite:ohsr-3-19}}
 - Ensure first aid attendants carry out their assigned responsibilities within the regulation. {{cite:ohsr-3-21}}
 - Coordinate emergency rescue and evacuation worker safety where site emergency response requires it. {{cite:ohsr-32-4}}
-- Confirm current WorkSafeBC first aid assessment tables and amendments before public-ready publication. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Do not use this article as medical advice or as a substitute for certified first aid training. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Conduct and document the first aid assessment using the current WorkSafeBC first aid requirements, including worker count, hazard rating, accessibility or remoteness, Schedule 3-A services, and review after significant change. {{cite:ohsr-3-16}} {{cite:worksafebc-first-aid-requirements}}
 
 ## Best practice
 
@@ -179,7 +178,6 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - [ ] Emergency access, gate control, hoists, and traffic plans support transport.
 - [ ] Deficiencies in supplies, posting, rooms, or attendant coverage are corrected promptly.
 - [ ] The plan is reviewed after incident or site changes.
-- [ ] Current first aid amendments and assessment tables are source checked before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 

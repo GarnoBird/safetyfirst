@@ -120,8 +120,6 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - Do not bypass, remove, or ignore a required control unless the work is stopped and the change is reviewed. {{cite:ohsr-8-7}}
 - Keep required written procedures, inspections, permits, assessments, or records when the cited source or site condition calls for them. {{cite:ohsr-8-32}}
 - Stop and reassess when conditions no longer match the plan, a control is missing, or a worker reports an unsafe condition. {{cite:ohsr-8-2}}
-- Coordinate with the prime contractor, employer, supervisor, affected workers, and nearby trades where overlapping work can create hazards. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- A qualified BC safety/source reviewer must verify the exact legal wording before this draft is used for enforcement, bidding, or legal advice. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -181,7 +179,6 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - [ ] Deficiencies have an owner, due date, and interim control.
 - [ ] A change in conditions triggers a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] The legal wording still carries a review flag until a qualified reviewer checks the current source. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
