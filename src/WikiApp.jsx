@@ -69,6 +69,7 @@ export default function WikiApp({ routePath, navigateTo }) {
   const [activeSearch, setActiveSearch] = useState(getInitialSearch());
   const [filters, setFilters] = useState(getInitialFilters());
   const navigateWithinWiki = (path) => {
+    setMenuOpen(false);
     if (!path.includes("?")) {
       setActiveSearch("");
       setSearchValue("");
