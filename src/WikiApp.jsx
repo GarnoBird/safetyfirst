@@ -286,9 +286,11 @@ function ArticlePage({ slug, navigateTo }) {
   const sourceNotes = getSourceNotesForArticle(article.slug);
   const reviewIssues = getWikiReviewIssuesForArticle(article.slug);
   const qualityMetric = getWikiQualityMetric(article.slug);
-  const draftBlockers = getArticleDraftBlockers(article);
   const [simpleReviews] = useState(() => loadSimpleWikiReviews());
   const simpleReviewRecord = normalizeSimpleReviewRecord(simpleReviews[article.slug], reviewIssues);
+  const repoSimpleReviewRecord = normalizeSimpleReviewRecord(wikiSimpleReviews?.[article.slug], reviewIssues);
+  const effectiveReviewState = getEffectiveArticleReviewState(article, reviewIssues, simpleReviewRecord, repoSimpleReviewRecord);
+  const draftBlockers = getEffectiveArticleDraftBlockers(article, effectiveReviewState);
   const relatedFieldTools = [
     ...(article.relatedToolboxTalks || []),
     ...(article.relatedChecklists || []),
@@ -299,7 +301,7 @@ function ArticlePage({ slug, navigateTo }) {
     "Simple review result",
     "Summary",
     "Review status",
-    "Why this is still Draft",
+    effectiveReviewState.isReadyForPublicUse ? "Review complete" : "Why this is still Draft",
     "What a human reviewer must verify",
     ...ARTICLE_SECTIONS.map(([title]) => title),
     "Related topics",
@@ -321,7 +323,8 @@ function ArticlePage({ slug, navigateTo }) {
       <div className="wiki-article-meta">
         <span>{article.jurisdiction}</span>
         <span>{article.status}</span>
-        <span>{article.maturity || "Draft"}</span>
+        <span>{effectiveReviewState.displayMaturity}</span>
+        {effectiveReviewState.reviewScopeLabel ? <span>{effectiveReviewState.reviewScopeLabel}</span> : null}
         <span>{article.reviewTier || "Tier 3"}</span>
         <span>{article.confidenceLevel}</span>
         <span>Last reviewed {article.review?.lastReviewed || "not reviewed"}</span>
@@ -332,7 +335,7 @@ function ArticlePage({ slug, navigateTo }) {
         </div>
       ) : null}
       <TableOfContents items={sectionHeadings} />
-      <ArticleSimpleReviewStatus article={article} record={simpleReviewRecord} issueCount={reviewIssues.length} navigateTo={navigateTo} />
+      <ArticleSimpleReviewStatus article={article} record={simpleReviewRecord} issueCount={reviewIssues.length} navigateTo={navigateTo} effectiveReviewState={effectiveReviewState} />
       <section className="wiki-section" id="summary">
         <h2>Summary</h2>
         {(article.summaryParagraphs?.length ? article.summaryParagraphs : [article.summary]).map((paragraph, index) => {
@@ -358,8 +361,8 @@ function ArticlePage({ slug, navigateTo }) {
           </p>
         ) : null}
       </section>
-      <ReviewBox article={article} />
-      <DraftBlockersSection blockers={draftBlockers} />
+      <ReviewBox article={article} effectiveReviewState={effectiveReviewState} />
+      {effectiveReviewState.isReadyForPublicUse ? <ReviewCompleteSection state={effectiveReviewState} /> : <DraftBlockersSection blockers={draftBlockers} />}
       <HumanReviewQuestionsSection article={article} navigateTo={navigateTo} reviewRecord={simpleReviewRecord} />
       {ARTICLE_SECTIONS.map(([title, sectionKey, ordered, checklist]) =>
         checklist ? (
@@ -593,7 +596,10 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
   const [saveAttempted, setSaveAttempted] = useState(false);
   const [saveError, setSaveError] = useState("");
   const simpleRows = useMemo(() => buildSimpleReviewRows(wikiReviewIssues, simpleReviews), [simpleReviews]);
-  const nextOpenRow = useMemo(() => simpleRows.find((row) => row.remainingIssueCount > 0 && row.slug !== slug), [simpleRows, slug]);
+  const nextOpenRow = useMemo(
+    () => simpleRows.find((row) => (row.remainingIssueCount > 0 || row.status === "Reviewed: needs changes") && row.slug !== slug),
+    [simpleRows, slug],
+  );
 
   if (!article || !issueArticle) return <NotFoundPage path={`/wiki/review/item/${slug}`} navigateTo={navigateTo} />;
 
@@ -756,7 +762,7 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
           {issue.afterText ? <p className="wiki-review-context-nearby"><span>After:</span> {issue.afterText}</p> : null}
         </div>
       ) : null}
-      <p className="wiki-small"><b>Question:</b> {issue.question}</p>
+      <p className="wiki-small"><b>Question:</b> {reviewIssueQuestionText(issue)}</p>
       <p className="wiki-small"><b>{isArticleCheck ? "Why this is required" : "Why AI left this for review"}:</b> {issue.reason}</p>
       {issue.citations?.length ? (
         <p className="wiki-small">
@@ -1089,18 +1095,21 @@ function TechnicalPage() {
   );
 }
 
-function ReviewBox({ article }) {
+function ReviewBox({ article, effectiveReviewState }) {
   return (
     <section className="wiki-section wiki-review-box" id="review-status">
       <h2>Review status</h2>
       <table className="wiki-table">
         <tbody>
-          <tr><th>Article maturity</th><td>{article.maturity || "Draft"}</td></tr>
+          <tr><th>Article status</th><td>{effectiveReviewState?.displayMaturity || article.maturity || "Draft"}</td></tr>
+          <tr><th>Review tracker</th><td>{effectiveReviewState?.status || "Needs review"}</td></tr>
+          <tr><th>Saved review source</th><td>{effectiveReviewState?.reviewSourceLabel || "No saved review"}</td></tr>
+          <tr><th>Markdown maturity</th><td>{article.maturity || "Draft"}</td></tr>
           <tr><th>Review tier</th><td>{article.reviewTier || "Tier 3"}</td></tr>
           <tr><th>Review priority</th><td>{article.reviewPriority || "Support/reference review"}</td></tr>
           <tr><th>AI prep status</th><td>{article.prepStatus || "Needs AI prep"}{article.prepReviewedDate ? `; prepped ${article.prepReviewedDate}` : ""}</td></tr>
-          <tr><th>Legal/source review</th><td>{article.review?.legalReviewStatus || "Needs qualified review"}</td></tr>
-          <tr><th>Safety review</th><td>{article.review?.safetyReviewStatus || "Needs field review"}</td></tr>
+          <tr><th>Legal/source review</th><td>{effectiveReviewState?.isReadyForPublicUse ? "Source checked by completed review" : article.review?.legalReviewStatus || "Needs qualified review"}</td></tr>
+          <tr><th>Safety review</th><td>{effectiveReviewState?.isReadyForPublicUse ? "Safety reviewed by completed review" : article.review?.safetyReviewStatus || "Needs field review"}</td></tr>
           <tr><th>Open source flags</th><td>{article.sourceReviewFlagCount || 0}</td></tr>
         </tbody>
       </table>
@@ -1108,8 +1117,8 @@ function ReviewBox({ article }) {
   );
 }
 
-function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) {
-  const status = record?.status || "Needs review";
+function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo, effectiveReviewState }) {
+  const status = effectiveReviewState?.status || record?.status || "Needs review";
   const savedIssueCount = Object.values(record?.issues || {}).filter(isCompleteSimpleReviewDecision).length;
   const remainingIssueCount = Math.max(issueCount - savedIssueCount, 0);
   const reviewEdits = Object.entries(record?.issues || {})
@@ -1123,6 +1132,7 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) 
       <table className="wiki-table">
         <tbody>
           <tr><th>Status</th><td>{status}</td></tr>
+          <tr><th>Public status</th><td>{effectiveReviewState?.displayMaturity || "Draft"}</td></tr>
           <tr><th>Items left</th><td>{remainingIssueCount}</td></tr>
           <tr><th>Saved answers</th><td>{savedIssueCount}</td></tr>
           {reviewEdits.length ? <tr><th>Pending review changes</th><td>{changeCount} change request{changeCount === 1 ? "" : "s"}; {removeCount} removal{removeCount === 1 ? "" : "s"}</td></tr> : null}
@@ -1131,6 +1141,11 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) 
       {reviewEdits.length ? (
         <div className="wiki-notice">
           This article is showing saved local review decisions. Removed items are hidden in this browser, and wording-change requests are shown as pending notes. The Markdown source still needs Codex or a maintainer to apply the review export.
+        </div>
+      ) : effectiveReviewState?.isReadyForPublicUse ? (
+        <div className="wiki-notice">
+          This article has completed all generated review checks and has no open source-review flags.
+          {effectiveReviewState.isRepoBackedReady ? " This public status comes from repo-backed review results." : " This status is local to this browser until the review export is applied to the repo and deployed."}
         </div>
       ) : null}
       {reviewEdits.length ? (
@@ -1160,6 +1175,20 @@ function DraftBlockersSection({ blockers }) {
   );
 }
 
+function ReviewCompleteSection({ state }) {
+  return (
+    <section className="wiki-section wiki-review-box" id="review-complete">
+      <h2>Review complete</h2>
+      <div className="wiki-notice">
+        This article has completed the generated review checks and has no open source-review flags.
+        {state?.isRepoBackedReady
+          ? " The public status is backed by review results stored in the repo."
+          : " This is a local browser preview; export the review and apply it to the repo before relying on it publicly."}
+      </div>
+    </section>
+  );
+}
+
 function HumanReviewQuestionsSection({ article, navigateTo, reviewRecord }) {
   const questions = article.humanReviewQuestions || article.reviewQuestions || [];
   if (!questions.length) return null;
@@ -1174,7 +1203,7 @@ function HumanReviewQuestionsSection({ article, navigateTo, reviewRecord }) {
           const decision = getSavedIssueDecision(reviewRecord, issueId);
           return (
             <li key={issueId} id={anchor} className={reviewDecisionClassName(decision)}>
-              <p><b>{humanReviewLabel(question, itemIndex)}:</b> {question}</p>
+              <p><b>{humanReviewLabel(question, itemIndex)}:</b> {humanReviewQuestionBody(question, itemIndex)}</p>
               <p className="wiki-small">
                 <b>Status:</b> {reviewAnswerLabel(decision) || "Not reviewed"}
                 {decision?.note ? ` - ${decision.note}` : ""}
@@ -1640,8 +1669,10 @@ function buildSimpleReviewRows(issueRows, simpleReviews) {
     .filter((row) => row.issueCount > 0)
     .sort((a, b) => reviewTierWeight(a.reviewTier) - reviewTierWeight(b.reviewTier) || a.title.localeCompare(b.title))
     .map((row) => {
+      const article = getArticleBySlug(row.slug);
       const record = normalizeSimpleReviewRecord(simpleReviews[row.slug], row.issues || []);
-      const status = reviewStatusFromIssueDecisions(row.issues || [], record.issues || {});
+      const repoRecord = normalizeSimpleReviewRecord(wikiSimpleReviews?.[row.slug], row.issues || []);
+      const effectiveReviewState = getEffectiveArticleReviewState(article, row.issues || [], record, repoRecord);
       const editDecision = Object.values(record.issues || {}).find((decision) => isNeedsChangeDecision(decision));
       const completedIssueCount = Object.keys(record.issues || {}).length;
       const remainingIssueCount = Math.max((row.issues || []).length - completedIssueCount, 0);
@@ -1661,10 +1692,69 @@ function buildSimpleReviewRows(issueRows, simpleReviews) {
         remainingIssueCount,
         remainingArticleCheckCount,
         remainingClaimReviewCount,
-        status,
+        status: effectiveReviewState.status,
+        isReadyForPublicUse: effectiveReviewState.isReadyForPublicUse,
         reason: editDecision?.note || (normalizeReviewAnswer(editDecision?.answer) === "remove" ? "Reviewer marked an item for removal." : remainingIssueCount ? "Human article checks or source claims still need review." : "All generated review items have saved answers."),
       };
     });
+}
+
+function getEffectiveArticleReviewState(article, issues = [], record = {}, repoRecord = {}) {
+  const decisions = record?.issues || {};
+  const repoDecisions = repoRecord?.issues || {};
+  const completedIssueCount = Object.values(decisions).filter(isCompleteSimpleReviewDecision).length;
+  const remainingIssueCount = Math.max((issues || []).length - completedIssueCount, 0);
+  const hasNeedsChanges = Object.values(decisions).some(isNeedsChangeDecision);
+  const allReviewItemsReady = (issues || []).length > 0 && (issues || []).every((issue) => isReadyReviewDecision(decisions[issue.id]));
+  const repoReviewItemsReady = (issues || []).length > 0 && (issues || []).every((issue) => isReadyReviewDecision(repoDecisions[issue.id]));
+  const sourceFlagCount = article?.sourceReviewFlagCount || 0;
+  const hasLocalOnlyDecisions = hasLocalReviewDecisions(article?.slug, decisions);
+  const isReadyForPublicUse = Boolean(allReviewItemsReady && !hasNeedsChanges && sourceFlagCount === 0);
+  const isRepoBackedReady = Boolean(repoReviewItemsReady && sourceFlagCount === 0);
+  let status = "Needs review";
+  if (hasNeedsChanges) status = "Reviewed: needs changes";
+  else if (isReadyForPublicUse) status = "Ready for public use";
+  else if (completedIssueCount > 0 || sourceFlagCount > 0) status = "In progress";
+
+  const reviewSourceLabel = !completedIssueCount
+    ? "No saved review"
+    : hasLocalOnlyDecisions
+      ? "Local browser review"
+      : "Repo-backed review";
+
+  return {
+    status,
+    displayMaturity: isReadyForPublicUse ? "Ready for public use" : article?.maturity || "Draft",
+    reviewScopeLabel: isReadyForPublicUse && hasLocalOnlyDecisions ? "local review only" : "",
+    reviewSourceLabel,
+    completedIssueCount,
+    remainingIssueCount,
+    sourceFlagCount,
+    isReadyForPublicUse,
+    isRepoBackedReady,
+    hasNeedsChanges,
+  };
+}
+
+function getEffectiveArticleDraftBlockers(article, effectiveReviewState) {
+  if (effectiveReviewState?.isReadyForPublicUse) return [];
+  const blockers = getArticleDraftBlockers(article);
+  if (effectiveReviewState?.status === "Reviewed: needs changes") blockers.unshift("reviewer marked one or more items as needing changes");
+  if (effectiveReviewState?.remainingIssueCount > 0) blockers.unshift(`${effectiveReviewState.remainingIssueCount} review item${effectiveReviewState.remainingIssueCount === 1 ? "" : "s"} still open`);
+  if (effectiveReviewState?.sourceFlagCount > 0 && effectiveReviewState.remainingIssueCount === 0) blockers.unshift("source-review flags still need maintainer cleanup in the article source");
+  return [...new Set(blockers)];
+}
+
+function hasLocalReviewDecisions(slug, decisions = {}) {
+  if (!slug) return false;
+  const repoDecisions = wikiSimpleReviews?.[slug]?.issues || {};
+  const issueIds = new Set([...Object.keys(decisions), ...Object.keys(repoDecisions)]);
+  return [...issueIds].some((issueId) => {
+    const decision = decisions[issueId];
+    const repoDecision = normalizeSimpleReviewDecision(repoDecisions[issueId]);
+    const normalizedDecision = normalizeSimpleReviewDecision(decision);
+    return JSON.stringify(repoDecision || null) !== JSON.stringify(normalizedDecision || null);
+  });
 }
 
 function normalizeSimpleReviewRecord(record, issues = []) {
@@ -1704,17 +1794,17 @@ function reviewStatusFromIssueDecisions(issues = [], decisions = {}) {
 }
 
 function filterSimpleReviewRows(rows, filter) {
-  if (filter === "ready") return rows.filter((row) => row.status === "Reviewed: ready");
+  if (filter === "ready") return rows.filter((row) => row.isReadyForPublicUse || row.status === "Reviewed: ready");
   if (filter === "changes") return rows.filter((row) => row.status === "Reviewed: needs changes");
   if (filter === "progress") return rows.filter((row) => row.status === "In progress");
   if (filter === "all") return rows;
-  return rows.filter((row) => row.remainingIssueCount > 0);
+  return rows.filter((row) => row.remainingIssueCount > 0 || row.status === "Reviewed: needs changes");
 }
 
 function buildSimpleReviewSummary(rows) {
-  const readyRows = rows.filter((row) => row.status === "Reviewed: ready");
+  const readyRows = rows.filter((row) => row.isReadyForPublicUse || row.status === "Reviewed: ready");
   const needsChangeRows = rows.filter((row) => row.status === "Reviewed: needs changes");
-  const openRows = rows.filter((row) => row.remainingIssueCount > 0);
+  const openRows = rows.filter((row) => row.remainingIssueCount > 0 || row.status === "Reviewed: needs changes");
   const remainingArticleCheckCount = rows.reduce((sum, row) => sum + row.remainingArticleCheckCount, 0);
   const remainingClaimReviewCount = rows.reduce((sum, row) => sum + row.remainingClaimReviewCount, 0);
   let nextAction = "Pick the first open item and review it.";
@@ -1815,6 +1905,19 @@ function humanReviewLabel(text, index) {
   if (index === 2) return "Field safety";
   if (index === 3) return "Plain-language/copyright";
   return `Check ${index}`;
+}
+
+function humanReviewQuestionBody(text, index) {
+  const raw = String(text || "").trim();
+  const label = humanReviewLabel(raw, index);
+  const prefix = `${label}:`;
+  if (raw.toLowerCase().startsWith(prefix.toLowerCase())) return raw.slice(prefix.length).trim();
+  return raw;
+}
+
+function reviewIssueQuestionText(issue) {
+  if (issue?.issueType !== "article-check") return issue?.question || "";
+  return humanReviewQuestionBody(issue.question || issue.originalText || "", issue.index || 1);
 }
 
 function formatReviewSectionName(section) {

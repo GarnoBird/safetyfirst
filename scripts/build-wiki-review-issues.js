@@ -146,7 +146,7 @@ function humanReviewIssuesForArticle(article) {
       beforeText,
       afterText,
       contextText: [beforeText, stripReviewMarkup(text), afterText].filter(Boolean).join(" "),
-      question: stripReviewMarkup(text),
+      question: humanReviewQuestionBody(text, issueIndex),
       reason: "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
       citationIds: [],
       citations: [],
@@ -168,6 +168,14 @@ function humanReviewStatement(text, index) {
   if (index === 2) return "Field safety review";
   if (index === 3) return "Plain-language/copyright review";
   return `Human review check ${index}`;
+}
+
+function humanReviewQuestionBody(text, index) {
+  const raw = stripReviewMarkup(text);
+  const label = humanReviewStatement(text, index);
+  const prefix = `${label}:`;
+  if (raw.toLowerCase().startsWith(prefix.toLowerCase())) return raw.slice(prefix.length).trim();
+  return raw;
 }
 
 const articles = wikiArticles.map((article) => {
