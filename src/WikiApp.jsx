@@ -290,6 +290,7 @@ function ArticlePage({ slug, navigateTo }) {
   const simpleReviewRecord = normalizeSimpleReviewRecord(simpleReviews[article.slug], reviewIssues);
   const repoSimpleReviewRecord = normalizeSimpleReviewRecord(wikiSimpleReviews?.[article.slug], reviewIssues);
   const effectiveReviewState = getEffectiveArticleReviewState(article, reviewIssues, simpleReviewRecord, repoSimpleReviewRecord);
+  const showReviewAdmin = !effectiveReviewState.isRepoBackedReady;
   const draftBlockers = getEffectiveArticleDraftBlockers(article, effectiveReviewState);
   const relatedFieldTools = [
     ...(article.relatedToolboxTalks || []),
@@ -298,11 +299,11 @@ function ArticlePage({ slug, navigateTo }) {
     ...(article.relatedForms || []),
   ];
   const sectionHeadings = [
-    "Simple review result",
+    showReviewAdmin ? "Simple review result" : "",
     "Summary",
-    "Review status",
-    effectiveReviewState.isReadyForPublicUse ? "Review complete" : "Why this is still Draft",
-    "What a human reviewer must verify",
+    showReviewAdmin ? "Review status" : "",
+    showReviewAdmin ? "Why this is still Draft" : "",
+    showReviewAdmin ? "What a human reviewer must verify" : "",
     ...ARTICLE_SECTIONS.map(([title]) => title),
     "Related topics",
     relatedFieldTools.length ? "Related field tools" : "",
@@ -310,8 +311,8 @@ function ArticlePage({ slug, navigateTo }) {
     "Official sources",
     article.citations?.length ? "Official citations" : "",
     sourceNotes.length ? "Source notes" : "",
-    "Article quality",
-    article.reviewerNotes?.length ? "Reviewer notes" : "",
+    showReviewAdmin ? "Article quality" : "",
+    showReviewAdmin && article.reviewerNotes?.length ? "Reviewer notes" : "",
     "Report an issue with this article",
     "Version history",
     "Disclaimer",
@@ -322,11 +323,11 @@ function ArticlePage({ slug, navigateTo }) {
       <PageTitle title={article.title} subtitle="From BC Construction Safety Wiki" />
       <div className="wiki-article-meta">
         <span>{article.jurisdiction}</span>
-        <span>{article.status}</span>
+        {!effectiveReviewState.isRepoBackedReady ? <span>{article.status}</span> : null}
         <span>{effectiveReviewState.displayMaturity}</span>
         {effectiveReviewState.reviewScopeLabel ? <span>{effectiveReviewState.reviewScopeLabel}</span> : null}
-        <span>{article.reviewTier || "Tier 3"}</span>
-        <span>{article.confidenceLevel}</span>
+        {!effectiveReviewState.isRepoBackedReady ? <span>{article.reviewTier || "Tier 3"}</span> : null}
+        {!effectiveReviewState.isRepoBackedReady ? <span>{article.confidenceLevel}</span> : null}
         <span>Last reviewed {article.review?.lastReviewed || "not reviewed"}</span>
       </div>
       {redirectTarget ? (
@@ -335,7 +336,7 @@ function ArticlePage({ slug, navigateTo }) {
         </div>
       ) : null}
       <TableOfContents items={sectionHeadings} />
-      <ArticleSimpleReviewStatus article={article} record={simpleReviewRecord} issueCount={reviewIssues.length} navigateTo={navigateTo} effectiveReviewState={effectiveReviewState} />
+      {showReviewAdmin ? <ArticleSimpleReviewStatus article={article} record={simpleReviewRecord} issueCount={reviewIssues.length} navigateTo={navigateTo} effectiveReviewState={effectiveReviewState} /> : null}
       <section className="wiki-section" id="summary">
         <h2>Summary</h2>
         {(article.summaryParagraphs?.length ? article.summaryParagraphs : [article.summary]).map((paragraph, index) => {
@@ -361,9 +362,9 @@ function ArticlePage({ slug, navigateTo }) {
           </p>
         ) : null}
       </section>
-      <ReviewBox article={article} effectiveReviewState={effectiveReviewState} />
-      {effectiveReviewState.isReadyForPublicUse ? <ReviewCompleteSection state={effectiveReviewState} /> : <DraftBlockersSection blockers={draftBlockers} />}
-      <HumanReviewQuestionsSection article={article} navigateTo={navigateTo} reviewRecord={simpleReviewRecord} />
+      {showReviewAdmin ? <ReviewBox article={article} effectiveReviewState={effectiveReviewState} /> : null}
+      {showReviewAdmin ? <DraftBlockersSection blockers={draftBlockers} /> : null}
+      {showReviewAdmin ? <HumanReviewQuestionsSection article={article} navigateTo={navigateTo} reviewRecord={simpleReviewRecord} /> : null}
       {ARTICLE_SECTIONS.map(([title, sectionKey, ordered, checklist]) =>
         checklist ? (
           <ChecklistSection
@@ -394,18 +395,15 @@ function ArticlePage({ slug, navigateTo }) {
       <OfficialSources article={article} />
       {article.citations?.length ? <OfficialCitations citations={article.citations} /> : null}
       {sourceNotes.length ? <SourceNotesSection sourceNotes={sourceNotes} navigateTo={navigateTo} /> : null}
-      <ArticleQualitySection article={article} qualityMetric={qualityMetric} />
-      {article.reviewerNotes?.length ? (
+      {showReviewAdmin ? <ArticleQualitySection article={article} qualityMetric={qualityMetric} /> : null}
+      {showReviewAdmin && article.reviewerNotes?.length ? (
         <ArticleSection title="Reviewer notes" sectionKey="reviewerNotes" articleSlug={article.slug} items={article.reviewerNotes} navigateTo={navigateTo} />
       ) : null}
       <CorrectionForm article={article} />
       <VersionHistory article={article} />
       <section className="wiki-section" id="disclaimer">
         <h2>Disclaimer</h2>
-        <p>
-          This article is a draft plain-language aid. It is not legal advice, engineering advice, medical advice,
-          occupational hygiene approval, or proof of WorkSafeBC compliance.
-        </p>
+        <p>{articleDisclaimerText(effectiveReviewState)}</p>
       </section>
     </article>
   );
@@ -605,6 +603,7 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
 
   const activeIssueAnchor = getCurrentHash();
   const visibleIssues = issues.filter((issue) => !isCompleteSimpleReviewDecision(existing.issues?.[issue.id]) || issue.contextAnchor === activeIssueAnchor);
+  const hasForgettableLocalReview = hasLocalSimpleReviewRecord(slug);
   const completedNowIssues = visibleIssues.filter((issue) => isCompleteSimpleReviewDecision(issueDecisions[issue.id] || {}));
   const unansweredIssues = visibleIssues.filter((issue) => !isRecognizedReviewAnswer(issueDecisions[issue.id]?.answer));
   const changeIssuesMissingNotes = visibleIssues.filter((issue) => {
@@ -643,6 +642,22 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
     setSaved(true);
   };
 
+  const forgetSavedReview = () => {
+    setSaveError("");
+    try {
+      const next = forgetLocalSimpleWikiReview(slug);
+      setSimpleReviews(next);
+      setIssueDecisions({});
+      setReviewerName("");
+      setReviewerRole("Safety reviewer");
+      setSaved(false);
+      setLastSavedCount(0);
+      setSaveAttempted(false);
+    } catch {
+      setSaveError("This browser blocked local review cleanup. Clear site data for this page if the saved review should be removed.");
+    }
+  };
+
   return (
     <article className="wiki-article">
       <PageTitle title={`Review: ${article.title}`} subtitle={`${visibleIssues.length} item${visibleIssues.length === 1 ? "" : "s"} left: ${visibleArticleChecks} article check${visibleArticleChecks === 1 ? "" : "s"}, ${visibleClaimIssues} source claim${visibleClaimIssues === 1 ? "" : "s"}`} />
@@ -657,6 +672,14 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
             Current saved review: {existing.status}
             {existing.reviewerRole ? ` (${[existing.reviewerName, existing.reviewerRole].filter(Boolean).join(", ")})` : ""}
           </div>
+        ) : null}
+        {hasForgettableLocalReview ? (
+          <p className="wiki-inline-actions">
+            <button className="wiki-small-button" type="button" onClick={forgetSavedReview}>
+              Forget saved review for this article
+            </button>
+            <span className="wiki-small">Removes only this browser's saved answers for this article.</span>
+          </p>
         ) : null}
         <p className="wiki-small">
           Answer the checks and issues you can answer now, then save. Saved answers disappear from this page. Anything unanswered stays here for later.
@@ -1175,18 +1198,11 @@ function DraftBlockersSection({ blockers }) {
   );
 }
 
-function ReviewCompleteSection({ state }) {
-  return (
-    <section className="wiki-section wiki-review-box" id="review-complete">
-      <h2>Review complete</h2>
-      <div className="wiki-notice">
-        This article has completed the generated review checks and has no open source-review flags.
-        {state?.isRepoBackedReady
-          ? " The public status is backed by review results stored in the repo."
-          : " This is a local browser preview; export the review and apply it to the repo before relying on it publicly."}
-      </div>
-    </section>
-  );
+function articleDisclaimerText(effectiveReviewState) {
+  if (effectiveReviewState?.isRepoBackedReady) {
+    return "Plain-language safety information for BC construction. It is not legal advice, engineering advice, medical advice, occupational hygiene approval, or proof of WorkSafeBC compliance.";
+  }
+  return "This article is a draft plain-language aid. It is not legal advice, engineering advice, medical advice, occupational hygiene approval, or proof of WorkSafeBC compliance.";
 }
 
 function HumanReviewQuestionsSection({ article, navigateTo, reviewRecord }) {
@@ -1622,18 +1638,49 @@ function hasActiveFilters(filters) {
 function loadSimpleWikiReviews() {
   const repoBackedReviews = wikiSimpleReviews || {};
   if (typeof window === "undefined") return repoBackedReviews;
+  return { ...repoBackedReviews, ...loadLocalSimpleWikiReviews() };
+}
+
+function loadLocalSimpleWikiReviews() {
+  if (typeof window === "undefined") return {};
   try {
     const raw = window.localStorage.getItem("wiki-simple-review-results");
-    const localReviews = raw ? JSON.parse(raw) : {};
-    return { ...repoBackedReviews, ...localReviews };
+    return raw ? JSON.parse(raw) : {};
   } catch {
-    return repoBackedReviews;
+    return {};
   }
 }
 
 function saveSimpleWikiReviews(reviews) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem("wiki-simple-review-results", JSON.stringify(reviews));
+  const localReviews = {};
+  for (const [slug, record] of Object.entries(reviews || {})) {
+    if (isSameSimpleReviewRecord(record, wikiSimpleReviews?.[slug])) continue;
+    localReviews[slug] = record;
+  }
+  saveLocalSimpleWikiReviews(localReviews);
+}
+
+function saveLocalSimpleWikiReviews(reviews) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem("wiki-simple-review-results", JSON.stringify(reviews || {}));
+}
+
+function forgetLocalSimpleWikiReview(slug) {
+  const localReviews = loadLocalSimpleWikiReviews();
+  delete localReviews[slug];
+  saveLocalSimpleWikiReviews(localReviews);
+  return loadSimpleWikiReviews();
+}
+
+function hasLocalSimpleReviewRecord(slug) {
+  if (!slug || typeof window === "undefined") return false;
+  return Boolean(loadLocalSimpleWikiReviews()?.[slug]);
+}
+
+function isSameSimpleReviewRecord(left, right) {
+  if (!left || !right) return false;
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function buildSimpleReviewExportText(reviews) {

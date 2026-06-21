@@ -114,7 +114,7 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 
 ## Legal requirements
 
-- Use fall protection when Part 11 requires it and a worker is exposed to the fall hazard. {{cite:ohsr-11-2}}
+- Use fall protection when work is at a place where a fall of 3 m (10 ft) or more may occur, or where a shorter fall could cause greater injury than impact on a flat surface. {{cite:ohsr-11-2}}
 - Select the proper body support equipment for the fall protection method being used. {{cite:ohsr-11-4}}
 - Use equipment that meets applicable fall protection equipment requirements. {{cite:ohsr-11-5}}
 - Use anchors that are suitable for the system and load they are intended to support. {{cite:ohsr-11-6}}
