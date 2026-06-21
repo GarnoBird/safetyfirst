@@ -36,6 +36,7 @@ import {
   wikiQualityMetrics,
   wikiRedirects,
   wikiReviewIssues,
+  wikiSimpleReviews,
   wikiSourceCoverage,
   wikiSourceNotes,
   wikiSources,
@@ -359,7 +360,7 @@ function ArticlePage({ slug, navigateTo }) {
       </section>
       <ReviewBox article={article} />
       <DraftBlockersSection blockers={draftBlockers} />
-      <HumanReviewQuestionsSection article={article} />
+      <HumanReviewQuestionsSection article={article} navigateTo={navigateTo} reviewRecord={simpleReviewRecord} />
       {ARTICLE_SECTIONS.map(([title, sectionKey, ordered, checklist]) =>
         checklist ? (
           <ChecklistSection
@@ -420,20 +421,24 @@ function SimpleReviewPage({ navigateTo }) {
   const nextOpenRow = reviewSummary.openRows[0] || rows[0];
   const completedAnswerCount = rows.reduce((sum, row) => sum + row.completedIssueCount, 0);
   const remainingAnswerCount = rows.reduce((sum, row) => sum + row.remainingIssueCount, 0);
+  const remainingArticleCheckCount = rows.reduce((sum, row) => sum + row.remainingArticleCheckCount, 0);
+  const remainingClaimReviewCount = rows.reduce((sum, row) => sum + row.remainingClaimReviewCount, 0);
 
   return (
     <article className="wiki-article">
       <PageTitle title="Review" subtitle="Pick an article and answer what you can" />
       <div className="wiki-notice">
-        Simple review mode: answer Yes or No for the unresolved issue bullets you know now. Saved answers disappear
-        from the item page; unfinished answers stay open.
+        Simple review mode: complete the article checks and any unresolved source-claim issues you know now. Saved answers
+        disappear from the item page; unfinished answers stay open.
       </div>
       <section className="wiki-section wiki-review-box wiki-simple-review-start">
         <h2>What to do</h2>
         <ol>
           <li>Click one article below.</li>
-          <li>Review only the unresolved issue bullets.</li>
-          <li>Answer the issues you know now.</li>
+          <li>Review the article checks and any unresolved claim bullets.</li>
+          <li>Answer the checks or issues you know now.</li>
+          <li>Use Pass when a whole-article check is acceptable.</li>
+          <li>Use Not applicable only when that check truly does not apply.</li>
           <li>Use Remove item when the bullet should be deleted.</li>
           <li>Use Change wording when the article should say something different.</li>
           <li>Click Save completed answers. Unanswered issues stay open for later.</li>
@@ -456,7 +461,11 @@ function SimpleReviewPage({ navigateTo }) {
           <tbody>
             <tr>
               <th>Open</th>
-              <td>{reviewSummary.openCount} articles; {remainingAnswerCount} issues left</td>
+              <td>{reviewSummary.openCount} articles; {remainingAnswerCount} items left</td>
+            </tr>
+            <tr>
+              <th>Open item types</th>
+              <td>{remainingArticleCheckCount} article checks; {remainingClaimReviewCount} source claims</td>
             </tr>
             <tr>
               <th>Saved answers</th>
@@ -552,7 +561,9 @@ function SimpleReviewPage({ navigateTo }) {
                 </td>
                 <td>{row.status}</td>
                 <td>
-                  {row.remainingIssueCount} left; {row.completedIssueCount} saved. {row.reason}
+                  {row.remainingIssueCount} left; {row.completedIssueCount} saved.
+                  <br />
+                  <span className="wiki-small">{row.remainingArticleCheckCount} article check{row.remainingArticleCheckCount === 1 ? "" : "s"}; {row.remainingClaimReviewCount} source claim{row.remainingClaimReviewCount === 1 ? "" : "s"}. {row.reason}</span>
                 </td>
                 <td>
                   <a href={`/wiki/review/item/${row.slug}`} onClick={makeNavigate(navigateTo, `/wiki/review/item/${row.slug}`)}>
@@ -594,6 +605,8 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
     const decision = issueDecisions[issue.id] || {};
     return normalizeReviewAnswer(decision.answer) === "change" && !String(decision.note || "").trim();
   });
+  const visibleArticleChecks = visibleIssues.filter((issue) => issue.issueType === "article-check").length;
+  const visibleClaimIssues = visibleIssues.filter((issue) => issue.issueType === "claim-review").length;
 
   const saveReview = () => {
     setSaveAttempted(true);
@@ -626,13 +639,13 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
 
   return (
     <article className="wiki-article">
-      <PageTitle title={`Review: ${article.title}`} subtitle={`${visibleIssues.length} issue${visibleIssues.length === 1 ? "" : "s"} left to review`} />
+      <PageTitle title={`Review: ${article.title}`} subtitle={`${visibleIssues.length} item${visibleIssues.length === 1 ? "" : "s"} left: ${visibleArticleChecks} article check${visibleArticleChecks === 1 ? "" : "s"}, ${visibleClaimIssues} source claim${visibleClaimIssues === 1 ? "" : "s"}`} />
       <p className="wiki-inline-actions">
         <a href="/wiki/review" onClick={makeNavigate(navigateTo, "/wiki/review")}>Back to review list</a>
         <a href={`/wiki/articles/${slug}`} onClick={makeNavigate(navigateTo, `/wiki/articles/${slug}`)}>Read article</a>
       </p>
       <section className="wiki-section wiki-review-box wiki-simple-review-question">
-        <h2>Review unresolved issues</h2>
+        <h2>Review unresolved items</h2>
         {existing.status ? (
           <div className="wiki-notice">
             Current saved review: {existing.status}
@@ -640,7 +653,7 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
           </div>
         ) : null}
         <p className="wiki-small">
-          Answer the issues you can answer now, then save. Saved answers disappear from this page. Anything unanswered stays here for later.
+          Answer the checks and issues you can answer now, then save. Saved answers disappear from this page. Anything unanswered stays here for later.
           Saved removals and wording-change requests are previewed on the article page, but the source Markdown still needs to be applied by Codex or a maintainer.
         </p>
         <div className="wiki-form-grid">
@@ -686,7 +699,7 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
           <p className="wiki-small">
             Save will store {completedNowIssues.length} completed answer{completedNowIssues.length === 1 ? "" : "s"} now.
             {unansweredIssues.length || changeIssuesMissingNotes.length ? (
-              <> Left for later: {unansweredIssues.length} unanswered; {changeIssuesMissingNotes.length} wording change{changeIssuesMissingNotes.length === 1 ? "" : "s"} without notes.</>
+              <> Left for later: {unansweredIssues.length} unanswered; {changeIssuesMissingNotes.length} needs-change answer{changeIssuesMissingNotes.length === 1 ? "" : "s"} without notes.</>
             ) : null}
           </p>
         ) : (
@@ -720,11 +733,12 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
   const answer = normalizeReviewAnswer(value.answer);
   const note = value.note || "";
   const [contextOpen, setContextOpen] = useState(false);
+  const isArticleCheck = issue.issueType === "article-check";
   const missingAnswer = showValidation && !isRecognizedReviewAnswer(answer);
   const missingNote = showValidation && answer === "change" && !String(note || "").trim();
   const articleContextHref = `${issue.articlePath || `/wiki/articles/${issue.articleSlug}`}#${issue.contextAnchor}`;
   return (
-    <li className="wiki-review-issue-item" id={issue.contextAnchor}>
+    <li className={`wiki-review-issue-item ${isArticleCheck ? "wiki-review-article-check" : ""}`} id={issue.contextAnchor}>
       <p>
         <strong>{issue.sectionTitle || formatReviewSectionName(issue.section)}:</strong> {issue.statement}
       </p>
@@ -743,7 +757,7 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
         </div>
       ) : null}
       <p className="wiki-small"><b>Question:</b> {issue.question}</p>
-      <p className="wiki-small"><b>Why AI left this for review:</b> {issue.reason}</p>
+      <p className="wiki-small"><b>{isArticleCheck ? "Why this is required" : "Why AI left this for review"}:</b> {issue.reason}</p>
       {issue.citations?.length ? (
         <p className="wiki-small">
           <b>Source:</b>{" "}
@@ -757,22 +771,29 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
       ) : null}
       <div className="wiki-review-preset-grid">
         <button type="button" className={`wiki-review-preset ${answer === "yes" ? "active" : ""}`} onClick={() => onChange({ answer: "yes", note: "" })}>
-          <strong>Yes, keep it</strong>
-          <span>This wording is correct enough to keep.</span>
+          <strong>{isArticleCheck ? "Pass" : "Yes, keep it"}</strong>
+          <span>{isArticleCheck ? "This whole-article check passes." : "This wording is correct enough to keep."}</span>
         </button>
         <button type="button" className={`wiki-review-preset ${answer === "change" ? "active" : ""}`} onClick={() => onChange({ answer: "change", note })}>
-          <strong>Change wording</strong>
-          <span>Keep the topic, but rewrite this item.</span>
+          <strong>{isArticleCheck ? "Needs changes" : "Change wording"}</strong>
+          <span>{isArticleCheck ? "This article needs a correction before this check passes." : "Keep the topic, but rewrite this item."}</span>
         </button>
-        <button type="button" className={`wiki-review-preset ${answer === "remove" ? "active" : ""}`} onClick={() => onChange({ answer: "remove", note })}>
-          <strong>Remove item</strong>
-          <span>Delete this bullet or sentence from the article.</span>
-        </button>
+        {isArticleCheck ? (
+          <button type="button" className={`wiki-review-preset ${answer === "na" ? "active" : ""}`} onClick={() => onChange({ answer: "na", note: "" })}>
+            <strong>Not applicable</strong>
+            <span>This check does not apply to this article.</span>
+          </button>
+        ) : (
+          <button type="button" className={`wiki-review-preset danger ${answer === "remove" ? "active" : ""}`} onClick={() => onChange({ answer: "remove", note })}>
+            <strong>Remove item</strong>
+            <span>Delete this bullet or sentence from the article.</span>
+          </button>
+        )}
       </div>
       {answer === "change" ? (
         <label className="wiki-review-note-field">
-          <span>What should it say instead?</span>
-          <textarea value={note} onChange={(event) => onChange({ answer: "change", note: event.target.value })} placeholder="Write the exact replacement wording or correction needed." />
+          <span>{isArticleCheck ? "What needs to change?" : "What should it say instead?"}</span>
+          <textarea value={note} onChange={(event) => onChange({ answer: "change", note: event.target.value })} placeholder={isArticleCheck ? "Write the article problem or correction needed before this check can pass." : "Write the exact replacement wording or correction needed."} />
         </label>
       ) : null}
       {answer === "remove" ? (
@@ -781,8 +802,8 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
           <textarea value={note} onChange={(event) => onChange({ answer: "remove", note: event.target.value })} placeholder="Optional reason for deleting this item." />
         </label>
       ) : null}
-      {missingAnswer ? <p className="wiki-small wiki-simple-review-error">Choose Keep, Change wording, or Remove item for this issue.</p> : null}
-      {missingNote ? <p className="wiki-small wiki-simple-review-error">Write the replacement wording or correction before saving this change.</p> : null}
+      {missingAnswer ? <p className="wiki-small wiki-simple-review-error">Choose {isArticleCheck ? "Pass, Needs changes, or Not applicable" : "Keep, Change wording, or Remove item"} for this item.</p> : null}
+      {missingNote ? <p className="wiki-small wiki-simple-review-error">Write the correction before saving this needs-change answer.</p> : null}
     </li>
   );
 }
@@ -1092,7 +1113,7 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) 
   const savedIssueCount = Object.values(record?.issues || {}).filter(isCompleteSimpleReviewDecision).length;
   const remainingIssueCount = Math.max(issueCount - savedIssueCount, 0);
   const reviewEdits = Object.entries(record?.issues || {})
-    .filter(([, decision]) => normalizeReviewAnswer(decision.answer) !== "yes")
+    .filter(([, decision]) => isNeedsChangeDecision(decision))
     .map(([issueId, decision]) => ({ issueId, decision: normalizeSimpleReviewDecision(decision) }));
   const removeCount = reviewEdits.filter(({ decision }) => decision.answer === "remove").length;
   const changeCount = reviewEdits.filter(({ decision }) => decision.answer === "change").length;
@@ -1104,7 +1125,7 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) 
           <tr><th>Status</th><td>{status}</td></tr>
           <tr><th>Items left</th><td>{remainingIssueCount}</td></tr>
           <tr><th>Saved answers</th><td>{savedIssueCount}</td></tr>
-          {reviewEdits.length ? <tr><th>Pending source edits</th><td>{changeCount} wording change{changeCount === 1 ? "" : "s"}; {removeCount} removal{removeCount === 1 ? "" : "s"}</td></tr> : null}
+          {reviewEdits.length ? <tr><th>Pending review changes</th><td>{changeCount} change request{changeCount === 1 ? "" : "s"}; {removeCount} removal{removeCount === 1 ? "" : "s"}</td></tr> : null}
         </tbody>
       </table>
       {reviewEdits.length ? (
@@ -1116,14 +1137,14 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo }) 
         <ul className="wiki-review-edit-list">
           {reviewEdits.map(({ issueId, decision }) => (
             <li key={issueId}>
-              <b>{decision.answer === "remove" ? "Remove" : "Change"}:</b> {issueId}
+              <b>{reviewAnswerLabel(decision)}:</b> {issueId}
               {decision.note ? ` - ${decision.note}` : ""}
             </li>
           ))}
         </ul>
       ) : null}
       <p className="wiki-inline-actions">
-        <a href={`/wiki/review/item/${article.slug}`} onClick={makeNavigate(navigateTo, `/wiki/review/item/${article.slug}`)}>Open issue review</a>
+        <a href={`/wiki/review/item/${article.slug}`} onClick={makeNavigate(navigateTo, `/wiki/review/item/${article.slug}`)}>Open article review</a>
         <a href="/wiki/review" onClick={makeNavigate(navigateTo, "/wiki/review")}>Open review queue</a>
       </p>
     </section>
@@ -1139,12 +1160,35 @@ function DraftBlockersSection({ blockers }) {
   );
 }
 
-function HumanReviewQuestionsSection({ article }) {
+function HumanReviewQuestionsSection({ article, navigateTo, reviewRecord }) {
   const questions = article.humanReviewQuestions || article.reviewQuestions || [];
+  if (!questions.length) return null;
   return (
     <section className="wiki-section wiki-review-box" id="what-a-human-reviewer-must-verify">
       <h2>What a human reviewer must verify</h2>
-      <SimpleList items={questions} />
+      <ol className="wiki-human-review-checklist">
+        {questions.map((question, index) => {
+          const itemIndex = index + 1;
+          const issueId = humanReviewIssueId(article.slug, itemIndex);
+          const anchor = humanReviewAnchor(article.slug, itemIndex);
+          const decision = getSavedIssueDecision(reviewRecord, issueId);
+          return (
+            <li key={issueId} id={anchor} className={reviewDecisionClassName(decision)}>
+              <p><b>{humanReviewLabel(question, itemIndex)}:</b> {question}</p>
+              <p className="wiki-small">
+                <b>Status:</b> {reviewAnswerLabel(decision) || "Not reviewed"}
+                {decision?.note ? ` - ${decision.note}` : ""}
+              </p>
+              <p className="wiki-inline-actions">
+                <a href={`/wiki/review/item/${article.slug}#${anchor}`} onClick={makeNavigate(navigateTo, `/wiki/review/item/${article.slug}#${anchor}`)}>
+                  Review this check
+                </a>
+              </p>
+              <PendingReviewDecision decision={decision} />
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }
@@ -1209,7 +1253,7 @@ function ChecklistSection({ title, items, navigateTo, articleSlug = "", sectionK
 
 function PendingReviewDecision({ decision }) {
   const normalized = normalizeSimpleReviewDecision(decision);
-  if (!normalized || normalized.answer === "yes") return null;
+  if (!normalized || normalized.answer === "yes" || normalized.answer === "na") return null;
   const isRemoval = normalized.answer === "remove";
   return (
     <div className={`wiki-pending-review-edit ${isRemoval ? "remove" : "change"}`}>
@@ -1547,12 +1591,14 @@ function hasActiveFilters(filters) {
 }
 
 function loadSimpleWikiReviews() {
-  if (typeof window === "undefined") return {};
+  const repoBackedReviews = wikiSimpleReviews || {};
+  if (typeof window === "undefined") return repoBackedReviews;
   try {
     const raw = window.localStorage.getItem("wiki-simple-review-results");
-    return raw ? JSON.parse(raw) : {};
+    const localReviews = raw ? JSON.parse(raw) : {};
+    return { ...repoBackedReviews, ...localReviews };
   } catch {
-    return {};
+    return repoBackedReviews;
   }
 }
 
@@ -1562,14 +1608,14 @@ function saveSimpleWikiReviews(reviews) {
 }
 
 function buildSimpleReviewExportText(reviews) {
-  return JSON.stringify({ type: "bc-construction-safety-wiki-simple-review-results", version: 1, exportedAt: new Date().toISOString(), reviews }, null, 2);
+  return JSON.stringify({ type: "bc-construction-safety-wiki-simple-review-results", version: 2, exportedAt: new Date().toISOString(), reviews }, null, 2);
 }
 
 function parseSimpleReviewImport(text) {
   if (!text.trim()) return { ok: false, message: "No import pasted.", reviews: {}, count: 0 };
   try {
     const parsed = JSON.parse(text);
-    if (parsed?.type !== "bc-construction-safety-wiki-simple-review-results" || parsed?.version !== 1) {
+    if (parsed?.type !== "bc-construction-safety-wiki-simple-review-results" || ![1, 2].includes(parsed?.version)) {
       return { ok: false, message: "This is not a simple wiki review export.", reviews: {}, count: 0 };
     }
     const issueRows = new Map(wikiReviewIssues.map((row) => [row.slug, row]));
@@ -1596,9 +1642,12 @@ function buildSimpleReviewRows(issueRows, simpleReviews) {
     .map((row) => {
       const record = normalizeSimpleReviewRecord(simpleReviews[row.slug], row.issues || []);
       const status = reviewStatusFromIssueDecisions(row.issues || [], record.issues || {});
-      const editDecision = Object.values(record.issues || {}).find((decision) => normalizeReviewAnswer(decision.answer) !== "yes");
+      const editDecision = Object.values(record.issues || {}).find((decision) => isNeedsChangeDecision(decision));
       const completedIssueCount = Object.keys(record.issues || {}).length;
       const remainingIssueCount = Math.max((row.issues || []).length - completedIssueCount, 0);
+      const remainingIssues = (row.issues || []).filter((issue) => !isCompleteSimpleReviewDecision(record.issues?.[issue.id]));
+      const remainingArticleCheckCount = remainingIssues.filter((issue) => issue.issueType === "article-check").length;
+      const remainingClaimReviewCount = remainingIssues.filter((issue) => issue.issueType === "claim-review").length;
       return {
         slug: row.slug,
         title: row.title,
@@ -1606,10 +1655,14 @@ function buildSimpleReviewRows(issueRows, simpleReviews) {
         prepStatus: row.prepStatus || "Needs AI prep",
         issueCount: remainingIssueCount,
         totalIssueCount: row.issueCount,
+        articleCheckCount: row.articleCheckCount || 0,
+        claimReviewCount: row.claimReviewCount || 0,
         completedIssueCount,
         remainingIssueCount,
+        remainingArticleCheckCount,
+        remainingClaimReviewCount,
         status,
-        reason: editDecision?.note || (editDecision?.answer === "remove" ? "Reviewer marked an item for removal." : remainingIssueCount ? "AI could not safely finish these claims from available source evidence." : "All generated review issues have saved answers."),
+        reason: editDecision?.note || (normalizeReviewAnswer(editDecision?.answer) === "remove" ? "Reviewer marked an item for removal." : remainingIssueCount ? "Human article checks or source claims still need review." : "All generated review items have saved answers."),
       };
     });
 }
@@ -1628,7 +1681,7 @@ function normalizeSimpleReviewRecord(record, issues = []) {
 function isCompleteSimpleReviewDecision(decision) {
   const normalized = normalizeSimpleReviewDecision(decision);
   if (!normalized) return false;
-  if (normalized.answer === "yes" || normalized.answer === "remove") return true;
+  if (normalized.answer === "yes" || normalized.answer === "remove" || normalized.answer === "na") return true;
   return normalized.answer === "change" && String(normalized.note || "").trim().length > 0;
 }
 
@@ -1645,8 +1698,8 @@ function reviewStatusFromIssueDecisions(issues = [], decisions = {}) {
   if (!issues.length) return "Reviewed: ready";
   const values = issues.map((issue) => decisions[issue.id]).filter(isCompleteSimpleReviewDecision);
   if (!values.length) return "Needs review";
-  if (values.length === issues.length && values.every((decision) => normalizeReviewAnswer(decision.answer) === "yes")) return "Reviewed: ready";
-  if (values.some((decision) => normalizeReviewAnswer(decision.answer) !== "yes")) return "Reviewed: needs changes";
+  if (values.length === issues.length && values.every(isReadyReviewDecision)) return "Reviewed: ready";
+  if (values.some(isNeedsChangeDecision)) return "Reviewed: needs changes";
   return "In progress";
 }
 
@@ -1662,11 +1715,13 @@ function buildSimpleReviewSummary(rows) {
   const readyRows = rows.filter((row) => row.status === "Reviewed: ready");
   const needsChangeRows = rows.filter((row) => row.status === "Reviewed: needs changes");
   const openRows = rows.filter((row) => row.remainingIssueCount > 0);
+  const remainingArticleCheckCount = rows.reduce((sum, row) => sum + row.remainingArticleCheckCount, 0);
+  const remainingClaimReviewCount = rows.reduce((sum, row) => sum + row.remainingClaimReviewCount, 0);
   let nextAction = "Pick the first open item and review it.";
   if (needsChangeRows.length) nextAction = "Fix the first item marked needs changes, then send it back for a simple yes/no re-review.";
   else if (readyRows.length && openRows.length) nextAction = "Publish or stage ready items, then keep reviewing the open queue.";
   else if (readyRows.length && !openRows.length) nextAction = "All locally reviewed items are ready. Export this review log before publishing.";
-  return { openCount: openRows.length, readyCount: readyRows.length, needsChangeCount: needsChangeRows.length, readyRows, needsChangeRows, openRows, nextAction };
+  return { openCount: openRows.length, readyCount: readyRows.length, needsChangeCount: needsChangeRows.length, remainingArticleCheckCount, remainingClaimReviewCount, readyRows, needsChangeRows, openRows, nextAction };
 }
 
 function buildSimpleReviewSummaryText(summary) {
@@ -1674,6 +1729,8 @@ function buildSimpleReviewSummaryText(summary) {
     "Simple wiki review results",
     "",
     `Open: ${summary.openCount}`,
+    `Open article checks: ${summary.remainingArticleCheckCount}`,
+    `Open source claims: ${summary.remainingClaimReviewCount}`,
     `Ready: ${summary.readyCount}`,
     `Needs changes: ${summary.needsChangeCount}`,
     `Next action: ${summary.nextAction}`,
@@ -1704,13 +1761,25 @@ function normalizeSimpleReviewDecision(decision) {
 
 function normalizeReviewAnswer(answer) {
   if (answer === "no") return "change";
-  if (answer === "yes" || answer === "change" || answer === "remove") return answer;
+  if (answer === "pass") return "yes";
+  if (answer === "not-applicable" || answer === "n/a") return "na";
+  if (answer === "yes" || answer === "change" || answer === "remove" || answer === "na") return answer;
   return "";
 }
 
 function isRecognizedReviewAnswer(answer) {
   const normalized = normalizeReviewAnswer(answer);
-  return normalized === "yes" || normalized === "change" || normalized === "remove";
+  return normalized === "yes" || normalized === "change" || normalized === "remove" || normalized === "na";
+}
+
+function isReadyReviewDecision(decision) {
+  const answer = normalizeReviewAnswer(decision?.answer);
+  return answer === "yes" || answer === "na";
+}
+
+function isNeedsChangeDecision(decision) {
+  const answer = normalizeReviewAnswer(decision?.answer);
+  return answer === "change" || answer === "remove";
 }
 
 function getSavedIssueDecision(record, issueId) {
@@ -1726,7 +1795,26 @@ function reviewDecisionClassName(decision) {
   const answer = normalizeReviewAnswer(decision?.answer);
   if (answer === "change") return "wiki-item-pending-change";
   if (answer === "remove") return "wiki-item-pending-removal";
+  if (answer === "yes" || answer === "na") return "wiki-item-review-passed";
   return undefined;
+}
+
+function reviewAnswerLabel(decision) {
+  const answer = normalizeReviewAnswer(decision?.answer);
+  if (answer === "yes") return "Passed";
+  if (answer === "na") return "Not applicable";
+  if (answer === "change") return "Needs changes";
+  if (answer === "remove") return "Remove item";
+  return "";
+}
+
+function humanReviewLabel(text, index) {
+  const label = String(text || "").split(":")[0]?.trim();
+  if (label && label.length <= 40 && label !== String(text || "").trim()) return label;
+  if (index === 1) return "Legal/source";
+  if (index === 2) return "Field safety";
+  if (index === 3) return "Plain-language/copyright";
+  return `Check ${index}`;
 }
 
 function formatReviewSectionName(section) {
@@ -1788,4 +1876,12 @@ function reviewIssueAnchor(articleSlug, section, index) {
 
 function reviewIssueId(articleSlug, section, index) {
   return `${articleSlug}:${section}:${index}`;
+}
+
+function humanReviewAnchor(articleSlug, index) {
+  return `human-review-${articleSlug}-${index}`;
+}
+
+function humanReviewIssueId(articleSlug, index) {
+  return `${articleSlug}:humanReview:${index}`;
 }

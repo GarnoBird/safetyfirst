@@ -35,10 +35,15 @@ const sectionTitles = {
   supervisorChecklist: "Supervisor checklist",
   commonMistakes: "Common mistakes",
   reviewerNotes: "Reviewer notes",
+  humanReview: "Human review",
 };
 
 function reviewIssueAnchor(articleSlug, section, index) {
   return `review-issue-${articleSlug}-${section}-${index}`;
+}
+
+function humanReviewAnchor(articleSlug, index) {
+  return `human-review-${articleSlug}-${index}`;
 }
 
 function splitReviewerQuestion(value, section) {
@@ -88,6 +93,7 @@ function sourceReviewIssuesForArticle(article) {
     const sectionTitle = sectionTitles[section] || section;
     issues.push({
       id: `${article.slug}:${section}:${index}`,
+      issueType: "claim-review",
       articleSlug: article.slug,
       articleTitle: article.title,
       articlePath: `/wiki/articles/${article.slug}`,
@@ -117,8 +123,57 @@ function sourceReviewIssuesForArticle(article) {
   return issues;
 }
 
+function humanReviewIssuesForArticle(article) {
+  const questions = article.humanReviewQuestions?.length ? article.humanReviewQuestions : article.reviewQuestions || [];
+  return questions.map((text, index) => {
+    const issueIndex = index + 1;
+    const statement = humanReviewStatement(text, issueIndex);
+    const beforeText = index > 0 ? stripReviewMarkup(questions[index - 1]) : "";
+    const afterText = index < questions.length - 1 ? stripReviewMarkup(questions[index + 1]) : "";
+    return {
+      id: `${article.slug}:humanReview:${issueIndex}`,
+      issueType: "article-check",
+      articleSlug: article.slug,
+      articleTitle: article.title,
+      articlePath: `/wiki/articles/${article.slug}`,
+      reviewTier: article.reviewTier,
+      section: "humanReview",
+      sectionTitle: "Human review",
+      index: issueIndex,
+      contextAnchor: humanReviewAnchor(article.slug, issueIndex),
+      statement,
+      originalText: text,
+      beforeText,
+      afterText,
+      contextText: [beforeText, stripReviewMarkup(text), afterText].filter(Boolean).join(" "),
+      question: stripReviewMarkup(text),
+      reason: "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+      citationIds: [],
+      citations: [],
+      sourceNotes: getSourceNotesForArticle(article.slug).map((note) => ({
+        id: note.id,
+        title: note.title,
+        publisher: note.publisher,
+        url: note.url,
+        lastChecked: note.lastChecked,
+      })),
+    };
+  });
+}
+
+function humanReviewStatement(text, index) {
+  const label = String(text || "").split(":")[0]?.trim();
+  if (label && label.length <= 40 && label !== String(text || "").trim()) return label;
+  if (index === 1) return "Legal/source review";
+  if (index === 2) return "Field safety review";
+  if (index === 3) return "Plain-language/copyright review";
+  return `Human review check ${index}`;
+}
+
 const articles = wikiArticles.map((article) => {
-  const issues = sourceReviewIssuesForArticle(article);
+  const issues = [...humanReviewIssuesForArticle(article), ...sourceReviewIssuesForArticle(article)];
+  const articleCheckCount = issues.filter((issue) => issue.issueType === "article-check").length;
+  const claimReviewCount = issues.filter((issue) => issue.issueType === "claim-review").length;
   return {
     slug: article.slug,
     title: article.title,
@@ -126,6 +181,8 @@ const articles = wikiArticles.map((article) => {
     maturity: article.maturity,
     prepStatus: article.prepStatus || "Needs AI prep",
     issueCount: issues.length,
+    articleCheckCount,
+    claimReviewCount,
     issues,
   };
 });

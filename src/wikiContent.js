@@ -6,6 +6,7 @@ import {
   generatedWikiSourceNotes,
 } from "./generatedWikiSearch.js";
 import { generatedWikiReviewIssues } from "./generatedWikiReviewIssues.js";
+import { generatedWikiSimpleReviews } from "./generatedWikiSimpleReviews.js";
 import {
   glossaryTerms,
   maturityLevels,
@@ -4578,6 +4579,7 @@ export const wikiQualityMetrics = generatedWikiQualityMetrics;
 export const wikiSourceCoverage = generatedWikiSourceCoverage;
 export const wikiSourceNotes = generatedWikiSourceNotes;
 export const wikiReviewIssues = generatedWikiReviewIssues;
+export const wikiSimpleReviews = generatedWikiSimpleReviews;
 
 export const sourceMap = Object.fromEntries(wikiSources.map((source) => [source.id, source]));
 export const regulationMap = Object.fromEntries(regulationRefs.map((ref) => [ref.id, ref]));

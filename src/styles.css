@@ -4146,7 +4146,7 @@ p {
   background: #f8fbff;
 }
 
-.wiki-review-preset.active:last-child {
+.wiki-review-preset.danger.active {
   border-color: #a33;
   background: #fff8f8;
 }
@@ -4195,6 +4195,18 @@ p {
   background: #fff8d6;
   outline: 2px solid #f0c36d;
   outline-offset: 4px;
+}
+
+.wiki-human-review-checklist {
+  margin: 8px 0 0;
+}
+
+.wiki-human-review-checklist li {
+  margin-bottom: 14px;
+}
+
+.wiki-item-review-passed {
+  background: #f8fff8;
 }
 
 .wiki-review-preset strong,
