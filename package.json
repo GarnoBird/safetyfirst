@@ -21,6 +21,7 @@
     "verify:wiki-completion": "node scripts/verify-wiki-completion.js",
     "verify:wiki-quality": "node scripts/verify-wiki-quality.js",
     "verify:wiki-sources": "node scripts/verify-wiki-sources.js",
+    "verify:wiki-review-workflow": "node scripts/verify-wiki-review-workflow.js",
     "report:wiki-review": "node scripts/report-wiki-review.js",
     "build:safety-lab-data": "node scripts/build-safety-lab-data.js",
     "verify:safety-lab-data": "node scripts/verify-safety-lab-data.js",

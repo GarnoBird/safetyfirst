@@ -10005,7 +10005,7 @@ export const generatedWikiQualityMetrics = [
   }
 ];
 export const generatedWikiSourceCoverage = {
-  "generatedAt": "2026-06-20T17:45:16.976Z",
+  "generatedAt": "2026-06-20T23:53:30.688Z",
   "articleCount": 100,
   "sourceNoteCount": 53,
   "articlesWithSourceNotes": 100,

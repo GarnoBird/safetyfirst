@@ -7,6 +7,8 @@ import {
   contentStructure,
   contentCreationPipeline,
   databaseSchema,
+  getArticleDraftBlockers,
+  getArticleReviewChecklist,
   getArticleBySlug,
   getCitationById,
   getRedirectTarget,
@@ -18,11 +20,14 @@ import {
   getSourceById,
   getWikiFilterOptions,
   getWikiQualityMetric,
+  getWikiReviewerQueues,
   getWikiReviewBacklog,
   governanceModel,
   glossaryTerms,
   linkingModel,
   productStrategy,
+  reviewChecklistTemplates,
+  reviewQueueDefinitions,
   reviewerChecklist,
   searchWiki,
   searchStrategy,
@@ -49,6 +54,7 @@ const WIKI_NAV = [
   { label: "Article quality", path: "/wiki/quality" },
   { label: "Roadmap", path: "/wiki/roadmap" },
   { label: "Review backlog", path: "/wiki/review-backlog" },
+  { label: "Reviewer", path: "/wiki/reviewer" },
   { label: "Governance", path: "/wiki/governance" },
   { label: "Technical plan", path: "/wiki/technical" },
 ];
@@ -148,6 +154,10 @@ export default function WikiApp({ routePath, navigateTo }) {
 
     if (normalizedPath === "/wiki/review-backlog") {
       return <ReviewBacklogPage navigateTo={navigateWithinWiki} />;
+    }
+
+    if (normalizedPath === "/wiki/reviewer") {
+      return <ReviewerPage navigateTo={navigateWithinWiki} />;
     }
 
     if (normalizedPath === "/wiki/governance") {
@@ -347,9 +357,11 @@ function ArticlePage({ slug, navigateTo }) {
   ];
   const sourceNotes = getSourceNotesForArticle(article.slug);
   const qualityMetric = getWikiQualityMetric(article.slug);
+  const draftBlockers = getArticleDraftBlockers(article);
   const sectionHeadings = [
     "Summary",
     "Review status",
+    "Why this is still Draft",
     "When this applies",
     "Legal requirements",
     "Best practice",
@@ -365,6 +377,7 @@ function ArticlePage({ slug, navigateTo }) {
     "Official citations",
     "Source notes",
     "Article quality",
+    "Reviewer notes",
     "Report an issue with this article",
     "Version history",
     "Disclaimer",
@@ -406,6 +419,7 @@ function ArticlePage({ slug, navigateTo }) {
       </section>
 
       <ReviewBox article={article} />
+      <DraftBlockersSection article={article} blockers={draftBlockers} />
 
       <ArticleSection title="When this applies" items={article.sections.whenApplies} navigateTo={navigateTo} />
       <ArticleSection
@@ -526,6 +540,10 @@ function ArticlePage({ slug, navigateTo }) {
       ) : null}
 
       <ArticleQualitySection article={article} qualityMetric={qualityMetric} />
+
+      {article.reviewerNotes?.length ? (
+        <ArticleSection title="Reviewer notes" items={article.reviewerNotes} navigateTo={navigateTo} />
+      ) : null}
 
       <CorrectionForm article={article} />
 
@@ -1072,6 +1090,129 @@ function ArticleQualityPage({ navigateTo }) {
   );
 }
 
+function ReviewerPage({ navigateTo }) {
+  const queues = getWikiReviewerQueues();
+  const [selectedQueue, setSelectedQueue] = useState("tier-1-source-review");
+  const activeQueue = reviewQueueDefinitions.find((queue) => queue.id === selectedQueue) || reviewQueueDefinitions[0];
+  const rows = queues[activeQueue.id] || [];
+
+  return (
+    <article className="wiki-article">
+      <PageTitle title="Reviewer" subtitle="Static maintainer workspace for source and safety review" />
+      <div className="wiki-notice">
+        This page does not approve articles. It organizes Draft pages for qualified human review and keeps
+        source-review flags visible until a reviewer clears them in Markdown.
+      </div>
+
+      <section className="wiki-section">
+        <h2>Review queues</h2>
+        <div className="wiki-inline-actions">
+          {reviewQueueDefinitions.map((queue) => (
+            <button
+              className="wiki-small-button"
+              type="button"
+              key={queue.id}
+              aria-pressed={queue.id === selectedQueue}
+              onClick={() => setSelectedQueue(queue.id)}
+            >
+              {queue.title}
+            </button>
+          ))}
+        </div>
+        <p className="wiki-small">
+          <b>{activeQueue.title}:</b> {activeQueue.description}
+        </p>
+      </section>
+
+      <section className="wiki-section">
+        <h2>{activeQueue.title}</h2>
+        {rows.length ? (
+          <table className="wiki-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Status</th>
+                <th>Checklist</th>
+                <th>Blockers</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(0, 60).map(({ article, metric, checklist, blockers }) => (
+                <tr key={article.slug}>
+                  <td>
+                    <a
+                      href={`/wiki/articles/${article.slug}`}
+                      onClick={makeNavigate(navigateTo, `/wiki/articles/${article.slug}`)}
+                    >
+                      {article.title}
+                    </a>
+                    <br />
+                    <span className="wiki-small">
+                      {article.reviewTier}; next review {article.review?.nextReview || "not set"}
+                    </span>
+                  </td>
+                  <td>
+                    {article.maturity}
+                    <br />
+                    <span className="wiki-small">
+                      {metric?.exactCitationCount || 0} exact citations; {article.sourceReviewFlagCount || 0} source flags
+                    </span>
+                  </td>
+                  <td>
+                    <ReviewChecklistSummary checklist={checklist} />
+                  </td>
+                  <td>
+                    {blockers.length ? (
+                      <ul>
+                        {blockers.slice(0, 5).map((blocker) => (
+                          <li key={blocker}>{blocker}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      "No generated blockers"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No articles currently match this queue.</p>
+        )}
+      </section>
+
+      <section className="wiki-section">
+        <h2>Review checklist templates</h2>
+        {reviewChecklistTemplates.map((template) => (
+          <section className="wiki-subsection" key={template.id}>
+            <h3>{template.title}</h3>
+            <p className="wiki-small">{template.audience}</p>
+            <ul>
+              {template.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </section>
+    </article>
+  );
+}
+
+function ReviewChecklistSummary({ checklist }) {
+  return (
+    <ul>
+      {checklist.map((item) => (
+        <li key={item.id}>
+          <b>{item.complete ? "OK" : "Open"}</b>: {item.label}
+          <br />
+          <span className="wiki-small">{item.detail}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ReviewBacklogPage({ navigateTo }) {
   const backlog = getWikiReviewBacklog();
 
@@ -1416,6 +1557,28 @@ function ReviewBox({ article }) {
           </tr>
         </tbody>
       </table>
+    </section>
+  );
+}
+
+function DraftBlockersSection({ article, blockers }) {
+  if (article.maturity !== "Draft" && !blockers.length) return null;
+
+  return (
+    <section className="wiki-section wiki-review-box" id="why-this-is-still-draft">
+      <h2>Why this is still Draft</h2>
+      {blockers.length ? (
+        <ul>
+          {blockers.map((blocker) => (
+            <li key={blocker}>{blocker}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>This article has no generated blockers, but it still needs a maintainer to update the maturity label.</p>
+      )}
+      <p className="wiki-small">
+        Draft status stays in place until qualified source/legal review and field safety review are both complete.
+      </p>
     </section>
   );
 }

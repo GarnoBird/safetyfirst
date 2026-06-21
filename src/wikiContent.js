@@ -8,6 +8,8 @@ import {
 import {
   glossaryTerms,
   maturityLevels,
+  reviewChecklistTemplates,
+  reviewQueueDefinitions,
   reviewerChecklist,
   searchSuggestionTerms,
   tierOneArticleSlugs,
@@ -4436,6 +4438,8 @@ export const qualityMetricMap = Object.fromEntries(wikiQualityMetrics.map((metri
 export {
   glossaryTerms,
   maturityLevels,
+  reviewChecklistTemplates,
+  reviewQueueDefinitions,
   reviewerChecklist,
   searchSuggestionTerms,
   tierOneArticleSlugs,
@@ -4723,6 +4727,7 @@ export const contentStructure = `/content
   /glossary
   /redirects
   /templates
+  /review-templates
   /checklists
   /procedures
   /source-notes
@@ -4824,6 +4829,7 @@ export const buildPhases = [
     title: "Review & Launch",
     tasks: [
       "Run depth, citation, link, backlink, and source validation.",
+      "Use the reviewer workspace to move Draft articles through source/legal, field safety, plain-language, and copyright checks.",
       "Add correction process, public disclaimer, and confidence badges.",
       "Launch after qualified safety/source review of the highest-risk article groups.",
     ],
@@ -4835,6 +4841,7 @@ export const codexExecutionTasks = [
   "Define structured article/source/regulation data.",
   "Move article bodies into Markdown and generate React-ready wiki data.",
   "Create category, review roadmap, strategy, governance, and database model pages.",
+  "Add reviewer queues, review checklist templates, and source/safety review workflow validation.",
   "Implement full-text client search over article metadata and body sections.",
   "Render article pages with wiki links, citation tokens, backlinks, and print-friendly checklists.",
   "Add validation scripts for depth, missing citations, duplicate slugs, broken links, and orphan articles.",
@@ -4878,6 +4885,71 @@ export function getSourceNotesForArticle(slug) {
 
 export function getWikiQualityMetric(slug) {
   return qualityMetricMap[slug] || null;
+}
+
+export function getArticleDraftBlockers(article) {
+  const blockers = [];
+  const metric = getWikiQualityMetric(article.slug);
+  if ((article.sourceReviewFlagCount || 0) > 0) {
+    blockers.push(`${article.sourceReviewFlagCount} unresolved source-review flag${article.sourceReviewFlagCount === 1 ? "" : "s"}`);
+  }
+  if (article.review?.legalReviewStatus !== "Source checked") {
+    blockers.push("legal/source review is not marked Source checked");
+  }
+  if (article.review?.safetyReviewStatus !== "Safety reviewed") {
+    blockers.push("field safety review is not marked Safety reviewed");
+  }
+  if (metric?.issues?.length) {
+    blockers.push(...metric.issues);
+  }
+  if (!(article.sourceNoteIds || []).length) {
+    blockers.push("no linked source notes");
+  }
+  return [...new Set(blockers)];
+}
+
+export function getArticleReviewChecklist(article) {
+  const metric = getWikiQualityMetric(article.slug);
+  const tierMinimum = article.reviewTier === "Tier 1" ? 8 : article.reviewTier === "Tier 2" ? 5 : 3;
+  const exactCitationCount = metric?.exactCitationCount ?? (article.citationIds || []).filter((id) => /^ohsr-\d+-/.test(id)).length;
+  return [
+    {
+      id: "legal-citations",
+      label: "Legal citations",
+      complete: exactCitationCount >= tierMinimum,
+      detail: `${exactCitationCount} exact citations; ${tierMinimum} required for ${article.reviewTier || "Tier 3"}`,
+    },
+    {
+      id: "source-notes",
+      label: "Source notes",
+      complete: (article.sourceNoteIds || []).length > 0,
+      detail: `${article.sourceNoteIds?.length || 0} linked source note${(article.sourceNoteIds?.length || 0) === 1 ? "" : "s"}`,
+    },
+    {
+      id: "plain-language",
+      label: "Plain-language quality",
+      complete: !(metric?.issues || []).some((issue) => /copy|robot|wording|thin/i.test(issue)),
+      detail: metric?.issues?.length ? metric.issues.join("; ") : "No generated copy issues",
+    },
+    {
+      id: "related-links",
+      label: "Related links",
+      complete: (metric?.outboundLinkCount || 0) >= 8 && (metric?.inboundLinkCount || 0) >= 1,
+      detail: `${metric?.outboundLinkCount || 0} outbound; ${metric?.inboundLinkCount || 0} inbound`,
+    },
+    {
+      id: "field-tools",
+      label: "Field usefulness",
+      complete: (metric?.relatedToolCount || 0) > 0,
+      detail: `${metric?.relatedToolCount || 0} related toolbox/checklist/quiz/form references`,
+    },
+    {
+      id: "unresolved-flags",
+      label: "Unresolved review flags",
+      complete: (article.sourceReviewFlagCount || 0) === 0,
+      detail: `${article.sourceReviewFlagCount || 0} source-review flag${(article.sourceReviewFlagCount || 0) === 1 ? "" : "s"}`,
+    },
+  ];
 }
 
 export function getRoadmapByPhase(phase) {
@@ -4944,6 +5016,68 @@ export function getWikiReviewBacklog() {
       counts[article.reviewTier] = (counts[article.reviewTier] || 0) + 1;
       return counts;
     }, {}),
+  };
+}
+
+export function getWikiReviewerQueues() {
+  const metricsBySlug = qualityMetricMap;
+  const todayTime = Date.now();
+  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+  const sortByTierAndTitle = (a, b) =>
+    String(a.reviewTier || "").localeCompare(String(b.reviewTier || "")) || a.title.localeCompare(b.title);
+  const withQueueMeta = (article) => ({
+    article,
+    metric: metricsBySlug[article.slug],
+    checklist: getArticleReviewChecklist(article),
+    blockers: getArticleDraftBlockers(article),
+  });
+
+  const staleOrUpcoming = [...wikiArticles]
+    .filter((article) => {
+      const nextTime = Date.parse(article.review?.nextReview || "");
+      return Number.isFinite(nextTime) && nextTime - todayTime <= thirtyDays;
+    })
+    .sort((a, b) => String(a.review?.nextReview || "").localeCompare(String(b.review?.nextReview || "")));
+
+  const sourceMismatch = [...wikiArticles]
+    .filter((article) => {
+      const metric = metricsBySlug[article.slug];
+      return (
+        (metric?.issues || []).length ||
+        !(article.sourceNoteIds || []).length ||
+        (article.sourceNoteIds || []).some((id) => !sourceNoteMap[id])
+      );
+    })
+    .sort(sortByTierAndTitle);
+
+  const readyForHumanReview = [...wikiArticles]
+    .filter((article) => {
+      const metric = metricsBySlug[article.slug];
+      const checklist = getArticleReviewChecklist(article);
+      const openItems = checklist.filter((item) => !item.complete && item.id !== "unresolved-flags");
+      return (
+        (metric?.issues || []).length === 0 &&
+        openItems.length === 0 &&
+        (article.sourceNoteIds || []).length > 0 &&
+        (article.outboundArticleLinks || []).length >= 8 &&
+        (article.backlinks || []).length >= 1 &&
+        article.maturity === "Draft"
+      );
+    })
+    .sort((a, b) => {
+      const tierWeight = { "Tier 1": 0, "Tier 2": 1, "Tier 3": 2 };
+      return (tierWeight[a.reviewTier] ?? 9) - (tierWeight[b.reviewTier] ?? 9) || a.title.localeCompare(b.title);
+    });
+
+  return {
+    "tier-1-source-review": tierOneArticleSlugs.map(getArticleBySlug).filter(Boolean).map(withQueueMeta),
+    "most-source-flags": [...wikiArticles]
+      .filter((article) => (article.sourceReviewFlagCount || 0) > 0)
+      .sort((a, b) => b.sourceReviewFlagCount - a.sourceReviewFlagCount || sortByTierAndTitle(a, b))
+      .map(withQueueMeta),
+    "stale-review": staleOrUpcoming.map(withQueueMeta),
+    "citation-source-mismatch": sourceMismatch.map(withQueueMeta),
+    "ready-for-human-review": readyForHumanReview.map(withQueueMeta),
   };
 }
 

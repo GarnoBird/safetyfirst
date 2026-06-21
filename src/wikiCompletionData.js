@@ -497,6 +497,85 @@ export const reviewerChecklist = [
   "No proprietary manual text or excessive source copying",
 ];
 
+export const reviewChecklistTemplates = [
+  {
+    id: "source-legal-review",
+    title: "Source/legal reviewer checklist",
+    audience: "Qualified BC safety/source reviewer",
+    items: [
+      "Each legal requirement is supported by an exact official citation or remains flagged with source review needed.",
+      "The article does not treat guideline, industry, owner, or best-practice material as law unless an official legal source supports it.",
+      "Citation IDs, source notes, and article wording were checked against the current official source.",
+      "The article does not overstate certainty, remove judgement, or imply legal advice.",
+      "No article is moved to Source checked while unresolved source-review flags remain.",
+    ],
+  },
+  {
+    id: "field-safety-review",
+    title: "Field safety reviewer checklist",
+    audience: "Construction safety officer or competent field reviewer",
+    items: [
+      "The procedure can be followed by a BC construction supervisor or worker at the work face.",
+      "Worker and supervisor checklists match the hazard controls described in the article.",
+      "Stop-work triggers, emergency escalation, and adjacent-trade/public interface issues are practical.",
+      "Required documents match what crews actually need before, during, and after the task.",
+      "Related toolbox talks, checklists, quizzes, forms, and safety packs are relevant enough to use.",
+    ],
+  },
+  {
+    id: "plain-language-editor-review",
+    title: "Plain-language editor checklist",
+    audience: "Content editor",
+    items: [
+      "The summary reads like a human safety reference, not a generated placeholder.",
+      "Definitions, aliases, redirects, and related links use terms workers and supervisors actually search for.",
+      "Legal requirements, best practice, sample procedure, and checklists remain visibly separated.",
+      "The article avoids company-specific fluff and does not collect unnecessary personal information.",
+      "The page is scannable on mobile and printable without losing critical warnings.",
+    ],
+  },
+  {
+    id: "copyright-copying-review",
+    title: "Copyright/copying checklist",
+    audience: "Maintainer",
+    items: [
+      "No WorkSafeBC, BCCSA, CSA, manufacturer, or private manual text is copied heavily.",
+      "Short official names, section titles, and required terms are used only where needed for citation clarity.",
+      "Private company procedures are not imported or paraphrased as if they were public standards.",
+      "Source notes record paraphrased review context and link to official sources.",
+      "Any quoted wording is brief, necessary, and traceable to a public official source.",
+    ],
+  },
+];
+
+export const reviewQueueDefinitions = [
+  {
+    id: "tier-1-source-review",
+    title: "Tier 1 source-review queue",
+    description: "High-risk/legal-critical articles that should be reviewed before public launch claims.",
+  },
+  {
+    id: "most-source-flags",
+    title: "Most unresolved source-review flags",
+    description: "Articles with the largest number of open source-review markers.",
+  },
+  {
+    id: "stale-review",
+    title: "Stale or upcoming review dates",
+    description: "Articles whose review windows need maintainer attention.",
+  },
+  {
+    id: "citation-source-mismatch",
+    title: "Citation/source-note mismatch",
+    description: "Articles whose generated quality metrics or source-note coverage need follow-up.",
+  },
+  {
+    id: "ready-for-human-review",
+    title: "Ready for human review",
+    description: "Draft articles with strong generated coverage but no qualified reviewer approval yet.",
+  },
+];
+
 export function workflowForArticle(slug) {
   return articleWorkflow[slug] || {
     reviewTier: "Tier 3",

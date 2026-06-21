@@ -1,5 +1,7 @@
 import {
+  getWikiReviewerQueues,
   getWikiReviewBacklog,
+  reviewQueueDefinitions,
   wikiArticles,
   wikiQualityMetrics,
   wikiSourceCoverage,
@@ -14,6 +16,7 @@ const mostSourceFlags = [...wikiArticles]
   .sort((a, b) => b.sourceReviewFlagCount - a.sourceReviewFlagCount || a.title.localeCompare(b.title))
   .slice(0, 15);
 const oldest = backlog.oldestReview.slice(0, 15);
+const reviewerQueues = getWikiReviewerQueues();
 
 console.log("BC Construction Safety Wiki review report");
 console.log("===========================================");
@@ -24,6 +27,11 @@ console.log(`Unresolved source-review articles: ${wikiSourceCoverage.unresolvedS
 console.log(`Weak Tier 1 citation coverage: ${wikiSourceCoverage.weakTierOne.length}`);
 console.log(`Weak Tier 2 citation coverage: ${wikiSourceCoverage.weakTierTwo.length}`);
 console.log("");
+
+printSection(
+  "Reviewer queues",
+  reviewQueueDefinitions.map((queue) => `${queue.title}: ${reviewerQueues[queue.id]?.length || 0} articles`),
+);
 
 printSection(
   "Highest source-review flag counts",
@@ -39,6 +47,17 @@ printSection(
   "Oldest review dates",
   oldest.map((article) => `${article.slug}: last reviewed ${article.review?.lastReviewed || "unknown"}`),
 );
+
+for (const queue of reviewQueueDefinitions) {
+  const rows = (reviewerQueues[queue.id] || []).slice(0, 10);
+  printSection(
+    queue.title,
+    rows.map(({ article, metric, blockers }) => {
+      const blockerText = blockers.length ? blockers.slice(0, 2).join("; ") : "no generated blockers";
+      return `${article.slug}: ${metric?.exactCitationCount || 0} exact citations, ${article.sourceReviewFlagCount || 0} source flags, ${blockerText}`;
+    }),
+  );
+}
 
 function printSection(title, rows) {
   console.log(title);

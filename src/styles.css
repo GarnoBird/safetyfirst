@@ -3550,6 +3550,22 @@ p {
   cursor: pointer;
 }
 
+.wiki-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wiki-inline-actions .wiki-small-button {
+  margin-top: 0;
+}
+
+.wiki-small-button[aria-pressed="true"] {
+  border-color: #54595d;
+  background: #eaecf0;
+  font-weight: 700;
+}
+
 .wiki-article-list {
   display: grid;
   gap: 9px;
