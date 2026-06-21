@@ -441,7 +441,7 @@ function SimpleReviewPage({ navigateTo }) {
           <li>Use Pass when a whole-article check is acceptable.</li>
           <li>Use Not applicable only when that check truly does not apply.</li>
           <li>Use Remove item when the bullet should be deleted.</li>
-          <li>Use Change wording when the article should say something different.</li>
+          <li>Use Request article change when Codex or a maintainer needs to correct the article before the check can pass.</li>
           <li>Click Save completed answers. Unanswered issues stay open for later.</li>
         </ol>
         <div className="wiki-notice">
@@ -477,7 +477,7 @@ function SimpleReviewPage({ navigateTo }) {
               <td>{reviewSummary.readyCount}</td>
             </tr>
             <tr>
-              <th>Needs changes</th>
+              <th>Change requests</th>
               <td>{reviewSummary.needsChangeCount}</td>
             </tr>
             <tr>
@@ -534,7 +534,7 @@ function SimpleReviewPage({ navigateTo }) {
           {[
             ["open", "Open"],
             ["progress", "In progress"],
-            ["changes", "Needs changes"],
+            ["changes", "Change requests"],
             ["ready", "Ready"],
             ["all", "All"],
           ].map(([id, label]) => (
@@ -560,11 +560,11 @@ function SimpleReviewPage({ navigateTo }) {
                   <br />
                   <span className="wiki-small">{row.reviewTier}; {row.prepStatus}</span>
                 </td>
-                <td>{row.status}</td>
+                <td>{reviewStatusDisplayLabel(row.status)}</td>
                 <td>
                   {row.remainingIssueCount} left; {row.completedIssueCount} saved.
                   <br />
-                  <span className="wiki-small">{row.remainingArticleCheckCount} article check{row.remainingArticleCheckCount === 1 ? "" : "s"}; {row.remainingClaimReviewCount} source claim{row.remainingClaimReviewCount === 1 ? "" : "s"}. {row.reason}</span>
+                  <span className="wiki-small">{row.remainingArticleCheckCount} article check{row.remainingArticleCheckCount === 1 ? "" : "s"}; {row.remainingClaimReviewCount} source claim{row.remainingClaimReviewCount === 1 ? "" : "s"}. {reviewReasonDisplayText(row)}</span>
                 </td>
                 <td>
                   <a href={`/wiki/review/item/${row.slug}`} onClick={makeNavigate(navigateTo, `/wiki/review/item/${row.slug}`)}>
@@ -669,7 +669,7 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
         <h2>Review unresolved items</h2>
         {existing.status ? (
           <div className="wiki-notice">
-            Current saved review: {existing.status}
+            Current saved review: {reviewStatusDisplayLabel(existing.status)}
             {existing.reviewerRole ? ` (${[existing.reviewerName, existing.reviewerRole].filter(Boolean).join(", ")})` : ""}
           </div>
         ) : null}
@@ -728,7 +728,7 @@ function SimpleReviewItemPage({ slug, navigateTo }) {
           <p className="wiki-small">
             Save will store {completedNowIssues.length} completed answer{completedNowIssues.length === 1 ? "" : "s"} now.
             {unansweredIssues.length || changeIssuesMissingNotes.length ? (
-              <> Left for later: {unansweredIssues.length} unanswered; {changeIssuesMissingNotes.length} needs-change answer{changeIssuesMissingNotes.length === 1 ? "" : "s"} without notes.</>
+              <> Left for later: {unansweredIssues.length} unanswered; {changeIssuesMissingNotes.length} change request{changeIssuesMissingNotes.length === 1 ? "" : "s"} without notes.</>
             ) : null}
           </p>
         ) : (
@@ -804,8 +804,8 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
           <span>{isArticleCheck ? "This whole-article check passes." : "This wording is correct enough to keep."}</span>
         </button>
         <button type="button" className={`wiki-review-preset ${answer === "change" ? "active" : ""}`} onClick={() => onChange({ answer: "change", note })}>
-          <strong>{isArticleCheck ? "Needs changes" : "Change wording"}</strong>
-          <span>{isArticleCheck ? "This article needs a correction before this check passes." : "Keep the topic, but rewrite this item."}</span>
+          <strong>{isArticleCheck ? "Request article change" : "Change wording"}</strong>
+          <span>{isArticleCheck ? "Ask Codex or a maintainer to correct the article before this check passes." : "Keep the topic, but rewrite this item."}</span>
         </button>
         {isArticleCheck ? (
           <button type="button" className={`wiki-review-preset ${answer === "na" ? "active" : ""}`} onClick={() => onChange({ answer: "na", note: "" })}>
@@ -821,7 +821,7 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
       </div>
       {answer === "change" ? (
         <label className="wiki-review-note-field">
-          <span>{isArticleCheck ? "What needs to change?" : "What should it say instead?"}</span>
+          <span>{isArticleCheck ? "What should Codex or a maintainer change?" : "What should it say instead?"}</span>
           <textarea value={note} onChange={(event) => onChange({ answer: "change", note: event.target.value })} placeholder={isArticleCheck ? "Write the article problem or correction needed before this check can pass." : "Write the exact replacement wording or correction needed."} />
         </label>
       ) : null}
@@ -831,8 +831,8 @@ function IssueReviewControl({ issue, value, onChange, showValidation = false, na
           <textarea value={note} onChange={(event) => onChange({ answer: "remove", note: event.target.value })} placeholder="Optional reason for deleting this item." />
         </label>
       ) : null}
-      {missingAnswer ? <p className="wiki-small wiki-simple-review-error">Choose {isArticleCheck ? "Pass, Needs changes, or Not applicable" : "Keep, Change wording, or Remove item"} for this item.</p> : null}
-      {missingNote ? <p className="wiki-small wiki-simple-review-error">Write the correction before saving this needs-change answer.</p> : null}
+      {missingAnswer ? <p className="wiki-small wiki-simple-review-error">Choose {isArticleCheck ? "Pass, Request article change, or Not applicable" : "Keep, Change wording, or Remove item"} for this item.</p> : null}
+      {missingNote ? <p className="wiki-small wiki-simple-review-error">Write the requested correction before saving this change request.</p> : null}
     </li>
   );
 }
@@ -1154,16 +1154,16 @@ function ArticleSimpleReviewStatus({ article, record, issueCount, navigateTo, ef
       <h2>Simple review result</h2>
       <table className="wiki-table">
         <tbody>
-          <tr><th>Status</th><td>{status}</td></tr>
+          <tr><th>Status</th><td>{reviewStatusDisplayLabel(status)}</td></tr>
           <tr><th>Public status</th><td>{effectiveReviewState?.displayMaturity || "Draft"}</td></tr>
           <tr><th>Items left</th><td>{remainingIssueCount}</td></tr>
           <tr><th>Saved answers</th><td>{savedIssueCount}</td></tr>
-          {reviewEdits.length ? <tr><th>Pending review changes</th><td>{changeCount} change request{changeCount === 1 ? "" : "s"}; {removeCount} removal{removeCount === 1 ? "" : "s"}</td></tr> : null}
+          {reviewEdits.length ? <tr><th>Requested article edits</th><td>{changeCount} change request{changeCount === 1 ? "" : "s"}; {removeCount} removal{removeCount === 1 ? "" : "s"}</td></tr> : null}
         </tbody>
       </table>
       {reviewEdits.length ? (
         <div className="wiki-notice">
-          This article is showing saved local review decisions. Removed items are hidden in this browser, and wording-change requests are shown as pending notes. The Markdown source still needs Codex or a maintainer to apply the review export.
+          This article is showing saved review decisions. Removed items are hidden in this browser, and wording-change requests are shown as pending notes. The Markdown source still needs Codex or a maintainer to apply the review export.
         </div>
       ) : effectiveReviewState?.isReadyForPublicUse ? (
         <div className="wiki-notice">
@@ -1782,7 +1782,7 @@ function getEffectiveArticleReviewState(article, issues = [], record = {}, repoR
 function getEffectiveArticleDraftBlockers(article, effectiveReviewState) {
   if (effectiveReviewState?.isReadyForPublicUse) return [];
   const blockers = getArticleDraftBlockers(article);
-  if (effectiveReviewState?.status === "Reviewed: needs changes") blockers.unshift("reviewer marked one or more items as needing changes");
+  if (effectiveReviewState?.status === "Reviewed: needs changes") blockers.unshift("reviewer requested one or more article edits for Codex or a maintainer to apply");
   if (effectiveReviewState?.remainingIssueCount > 0) blockers.unshift(`${effectiveReviewState.remainingIssueCount} review item${effectiveReviewState.remainingIssueCount === 1 ? "" : "s"} still open`);
   if (effectiveReviewState?.sourceFlagCount > 0 && effectiveReviewState.remainingIssueCount === 0) blockers.unshift("source-review flags still need maintainer cleanup in the article source");
   return [...new Set(blockers)];
@@ -1836,6 +1836,19 @@ function reviewStatusFromIssueDecisions(issues = [], decisions = {}) {
   return "In progress";
 }
 
+function reviewStatusDisplayLabel(status) {
+  if (status === "Reviewed: needs changes") return "Change requested";
+  if (status === "Reviewed: ready") return "Ready";
+  return status || "Needs review";
+}
+
+function reviewReasonDisplayText(row) {
+  if (row?.status === "Reviewed: needs changes") {
+    return `Waiting for Codex or a maintainer to apply this requested article edit: ${row.reason}`;
+  }
+  return row?.reason || "";
+}
+
 function filterSimpleReviewRows(rows, filter) {
   if (filter === "ready") return rows.filter((row) => row.isReadyForPublicUse || row.status === "Reviewed: ready");
   if (filter === "changes") return rows.filter((row) => row.status === "Reviewed: needs changes");
@@ -1851,7 +1864,7 @@ function buildSimpleReviewSummary(rows) {
   const remainingArticleCheckCount = rows.reduce((sum, row) => sum + row.remainingArticleCheckCount, 0);
   const remainingClaimReviewCount = rows.reduce((sum, row) => sum + row.remainingClaimReviewCount, 0);
   let nextAction = "Pick the first open item and review it.";
-  if (needsChangeRows.length) nextAction = "Fix the first item marked needs changes, then send it back for a simple yes/no re-review.";
+  if (needsChangeRows.length) nextAction = "Apply the first requested article edit in Markdown, then send it back for a simple pass/fail re-review.";
   else if (readyRows.length && openRows.length) nextAction = "Publish or stage ready items, then keep reviewing the open queue.";
   else if (readyRows.length && !openRows.length) nextAction = "All locally reviewed items are ready. Export this review log before publishing.";
   return { openCount: openRows.length, readyCount: readyRows.length, needsChangeCount: needsChangeRows.length, remainingArticleCheckCount, remainingClaimReviewCount, readyRows, needsChangeRows, openRows, nextAction };
@@ -1865,13 +1878,13 @@ function buildSimpleReviewSummaryText(summary) {
     `Open article checks: ${summary.remainingArticleCheckCount}`,
     `Open source claims: ${summary.remainingClaimReviewCount}`,
     `Ready: ${summary.readyCount}`,
-    `Needs changes: ${summary.needsChangeCount}`,
+    `Change requests: ${summary.needsChangeCount}`,
     `Next action: ${summary.nextAction}`,
     "",
     "Ready articles:",
     ...(summary.readyRows.length ? summary.readyRows.map((row) => `- ${row.title}`) : ["- None"]),
     "",
-    "Needs changes:",
+    "Change requests:",
     ...(summary.needsChangeRows.length ? summary.needsChangeRows.map((row) => `- ${row.title}: ${row.reason}`) : ["- None"]),
   ].join("\n");
 }
@@ -1936,7 +1949,7 @@ function reviewAnswerLabel(decision) {
   const answer = normalizeReviewAnswer(decision?.answer);
   if (answer === "yes") return "Passed";
   if (answer === "na") return "Not applicable";
-  if (answer === "change") return "Needs changes";
+  if (answer === "change") return "Change requested";
   if (answer === "remove") return "Remove item";
   return "";
 }

@@ -1,6 +1,6 @@
 # Safety Wiki Review Report
 
-Generated: 2026-06-21T19:42:25.155Z
+Generated: 2026-06-21T22:45:05.615Z
 
 ## Summary
 
@@ -21,7 +21,7 @@ Generated: 2026-06-21T19:42:25.155Z
 - Use **Pass** when a whole-article check is acceptable.
 - Use **Not applicable** when a whole-article check truly does not apply.
 - Use **Yes, keep it** when a source-claim item is acceptable.
-- Use **Change wording** or **Needs changes** when the article needs corrected wording.
+- Use **Change wording** or **Request article change** when Codex or a maintainer needs to correct article wording.
 - Use **Remove item** when a source-claim item should be deleted from the article.
 - Save. Completed answers disappear from the page; unfinished issues stay for later.
 - Needs verification against current WorkSafeBC/OHS source.
