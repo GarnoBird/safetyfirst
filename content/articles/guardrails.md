@@ -99,7 +99,7 @@ Guardrails are usually the simplest and most visible way to keep workers away fr
 
 A guardrail problem is a fall protection problem. Missing midrails, loose posts, removed sections, unprotected openings, and hidden covers can expose workers who were not planning to use a harness. Guardrails connect directly to [[floor-openings-and-covers|Floor Openings and Covers]], [[fall-protection|Fall Protection]], and [[leading-edge-work|Leading Edge Work]].
 
-This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This Tier 1 article is written for BC construction field use and still needs qualified source review before it is marked source checked.
 
 ## When this applies
 
@@ -226,7 +226,7 @@ This Tier 1 article is written for BC construction field use and still needs qua
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

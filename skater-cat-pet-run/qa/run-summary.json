@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "run_dir": "/Users/garnetbird/Documents/Safety First/skater-cat-pet-run",
+  "spritesheet": "/Users/garnetbird/Documents/Safety First/skater-cat-pet-run/final/spritesheet.webp",
+  "validation": "/Users/garnetbird/Documents/Safety First/skater-cat-pet-run/final/validation.json",
+  "contact_sheet": "/Users/garnetbird/Documents/Safety First/skater-cat-pet-run/qa/contact-sheet.png",
+  "review": "/Users/garnetbird/Documents/Safety First/skater-cat-pet-run/qa/review.json",
+  "package": "/Users/garnetbird/.codex/pets/skater-cat"
+}

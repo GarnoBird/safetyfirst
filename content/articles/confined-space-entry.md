@@ -102,7 +102,7 @@ Confined space entry is not just working in a tight place. The key issue is whet
 
 A safe entry depends on the entry program, hazard assessment, isolation, atmospheric testing, ventilation, standby arrangements, communication, permit controls, and rescue service. If rescue is not planned before entry, the entry is not ready. {{cite:ohsr-9-25}} {{cite:ohsr-9-37}}
 
-Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout|Lockout]], [[ventilation|Ventilation]], and [[respirators|Respirators]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout|Lockout]], [[ventilation|Ventilation]], and [[respirators|Respirators]].
 
 ## When this applies
 
@@ -123,7 +123,6 @@ Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout
 - Test the atmosphere as required before and during entry. {{cite:ohsr-9-25}}
 - Provide a standby person where required by the confined space classification and controls. {{cite:ohsr-9-34}}
 - Provide rescue services before entry where required. {{cite:ohsr-9-37}}
-- Confirm classification, testing frequency, standby level, and rescue requirements against the current regulation before source-checked status. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -181,7 +180,6 @@ Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout
 - [ ] Changing work conditions trigger a permit pause and reassessment.
 - [ ] The prime contractor and affected employers are coordinated when multiple crews are involved.
 - [ ] Records are kept for permits, tests, training, and deficiencies.
-- [ ] Classification and rescue assumptions are source reviewed before maturity changes. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -229,7 +227,7 @@ Use this article with [[confined-space-rescue|Confined Space Rescue]], [[lockout
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

@@ -42,6 +42,8 @@ requiredDocuments:
   - "Safe work procedure"
   - "Training/instruction record"
   - "Waste and containment records"
+  - "Notice of Project for asbestos, lead, or similar exposure work"
+  - "Asbestos work records"
 sourceIds:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
@@ -55,6 +57,15 @@ regulationRefs:
   - "ohsr-20-112"
   - "ohsr-8-32"
   - "ohsr-8-39"
+  - "ohsr-20-2-1"
+  - "ohsr-6-11"
+  - "ohsr-6-25"
+  - "ohsr-6-26"
+  - "ohsr-6-27"
+  - "ohsr-6-28"
+  - "ohsr-6-29"
+  - "ohsr-6-30"
+  - "ohsr-6-32"
 citations:
   - "ohsr-6-4"
   - "ohsr-6-5"
@@ -67,6 +78,7 @@ citations:
   - "worksafebc-ohs-regulation"
   - "worksafebc-ohs-guidelines"
   - "worksafebc-asbestos"
+  - "worksafebc-notice-project"
 related:
   - "hazardous-materials-before-demolition"
   - "demolition-planning"
@@ -103,7 +115,7 @@ Asbestos basics for construction start with a simple rule: do not disturb suspec
 
 The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}
 
-Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]].
 
 ## When this applies
 
@@ -123,8 +135,8 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Control asbestos fibre release during work that could disturb asbestos-containing material. {{cite:ohsr-6-7}}
 - Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}
 - Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}
-- Use appropriate respiratory protection and PPE when required by the asbestos work procedure. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Confirm notification, waste handling, clearance, and documentation requirements. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
+- Use respiratory protection and protective clothing required for the asbestos work classification, procedure, and exposure controls. {{cite:ohsr-6-29}} {{cite:ohsr-6-30}}
+- Confirm whether a WorkSafeBC Notice of Project is required for asbestos, lead, or other similar exposure work activity before work starts. Asbestos waste must be sealed, cleaned, removed under written procedures, and disposed of promptly; required asbestos records must be kept. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}} {{cite:ohsr-6-32}}
 
 ## Best practice
 
@@ -143,7 +155,9 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-6-6}}
 - Safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}
 - Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-6-8}}
-- Waste and containment records: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-20-112}}
+- Notice of Project: confirms whether WorkSafeBC must receive written notice before asbestos, lead, or similar exposure work starts. {{cite:ohsr-20-2-1}} {{cite:worksafebc-notice-project}}
+- Waste and containment records: document sealed containers, cleaning, removal, disposal, and closeout controls for asbestos waste. {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}}
+- Asbestos work records: retain required records such as risk assessments, inspections, air monitoring, worker instruction/training, and incident investigation records. {{cite:ohsr-6-32}}
 
 ## Step-by-step safe procedure
 
@@ -151,12 +165,12 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 2. Review the asbestos inventory, hazardous materials survey, or qualified assessment.
 3. Stop and isolate the area if suspect material is found outside the reviewed scope.
 4. Have qualified personnel assess, classify, and plan the asbestos work. {{cite:ohsr-6-6}}
-5. Prepare the written procedure, containment, access control, PPE, respirators, waste handling, and decontamination method.
+5. Prepare the written procedure, containment, access control, protective clothing, respirators, waste handling, decontamination method, and required Notice of Project documents. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-29}} {{cite:ohsr-6-30}}
 6. Brief workers on what material can be disturbed and what must not be touched.
 7. Set up containment, signage, isolation, and waste controls before disturbance starts.
 8. Monitor the work for damaged containment, dust, debris migration, and unauthorized access.
-9. Clean and dispose of waste according to the reviewed procedure.
-10. Record the scope, assessment, controls, waste handling, clearance if required, and any unexpected material.
+9. Seal, clean, remove, and dispose of asbestos waste according to the written procedure and asbestos waste requirements. {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}}
+10. Record the scope, assessment, controls, waste handling, required notices, asbestos records, and any unexpected material. {{cite:ohsr-6-32}}
 
 ## Worker checklist
 
@@ -182,7 +196,6 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - [ ] Waste and cleanup follow the reviewed procedure.
 - [ ] Records are kept for assessment, procedure, training, waste, and clearance if required.
 - [ ] General dust controls are not substituted for asbestos controls.
-- [ ] Asbestos requirements need official-source confirmation. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -231,7 +244,7 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

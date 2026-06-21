@@ -100,7 +100,7 @@ Occupational first aid requirements tell the employer what first aid resources, 
 
 The useful field test is whether a worker can get first aid quickly, the attendant can be contacted, supplies are available, and transportation has been planned before a serious incident happens. {{cite:ohsr-3-18}}
 
-Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid-room|First Aid Room]], [[cardiac-arrest-on-site|Cardiac Arrest on Site]], and [[site-emergency-response-plan|Site Emergency Response Plan]]. This is a Tier 1 draft pending source review.
 
 ## When this applies
 
@@ -228,7 +228,7 @@ Use this article with [[first-aid-assessment|First Aid Assessment]], [[first-aid
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

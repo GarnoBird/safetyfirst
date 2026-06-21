@@ -102,7 +102,7 @@ Confined space rescue has to be planned before entry because a delayed or improv
 
 Calling emergency services may be part of the plan, but it is not the whole plan unless the site has confirmed the service can respond, access the space, and perform the required rescue in time for the hazard. {{cite:ohsr-9-39}} {{cite:ohsr-9-40}}
 
-Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emergency-response-plan|Site Emergency Response Plan]], and [[occupational-first-aid-requirements|Occupational First Aid Requirements]]. This is a Tier 1 draft pending source review.
 
 ## When this applies
 
@@ -229,7 +229,7 @@ Use this article with [[confined-space-entry|Confined Space Entry]], [[site-emer
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

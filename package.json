@@ -13,6 +13,7 @@
     "harden:wiki-tier2": "node scripts/harden-wiki-tier-two-articles.js",
     "harden:wiki-tier3": "node scripts/harden-wiki-tier-three-articles.js",
     "prep:wiki-ai-review": "node scripts/prep-wiki-ai-review.js",
+    "resolve:wiki-source-review": "node scripts/resolve-wiki-source-review.js",
     "build:wiki-content": "node scripts/build-wiki-content.js",
     "build:wiki-source-notes": "node scripts/write-wiki-source-notes.js",
     "build:wiki-search": "node scripts/build-wiki-search.js",

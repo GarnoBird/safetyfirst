@@ -103,7 +103,7 @@ Crane and hoist safety depends on planning the lift before the load moves. The p
 
 Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.
 
-This Tier 1 draft supports field planning and still needs qualified source review before public-ready use. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This Tier 1 draft supports field planning and still needs qualified source review before public-ready use.
 
 ## When this applies
 
@@ -230,7 +230,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

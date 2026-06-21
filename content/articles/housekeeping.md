@@ -102,7 +102,7 @@ Housekeeping is a production control because poor access, stored material, trail
 
 On site, this topic usually overlaps with [[workplace-inspections]], [[corrective-actions]], [[dust-control-methods]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.
 
-This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist.
 
 ## When this applies
 
@@ -137,14 +137,14 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 
 ## Required documents
 
-- Inspection checklist: records the site-specific control expected before the task starts. {{cite:ohsr-4-1}
-- Corrective action log: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-4-11}
-- Waste/disposal procedure where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-4-12}
-- Exposure control cleanup procedure where required: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-4-13}
-- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-20-9}
-- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-20-10}
-- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-4-1}
-- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-4-11}
+- Inspection checklist: records the site-specific control expected before the task starts. {{cite:ohsr-4-1}}
+- Corrective action log: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-4-11}}
+- Waste/disposal procedure where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-4-12}}
+- Exposure control cleanup procedure where required: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-4-13}}
+- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-20-9}}
+- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-20-10}}
+- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-4-1}}
+- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-4-11}}
 
 ## Step-by-step safe procedure
 
@@ -233,7 +233,7 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm each exact section supports the article's legal bullets.
 - Field reviewer should confirm the checklist fits common BC construction practice.
 

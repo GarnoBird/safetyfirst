@@ -100,7 +100,7 @@ PPE is the backup control, not the whole safety plan. The useful field decision 
 
 On site, this topic usually overlaps with [[hard-hats]], [[eye-and-face-protection]], [[high-visibility-apparel]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.
 
-This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist.
 
 ## When this applies
 
@@ -135,14 +135,14 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 
 ## Required documents
 
-- PPE hazard assessment or procedure: records the site-specific control expected before the task starts. {{cite:ohsr-8-2}
-- Worker instruction record: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-8-3}
-- Inspection/replacement record where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-8-4}
-- Fit test record where required: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-8-7}
-- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-8-32}
-- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-8-39}
-- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-8-2}
-- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-8-3}
+- PPE hazard assessment or procedure: records the site-specific control expected before the task starts. {{cite:ohsr-8-2}}
+- Worker instruction record: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-8-3}}
+- Inspection/replacement record where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-8-4}}
+- Fit test record where required: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-8-7}}
+- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-8-32}}
+- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-8-39}}
+- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-8-2}}
+- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-8-3}}
 
 ## Step-by-step safe procedure
 
@@ -232,7 +232,7 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm each exact section supports the article's legal bullets.
 - Field reviewer should confirm the checklist fits common BC construction practice.
 

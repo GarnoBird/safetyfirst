@@ -104,7 +104,7 @@ Silica exposure control is about preventing workers from breathing respirable cr
 
 Effective control usually combines wet methods, local exhaust, HEPA cleanup, restricted access, training, and a respirator program when respiratory protection is required. Respirators are not a substitute for dust control; they are one part of the system when exposure cannot be controlled another way. {{cite:ohsr-6-111}}
 
-Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [[respirators|Respirators]], and [[dust-control-methods|Dust Control Methods]]. It is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [[respirators|Respirators]], and [[dust-control-methods|Dust Control Methods]].
 
 ## When this applies
 
@@ -125,7 +125,6 @@ Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [
 - Use written work procedures where required to control worker exposure. {{cite:ohsr-5-55}}
 - Use a respiratory protection program when respirators are required as part of the control strategy. {{cite:ohsr-8-32}}
 - Fit test respirators where the regulation requires fit testing for the respirator being used. {{cite:ohsr-8-39}}
-- Confirm current exposure limits, monitoring expectations, and guideline wording before marking this article source checked. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -183,7 +182,6 @@ Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [
 - [ ] Dry sweeping and blowdown are prevented.
 - [ ] Controls are checked during the task, not only at setup.
 - [ ] Waste and slurry are managed without creating new exposure.
-- [ ] Exposure-limit and monitoring assumptions have been source reviewed before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -232,7 +230,7 @@ Use this page with [[wet-cutting|Wet Cutting]], [[hepa-vacuums|HEPA Vacuums]], [
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

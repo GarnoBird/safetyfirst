@@ -100,7 +100,7 @@ Fall arrest is a last-line fall protection system that stops a worker after a fa
 
 A fall arrest setup is only as reliable as the whole chain: harness, connector, lifeline, anchor, clearance, edge protection, compatibility, inspection, and rescue. A single weak part can make the system unsuitable for the work. {{cite:ohsr-11-5}} {{cite:ohsr-11-6}}
 
-Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-points|Anchor Points]], and [[fall-rescue-plan|Fall Rescue Plan]].
 
 ## When this applies
 
@@ -227,7 +227,7 @@ Use this article with [[fall-protection-plan|Fall Protection Plan]], [[anchor-po
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

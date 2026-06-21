@@ -102,7 +102,7 @@ The first aid assessment is the bridge between site risk and first aid services.
 
 On site, this topic usually overlaps with [[occupational-first-aid-requirements]], [[first-aid-room]], [[emergency-transportation]]. Supervisors should brief the work area, the worker instructions, the required documents, and the stop-work triggers before the crew treats the setup as normal production.
 
-This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This page is a Tier 2 draft. It has stronger section-level citations and practical field checks, but all legal wording still needs qualified BC safety/source review before this article is treated as a compliance checklist.
 
 ## When this applies
 
@@ -137,14 +137,14 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 
 ## Required documents
 
-- Written first aid assessment: records the site-specific control expected before the task starts. {{cite:ohsr-3-16}
-- First aid procedures: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-3-17}
-- Emergency transportation plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-3-18}
-- Annual or change-triggered review record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-3-19}
-- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-3-21}
-- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-4-13}
-- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-3-16}
-- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-3-17}
+- Written first aid assessment: records the site-specific control expected before the task starts. {{cite:ohsr-3-16}}
+- First aid procedures: confirms workers have a current instruction source instead of relying on memory. {{cite:ohsr-3-17}}
+- Emergency transportation plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-3-18}}
+- Annual or change-triggered review record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-3-19}}
+- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-3-21}}
+- Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-4-13}}
+- Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-3-16}}
+- Corrective action record when a deficiency is found: creates evidence for the next scheduled safety/source review. {{cite:ohsr-3-17}}
 
 ## Step-by-step safe procedure
 
@@ -237,7 +237,7 @@ This page is a Tier 2 draft. It has stronger section-level citations and practic
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm each exact section supports the article's legal bullets.
 - Field reviewer should confirm the checklist fits common BC construction practice.
 

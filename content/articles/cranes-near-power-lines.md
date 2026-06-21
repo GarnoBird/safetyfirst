@@ -102,8 +102,6 @@ Cranes Near Power Lines is a BC construction safety reference page for crane lif
 
 The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[cranes-and-hoists]], [[lift-plans]], [[electrical-safety-near-power-lines]] so the topic does not sit apart from the rest of the site safety system.
 
-This page remains a Draft support article. It is written in original plain language, but exact legal wording, section references, and field procedure details still need qualified BC safety/source review before the article is treated as public-ready. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
-
 ## When this applies
 
 - The work involves crane lift, boom truck work, concrete pumping, hoisting near lines or the topic affects how the work is planned.
@@ -119,11 +117,7 @@ This page remains a Draft support article. It is written in original plain langu
 - Check the cited WorkSafeBC source and any related official guidance before using this article for site direction. {{cite:ohsr-part-19}}
 - Identify the hazards connected to cranes near power lines and control them before workers are exposed. {{cite:ohsr-part-14}}
 - Provide information, instruction, supervision, equipment, and PPE that match the worker and task. {{cite:ohsr-part-15}}
-- Keep legal requirements separate from best practice, owner rules, manufacturer instructions, and sample procedures. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 - Keep written plans, procedures, inspections, permits, assessments, or records when the source or site condition calls for them. {{cite:ohsr-part-19}}
-- Coordinate overlapping work with the prime contractor, employer, supervisor, affected workers, and nearby trades. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- Stop and reassess the work when a required control is missing, conditions change, or a worker reports an unsafe condition. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
-- A qualified reviewer must confirm exact section wording before this draft is used as a compliance checklist. Reviewer question: confirm this belongs in Legal requirements and is supported by current official BC source material. {{review:source}}
 
 ## Best practice
 
@@ -137,14 +131,14 @@ This page remains a Draft support article. It is written in original plain langu
 
 ## Required documents
 
-- Power line hazard assessment: records the expected control before the task starts. {{cite:ohsr-part-19}
-- Lift plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-14}
-- Utility confirmation/assurance where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-15}
-- Spotter or limits-of-approach procedure: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-part-32}
-- Emergency response procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}
-- Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-high-voltage}
-- Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:bc-hydro-power-line-safety}
-- Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:worksafebc-ohs-guidelines}
+- Power line hazard assessment: records the expected control before the task starts. {{cite:ohsr-part-19}}
+- Lift plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-14}}
+- Utility confirmation/assurance where required: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-15}}
+- Spotter or limits-of-approach procedure: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-part-32}}
+- Emergency response procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}
+- Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-high-voltage}}
+- Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:bc-hydro-power-line-safety}}
+- Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:worksafebc-ohs-guidelines}}
 
 ## Step-by-step safe procedure
 
@@ -183,7 +177,6 @@ This page remains a Draft support article. It is written in original plain langu
 - [ ] Deficiencies have an owner, due time, and interim control.
 - [ ] Changed conditions trigger a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
-- [ ] Source-review flags remain open until a qualified reviewer checks the article. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -235,7 +228,7 @@ This page remains a Draft support article. It is written in original plain langu
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should decide whether this page needs a deeper Tier 1 or Tier 2 treatment later.
 - Field reviewer should confirm that the checklist is useful for the intended construction audience.
 

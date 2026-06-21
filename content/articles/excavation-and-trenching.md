@@ -103,7 +103,7 @@ Excavation and trenching work can change from routine to fatal quickly when soil
 
 A useful excavation plan checks utilities before digging, controls surcharge loads and spoil piles, provides safe access and egress, protects workers from cave-in, and keeps mobile equipment and traffic from adding load or striking workers. {{cite:ohsr-20-79}} {{cite:ohsr-20-86}}
 
-Use this page with [[underground-utilities|Underground Utilities]], [[excavation-spoil-piles|Excavation Spoil Piles]], [[traffic-control|Traffic Control]], and [[mobile-equipment|Mobile Equipment]]. This Tier 1 draft needs qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this page with [[underground-utilities|Underground Utilities]], [[excavation-spoil-piles|Excavation Spoil Piles]], [[traffic-control|Traffic Control]], and [[mobile-equipment|Mobile Equipment]].
 
 ## When this applies
 
@@ -182,7 +182,6 @@ Use this page with [[underground-utilities|Underground Utilities]], [[excavation
 - [ ] The excavation is inspected after weather, vibration, water, or work sequence changes.
 - [ ] Emergency response is realistic for entrapment, utility strike, and restricted access.
 - [ ] Deficiencies have interim controls and assigned follow-up.
-- [ ] Exact regulatory thresholds and exemptions are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -230,7 +229,7 @@ Use this page with [[underground-utilities|Underground Utilities]], [[excavation
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

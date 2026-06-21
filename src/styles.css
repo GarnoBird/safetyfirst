@@ -4122,7 +4122,7 @@ p {
 
 .wiki-review-preset-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 10px;
 }
@@ -4144,6 +4144,11 @@ p {
 .wiki-review-preset.active {
   border-color: #36c;
   background: #f8fbff;
+}
+
+.wiki-review-preset.active:last-child {
+  border-color: #a33;
+  background: #fff8f8;
 }
 
 .wiki-review-context-actions {
@@ -4202,6 +4207,27 @@ p {
 .wiki-review-preset small {
   color: #54595d;
   font-size: 0.82rem;
+}
+
+.wiki-pending-review-edit {
+  border-left: 3px solid #36c;
+  margin: 7px 0 2px;
+  padding: 6px 9px;
+  color: #202122;
+  background: #f8fbff;
+}
+
+.wiki-pending-review-edit.remove {
+  border-left-color: #a33;
+  background: #fff8f8;
+}
+
+.wiki-review-edit-list {
+  margin-top: 8px;
+}
+
+.wiki-item-pending-change {
+  background: #f8fbff;
 }
 
 .wiki-tool-grid {

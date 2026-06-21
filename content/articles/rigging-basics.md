@@ -102,7 +102,7 @@ Rigging is the connection between the load and the crane, hoist, forklift attach
 
 Basic rigging work still requires competent judgement. A worker needs to know the load weight, center of gravity, sling angle, condition of rigging, communication method, and where people will stand before the lift starts. {{cite:ohsr-15-2}}
 
-Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift Plans]], and [[material-handling|Material Handling]].
 
 ## When this applies
 
@@ -181,7 +181,6 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - [ ] Workers are protected from suspended loads and landing pinch points.
 - [ ] Tag lines, if used, can be handled from a safe position.
 - [ ] Lift changes trigger a pause and review.
-- [ ] Rejection criteria and legal wording are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -229,7 +228,7 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

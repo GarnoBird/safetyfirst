@@ -103,7 +103,7 @@ Power-line work is high risk because workers and equipment can be injured withou
 
 The field control starts by identifying overhead and nearby high-voltage conductors, establishing limits, getting required assurances or authorizations, and keeping mobile equipment, loads, and workers out of the danger zone. {{cite:ohsr-19-25}}
 
-Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cranes-and-hoists|Cranes and Hoists]], [[mobile-equipment|Mobile Equipment]], and [[temporary-power|Temporary Power]]. This is a Tier 1 draft pending source review.
 
 ## When this applies
 
@@ -182,7 +182,6 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - [ ] Crane, rigging, and delivery plans address power-line exposure.
 - [ ] Controls are rechecked when equipment moves or conditions change.
 - [ ] Records are kept for authorization, briefing, and deficiencies.
-- [ ] Distance and authorization wording is source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -230,7 +229,7 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

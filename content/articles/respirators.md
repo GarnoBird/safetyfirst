@@ -105,7 +105,7 @@ Respirators protect workers only when the right respirator is selected, fitted, 
 
 Respirators should follow exposure control, not replace it. For tasks like concrete cutting, asbestos disturbance, lead work, or chemical use, the employer still needs to control the source and work method before relying on respiratory protection. {{cite:ohsr-5-54}}
 
-Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]]. This is a Tier 1 draft pending qualified source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[ppe-basics|PPE Basics]], and [[whmis-basics|WHMIS Basics]].
 
 ## When this applies
 
@@ -233,7 +233,7 @@ Use this page with [[silica-exposure-control|Silica Exposure Control]], [[asbest
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

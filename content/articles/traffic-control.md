@@ -103,7 +103,7 @@ Traffic control protects workers, drivers, pedestrians, cyclists, and the public
 
 Good traffic control is not just placing cones. It includes risk assessment, a traffic control plan where required, supervision, device placement, trained traffic control persons, pedestrian detours, delivery coordination, lighting, and high-visibility apparel. {{cite:ohsr-18-3-1}} {{cite:ohsr-18-3-2}}
 
-Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-control-persons|Traffic Control Persons]], [[mobile-equipment|Mobile Equipment]], and [[hoarding-and-public-protection|Hoarding and Public Protection]]. This is a Tier 1 draft pending source review.
 
 ## When this applies
 
@@ -182,7 +182,6 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - [ ] Deliveries, concrete pours, crane picks, and emergency access are coordinated.
 - [ ] The setup is inspected after weather, darkness, traffic changes, or device movement.
 - [ ] Incidents and near misses trigger plan review.
-- [ ] Current road authority and training requirements are source checked before public-ready status. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. Reviewer question: confirm this supervisor checklist item matches BC supervisory duties and site practice. {{review:source}}
 
 ## Common mistakes
 
@@ -230,7 +229,7 @@ Use this page with [[traffic-control-plans|Traffic Control Plans]], [[traffic-co
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 

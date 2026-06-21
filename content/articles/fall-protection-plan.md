@@ -99,7 +99,7 @@ A fall protection plan is the site-specific explanation of how a crew will contr
 
 The useful version is short enough to brief at the work face and specific enough that a worker can find the anchor, understand the travel limit, and know when to stop. A plan that only says '100 percent tie off' is not enough if it does not explain anchors, clearance, swing-fall risk, equipment inspection, and rescue. {{cite:ohsr-11-6}}
 
-This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist. Reviewer question: confirm this summary is accurate, current, and does not overstate legal certainty. {{review:source}}
+This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arrest]], and [[fall-rescue-plan|Fall Rescue Plan]]. It is still a draft and needs qualified source review before being used as a legal checklist.
 
 ## When this applies
 
@@ -226,7 +226,7 @@ This page supports [[fall-protection|Fall Protection]], [[fall-arrest|Fall Arres
 - Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?
 ## Reviewer notes
 
-- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity. Reviewer task: confirm remaining article-level source-review flags before changing maturity. {{review:source}}
+- Source/legal reviewer must verify all cited legal claims, source notes, and unresolved source-review flags before changing article maturity.
 - Reviewer should confirm that legal bullets paraphrase the cited source accurately and do not overstate the law.
 - Field reviewer should confirm the checklist fits BC construction site practice for the intended audience.
 
