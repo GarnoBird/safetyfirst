@@ -18,6 +18,8 @@
     "build:wiki-source-notes": "node scripts/write-wiki-source-notes.js",
     "build:wiki-search": "node scripts/build-wiki-search.js",
     "build:wiki-review-issues": "node scripts/build-wiki-review-issues.js",
+    "propose:wiki-links": "node scripts/propose-wiki-links.js",
+    "propose:wiki-missing-topics": "node scripts/propose-wiki-missing-topics.js",
     "verify:wiki-links": "node scripts/verify-wiki-links.js",
     "verify:wiki-depth": "node scripts/verify-wiki-depth.js",
     "verify:wiki-copy": "node scripts/verify-wiki-copy.js",
