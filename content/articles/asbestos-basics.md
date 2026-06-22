@@ -111,7 +111,7 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}
+Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, [[roof-work|roofing]], siding, and many other materials. {{cite:ohsr-6-5}}
 
 The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}
 
@@ -136,11 +136,11 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}
 - Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}
 - Use respiratory protection and protective clothing required for the asbestos work classification, procedure, and exposure controls. {{cite:ohsr-6-29}} {{cite:ohsr-6-30}}
-- Confirm whether a WorkSafeBC Notice of Project is required for asbestos, lead, or other similar exposure work activity before work starts. Asbestos waste must be sealed, cleaned, removed under written procedures, and disposed of promptly; required asbestos records must be kept. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}} {{cite:ohsr-6-32}}
+- Confirm whether a WorkSafeBC [[notice-of-project|Notice of Project]] is required for asbestos, lead, or other similar exposure work activity before work starts. Asbestos waste must be sealed, cleaned, removed under written procedures, and disposed of promptly; required asbestos records must be kept. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}} {{cite:ohsr-6-32}}
 
 ## Best practice
 
-- Stop work immediately when suspect material is discovered outside the reviewed scope.
+- [[refusal-of-unsafe-work|Stop work]] immediately when suspect material is discovered outside the reviewed scope.
 - Keep the survey or inventory available to the supervisor and workers doing intrusive work.
 - Mark known asbestos areas so workers do not drill, cut, scrape, or disturb them by mistake.
 - Use qualified asbestos contractors for work that requires specialized containment, procedures, or clearance.
@@ -153,11 +153,11 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 - Asbestos inventory: records the site-specific control expected before the task starts. {{cite:ohsr-6-4}}
 - Qualified assessment: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-6-5}}
 - Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-6-6}}
-- Safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}
+- Safe work procedure: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}
 - Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-6-8}}
 - Notice of Project: confirms whether WorkSafeBC must receive written notice before asbestos, lead, or similar exposure work starts. {{cite:ohsr-20-2-1}} {{cite:worksafebc-notice-project}}
 - Waste and containment records: document sealed containers, cleaning, removal, disposal, and closeout controls for asbestos waste. {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}}
-- Asbestos work records: retain required records such as risk assessments, inspections, air monitoring, worker instruction/training, and incident investigation records. {{cite:ohsr-6-32}}
+- Asbestos work records: retain required records such as risk assessments, inspections, [[air-monitoring|air monitoring]], worker instruction/training, and [[incident-investigation|incident investigation]] records. {{cite:ohsr-6-32}}
 
 ## Step-by-step safe procedure
 
@@ -201,12 +201,12 @@ Use this article with [[hazardous-materials-before-demolition|Hazardous Material
 
 - Assuming material is asbestos-free because it is hidden, painted, or not labelled.
 - Starting demolition before the hazardous materials review is complete.
-- Using silica dust methods for asbestos work without asbestos-specific review.
+- Using [[silica-exposure-control|silica dust]] methods for asbestos work without asbestos-specific review.
 - Letting another trade drill or cut through suspect materials after the area was cleared for a different scope.
 - Collecting samples or handling debris without qualification or procedure.
 - Forgetting asbestos in mastics, drywall compound, floor tile, roofing, pipe insulation, and fireproofing.
 - Failing to update the scope when hidden layers are exposed.
-- Treating cleanup as general housekeeping instead of controlled contamination work.
+- Treating cleanup as general [[housekeeping|housekeeping]] instead of controlled contamination work.
 
 ## Related topics
 

@@ -105,7 +105,7 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, exclusion zones, weather, and nearby power lines. {{cite:ohsr-14-2}}
+Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, [[exclusion-zone|exclusion zones]], weather, and nearby power lines. {{cite:ohsr-14-2}}
 
 Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.
 
@@ -115,7 +115,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 
 - A tower crane, mobile crane, boom truck, material hoist, personnel hoist, or other hoisting equipment will move a load.
 - Workers are rigging, signalling, receiving, landing, unhooking, or working near a suspended load.
-- A load path crosses trades, public areas, hoarding, traffic, scaffolds, or occupied work zones.
+- A load path crosses trades, public areas, hoarding, traffic, [[scaffolds|scaffolds]], or occupied work zones.
 - The crane is near overhead power lines or energized equipment.
 - A pick may be affected by wind, blind spots, radios, multiple signal persons, or limited landing area.
 - The lift is unusual, heavy, critical, awkward, tandem, or outside routine site practice.
@@ -147,7 +147,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 - Lift plan: records the site-specific control expected before the task starts. {{cite:ohsr-14-2}}
 - Crane certification record: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-14-16}}
 - Operator qualification record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-14-17}}
-- Rigging inspection record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-15-2}}
+- Rigging inspection record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-15-2}}
 - Communication plan: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-15-20}}
 - Equipment inspection record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-15-31}}
 

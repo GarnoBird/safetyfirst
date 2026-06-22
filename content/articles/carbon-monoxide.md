@@ -106,7 +106,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.
 - A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.
 - Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.
-- An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.
+- An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.
 - A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents.
 
 ## Legal requirements
@@ -120,7 +120,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 
 - Start with the actual site condition and crew, then choose the control and document set that match that condition.
 - Use the most protective practical control before relying on reminders, signs, or PPE alone.
-- Name the person who can approve field changes and the condition that triggers a stop-work pause.
+- Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.
 - Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.
 - Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.
 - Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.
@@ -132,7 +132,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - Air monitoring record: shows the crew had a current instruction source for the work. {{cite:ohsr-part-9}}
 - Ventilation plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-20}}
 - Equipment maintenance record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-part-32}}
-- Worker instruction record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}
+- Worker instruction record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}
 - Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-carbon-monoxide}}
 - Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:bccsa}}
 - Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:worksafebc-ohs-guidelines}}

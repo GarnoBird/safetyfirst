@@ -148,7 +148,7 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 - Rigging inspection record: records the site-specific control expected before the task starts. {{cite:ohsr-15-2}}
 - Lift plan: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-15-3}}
 - Manufacturer instructions: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-15-4}}
-- Training/competency record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-15-20}}
+- Training/competency record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-15-20}}
 - Load weight information: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-15-31}}
 - Deficiency log: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-14-2}}
 
@@ -158,7 +158,7 @@ Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[lift-plans|Lift
 2. Select rigging with suitable capacity, hitch, length, angle, and compatibility.
 3. Inspect slings, shackles, hooks, latches, pins, tags, stitching, links, and hardware before use.
 4. Protect rigging from sharp edges, heat, chemicals, and abrasion.
-5. Confirm the signal person, communication method, and exclusion zone.
+5. Confirm the signal person, communication method, and [[exclusion-zone|exclusion zone]].
 6. Connect rigging so the load lifts level or as planned.
 7. Lift a few inches and check balance, security, clearances, and worker position.
 8. Keep clear of suspended loads and pinch points during travel and landing.

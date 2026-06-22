@@ -101,7 +101,7 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.
+Air monitoring is the planned measurement of airborne hazards such as respirable [[silica-exposure-control|silica dust]], asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.
 
 Air monitoring is not a guess, a dust photo, or a one-time comfort check. The method, equipment, sampling time, worker group, lab analysis, and interpretation must match the substance and the work. On higher-risk work, a qualified occupational hygiene or safety reviewer may be needed to decide what monitoring is required and what the results mean.
 
@@ -122,7 +122,7 @@ Use this article with [[silica-exposure-control|Silica Exposure Control]], [[asb
 - Assess hazardous-substance risks before workers are exposed and keep the assessment tied to the actual work. {{cite:ohsr-5-100}}
 - Follow substance-specific requirements that apply to the material, such as asbestos, lead, silica, carbon monoxide, or another regulated exposure. {{cite:ohsr-part-6}}
 - For asbestos work, have the work assessed and classified so the controls match the risk. {{cite:ohsr-6-6}}
-- Keep required asbestos records, including records connected to assessments, inspections, air monitoring, worker instruction, and incident investigation where they apply. {{cite:ohsr-6-32}}
+- Keep required asbestos records, including records connected to assessments, inspections, air monitoring, worker instruction, and [[incident-investigation|incident investigation]] where they apply. {{cite:ohsr-6-32}}
 - Select, use, and maintain respiratory protection that matches the hazard and work conditions. {{cite:ohsr-8-39}}
 - Use current WorkSafeBC regulatory and guideline material before treating a sampling result or exposure estimate as proof of compliance. {{cite:worksafebc-ohs-regulation}} {{cite:worksafebc-ohs-guidelines}}
 

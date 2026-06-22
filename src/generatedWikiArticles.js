@@ -139,6 +139,9 @@ export const generatedWikiArticles = [
       "cardiac-arrest-on-site",
       "occupational-first-aid-requirements",
       "first-aid-assessment",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "first-aid-room",
       "site-emergency-response-plan",
       "site-orientation",
@@ -159,6 +162,9 @@ export const generatedWikiArticles = [
       "cardiac-arrest-on-site",
       "occupational-first-aid-requirements",
       "first-aid-assessment",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "first-aid-room",
       "site-emergency-response-plan",
       "site-orientation",
@@ -301,7 +307,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -312,7 +318,7 @@ export const generatedWikiArticles = [
         "AED location map: shows the crew had a current instruction source for the work. {{cite:ohsr-part-32}}",
         "Emergency response procedure: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:worksafebc-ohs-regulation}}",
         "First aid assessment note: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-first-aid-requirements}}",
-        "Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:heart-stroke-cpr}}",
+        "Site-specific safe work procedure: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:heart-stroke-cpr}}",
         "Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}",
         "Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-3}}",
         "Corrective action record when a deficiency is found: creates a review trail for the next source or safety check. {{cite:ohsr-part-32}}"
@@ -347,7 +353,7 @@ export const generatedWikiArticles = [
         "Required documents are current and match the actual site condition.",
         "Workers are trained, instructed, supervised, or otherwise competent for the assigned work.",
         "Controls are installed before work starts and checked while work continues.",
-        "Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.",
+        "Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.",
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information."
@@ -369,9 +375,9 @@ export const generatedWikiArticles = [
     "slug": "air-monitoring",
     "title": "Air Monitoring",
     "category": "Health Hazards",
-    "summary": "Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
+    "summary": "Air monitoring is the planned measurement of airborne hazards such as respirable [[silica-exposure-control|silica dust]], asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
     "summaryParagraphs": [
-      "Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
+      "Air monitoring is the planned measurement of airborne hazards such as respirable [[silica-exposure-control|silica dust]], asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
       "Air monitoring is not a guess, a dust photo, or a one-time comfort check. The method, equipment, sampling time, worker group, lab analysis, and interpretation must match the substance and the work. On higher-risk work, a qualified occupational hygiene or safety reviewer may be needed to decide what monitoring is required and what the results mean.",
       "Use this article with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[lead-exposure-control|Lead Exposure Control]], [[carbon-monoxide|Carbon Monoxide]], [[ventilation|Ventilation]], and [[respirators|Respirators]]."
     ],
@@ -567,6 +573,7 @@ export const generatedWikiArticles = [
       "carbon-monoxide",
       "ventilation",
       "respirators",
+      "incident-investigation",
       "dust-control-methods",
       "wet-cutting",
       "hepa-vacuums",
@@ -581,6 +588,7 @@ export const generatedWikiArticles = [
       "carbon-monoxide",
       "ventilation",
       "respirators",
+      "incident-investigation",
       "dust-control-methods",
       "wet-cutting",
       "hepa-vacuums",
@@ -689,7 +697,7 @@ export const generatedWikiArticles = [
         "Assess hazardous-substance risks before workers are exposed and keep the assessment tied to the actual work. {{cite:ohsr-5-100}}",
         "Follow substance-specific requirements that apply to the material, such as asbestos, lead, silica, carbon monoxide, or another regulated exposure. {{cite:ohsr-part-6}}",
         "For asbestos work, have the work assessed and classified so the controls match the risk. {{cite:ohsr-6-6}}",
-        "Keep required asbestos records, including records connected to assessments, inspections, air monitoring, worker instruction, and incident investigation where they apply. {{cite:ohsr-6-32}}",
+        "Keep required asbestos records, including records connected to assessments, inspections, air monitoring, worker instruction, and [[incident-investigation|incident investigation]] where they apply. {{cite:ohsr-6-32}}",
         "Select, use, and maintain respiratory protection that matches the hazard and work conditions. {{cite:ohsr-8-39}}",
         "Use current WorkSafeBC regulatory and guideline material before treating a sampling result or exposure estimate as proof of compliance. {{cite:worksafebc-ohs-regulation}} {{cite:worksafebc-ohs-guidelines}}"
       ],
@@ -855,6 +863,10 @@ export const generatedWikiArticles = [
       "fall-protection",
       "fall-arrest",
       "fall-restraint",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "fall-protection-plan",
       "site-specific-safety-plan",
       "supervisor-duties",
@@ -868,13 +880,16 @@ export const generatedWikiArticles = [
       "training-records",
       "toolbox-talks",
       "worker-rights-and-responsibilities",
-      "prime-contractor-duties",
       "occupational-first-aid-requirements"
     ],
     "outboundArticleLinks": [
       "fall-protection",
       "fall-arrest",
       "fall-restraint",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "fall-protection-plan",
       "site-specific-safety-plan",
       "supervisor-duties",
@@ -888,7 +903,6 @@ export const generatedWikiArticles = [
       "training-records",
       "toolbox-talks",
       "worker-rights-and-responsibilities",
-      "prime-contractor-duties",
       "occupational-first-aid-requirements"
     ],
     "backlinks": [
@@ -1009,7 +1023,7 @@ export const generatedWikiArticles = [
         "A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.",
         "A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.",
         "Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.",
-        "An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.",
+        "An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.",
         "A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents."
       ],
       "legalRequirements": [
@@ -1021,7 +1035,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -1032,7 +1046,7 @@ export const generatedWikiArticles = [
         "Manufacturer or engineering instructions: shows the crew had a current instruction source for the work. {{cite:worksafebc-ohs-regulation}}",
         "Site-specific safe work procedure: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:worksafebc-ohs-guidelines}}",
         "Worker instruction or training record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-part-11}}",
-        "Inspection or pre-use check record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}",
+        "Inspection or pre-use check record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}",
         "Corrective action record when a deficiency is found: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}"
       ],
       "procedure": [
@@ -1065,7 +1079,7 @@ export const generatedWikiArticles = [
         "Required documents are current and match the actual site condition.",
         "Workers are trained, instructed, supervised, or otherwise competent for the assigned work.",
         "Controls are installed before work starts and checked while work continues.",
-        "Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.",
+        "Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.",
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information."
@@ -1087,9 +1101,9 @@ export const generatedWikiArticles = [
     "slug": "asbestos-basics",
     "title": "Asbestos Basics",
     "category": "Health Hazards",
-    "summary": "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}",
+    "summary": "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, [[roof-work|roofing]], siding, and many other materials. {{cite:ohsr-6-5}}",
     "summaryParagraphs": [
-      "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, roofing, siding, and many other materials. {{cite:ohsr-6-5}}",
+      "Asbestos basics for construction start with a simple rule: do not disturb suspect material until it has been identified and the work is planned by people qualified for that work. In older buildings, asbestos can be in drywall compound, vinyl tile, mastics, insulation, fireproofing, pipe wrap, [[roof-work|roofing]], siding, and many other materials. {{cite:ohsr-6-5}}",
       "The key field decision is not whether the material looks dangerous; it is whether the employer has an inventory or assessment, whether the work classification and controls match the material, and whether workers are trained for the method. {{cite:ohsr-6-6}}",
       "Use this article with [[hazardous-materials-before-demolition|Hazardous Materials Before Demolition]], [[respirators|Respirators]], [[demolition-planning|Demolition Planning]], and [[whmis-basics|WHMIS Basics]]."
     ],
@@ -1376,30 +1390,44 @@ export const generatedWikiArticles = [
     ],
     "sourceReviewFlagCount": 0,
     "wikiLinks": [
+      "roof-work",
       "hazardous-materials-before-demolition",
       "respirators",
       "demolition-planning",
       "whmis-basics",
+      "notice-of-project",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "air-monitoring",
+      "incident-investigation",
+      "silica-exposure-control",
+      "housekeeping",
       "ppe-basics",
       "lead-exposure-control",
       "mould-in-restoration",
       "ventilation",
-      "air-monitoring",
       "hepa-vacuums",
       "site-specific-safety-plan",
       "training-records",
       "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
+      "roof-work",
       "hazardous-materials-before-demolition",
       "respirators",
       "demolition-planning",
       "whmis-basics",
+      "notice-of-project",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "air-monitoring",
+      "incident-investigation",
+      "silica-exposure-control",
+      "housekeeping",
       "ppe-basics",
       "lead-exposure-control",
       "mould-in-restoration",
       "ventilation",
-      "air-monitoring",
       "hepa-vacuums",
       "site-specific-safety-plan",
       "training-records",
@@ -1555,10 +1583,10 @@ export const generatedWikiArticles = [
         "Use written asbestos procedures where required by the regulation. {{cite:ohsr-6-8}}",
         "Before demolition or renovation, identify hazardous materials as required by construction and demolition provisions. {{cite:ohsr-20-112}}",
         "Use respiratory protection and protective clothing required for the asbestos work classification, procedure, and exposure controls. {{cite:ohsr-6-29}} {{cite:ohsr-6-30}}",
-        "Confirm whether a WorkSafeBC Notice of Project is required for asbestos, lead, or other similar exposure work activity before work starts. Asbestos waste must be sealed, cleaned, removed under written procedures, and disposed of promptly; required asbestos records must be kept. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}} {{cite:ohsr-6-32}}"
+        "Confirm whether a WorkSafeBC [[notice-of-project|Notice of Project]] is required for asbestos, lead, or other similar exposure work activity before work starts. Asbestos waste must be sealed, cleaned, removed under written procedures, and disposed of promptly; required asbestos records must be kept. {{cite:ohsr-20-2-1}} {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}} {{cite:ohsr-6-32}}"
       ],
       "bestPractice": [
-        "Stop work immediately when suspect material is discovered outside the reviewed scope.",
+        "[[refusal-of-unsafe-work|Stop work]] immediately when suspect material is discovered outside the reviewed scope.",
         "Keep the survey or inventory available to the supervisor and workers doing intrusive work.",
         "Mark known asbestos areas so workers do not drill, cut, scrape, or disturb them by mistake.",
         "Use qualified asbestos contractors for work that requires specialized containment, procedures, or clearance.",
@@ -1570,11 +1598,11 @@ export const generatedWikiArticles = [
         "Asbestos inventory: records the site-specific control expected before the task starts. {{cite:ohsr-6-4}}",
         "Qualified assessment: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-6-5}}",
         "Exposure control plan: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-6-6}}",
-        "Safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}",
+        "Safe work procedure: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-6-7}}",
         "Training/instruction record: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-6-8}}",
         "Notice of Project: confirms whether WorkSafeBC must receive written notice before asbestos, lead, or similar exposure work starts. {{cite:ohsr-20-2-1}} {{cite:worksafebc-notice-project}}",
         "Waste and containment records: document sealed containers, cleaning, removal, disposal, and closeout controls for asbestos waste. {{cite:ohsr-6-25}} {{cite:ohsr-6-26}} {{cite:ohsr-6-27}} {{cite:ohsr-6-28}}",
-        "Asbestos work records: retain required records such as risk assessments, inspections, air monitoring, worker instruction/training, and incident investigation records. {{cite:ohsr-6-32}}"
+        "Asbestos work records: retain required records such as risk assessments, inspections, [[air-monitoring|air monitoring]], worker instruction/training, and [[incident-investigation|incident investigation]] records. {{cite:ohsr-6-32}}"
       ],
       "procedure": [
         "Confirm the building age, work scope, and whether any material will be disturbed.",
@@ -1614,12 +1642,12 @@ export const generatedWikiArticles = [
       "commonMistakes": [
         "Assuming material is asbestos-free because it is hidden, painted, or not labelled.",
         "Starting demolition before the hazardous materials review is complete.",
-        "Using silica dust methods for asbestos work without asbestos-specific review.",
+        "Using [[silica-exposure-control|silica dust]] methods for asbestos work without asbestos-specific review.",
         "Letting another trade drill or cut through suspect materials after the area was cleared for a different scope.",
         "Collecting samples or handling debris without qualification or procedure.",
         "Forgetting asbestos in mastics, drywall compound, floor tile, roofing, pipe insulation, and fireproofing.",
         "Failing to update the scope when hidden layers are exposed.",
-        "Treating cleanup as general housekeeping instead of controlled contamination work."
+        "Treating cleanup as general [[housekeeping|housekeeping]] instead of controlled contamination work."
       ]
     },
     "markdownPath": "content/articles/asbestos-basics.md"
@@ -1787,6 +1815,9 @@ export const generatedWikiArticles = [
       "ventilation",
       "confined-space-entry",
       "mobile-equipment",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
       "air-monitoring",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
@@ -1807,6 +1838,9 @@ export const generatedWikiArticles = [
       "ventilation",
       "confined-space-entry",
       "mobile-equipment",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
       "air-monitoring",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
@@ -1913,7 +1947,7 @@ export const generatedWikiArticles = [
         "A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.",
         "A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.",
         "Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.",
-        "An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.",
+        "An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.",
         "A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents."
       ],
       "legalRequirements": [
@@ -1925,7 +1959,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -1936,7 +1970,7 @@ export const generatedWikiArticles = [
         "Air monitoring record: shows the crew had a current instruction source for the work. {{cite:ohsr-part-9}}",
         "Ventilation plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-20}}",
         "Equipment maintenance record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:ohsr-part-32}}",
-        "Worker instruction record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}",
+        "Worker instruction record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-regulation}}",
         "Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-carbon-monoxide}}",
         "Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:bccsa}}",
         "Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:worksafebc-ohs-guidelines}}"
@@ -2115,6 +2149,9 @@ export const generatedWikiArticles = [
       "occupational-first-aid-requirements",
       "site-emergency-response-plan",
       "site-orientation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "incident-investigation",
       "fall-rescue-plan",
       "first-aid-assessment",
@@ -2135,6 +2172,9 @@ export const generatedWikiArticles = [
       "occupational-first-aid-requirements",
       "site-emergency-response-plan",
       "site-orientation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "incident-investigation",
       "fall-rescue-plan",
       "first-aid-assessment",
@@ -2305,7 +2345,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -2316,7 +2356,7 @@ export const generatedWikiArticles = [
         "Emergency response plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-32}}",
         "First aid record: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:worksafebc-ohs-regulation}}",
         "Site-specific safe work procedure: keeps the field method tied to the actual hazard, equipment, and location. {{cite:heart-stroke-cpr}}",
-        "Worker instruction or training record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}",
+        "Worker instruction or training record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}",
         "Inspection or pre-use check record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-part-3}}",
         "Corrective action record when a deficiency is found: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-32}}"
       ],
@@ -2350,7 +2390,7 @@ export const generatedWikiArticles = [
         "Required documents are current and match the actual site condition.",
         "Workers are trained, instructed, supervised, or otherwise competent for the assigned work.",
         "Controls are installed before work starts and checked while work continues.",
-        "Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.",
+        "Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.",
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information."
@@ -2372,9 +2412,9 @@ export const generatedWikiArticles = [
     "slug": "cold-stress",
     "title": "Cold Stress",
     "category": "Health Hazards",
-    "summary": "Cold Stress is a BC construction safety reference page for outdoor work, night work, roof work, concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
+    "summary": "Cold Stress is a BC construction safety reference page for outdoor work, night work, [[roof-work|roof work]], concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
     "summaryParagraphs": [
-      "Cold Stress is a BC construction safety reference page for outdoor work, night work, roof work, concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
+      "Cold Stress is a BC construction safety reference page for outdoor work, night work, [[roof-work|roof work]], concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.",
       "The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-emergency-response-plan]], [[occupational-first-aid-requirements]], [[first-aid-assessment]] so the topic does not sit apart from the rest of the site safety system."
     ],
     "jurisdiction": "BC",
@@ -2509,9 +2549,14 @@ export const generatedWikiArticles = [
     ],
     "sourceReviewFlagCount": 0,
     "wikiLinks": [
+      "roof-work",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
       "first-aid-assessment",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "site-orientation",
       "traffic-control",
       "silica-exposure-control",
@@ -2529,9 +2574,14 @@ export const generatedWikiArticles = [
       "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
+      "roof-work",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
       "first-aid-assessment",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "prime-contractor-duties",
+      "mobile-equipment",
       "site-orientation",
       "traffic-control",
       "silica-exposure-control",
@@ -2634,7 +2684,7 @@ export const generatedWikiArticles = [
         "A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.",
         "A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.",
         "Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.",
-        "An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.",
+        "An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.",
         "A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents."
       ],
       "legalRequirements": [
@@ -2646,7 +2696,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -2657,7 +2707,7 @@ export const generatedWikiArticles = [
         "Warm-up/rest plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-3}}",
         "Emergency response procedure: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-32}}",
         "Worker instruction record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}",
-        "Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-cold-stress}}",
+        "Site-specific safe work procedure: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-cold-stress}}",
         "Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}",
         "Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-7}}",
         "Corrective action record when a deficiency is found: creates a review trail for the next source or safety check. {{cite:ohsr-part-3}}"
@@ -2692,7 +2742,7 @@ export const generatedWikiArticles = [
         "Required documents are current and match the actual site condition.",
         "Workers are trained, instructed, supervised, or otherwise competent for the assigned work.",
         "Controls are installed before work starts and checked while work continues.",
-        "Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.",
+        "Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.",
         "Deficiencies have an owner, due time, and interim control.",
         "Changed conditions trigger a pause and review before work continues.",
         "Records are kept without collecting unnecessary personal information."
@@ -3205,6 +3255,10 @@ export const generatedWikiArticles = [
       "falsework",
       "concrete-pumping",
       "leading-edge-work",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "fall-protection-plan",
+      "prime-contractor-duties",
       "floor-openings-and-covers",
       "fall-protection",
       "rebar-impalement-protection",
@@ -3218,13 +3272,16 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "prime-contractor-duties"
+      "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
       "falsework",
       "concrete-pumping",
       "leading-edge-work",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
+      "fall-protection-plan",
+      "prime-contractor-duties",
       "floor-openings-and-covers",
       "fall-protection",
       "rebar-impalement-protection",
@@ -3238,8 +3295,7 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "prime-contractor-duties"
+      "worker-rights-and-responsibilities"
     ],
     "backlinks": [
       {
@@ -3343,7 +3399,7 @@ export const generatedWikiArticles = [
         "A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.",
         "A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.",
         "Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.",
-        "An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.",
+        "An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.",
         "A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents."
       ],
       "legalRequirements": [
@@ -3355,7 +3411,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -3365,8 +3421,8 @@ export const generatedWikiArticles = [
         "Formwork drawings/specifications where required: records the expected control before the task starts. {{cite:ohsr-part-20}}",
         "Engineering instructions where required: shows the crew had a current instruction source for the work. {{cite:ohsr-part-11}}",
         "Inspection record before pour: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-13}}",
-        "Fall protection plan: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}",
-        "Pour plan: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-prevention-manual}}",
+        "[[fall-protection-plan|Fall protection plan]]: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}",
+        "Pour plan: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-prevention-manual}}",
         "Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}",
         "Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-20}}",
         "Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:ohsr-part-11}}"
@@ -3562,7 +3618,10 @@ export const generatedWikiArticles = [
       "mobile-equipment",
       "traffic-control",
       "electrical-safety-near-power-lines",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
       "exclusion-zone",
+      "prime-contractor-duties",
       "concrete-formwork",
       "rebar-impalement-protection",
       "site-specific-safety-plan",
@@ -3575,14 +3634,16 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "prime-contractor-duties"
+      "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
       "mobile-equipment",
       "traffic-control",
       "electrical-safety-near-power-lines",
+      "incident-investigation",
+      "refusal-of-unsafe-work",
       "exclusion-zone",
+      "prime-contractor-duties",
       "concrete-formwork",
       "rebar-impalement-protection",
       "site-specific-safety-plan",
@@ -3595,8 +3656,7 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "prime-contractor-duties"
+      "worker-rights-and-responsibilities"
     ],
     "backlinks": [
       {
@@ -3704,7 +3764,7 @@ export const generatedWikiArticles = [
         "A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.",
         "A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.",
         "Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.",
-        "An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.",
+        "An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.",
         "A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents."
       ],
       "legalRequirements": [
@@ -3716,7 +3776,7 @@ export const generatedWikiArticles = [
       "bestPractice": [
         "Start with the actual site condition and crew, then choose the control and document set that match that condition.",
         "Use the most protective practical control before relying on reminders, signs, or PPE alone.",
-        "Name the person who can approve field changes and the condition that triggers a stop-work pause.",
+        "Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.",
         "Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.",
         "Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.",
         "Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.",
@@ -3726,8 +3786,8 @@ export const generatedWikiArticles = [
         "Concrete pump pre-use inspection: records the expected control before the task starts. {{cite:ohsr-part-20}}",
         "Operator competency/certification record where required: shows the crew had a current instruction source for the work. {{cite:ohsr-part-16}}",
         "Pour plan: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-19}}",
-        "Exclusion zone plan: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}",
-        "Traffic or delivery plan: helps the prime contractor and affected trades coordinate overlapping work. {{cite:bccsa}}",
+        "[[exclusion-zone|Exclusion zone]] plan: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}",
+        "Traffic or delivery plan: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:bccsa}}",
         "Site-specific safe work procedure: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}",
         "Worker instruction or training record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-20}}",
         "Inspection or pre-use check record: creates a review trail for the next source or safety check. {{cite:ohsr-part-16}}"
@@ -5617,9 +5677,9 @@ export const generatedWikiArticles = [
     "slug": "cranes-and-hoists",
     "title": "Cranes and Hoists",
     "category": "High-Risk Work",
-    "summary": "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, exclusion zones, weather, and nearby power lines. {{cite:ohsr-14-2}}",
+    "summary": "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, [[exclusion-zone|exclusion zones]], weather, and nearby power lines. {{cite:ohsr-14-2}}",
     "summaryParagraphs": [
-      "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, exclusion zones, weather, and nearby power lines. {{cite:ohsr-14-2}}",
+      "Crane and hoist safety depends on planning the lift before the load moves. The plan has to account for the crane or hoist, operator, rigging, load weight, radius, ground or support conditions, communication, [[exclusion-zone|exclusion zones]], weather, and nearby power lines. {{cite:ohsr-14-2}}",
       "Most crews are affected by cranes even when they are not operating them. Workers can be under suspended loads, in swing radius, near delivery zones, or inside an exclusion zone without realizing it. [[rigging-basics|Rigging Basics]], [[lift-plans|Lift Plans]], and [[crane-operator-signaller-responsibilities|Crane Operator and Signaller Responsibilities]] should be reviewed with this article.",
       "This Tier 1 draft supports field planning and still needs qualified source review before public-ready use."
     ],
@@ -5857,10 +5917,12 @@ export const generatedWikiArticles = [
     ],
     "sourceReviewFlagCount": 0,
     "wikiLinks": [
+      "exclusion-zone",
       "rigging-basics",
       "lift-plans",
       "crane-operator-signaller-responsibilities",
-      "exclusion-zone",
+      "scaffolds",
+      "prime-contractor-duties",
       "cranes-near-power-lines",
       "electrical-safety-near-power-lines",
       "mobile-equipment",
@@ -5872,10 +5934,12 @@ export const generatedWikiArticles = [
       "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
+      "exclusion-zone",
       "rigging-basics",
       "lift-plans",
       "crane-operator-signaller-responsibilities",
-      "exclusion-zone",
+      "scaffolds",
+      "prime-contractor-duties",
       "cranes-near-power-lines",
       "electrical-safety-near-power-lines",
       "mobile-equipment",
@@ -6009,7 +6073,7 @@ export const generatedWikiArticles = [
       "whenApplies": [
         "A tower crane, mobile crane, boom truck, material hoist, personnel hoist, or other hoisting equipment will move a load.",
         "Workers are rigging, signalling, receiving, landing, unhooking, or working near a suspended load.",
-        "A load path crosses trades, public areas, hoarding, traffic, scaffolds, or occupied work zones.",
+        "A load path crosses trades, public areas, hoarding, traffic, [[scaffolds|scaffolds]], or occupied work zones.",
         "The crane is near overhead power lines or energized equipment.",
         "A pick may be affected by wind, blind spots, radios, multiple signal persons, or limited landing area.",
         "The lift is unusual, heavy, critical, awkward, tandem, or outside routine site practice.",
@@ -6038,7 +6102,7 @@ export const generatedWikiArticles = [
         "Lift plan: records the site-specific control expected before the task starts. {{cite:ohsr-14-2}}",
         "Crane certification record: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-14-16}}",
         "Operator qualification record: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-14-17}}",
-        "Rigging inspection record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-15-2}}",
+        "Rigging inspection record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-15-2}}",
         "Communication plan: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-15-20}}",
         "Equipment inspection record: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-15-31}}"
       ],
@@ -11237,6 +11301,10 @@ export const generatedWikiArticles = [
       {
         "slug": "anchor-points",
         "title": "Anchor Points"
+      },
+      {
+        "slug": "concrete-formwork",
+        "title": "Concrete Formwork"
       },
       {
         "slug": "corrective-actions",
@@ -18964,6 +19032,10 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
         "slug": "guardrails",
         "title": "Guardrails"
       },
@@ -19272,12 +19344,40 @@ export const generatedWikiArticles = [
         "title": "AEDs on Construction Sites"
       },
       {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
+      {
+        "slug": "anchor-points",
+        "title": "Anchor Points"
+      },
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
+        "slug": "carbon-monoxide",
+        "title": "Carbon Monoxide"
+      },
+      {
         "slug": "cardiac-arrest-on-site",
         "title": "Cardiac Arrest on Site"
       },
       {
+        "slug": "cold-stress",
+        "title": "Cold Stress"
+      },
+      {
         "slug": "compressed-gas-cylinders",
         "title": "Compressed Gas Cylinders"
+      },
+      {
+        "slug": "concrete-formwork",
+        "title": "Concrete Formwork"
+      },
+      {
+        "slug": "concrete-pumping",
+        "title": "Concrete Pumping"
       },
       {
         "slug": "confined-space-rescue",
@@ -23117,8 +23217,24 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "aeds-on-construction-sites",
+        "title": "AEDs on Construction Sites"
+      },
+      {
+        "slug": "anchor-points",
+        "title": "Anchor Points"
+      },
+      {
         "slug": "carbon-monoxide",
         "title": "Carbon Monoxide"
+      },
+      {
+        "slug": "cardiac-arrest-on-site",
+        "title": "Cardiac Arrest on Site"
+      },
+      {
+        "slug": "cold-stress",
+        "title": "Cold Stress"
       },
       {
         "slug": "concrete-formwork",
@@ -24294,6 +24410,10 @@ export const generatedWikiArticles = [
       "occupational-first-aid-requirements"
     ],
     "backlinks": [
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
       {
         "slug": "corrective-actions",
         "title": "Corrective Actions"
@@ -26775,8 +26895,28 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "aeds-on-construction-sites",
+        "title": "AEDs on Construction Sites"
+      },
+      {
         "slug": "anchor-points",
         "title": "Anchor Points"
+      },
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
+        "slug": "carbon-monoxide",
+        "title": "Carbon Monoxide"
+      },
+      {
+        "slug": "cardiac-arrest-on-site",
+        "title": "Cardiac Arrest on Site"
+      },
+      {
+        "slug": "cold-stress",
+        "title": "Cold Stress"
       },
       {
         "slug": "compressed-gas-cylinders",
@@ -26797,6 +26937,10 @@ export const generatedWikiArticles = [
       {
         "slug": "crane-operator-signaller-responsibilities",
         "title": "Crane Operator/Signaller Responsibilities"
+      },
+      {
+        "slug": "cranes-and-hoists",
+        "title": "Cranes and Hoists"
       },
       {
         "slug": "cranes-near-power-lines",
@@ -26929,6 +27073,10 @@ export const generatedWikiArticles = [
       {
         "slug": "refusal-of-unsafe-work",
         "title": "Refusal of Unsafe Work"
+      },
+      {
+        "slug": "rigging-basics",
+        "title": "Rigging Basics"
       },
       {
         "slug": "roof-work",
@@ -27703,6 +27851,38 @@ export const generatedWikiArticles = [
       "toolbox-talks"
     ],
     "backlinks": [
+      {
+        "slug": "aeds-on-construction-sites",
+        "title": "AEDs on Construction Sites"
+      },
+      {
+        "slug": "anchor-points",
+        "title": "Anchor Points"
+      },
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
+        "slug": "carbon-monoxide",
+        "title": "Carbon Monoxide"
+      },
+      {
+        "slug": "cardiac-arrest-on-site",
+        "title": "Cardiac Arrest on Site"
+      },
+      {
+        "slug": "cold-stress",
+        "title": "Cold Stress"
+      },
+      {
+        "slug": "concrete-formwork",
+        "title": "Concrete Formwork"
+      },
+      {
+        "slug": "concrete-pumping",
+        "title": "Concrete Pumping"
+      },
       {
         "slug": "employer-duties",
         "title": "Employer Duties"
@@ -28697,6 +28877,7 @@ export const generatedWikiArticles = [
       "cranes-and-hoists",
       "lift-plans",
       "material-handling",
+      "prime-contractor-duties",
       "exclusion-zone",
       "crane-operator-signaller-responsibilities",
       "cranes-near-power-lines",
@@ -28712,6 +28893,7 @@ export const generatedWikiArticles = [
       "cranes-and-hoists",
       "lift-plans",
       "material-handling",
+      "prime-contractor-duties",
       "exclusion-zone",
       "crane-operator-signaller-responsibilities",
       "cranes-near-power-lines",
@@ -28861,7 +29043,7 @@ export const generatedWikiArticles = [
         "Rigging inspection record: records the site-specific control expected before the task starts. {{cite:ohsr-15-2}}",
         "Lift plan: supports worker instruction, supervisor review, and follow-up when conditions change. {{cite:ohsr-15-3}}",
         "Manufacturer instructions: keeps the field method tied to the hazard, equipment, and work location. {{cite:ohsr-15-4}}",
-        "Training/competency record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-15-20}}",
+        "Training/competency record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:ohsr-15-20}}",
         "Load weight information: creates a review trail if an inspection, incident, or refusal raises the issue. {{cite:ohsr-15-31}}",
         "Deficiency log: confirms the plan, equipment, or instruction workers are expected to use. {{cite:ohsr-14-2}}"
       ],
@@ -28870,7 +29052,7 @@ export const generatedWikiArticles = [
         "Select rigging with suitable capacity, hitch, length, angle, and compatibility.",
         "Inspect slings, shackles, hooks, latches, pins, tags, stitching, links, and hardware before use.",
         "Protect rigging from sharp edges, heat, chemicals, and abrasion.",
-        "Confirm the signal person, communication method, and exclusion zone.",
+        "Confirm the signal person, communication method, and [[exclusion-zone|exclusion zone]].",
         "Connect rigging so the load lifts level or as planned.",
         "Lift a few inches and check balance, security, clearances, and worker position.",
         "Keep clear of suspended loads and pinch points during travel and landing.",
@@ -29092,6 +29274,14 @@ export const generatedWikiArticles = [
       "prime-contractor-duties"
     ],
     "backlinks": [
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
+        "slug": "cold-stress",
+        "title": "Cold Stress"
+      },
       {
         "slug": "fall-arrest",
         "title": "Fall Arrest"
@@ -30514,6 +30704,10 @@ export const generatedWikiArticles = [
         "title": "Concrete Pumping"
       },
       {
+        "slug": "cranes-and-hoists",
+        "title": "Cranes and Hoists"
+      },
+      {
         "slug": "fall-protection-plan",
         "title": "Fall Protection Plan"
       },
@@ -31272,6 +31466,10 @@ export const generatedWikiArticles = [
       {
         "slug": "air-monitoring",
         "title": "Air Monitoring"
+      },
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
       },
       {
         "slug": "carbon-monoxide",

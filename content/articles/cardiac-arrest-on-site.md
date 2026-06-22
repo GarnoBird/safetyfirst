@@ -111,7 +111,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 
 - Start with the actual site condition and crew, then choose the control and document set that match that condition.
 - Use the most protective practical control before relying on reminders, signs, or PPE alone.
-- Name the person who can approve field changes and the condition that triggers a stop-work pause.
+- Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.
 - Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.
 - Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.
 - Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.
@@ -123,7 +123,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - Emergency response plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-32}}
 - First aid record: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:worksafebc-ohs-regulation}}
 - Site-specific safe work procedure: keeps the field method tied to the actual hazard, equipment, and location. {{cite:heart-stroke-cpr}}
-- Worker instruction or training record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}
+- Worker instruction or training record: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-ohs-guidelines}}
 - Inspection or pre-use check record: shows workers received task-specific instruction before doing the work. {{cite:ohsr-part-3}}
 - Corrective action record when a deficiency is found: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-32}}
 
@@ -160,7 +160,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [ ] Required documents are current and match the actual site condition.
 - [ ] Workers are trained, instructed, supervised, or otherwise competent for the assigned work.
 - [ ] Controls are installed before work starts and checked while work continues.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
+- [ ] Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.
 - [ ] Deficiencies have an owner, due time, and interim control.
 - [ ] Changed conditions trigger a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.

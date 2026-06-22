@@ -95,7 +95,7 @@ From BC Construction Safety Wiki
 
 ## Summary
 
-Cold Stress is a BC construction safety reference page for outdoor work, night work, roof work, concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.
+Cold Stress is a BC construction safety reference page for outdoor work, night work, [[roof-work|roof work]], concrete work. It helps a supervisor or worker connect the topic to the site condition, the people exposed, the documents that should exist, and the related articles that carry deeper legal or procedure detail.
 
 The field value is in the checks: what changed today, who is affected, what control is already in place, what record proves the control was reviewed, and when the crew must stop for a supervisor. Read this page with [[site-emergency-response-plan]], [[occupational-first-aid-requirements]], [[first-aid-assessment]] so the topic does not sit apart from the rest of the site safety system.
 
@@ -106,7 +106,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - A document, inspection, orientation, permit, plan, or record needs to be prepared or updated before work continues.
 - A supervisor is assigning the task to a worker who is new to the site, new to the task, or unsure which rule applies.
 - Weather, access, equipment, public interface, other trades, or the work sequence changes the original plan.
-- An inspection, near miss, refusal, incident, or worker concern suggests the existing control needs review.
+- An inspection, [[incident-investigation|near miss]], refusal, incident, or worker concern suggests the existing control needs review.
 - A maintainer needs a clear reference article that links to higher-risk pages, source notes, tools, and related documents.
 
 ## Legal requirements
@@ -120,7 +120,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 
 - Start with the actual site condition and crew, then choose the control and document set that match that condition.
 - Use the most protective practical control before relying on reminders, signs, or PPE alone.
-- Name the person who can approve field changes and the condition that triggers a stop-work pause.
+- Name the person who can approve field changes and the condition that triggers a [[refusal-of-unsafe-work|stop-work]] pause.
 - Keep the article linked to related hazards so workers can move from a broad topic to the specific control they need.
 - Use simple sketches, photos, tags, labels, or location notes when they prevent confusion in the field.
 - Review the topic after a near miss, failed inspection, equipment change, crew change, or recurring deficiency.
@@ -132,7 +132,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - Warm-up/rest plan: shows the crew had a current instruction source for the work. {{cite:ohsr-part-3}}
 - Emergency response procedure: supports follow-up when a deficiency, refusal, incident, or source-review question is raised. {{cite:ohsr-part-32}}
 - Worker instruction record: keeps the field method tied to the actual hazard, equipment, and location. {{cite:worksafebc-ohs-regulation}}
-- Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-cold-stress}}
+- Site-specific safe work procedure: helps the [[prime-contractor-duties|prime contractor]] and affected trades coordinate overlapping work. {{cite:worksafebc-cold-stress}}
 - Worker instruction or training record: shows workers received task-specific instruction before doing the work. {{cite:worksafebc-ohs-guidelines}}
 - Inspection or pre-use check record: gives the crew a reference point when conditions change mid-shift. {{cite:ohsr-part-7}}
 - Corrective action record when a deficiency is found: creates a review trail for the next source or safety check. {{cite:ohsr-part-3}}
@@ -170,7 +170,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [ ] Required documents are current and match the actual site condition.
 - [ ] Workers are trained, instructed, supervised, or otherwise competent for the assigned work.
 - [ ] Controls are installed before work starts and checked while work continues.
-- [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
+- [ ] Adjacent trades, public interface, [[mobile-equipment|mobile equipment]], emergency access, and weather are considered.
 - [ ] Deficiencies have an owner, due time, and interim control.
 - [ ] Changed conditions trigger a pause and review before work continues.
 - [ ] Records are kept without collecting unnecessary personal information.
