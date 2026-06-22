@@ -200,6 +200,7 @@ Use this article with [[cranes-near-power-lines|Cranes Near Power Lines]], [[cra
 - [[cranes-near-power-lines]]
 - [[cranes-and-hoists]]
 - [[rigging-basics]]
+- [[exclusion-zone]]
 - [[mobile-equipment]]
 - [[temporary-power]]
 - [[lockout]]

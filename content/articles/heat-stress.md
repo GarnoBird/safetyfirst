@@ -75,7 +75,7 @@ related:
   - "workplace-inspections"
   - "corrective-actions"
   - "training-records"
-  - "toolbox-talks"
+  - "cold-stress"
   - "worker-rights-and-responsibilities"
 prepStatus: "AI source-prepped"
 prepReviewedDate: "2026-06-20"
@@ -205,7 +205,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[workplace-inspections]]
 - [[corrective-actions]]
 - [[training-records]]
-- [[toolbox-talks]]
+- [[cold-stress]]
 - [[worker-rights-and-responsibilities]]
 
 ## Official sources

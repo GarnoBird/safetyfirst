@@ -366,6 +366,399 @@ export const generatedWikiArticles = [
     "markdownPath": "content/articles/aeds-on-construction-sites.md"
   },
   {
+    "slug": "air-monitoring",
+    "title": "Air Monitoring",
+    "category": "Health Hazards",
+    "summary": "Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
+    "summaryParagraphs": [
+      "Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels, confirm whether controls are working, support respirator selection, and decide whether work conditions have changed.",
+      "Air monitoring is not a guess, a dust photo, or a one-time comfort check. The method, equipment, sampling time, worker group, lab analysis, and interpretation must match the substance and the work. On higher-risk work, a qualified occupational hygiene or safety reviewer may be needed to decide what monitoring is required and what the results mean.",
+      "Use this article with [[silica-exposure-control|Silica Exposure Control]], [[asbestos-basics|Asbestos Basics]], [[lead-exposure-control|Lead Exposure Control]], [[carbon-monoxide|Carbon Monoxide]], [[ventilation|Ventilation]], and [[respirators|Respirators]]."
+    ],
+    "jurisdiction": "BC",
+    "difficulty": "Intermediate",
+    "status": "Deep draft",
+    "confidenceLevel": "Source-cited deep draft",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "reviewPriority": "Common field-use review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-21",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or occupational hygiene approval.",
+      "Air monitoring requirements are substance-specific and task-specific; qualified review is needed before using this as a compliance checklist.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
+    "aliases": [
+      "air monitoring record",
+      "exposure monitoring",
+      "personal air sampling",
+      "area air sampling",
+      "exposure assessment"
+    ],
+    "trades": [
+      "Demolition",
+      "Concrete",
+      "Restoration",
+      "Mechanical",
+      "All construction trades"
+    ],
+    "hazards": [
+      "Airborne exposure",
+      "Silica dust",
+      "Asbestos fibres",
+      "Lead exposure",
+      "Carbon monoxide"
+    ],
+    "tasks": [
+      "Exposure assessment",
+      "Dust control verification",
+      "Asbestos work",
+      "Lead work",
+      "Ventilation checks"
+    ],
+    "requiredDocuments": [
+      "Exposure control plan",
+      "Air monitoring record",
+      "Sampling plan",
+      "Lab report or instrument record",
+      "Respirator selection record",
+      "Corrective action record"
+    ],
+    "sourceIds": [
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines",
+      "worksafebc-asbestos",
+      "worksafebc-silica",
+      "worksafebc-carbon-monoxide"
+    ],
+    "regulationRefs": [
+      "ohsr-part-5",
+      "ohsr-part-6",
+      "ohsr-5-100",
+      "ohsr-6-6",
+      "ohsr-6-32",
+      "ohsr-8-39"
+    ],
+    "citationIds": [
+      "ohsr-part-5",
+      "ohsr-part-6",
+      "ohsr-5-100",
+      "ohsr-6-6",
+      "ohsr-6-32",
+      "ohsr-8-39",
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines",
+      "worksafebc-asbestos",
+      "worksafebc-silica",
+      "worksafebc-carbon-monoxide"
+    ],
+    "citations": [
+      {
+        "id": "ohsr-part-5",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
+        "publisher": "WorkSafeBC",
+        "locator": "Part 5",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
+      },
+      {
+        "id": "ohsr-part-6",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
+        "publisher": "WorkSafeBC",
+        "locator": "Part 6",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+      },
+      {
+        "id": "ohsr-5-100",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 5.100: Hazardous substance risk assessment",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 5.100",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
+      },
+      {
+        "id": "ohsr-6-6",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 6.6: Asbestos assessment and classification",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 6.6",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+      },
+      {
+        "id": "ohsr-6-32",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 6.32: Asbestos records",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 6.32",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+      },
+      {
+        "id": "ohsr-8-39",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 8.39: Respirator fit tests",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 8.39",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment"
+      },
+      {
+        "id": "worksafebc-ohs-regulation",
+        "kind": "source",
+        "title": "WorkSafeBC OHS Regulation",
+        "publisher": "WorkSafeBC",
+        "locator": "Regulation",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation"
+      },
+      {
+        "id": "worksafebc-ohs-guidelines",
+        "kind": "source",
+        "title": "WorkSafeBC OHS Guidelines",
+        "publisher": "WorkSafeBC",
+        "locator": "Guideline",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines"
+      },
+      {
+        "id": "worksafebc-asbestos",
+        "kind": "source",
+        "title": "Asbestos",
+        "publisher": "WorkSafeBC",
+        "locator": "Hazard guidance",
+        "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos"
+      },
+      {
+        "id": "worksafebc-silica",
+        "kind": "source",
+        "title": "Silica",
+        "publisher": "WorkSafeBC",
+        "locator": "Hazard guidance",
+        "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica"
+      },
+      {
+        "id": "worksafebc-carbon-monoxide",
+        "kind": "source",
+        "title": "Carbon monoxide",
+        "publisher": "WorkSafeBC",
+        "locator": "Hazard guidance",
+        "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide"
+      }
+    ],
+    "sourceNoteIds": [
+      "worksafebc-ohsr-part-5",
+      "worksafebc-ohsr-part-6",
+      "worksafebc-ohsr-part-8",
+      "source-note-worksafebc-ohs-regulation",
+      "source-note-worksafebc-ohs-guidelines",
+      "source-note-worksafebc-asbestos",
+      "source-note-worksafebc-silica",
+      "source-note-worksafebc-carbon-monoxide"
+    ],
+    "sourceReviewFlagCount": 0,
+    "wikiLinks": [
+      "silica-exposure-control",
+      "asbestos-basics",
+      "lead-exposure-control",
+      "carbon-monoxide",
+      "ventilation",
+      "respirators",
+      "dust-control-methods",
+      "wet-cutting",
+      "hepa-vacuums",
+      "hazardous-materials-before-demolition",
+      "whmis-basics",
+      "training-records"
+    ],
+    "outboundArticleLinks": [
+      "silica-exposure-control",
+      "asbestos-basics",
+      "lead-exposure-control",
+      "carbon-monoxide",
+      "ventilation",
+      "respirators",
+      "dust-control-methods",
+      "wet-cutting",
+      "hepa-vacuums",
+      "hazardous-materials-before-demolition",
+      "whmis-basics",
+      "training-records"
+    ],
+    "backlinks": [
+      {
+        "slug": "asbestos-basics",
+        "title": "Asbestos Basics"
+      },
+      {
+        "slug": "carbon-monoxide",
+        "title": "Carbon Monoxide"
+      },
+      {
+        "slug": "dust-control-methods",
+        "title": "Dust Control Methods"
+      },
+      {
+        "slug": "lead-exposure-control",
+        "title": "Lead Exposure Control"
+      },
+      {
+        "slug": "ventilation",
+        "title": "Ventilation"
+      }
+    ],
+    "related": [
+      "silica-exposure-control",
+      "asbestos-basics",
+      "lead-exposure-control",
+      "carbon-monoxide",
+      "ventilation",
+      "respirators",
+      "dust-control-methods",
+      "wet-cutting",
+      "hepa-vacuums",
+      "hazardous-materials-before-demolition",
+      "whmis-basics",
+      "training-records"
+    ],
+    "relatedToolboxTalks": [
+      "tie-off-planning-before-edge-work",
+      "guardrails-and-floor-openings",
+      "fall-rescue-readiness",
+      "harness-inspection",
+      "silica-dust-controls",
+      "wet-cutting-and-hepa-cleanup"
+    ],
+    "relatedChecklists": [
+      "fall-protection",
+      "ladders",
+      "scaffolds",
+      "silica-dust",
+      "ppe",
+      "whmis-sds"
+    ],
+    "relatedQuizzes": [
+      "fall-protection-quiz",
+      "ladders-and-scaffolds-quiz",
+      "silica-and-dust-quiz",
+      "ppe-quiz",
+      "whmis-sds-quiz",
+      "first-aid-quiz"
+    ],
+    "relatedForms": [
+      "equipment-inspection",
+      "training-matrix",
+      "hazard-report",
+      "site-safety-inspection",
+      "incident-report",
+      "near-miss-report"
+    ],
+    "versionHistory": [
+      "0.1 missing-topic creation: Added after repeated mentions in asbestos, carbon monoxide, dust control, lead exposure, and ventilation articles."
+    ],
+    "reviewerNotes": [
+      "Confirm whether this page should stay Tier 2 or become Tier 1 because monitoring decisions may require occupational hygiene judgement.",
+      "Source reviewer should confirm which air monitoring duties are general and which are substance-specific before removing Draft status.",
+      "Field reviewer should confirm that worker-facing wording does not encourage unqualified interpretation of sampling results."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
+    "review": {
+      "lastReviewed": "2026-06-21",
+      "nextReview": "2026-09-21",
+      "legalReviewStatus": "Needs qualified review",
+      "safetyReviewStatus": "Needs field review"
+    },
+    "sections": {
+      "whenApplies": [
+        "Work could release respirable silica, asbestos fibres, lead dust, carbon monoxide, fumes, vapours, or other airborne contaminants.",
+        "An exposure control plan or safe work procedure calls for sampling, direct-reading instruments, or exposure assessment.",
+        "Respirator selection, cartridge change-out, ventilation, or work method decisions depend on exposure information.",
+        "A worker reports symptoms, visible dust, odour, poor ventilation, or unexpected material.",
+        "The crew changes tools, production rate, location, enclosure, ventilation, wet method, or cleanup method.",
+        "A regulator, owner, hygienist, consultant, or site procedure requires records of exposure monitoring.",
+        "The supervisor needs evidence that controls are working before continuing similar work."
+      ],
+      "legalRequirements": [
+        "Assess hazardous-substance risks before workers are exposed and keep the assessment tied to the actual work. {{cite:ohsr-5-100}}",
+        "Follow substance-specific requirements that apply to the material, such as asbestos, lead, silica, carbon monoxide, or another regulated exposure. {{cite:ohsr-part-6}}",
+        "For asbestos work, have the work assessed and classified so the controls match the risk. {{cite:ohsr-6-6}}",
+        "Keep required asbestos records, including records connected to assessments, inspections, air monitoring, worker instruction, and incident investigation where they apply. {{cite:ohsr-6-32}}",
+        "Select, use, and maintain respiratory protection that matches the hazard and work conditions. {{cite:ohsr-8-39}}",
+        "Use current WorkSafeBC regulatory and guideline material before treating a sampling result or exposure estimate as proof of compliance. {{cite:worksafebc-ohs-regulation}} {{cite:worksafebc-ohs-guidelines}}"
+      ],
+      "bestPractice": [
+        "Decide the monitoring purpose before sampling: worker exposure, area control, clearance support, ventilation check, or emergency investigation.",
+        "Use a qualified person to choose the method when results may affect legal compliance, respirator selection, or worker health decisions.",
+        "Sample the task and worker group that represent the real exposure, not the easiest or cleanest part of the shift.",
+        "Record tools, materials, weather, ventilation, enclosure, water flow, production rate, PPE, and unusual events with the sample.",
+        "Treat direct-reading instruments as tools that need calibration, bump checks, limits, and competent interpretation.",
+        "Compare results to the correct exposure limit, action trigger, or site procedure only after confirming the source and method.",
+        "Re-monitor when the task, material, control, crew, location, or production rate changes enough to affect exposure."
+      ],
+      "requiredDocuments": [
+        "Exposure control plan: explains the hazard, controls, monitoring approach, training, and review triggers. {{cite:ohsr-part-5}}",
+        "Air monitoring record: records who or what was sampled, when, where, for how long, and under what work conditions. {{cite:ohsr-6-32}}",
+        "Sampling plan: identifies the substance, task, workers, method, instruments, lab, and reason for monitoring. {{cite:worksafebc-ohs-guidelines}}",
+        "Lab report or instrument record: preserves the result, units, method, calibration, and reviewer interpretation. {{cite:worksafebc-ohs-regulation}}",
+        "Respirator selection record: connects exposure information to respirator type, filters or cartridges, fit testing, and change-out needs. {{cite:ohsr-8-39}}",
+        "Corrective action record: tracks failed controls, overexposure concerns, equipment changes, and follow-up sampling. {{cite:worksafebc-ohs-guidelines}}"
+      ],
+      "procedure": [
+        "Identify the airborne hazard, material, task, tool, control method, and workers who could be exposed.",
+        "Confirm whether the site procedure, exposure control plan, regulation, owner requirement, or hygienist requires air monitoring.",
+        "Decide whether the monitoring is personal exposure sampling, area monitoring, direct-reading instrument use, or another method.",
+        "Confirm who is qualified to set up the sampling and interpret the result.",
+        "Brief affected workers on the reason for monitoring, where equipment will be placed, and what work conditions must be recorded.",
+        "Set up controls first unless the sampling purpose requires measuring uncontrolled exposure under a reviewed plan.",
+        "Record work conditions during the sampling period, including changes in tools, material, ventilation, weather, and production.",
+        "Stop or reassess the work if monitoring equipment alarms, controls fail, or workers report symptoms.",
+        "Review results against the correct source, exposure limit, procedure, or hygienist instruction before deciding next steps.",
+        "Keep records and update the exposure control plan, respirator selection, training, and work method when the results require changes."
+      ],
+      "workerChecklist": [
+        "I know what airborne hazard is being checked.",
+        "I know whether I am wearing a sampling device or working near an area monitor.",
+        "I will not move, cover, tamper with, or shut off monitoring equipment.",
+        "I will tell the supervisor if the task, material, tool, water, ventilation, or enclosure changes.",
+        "I will report dust, odour, smoke, fumes, symptoms, alarms, or damaged controls.",
+        "I know what respirator and PPE rules apply during the task.",
+        "I know whether the monitoring changes the work method today or only collects information for review.",
+        "I know where the exposure control plan or procedure is kept.",
+        "I will stop if the supervisor, hygienist, instrument alarm, or procedure says to stop.",
+        "I will not treat a clear-looking area as safe unless the required controls and review are complete."
+      ],
+      "supervisorChecklist": [
+        "The monitoring purpose is clear before sampling starts.",
+        "The person selecting the method and interpreting results is qualified for the substance and task.",
+        "The sampled worker, area, tool, material, duration, and controls represent the exposure being evaluated.",
+        "Workers understand what the monitoring equipment does and what not to disturb.",
+        "Work conditions are recorded during sampling, not reconstructed from memory later.",
+        "Respirator, ventilation, wet method, enclosure, and cleanup controls stay in place unless a qualified plan says otherwise.",
+        "Alarm, symptom, failed-control, or high-result triggers are known before work starts.",
+        "Results are filed with the exposure control plan, training, respirator, and corrective action records.",
+        "Changes to controls, equipment, crew, or production trigger review before relying on old results."
+      ],
+      "commonMistakes": [
+        "Treating a single sample as proof that every future task is safe.",
+        "Sampling the cleanest worker or easiest part of the shift instead of the representative exposure.",
+        "Forgetting to record tool type, water use, ventilation, enclosure, weather, or production rate.",
+        "Comparing results to the wrong exposure limit or using the wrong units.",
+        "Ignoring visible dust or symptoms because a previous sample was acceptable.",
+        "Using an instrument without calibration, bump check, or competent interpretation.",
+        "Changing respirator requirements without confirming the exposure and source basis.",
+        "Keeping results in a file but not updating the procedure, training, or controls."
+      ]
+    },
+    "markdownPath": "content/articles/air-monitoring.md"
+  },
+  {
     "slug": "anchor-points",
     "title": "Anchor Points",
     "category": "High-Risk Work",
@@ -991,6 +1384,7 @@ export const generatedWikiArticles = [
       "lead-exposure-control",
       "mould-in-restoration",
       "ventilation",
+      "air-monitoring",
       "hepa-vacuums",
       "site-specific-safety-plan",
       "training-records",
@@ -1005,12 +1399,17 @@ export const generatedWikiArticles = [
       "lead-exposure-control",
       "mould-in-restoration",
       "ventilation",
+      "air-monitoring",
       "hepa-vacuums",
       "site-specific-safety-plan",
       "training-records",
       "worker-rights-and-responsibilities"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "carbon-monoxide",
         "title": "Carbon Monoxide"
@@ -1080,7 +1479,8 @@ export const generatedWikiArticles = [
       "hepa-vacuums",
       "site-specific-safety-plan",
       "training-records",
-      "worker-rights-and-responsibilities"
+      "worker-rights-and-responsibilities",
+      "air-monitoring"
     ],
     "relatedToolboxTalks": [
       "whmis-labels-and-sds-access",
@@ -1387,6 +1787,7 @@ export const generatedWikiArticles = [
       "ventilation",
       "confined-space-entry",
       "mobile-equipment",
+      "air-monitoring",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
       "silica-exposure-control",
@@ -1400,13 +1801,13 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "outboundArticleLinks": [
       "ventilation",
       "confined-space-entry",
       "mobile-equipment",
+      "air-monitoring",
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
       "silica-exposure-control",
@@ -1420,10 +1821,13 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "ventilation",
         "title": "Ventilation"
@@ -1447,7 +1851,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks"
+      "air-monitoring"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -2146,8 +2550,8 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
-        "slug": "lead-exposure-control",
-        "title": "Lead Exposure Control"
+        "slug": "heat-stress",
+        "title": "Heat Stress"
       }
     ],
     "related": [
@@ -3158,6 +3562,7 @@ export const generatedWikiArticles = [
       "mobile-equipment",
       "traffic-control",
       "electrical-safety-near-power-lines",
+      "exclusion-zone",
       "concrete-formwork",
       "rebar-impalement-protection",
       "site-specific-safety-plan",
@@ -3166,7 +3571,6 @@ export const generatedWikiArticles = [
       "ladders",
       "scaffolds",
       "hot-work",
-      "roof-work",
       "site-orientation",
       "corrective-actions",
       "training-records",
@@ -3178,6 +3582,7 @@ export const generatedWikiArticles = [
       "mobile-equipment",
       "traffic-control",
       "electrical-safety-near-power-lines",
+      "exclusion-zone",
       "concrete-formwork",
       "rebar-impalement-protection",
       "site-specific-safety-plan",
@@ -3186,7 +3591,6 @@ export const generatedWikiArticles = [
       "ladders",
       "scaffolds",
       "hot-work",
-      "roof-work",
       "site-orientation",
       "corrective-actions",
       "training-records",
@@ -3198,6 +3602,10 @@ export const generatedWikiArticles = [
       {
         "slug": "concrete-formwork",
         "title": "Concrete Formwork"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "falsework",
@@ -3228,13 +3636,13 @@ export const generatedWikiArticles = [
       "ladders",
       "scaffolds",
       "hot-work",
-      "roof-work",
       "site-orientation",
       "corrective-actions",
       "training-records",
       "toolbox-talks",
       "worker-rights-and-responsibilities",
-      "prime-contractor-duties"
+      "prime-contractor-duties",
+      "exclusion-zone"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -5037,6 +5445,10 @@ export const generatedWikiArticles = [
         "title": "Cranes Near Power Lines"
       },
       {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
+      {
         "slug": "lift-plans",
         "title": "Lift Plans"
       },
@@ -5448,6 +5860,7 @@ export const generatedWikiArticles = [
       "rigging-basics",
       "lift-plans",
       "crane-operator-signaller-responsibilities",
+      "exclusion-zone",
       "cranes-near-power-lines",
       "electrical-safety-near-power-lines",
       "mobile-equipment",
@@ -5462,6 +5875,7 @@ export const generatedWikiArticles = [
       "rigging-basics",
       "lift-plans",
       "crane-operator-signaller-responsibilities",
+      "exclusion-zone",
       "cranes-near-power-lines",
       "electrical-safety-near-power-lines",
       "mobile-equipment",
@@ -5484,6 +5898,10 @@ export const generatedWikiArticles = [
       {
         "slug": "electrical-safety-near-power-lines",
         "title": "Electrical Safety Near Power Lines"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "fall-restraint",
@@ -5530,7 +5948,8 @@ export const generatedWikiArticles = [
       "material-handling",
       "workplace-inspections",
       "supervisor-duties",
-      "worker-rights-and-responsibilities"
+      "worker-rights-and-responsibilities",
+      "exclusion-zone"
     ],
     "relatedToolboxTalks": [
       "crane-pick-communication",
@@ -5884,6 +6303,10 @@ export const generatedWikiArticles = [
       {
         "slug": "electrical-safety-near-power-lines",
         "title": "Electrical Safety Near Power Lines"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "lift-plans",
@@ -6986,6 +7409,7 @@ export const generatedWikiArticles = [
       "hepa-vacuums",
       "respirators",
       "ventilation",
+      "air-monitoring",
       "lead-exposure-control",
       "demolition-planning",
       "whmis-basics",
@@ -6997,8 +7421,7 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "outboundArticleLinks": [
       "silica-exposure-control",
@@ -7006,6 +7429,7 @@ export const generatedWikiArticles = [
       "hepa-vacuums",
       "respirators",
       "ventilation",
+      "air-monitoring",
       "lead-exposure-control",
       "demolition-planning",
       "whmis-basics",
@@ -7017,10 +7441,13 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "carbon-monoxide",
         "title": "Carbon Monoxide"
@@ -7104,7 +7531,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks"
+      "air-monitoring"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -7441,6 +7868,7 @@ export const generatedWikiArticles = [
       "mobile-equipment",
       "temporary-power",
       "rigging-basics",
+      "exclusion-zone",
       "lockout",
       "de-energization",
       "traffic-control",
@@ -7455,6 +7883,7 @@ export const generatedWikiArticles = [
       "mobile-equipment",
       "temporary-power",
       "rigging-basics",
+      "exclusion-zone",
       "lockout",
       "de-energization",
       "traffic-control",
@@ -7481,6 +7910,10 @@ export const generatedWikiArticles = [
         "title": "De-Energization"
       },
       {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
+      {
         "slug": "mobile-elevating-work-platforms",
         "title": "Mobile Elevating Work Platforms"
       },
@@ -7501,7 +7934,8 @@ export const generatedWikiArticles = [
       "site-emergency-response-plan",
       "occupational-first-aid-requirements",
       "workplace-inspections",
-      "supervisor-duties"
+      "supervisor-duties",
+      "exclusion-zone"
     ],
     "relatedToolboxTalks": [
       "overhead-power-line-awareness",
@@ -9423,6 +9857,367 @@ export const generatedWikiArticles = [
       ]
     },
     "markdownPath": "content/articles/excavation-spoil-piles.md"
+  },
+  {
+    "slug": "exclusion-zone",
+    "title": "Exclusion Zone",
+    "category": "High-Risk Work",
+    "summary": "An exclusion zone is a clearly defined area that workers, visitors, pedestrians, or other trades must stay out of while a hazard is active. On construction sites, the zone is often used around suspended loads, crane swing areas, concrete pump booms, tilt-up panel lifts, mobile equipment, falling-object hazards, and work near energized equipment.",
+    "summaryParagraphs": [
+      "An exclusion zone is a clearly defined area that workers, visitors, pedestrians, or other trades must stay out of while a hazard is active. On construction sites, the zone is often used around suspended loads, crane swing areas, concrete pump booms, tilt-up panel lifts, mobile equipment, falling-object hazards, and work near energized equipment.",
+      "The value of an exclusion zone is that it turns a moving hazard into a visible boundary with a person responsible for controlling it. A line on a drawing is not enough by itself; workers need to know where the boundary is, when it applies, who may enter, who controls entry, and what changes stop the work.",
+      "Use this article with [[cranes-and-hoists|Cranes and Hoists]], [[rigging-basics|Rigging Basics]], [[mobile-equipment|Mobile Equipment]], [[traffic-control|Traffic Control]], and [[electrical-safety-near-power-lines|Electrical Safety Near Power Lines]]."
+    ],
+    "jurisdiction": "BC",
+    "difficulty": "Intermediate",
+    "status": "Deep draft",
+    "confidenceLevel": "Source-cited deep draft",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "reviewPriority": "Common field-use review",
+    "prepStatus": "AI source-prepped",
+    "prepReviewedDate": "2026-06-21",
+    "prepReviewTier": "Tier 2",
+    "prepNotes": [
+      "Codex organized this article for human source and field review; this is not legal or safety approval.",
+      "The term exclusion zone is used as practical field language for keeping people out of a defined hazard area.",
+      "Article remains Draft until qualified source/legal and field safety review are complete."
+    ],
+    "reviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
+    "aliases": [
+      "exclusion zones",
+      "keep out zone",
+      "restricted work area",
+      "controlled access zone",
+      "load path exclusion"
+    ],
+    "trades": [
+      "Crane",
+      "Concrete",
+      "Steel",
+      "Civil",
+      "All construction trades"
+    ],
+    "hazards": [
+      "Suspended loads",
+      "Swinging equipment",
+      "Struck-by",
+      "Power line contact",
+      "Public interface"
+    ],
+    "tasks": [
+      "Planning lifts",
+      "Concrete pumping",
+      "Mobile equipment movement",
+      "Tilt-up panel erection",
+      "Work near power lines"
+    ],
+    "requiredDocuments": [
+      "Lift plan",
+      "Exclusion zone sketch",
+      "Traffic or pedestrian control plan",
+      "Communication plan",
+      "Pre-task briefing record",
+      "Corrective action record"
+    ],
+    "sourceIds": [
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines"
+    ],
+    "regulationRefs": [
+      "ohsr-14-2",
+      "ohsr-14-42",
+      "ohsr-14-42-1",
+      "ohsr-15-20",
+      "ohsr-16-10",
+      "ohsr-19-24-1"
+    ],
+    "citationIds": [
+      "ohsr-14-2",
+      "ohsr-14-42",
+      "ohsr-14-42-1",
+      "ohsr-15-20",
+      "ohsr-16-10",
+      "ohsr-19-24-1",
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines"
+    ],
+    "citations": [
+      {
+        "id": "ohsr-14-2",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 14.2: Crane and hoist standards",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 14.2",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists"
+      },
+      {
+        "id": "ohsr-14-42",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 14.42: Tandem lift",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 14.42",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists"
+      },
+      {
+        "id": "ohsr-14-42-1",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 14.42.1: Critical lift",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 14.42.1",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists"
+      },
+      {
+        "id": "ohsr-15-20",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 15.20: Crane hand signals",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 15.20",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging"
+      },
+      {
+        "id": "ohsr-16-10",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 16.10: Clearance of swinging loads or parts",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 16.10",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment"
+      },
+      {
+        "id": "ohsr-19-24-1",
+        "kind": "regulation",
+        "title": "WorkSafeBC OHS Regulation Section 19.24.1: Minimum distance from high voltage conductors",
+        "publisher": "WorkSafeBC",
+        "locator": "Section 19.24.1",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety"
+      },
+      {
+        "id": "worksafebc-ohs-regulation",
+        "kind": "source",
+        "title": "WorkSafeBC OHS Regulation",
+        "publisher": "WorkSafeBC",
+        "locator": "Regulation",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation"
+      },
+      {
+        "id": "worksafebc-ohs-guidelines",
+        "kind": "source",
+        "title": "WorkSafeBC OHS Guidelines",
+        "publisher": "WorkSafeBC",
+        "locator": "Guideline",
+        "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines"
+      }
+    ],
+    "sourceNoteIds": [
+      "worksafebc-ohsr-part-14",
+      "worksafebc-ohsr-part-15",
+      "worksafebc-ohsr-part-16",
+      "worksafebc-ohsr-part-19",
+      "source-note-worksafebc-ohs-regulation",
+      "source-note-worksafebc-ohs-guidelines"
+    ],
+    "sourceReviewFlagCount": 0,
+    "wikiLinks": [
+      "cranes-and-hoists",
+      "rigging-basics",
+      "mobile-equipment",
+      "traffic-control",
+      "electrical-safety-near-power-lines",
+      "lift-plans",
+      "crane-operator-signaller-responsibilities",
+      "cranes-near-power-lines",
+      "hoarding-and-public-protection",
+      "concrete-pumping",
+      "tilt-up-construction",
+      "workplace-inspections"
+    ],
+    "outboundArticleLinks": [
+      "cranes-and-hoists",
+      "rigging-basics",
+      "mobile-equipment",
+      "traffic-control",
+      "electrical-safety-near-power-lines",
+      "lift-plans",
+      "crane-operator-signaller-responsibilities",
+      "cranes-near-power-lines",
+      "hoarding-and-public-protection",
+      "concrete-pumping",
+      "tilt-up-construction",
+      "workplace-inspections"
+    ],
+    "backlinks": [
+      {
+        "slug": "concrete-pumping",
+        "title": "Concrete Pumping"
+      },
+      {
+        "slug": "cranes-and-hoists",
+        "title": "Cranes and Hoists"
+      },
+      {
+        "slug": "electrical-safety-near-power-lines",
+        "title": "Electrical Safety Near Power Lines"
+      },
+      {
+        "slug": "rigging-basics",
+        "title": "Rigging Basics"
+      },
+      {
+        "slug": "tilt-up-construction",
+        "title": "Tilt-Up Construction"
+      }
+    ],
+    "related": [
+      "cranes-and-hoists",
+      "rigging-basics",
+      "lift-plans",
+      "crane-operator-signaller-responsibilities",
+      "cranes-near-power-lines",
+      "mobile-equipment",
+      "traffic-control",
+      "hoarding-and-public-protection",
+      "concrete-pumping",
+      "tilt-up-construction",
+      "electrical-safety-near-power-lines",
+      "workplace-inspections"
+    ],
+    "relatedToolboxTalks": [
+      "tie-off-planning-before-edge-work",
+      "guardrails-and-floor-openings",
+      "fall-rescue-readiness",
+      "harness-inspection",
+      "crane-pick-communication",
+      "rigging-inspection-basics"
+    ],
+    "relatedChecklists": [
+      "fall-protection",
+      "ladders",
+      "scaffolds",
+      "mobile-equipment",
+      "traffic-control",
+      "first-aid-kit-first-aid-room"
+    ],
+    "relatedQuizzes": [
+      "fall-protection-quiz",
+      "ladders-and-scaffolds-quiz",
+      "cranes-rigging-quiz",
+      "mobile-equipment-quiz",
+      "traffic-control-quiz",
+      "first-aid-quiz"
+    ],
+    "relatedForms": [
+      "equipment-inspection",
+      "training-matrix",
+      "hazard-report",
+      "site-safety-inspection",
+      "incident-report",
+      "near-miss-report"
+    ],
+    "versionHistory": [
+      "0.1 missing-topic creation: Added after repeated mentions in crane, rigging, mobile equipment, concrete pumping, tilt-up, and electrical articles."
+    ],
+    "reviewerNotes": [
+      "Confirm whether BC reviewers prefer \"exclusion zone,\" \"restricted area,\" or task-specific wording for different hazards.",
+      "Confirm that legal bullets tied to mobile equipment, crane lift planning, and electrical work do not overstate the exact regulatory language.",
+      "Field reviewer should confirm whether the checklist is practical for supervisors, CSOs, signal persons, and traffic control persons."
+    ],
+    "humanReviewQuestions": [
+      "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+      "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+      "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?"
+    ],
+    "review": {
+      "lastReviewed": "2026-06-21",
+      "nextReview": "2026-09-21",
+      "legalReviewStatus": "Needs qualified review",
+      "safetyReviewStatus": "Needs field review"
+    },
+    "sections": {
+      "whenApplies": [
+        "A load, boom, counterweight, bucket, panel, pipe, hose, or equipment part could strike a person.",
+        "A crane, hoist, boom truck, concrete pump, excavator, forklift, or other mobile equipment is operating near workers.",
+        "Workers could walk under a suspended load or through a planned load path.",
+        "A task creates a temporary danger area, such as tilt-up panel erection, demolition drop zones, or overhead work.",
+        "The public, traffic, tenants, visitors, or nearby trades could enter the work area by mistake.",
+        "Work is near high-voltage conductors and a minimum approach distance or work limit must be respected.",
+        "The lift plan, traffic plan, or site layout changes during the shift."
+      ],
+      "legalRequirements": [
+        "Use cranes and hoists that meet the applicable standards and requirements for the equipment and work. {{cite:ohsr-14-2}}",
+        "Use standard or agreed communication methods when crane or hoist signalling is required. {{cite:ohsr-15-20}}",
+        "For tandem lifts, prepare and communicate the required written lift plan where the regulation requires it. {{cite:ohsr-14-42}}",
+        "For critical lifts, prepare and communicate the required written lift plan where the regulation requires it. {{cite:ohsr-14-42-1}}",
+        "Keep people out of the range of hazardous swinging mobile equipment loads or parts, and do not move the load or part while a person is exposed. {{cite:ohsr-16-10}}",
+        "Where mobile equipment cannot be positioned to keep the required clearance from an obstruction in an accessible area, prevent entry by barriers or other effective means. {{cite:ohsr-16-10}}",
+        "Maintain required distances or obtain required authorization before work proceeds near high-voltage conductors. {{cite:ohsr-19-24-1}}"
+      ],
+      "bestPractice": [
+        "Mark the exclusion zone before the hazard starts, not after the first lift or movement begins.",
+        "Use physical controls where practical: barriers, cones, snow fence, hoarding, spotters, locked gates, or tape backed by a person controlling entry.",
+        "Make the boundary easy to understand from worker eye level, including at corners, doors, stairs, ramps, and blind approaches.",
+        "Name who can authorize entry and what conditions must exist before entry is allowed.",
+        "Keep the zone large enough for load swing, boom movement, hose whip, dropped objects, blind spots, wind, and emergency escape.",
+        "Brief affected trades, delivery drivers, traffic control persons, and the prime contractor when the zone affects their route.",
+        "Stop the task if the boundary is unclear, workers keep entering, communication fails, or the hazard changes."
+      ],
+      "requiredDocuments": [
+        "Lift plan: records the load path, landing area, signal person, and workers who must stay outside the zone. {{cite:ohsr-14-42-1}}",
+        "Exclusion zone sketch: shows the boundary, access points, spotter location, and affected routes. {{cite:ohsr-16-10}}",
+        "Traffic or pedestrian control plan: coordinates workers, vehicles, pedestrians, and public access around the zone. {{cite:ohsr-19-24-1}}",
+        "Communication plan: explains signals, radios, handoff points, and who controls entry. {{cite:ohsr-15-20}}",
+        "Pre-task briefing record: shows affected workers were told where the zone is and when it applies. {{cite:worksafebc-ohs-regulation}}",
+        "Corrective action record: tracks missing barriers, repeated entry, unclear signage, or changed conditions. {{cite:worksafebc-ohs-guidelines}}"
+      ],
+      "procedure": [
+        "Identify the hazard that needs a keep-out area: suspended load, swing radius, power-line limit, overhead work, equipment movement, or public interface.",
+        "Decide the boundary using the actual task, equipment reach, load path, blind spots, falling-object risk, weather, and escape routes.",
+        "Mark the zone on the ground or site plan and confirm that all access points are controlled.",
+        "Assign the person who controls the zone and the person who can approve entry.",
+        "Brief the operator, signal person, spotter, receiving crew, nearby trades, traffic control, and the prime contractor.",
+        "Install barriers, cones, tape, signs, gates, spotters, or other controls before the hazard starts.",
+        "Confirm workers know whether they are inside the work crew or outside the zone.",
+        "Keep the zone active until the load, equipment, or overhead hazard is stable and the supervisor releases the area.",
+        "Stop if anyone enters the zone without authorization or if the hazard grows beyond the marked boundary.",
+        "Record any deficiency, near miss, boundary change, or repeated entry problem before the next similar task."
+      ],
+      "workerChecklist": [
+        "I know where the exclusion zone starts and ends.",
+        "I know whether I am allowed inside the zone for this task.",
+        "I know who controls entry into the zone.",
+        "I will not walk under a suspended load or through the load path.",
+        "I will not enter a swing radius, boom area, or equipment blind spot unless assigned and authorized.",
+        "I will use the planned route around the zone.",
+        "I will tell the supervisor if cones, tape, barriers, or signs are missing or unclear.",
+        "I will stop if another worker, driver, visitor, or member of the public enters the zone.",
+        "I know the communication method for the task.",
+        "I know where to stand if the task pauses or the load changes direction."
+      ],
+      "supervisorChecklist": [
+        "The exclusion zone matches the actual task, equipment, load path, power-line limit, public interface, and weather.",
+        "The zone is marked before work starts and is visible from likely approach routes.",
+        "Entry points, doors, stairs, ramps, traffic routes, and blind approaches are controlled.",
+        "Workers know who may enter and who controls the boundary.",
+        "The operator, signal person, spotter, receiving crew, and affected trades have the same understanding of the zone.",
+        "Public and traffic interfaces are coordinated with hoarding, signage, traffic control, or pedestrian routes.",
+        "The zone is adjusted when the load path, boom position, wind, equipment setup, or adjacent work changes.",
+        "Deficiencies and unauthorized entry are corrected before the task continues."
+      ],
+      "commonMistakes": [
+        "Treating an exclusion zone as caution tape only, with no one controlling entry.",
+        "Making the zone too small for load swing, boom movement, hose whip, or falling-object bounce.",
+        "Forgetting doors, stairwells, ramps, delivery routes, and blind corners.",
+        "Letting workers pass through the zone because the task feels routine.",
+        "Moving the load before the receiving area and escape route are ready.",
+        "Failing to brief other trades or traffic control when the zone blocks their route.",
+        "Leaving barriers in place after the hazard is gone, so workers stop respecting them.",
+        "Not recording repeated unauthorized entry as a corrective action."
+      ]
+    },
+    "markdownPath": "content/articles/exclusion-zone.md"
   },
   {
     "slug": "eye-and-face-protection",
@@ -15455,6 +16250,10 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
+      {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
       },
@@ -16199,7 +16998,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks",
+      "cold-stress",
       "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
@@ -16219,7 +17018,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks",
+      "cold-stress",
       "worker-rights-and-responsibilities"
     ],
     "backlinks": [
@@ -16261,7 +17060,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks",
+      "cold-stress",
       "worker-rights-and-responsibilities"
     ],
     "relatedToolboxTalks": [
@@ -16603,6 +17402,10 @@ export const generatedWikiArticles = [
       "toolbox-talks"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
@@ -17326,6 +18129,10 @@ export const generatedWikiArticles = [
       {
         "slug": "excavation-and-trenching",
         "title": "Excavation and Trenching"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "hard-hats",
@@ -20006,6 +20813,7 @@ export const generatedWikiArticles = [
       "hazardous-materials-before-demolition",
       "demolition-planning",
       "respirators",
+      "air-monitoring",
       "whmis-basics",
       "ventilation",
       "dust-control-methods",
@@ -20014,7 +20822,6 @@ export const generatedWikiArticles = [
       "mould-in-restoration",
       "noise-exposure",
       "heat-stress",
-      "cold-stress",
       "site-specific-safety-plan",
       "site-orientation",
       "workplace-inspections",
@@ -20026,6 +20833,7 @@ export const generatedWikiArticles = [
       "hazardous-materials-before-demolition",
       "demolition-planning",
       "respirators",
+      "air-monitoring",
       "whmis-basics",
       "ventilation",
       "dust-control-methods",
@@ -20034,7 +20842,6 @@ export const generatedWikiArticles = [
       "mould-in-restoration",
       "noise-exposure",
       "heat-stress",
-      "cold-stress",
       "site-specific-safety-plan",
       "site-orientation",
       "workplace-inspections",
@@ -20043,6 +20850,10 @@ export const generatedWikiArticles = [
       "toolbox-talks"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
@@ -20100,13 +20911,13 @@ export const generatedWikiArticles = [
       "mould-in-restoration",
       "noise-exposure",
       "heat-stress",
-      "cold-stress",
       "site-specific-safety-plan",
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks"
+      "toolbox-talks",
+      "air-monitoring"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -20797,6 +21608,10 @@ export const generatedWikiArticles = [
       {
         "slug": "cranes-near-power-lines",
         "title": "Cranes Near Power Lines"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "material-handling",
@@ -22332,6 +23147,10 @@ export const generatedWikiArticles = [
       {
         "slug": "excavation-spoil-piles",
         "title": "Excavation Spoil Piles"
+      },
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
       },
       {
         "slug": "falsework",
@@ -24103,10 +24922,6 @@ export const generatedWikiArticles = [
       {
         "slug": "temporary-power",
         "title": "Temporary Power"
-      },
-      {
-        "slug": "tilt-up-construction",
-        "title": "Tilt-Up Construction"
       },
       {
         "slug": "toolbox-talks",
@@ -27351,6 +28166,10 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
+      {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
       },
@@ -27878,6 +28697,7 @@ export const generatedWikiArticles = [
       "cranes-and-hoists",
       "lift-plans",
       "material-handling",
+      "exclusion-zone",
       "crane-operator-signaller-responsibilities",
       "cranes-near-power-lines",
       "mobile-equipment",
@@ -27892,6 +28712,7 @@ export const generatedWikiArticles = [
       "cranes-and-hoists",
       "lift-plans",
       "material-handling",
+      "exclusion-zone",
       "crane-operator-signaller-responsibilities",
       "cranes-near-power-lines",
       "mobile-equipment",
@@ -27920,6 +28741,10 @@ export const generatedWikiArticles = [
         "title": "Electrical Safety Near Power Lines"
       },
       {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
+      {
         "slug": "lift-plans",
         "title": "Lift Plans"
       },
@@ -27944,7 +28769,8 @@ export const generatedWikiArticles = [
       "worker-rights-and-responsibilities",
       "traffic-control",
       "ppe-basics",
-      "corrective-actions"
+      "corrective-actions",
+      "exclusion-zone"
     ],
     "relatedToolboxTalks": [
       "rigging-inspection-basics",
@@ -28266,10 +29092,6 @@ export const generatedWikiArticles = [
       "prime-contractor-duties"
     ],
     "backlinks": [
-      {
-        "slug": "concrete-pumping",
-        "title": "Concrete Pumping"
-      },
       {
         "slug": "fall-arrest",
         "title": "Fall Arrest"
@@ -30447,6 +31269,10 @@ export const generatedWikiArticles = [
       "training-records"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "carbon-monoxide",
         "title": "Carbon Monoxide"
@@ -34221,6 +35047,7 @@ export const generatedWikiArticles = [
       "cranes-and-hoists",
       "rigging-basics",
       "lift-plans",
+      "exclusion-zone",
       "mobile-equipment",
       "concrete-formwork",
       "prime-contractor-duties",
@@ -34234,13 +35061,13 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "occupational-first-aid-requirements"
+      "worker-rights-and-responsibilities"
     ],
     "outboundArticleLinks": [
       "cranes-and-hoists",
       "rigging-basics",
       "lift-plans",
+      "exclusion-zone",
       "mobile-equipment",
       "concrete-formwork",
       "prime-contractor-duties",
@@ -34254,10 +35081,13 @@ export const generatedWikiArticles = [
       "corrective-actions",
       "training-records",
       "toolbox-talks",
-      "worker-rights-and-responsibilities",
-      "occupational-first-aid-requirements"
+      "worker-rights-and-responsibilities"
     ],
     "backlinks": [
+      {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
       {
         "slug": "lift-plans",
         "title": "Lift Plans"
@@ -34281,7 +35111,7 @@ export const generatedWikiArticles = [
       "training-records",
       "toolbox-talks",
       "worker-rights-and-responsibilities",
-      "occupational-first-aid-requirements"
+      "exclusion-zone"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -34585,10 +35415,6 @@ export const generatedWikiArticles = [
         "title": "Anchor Points"
       },
       {
-        "slug": "carbon-monoxide",
-        "title": "Carbon Monoxide"
-      },
-      {
         "slug": "cardiac-arrest-on-site",
         "title": "Cardiac Arrest on Site"
       },
@@ -34627,10 +35453,6 @@ export const generatedWikiArticles = [
       {
         "slug": "demolition-planning",
         "title": "Demolition Planning"
-      },
-      {
-        "slug": "dust-control-methods",
-        "title": "Dust Control Methods"
       },
       {
         "slug": "emergency-transportation",
@@ -34703,10 +35525,6 @@ export const generatedWikiArticles = [
       {
         "slug": "hearing-protection",
         "title": "Hearing Protection"
-      },
-      {
-        "slug": "heat-stress",
-        "title": "Heat Stress"
       },
       {
         "slug": "hepa-vacuums",
@@ -34883,10 +35701,6 @@ export const generatedWikiArticles = [
       {
         "slug": "underground-utilities",
         "title": "Underground Utilities"
-      },
-      {
-        "slug": "ventilation",
-        "title": "Ventilation"
       },
       {
         "slug": "welding-and-cutting",
@@ -36075,6 +36889,10 @@ export const generatedWikiArticles = [
         "title": "Excavation and Trenching"
       },
       {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
+      {
         "slug": "falsework",
         "title": "Falsework"
       },
@@ -36461,6 +37279,10 @@ export const generatedWikiArticles = [
       {
         "slug": "aeds-on-construction-sites",
         "title": "AEDs on Construction Sites"
+      },
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
       },
       {
         "slug": "anchor-points",
@@ -37443,6 +38265,7 @@ export const generatedWikiArticles = [
       "confined-space-entry",
       "dust-control-methods",
       "respirators",
+      "air-monitoring",
       "whmis-basics",
       "hazardous-materials-before-demolition",
       "asbestos-basics",
@@ -37452,8 +38275,7 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "outboundArticleLinks": [
       "carbon-monoxide",
@@ -37463,6 +38285,7 @@ export const generatedWikiArticles = [
       "confined-space-entry",
       "dust-control-methods",
       "respirators",
+      "air-monitoring",
       "whmis-basics",
       "hazardous-materials-before-demolition",
       "asbestos-basics",
@@ -37472,10 +38295,13 @@ export const generatedWikiArticles = [
       "site-orientation",
       "workplace-inspections",
       "corrective-actions",
-      "training-records",
-      "toolbox-talks"
+      "training-records"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
@@ -37563,7 +38389,7 @@ export const generatedWikiArticles = [
       "workplace-inspections",
       "corrective-actions",
       "training-records",
-      "toolbox-talks"
+      "air-monitoring"
     ],
     "relatedToolboxTalks": [
       "tie-off-planning-before-edge-work",
@@ -38257,6 +39083,10 @@ export const generatedWikiArticles = [
     ],
     "backlinks": [
       {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
+      {
         "slug": "dust-control-methods",
         "title": "Dust Control Methods"
       },
@@ -38565,6 +39395,10 @@ export const generatedWikiArticles = [
       "worker-rights-and-responsibilities"
     ],
     "backlinks": [
+      {
+        "slug": "air-monitoring",
+        "title": "Air Monitoring"
+      },
       {
         "slug": "asbestos-basics",
         "title": "Asbestos Basics"
@@ -40096,6 +40930,10 @@ export const generatedWikiArticles = [
         "title": "Excavation Spoil Piles"
       },
       {
+        "slug": "exclusion-zone",
+        "title": "Exclusion Zone"
+      },
+      {
         "slug": "eye-and-face-protection",
         "title": "Eye and Face Protection"
       },
@@ -40933,6 +41771,78 @@ export const generatedWikiCitations = [
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines"
   },
   {
+    "id": "ohsr-part-5",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
+    "publisher": "WorkSafeBC",
+    "locator": "Part 5",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
+  },
+  {
+    "id": "ohsr-part-6",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
+    "publisher": "WorkSafeBC",
+    "locator": "Part 6",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+  },
+  {
+    "id": "ohsr-5-100",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Section 5.100: Hazardous substance risk assessment",
+    "publisher": "WorkSafeBC",
+    "locator": "Section 5.100",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
+  },
+  {
+    "id": "ohsr-6-6",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Section 6.6: Asbestos assessment and classification",
+    "publisher": "WorkSafeBC",
+    "locator": "Section 6.6",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+  },
+  {
+    "id": "ohsr-6-32",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Section 6.32: Asbestos records",
+    "publisher": "WorkSafeBC",
+    "locator": "Section 6.32",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
+  },
+  {
+    "id": "ohsr-8-39",
+    "kind": "regulation",
+    "title": "WorkSafeBC OHS Regulation Section 8.39: Respirator fit tests",
+    "publisher": "WorkSafeBC",
+    "locator": "Section 8.39",
+    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment"
+  },
+  {
+    "id": "worksafebc-asbestos",
+    "kind": "source",
+    "title": "Asbestos",
+    "publisher": "WorkSafeBC",
+    "locator": "Hazard guidance",
+    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos"
+  },
+  {
+    "id": "worksafebc-silica",
+    "kind": "source",
+    "title": "Silica",
+    "publisher": "WorkSafeBC",
+    "locator": "Hazard guidance",
+    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica"
+  },
+  {
+    "id": "worksafebc-carbon-monoxide",
+    "kind": "source",
+    "title": "Carbon monoxide",
+    "publisher": "WorkSafeBC",
+    "locator": "Hazard guidance",
+    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide"
+  },
+  {
     "id": "ohsr-part-11",
     "kind": "regulation",
     "title": "WorkSafeBC OHS Regulation Part 11: Fall Protection",
@@ -40954,14 +41864,6 @@ export const generatedWikiCitations = [
     "title": "WorkSafeBC OHS Regulation Section 6.5: Asbestos identification",
     "publisher": "WorkSafeBC",
     "locator": "Section 6.5",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
-  },
-  {
-    "id": "ohsr-6-6",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Section 6.6: Asbestos assessment and classification",
-    "publisher": "WorkSafeBC",
-    "locator": "Section 6.6",
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
   },
   {
@@ -40995,22 +41897,6 @@ export const generatedWikiCitations = [
     "publisher": "WorkSafeBC",
     "locator": "Section 8.32",
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment"
-  },
-  {
-    "id": "ohsr-8-39",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Section 8.39: Respirator fit tests",
-    "publisher": "WorkSafeBC",
-    "locator": "Section 8.39",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment"
-  },
-  {
-    "id": "worksafebc-asbestos",
-    "kind": "source",
-    "title": "Asbestos",
-    "publisher": "WorkSafeBC",
-    "locator": "Hazard guidance",
-    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos"
   },
   {
     "id": "worksafebc-notice-project",
@@ -41077,28 +41963,12 @@ export const generatedWikiCitations = [
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
   },
   {
-    "id": "ohsr-6-32",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Section 6.32: Asbestos records",
-    "publisher": "WorkSafeBC",
-    "locator": "Section 6.32",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
-  },
-  {
     "id": "ohsr-6-11",
     "kind": "regulation",
     "title": "WorkSafeBC OHS Regulation Section 6.11: Asbestos instruction and training",
     "publisher": "WorkSafeBC",
     "locator": "Section 6.11",
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
-  },
-  {
-    "id": "ohsr-part-5",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
-    "publisher": "WorkSafeBC",
-    "locator": "Part 5",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
   },
   {
     "id": "ohsr-part-9",
@@ -41115,14 +41985,6 @@ export const generatedWikiCitations = [
     "publisher": "WorkSafeBC",
     "locator": "Part 20",
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition"
-  },
-  {
-    "id": "worksafebc-carbon-monoxide",
-    "kind": "source",
-    "title": "Carbon monoxide",
-    "publisher": "WorkSafeBC",
-    "locator": "Hazard guidance",
-    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide"
   },
   {
     "id": "bccsa",
@@ -41523,30 +42385,6 @@ export const generatedWikiCitations = [
     "publisher": "WorkSafeBC",
     "locator": "Section 5.54",
     "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
-  },
-  {
-    "id": "ohsr-5-100",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Section 5.100: Hazardous substance risk assessment",
-    "publisher": "WorkSafeBC",
-    "locator": "Section 5.100",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents"
-  },
-  {
-    "id": "worksafebc-silica",
-    "kind": "source",
-    "title": "Silica",
-    "publisher": "WorkSafeBC",
-    "locator": "Hazard guidance",
-    "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica"
-  },
-  {
-    "id": "ohsr-part-6",
-    "kind": "regulation",
-    "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
-    "publisher": "WorkSafeBC",
-    "locator": "Part 6",
-    "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements"
   },
   {
     "id": "ohsr-part-8",

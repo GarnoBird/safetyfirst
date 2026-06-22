@@ -73,7 +73,6 @@ related:
   - "workplace-inspections"
   - "corrective-actions"
   - "training-records"
-  - "toolbox-talks"
 prepStatus: "AI source-prepped"
 prepReviewedDate: "2026-06-20"
 prepReviewTier: "Tier 3"
@@ -193,6 +192,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[confined-space-entry]]
 - [[dust-control-methods]]
 - [[respirators]]
+- [[air-monitoring]]
 - [[whmis-basics]]
 - [[hazardous-materials-before-demolition]]
 - [[asbestos-basics]]
@@ -203,7 +203,6 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[workplace-inspections]]
 - [[corrective-actions]]
 - [[training-records]]
-- [[toolbox-talks]]
 
 ## Official sources
 

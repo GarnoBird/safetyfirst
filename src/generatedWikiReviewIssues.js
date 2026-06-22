@@ -208,6 +208,255 @@ export const generatedWikiReviewIssues = [
     ]
   },
   {
+    "slug": "air-monitoring",
+    "title": "Air Monitoring",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "prepStatus": "AI source-prepped",
+    "issueCount": 3,
+    "articleCheckCount": 3,
+    "claimReviewCount": 0,
+    "issues": [
+      {
+        "id": "air-monitoring:humanReview:1",
+        "issueType": "article-check",
+        "articleSlug": "air-monitoring",
+        "articleTitle": "Air Monitoring",
+        "articlePath": "/wiki/articles/air-monitoring",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 1,
+        "contextAnchor": "human-review-air-monitoring-1",
+        "statement": "Legal/source",
+        "originalText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "beforeText": "",
+        "afterText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "contextText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law? Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "question": "Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-asbestos",
+            "title": "Asbestos",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-carbon-monoxide",
+            "title": "Carbon monoxide",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-silica",
+            "title": "Silica",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-5",
+            "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-6",
+            "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-8",
+            "title": "WorkSafeBC OHS Regulation Part 8: Personal Protective Clothing and Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      },
+      {
+        "id": "air-monitoring:humanReview:2",
+        "issueType": "article-check",
+        "articleSlug": "air-monitoring",
+        "articleTitle": "Air Monitoring",
+        "articlePath": "/wiki/articles/air-monitoring",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 2,
+        "contextAnchor": "human-review-air-monitoring-2",
+        "statement": "Field safety",
+        "originalText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "beforeText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "afterText": "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "contextText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law? Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site? Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "question": "Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-asbestos",
+            "title": "Asbestos",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-carbon-monoxide",
+            "title": "Carbon monoxide",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-silica",
+            "title": "Silica",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-5",
+            "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-6",
+            "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-8",
+            "title": "WorkSafeBC OHS Regulation Part 8: Personal Protective Clothing and Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      },
+      {
+        "id": "air-monitoring:humanReview:3",
+        "issueType": "article-check",
+        "articleSlug": "air-monitoring",
+        "articleTitle": "Air Monitoring",
+        "articlePath": "/wiki/articles/air-monitoring",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 3,
+        "contextAnchor": "human-review-air-monitoring-3",
+        "statement": "Plain-language/copyright",
+        "originalText": "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "beforeText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "afterText": "",
+        "contextText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site? Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "question": "Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-asbestos",
+            "title": "Asbestos",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/asbestos",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-carbon-monoxide",
+            "title": "Carbon monoxide",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/carbon-monoxide",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-silica",
+            "title": "Silica",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/health-safety/hazards-exposures/silica",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-5",
+            "title": "WorkSafeBC OHS Regulation Part 5: Chemical Agents and Biological Agents",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-05-chemical-agents-and-biological-agents",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-6",
+            "title": "WorkSafeBC OHS Regulation Part 6: Substance Specific Requirements",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-06-substance-specific-requirements",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-8",
+            "title": "WorkSafeBC OHS Regulation Part 8: Personal Protective Clothing and Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-08-personal-protective-clothing-and-equipment",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "slug": "anchor-points",
     "title": "Anchor Points",
     "reviewTier": "Tier 3",
@@ -4731,6 +4980,213 @@ export const generatedWikiReviewIssues = [
             "title": "WorkSafeBC OHS Regulation Part 20: Construction, Excavation and Demolition",
             "publisher": "WorkSafeBC",
             "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-20-construction-excavation-and-demolition",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "exclusion-zone",
+    "title": "Exclusion Zone",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "prepStatus": "AI source-prepped",
+    "issueCount": 3,
+    "articleCheckCount": 3,
+    "claimReviewCount": 0,
+    "issues": [
+      {
+        "id": "exclusion-zone:humanReview:1",
+        "issueType": "article-check",
+        "articleSlug": "exclusion-zone",
+        "articleTitle": "Exclusion Zone",
+        "articlePath": "/wiki/articles/exclusion-zone",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 1,
+        "contextAnchor": "human-review-exclusion-zone-1",
+        "statement": "Legal/source",
+        "originalText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "beforeText": "",
+        "afterText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "contextText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law? Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "question": "Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-14",
+            "title": "WorkSafeBC OHS Regulation Part 14: Cranes and Hoists",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-15",
+            "title": "WorkSafeBC OHS Regulation Part 15: Rigging",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-16",
+            "title": "WorkSafeBC OHS Regulation Part 16: Mobile Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-19",
+            "title": "WorkSafeBC OHS Regulation Part 19: Electrical Safety",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      },
+      {
+        "id": "exclusion-zone:humanReview:2",
+        "issueType": "article-check",
+        "articleSlug": "exclusion-zone",
+        "articleTitle": "Exclusion Zone",
+        "articlePath": "/wiki/articles/exclusion-zone",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 2,
+        "contextAnchor": "human-review-exclusion-zone-2",
+        "statement": "Field safety",
+        "originalText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "beforeText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law?",
+        "afterText": "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "contextText": "Legal/source: Do all Legal requirements accurately paraphrase current official BC sources, and are any best-practice statements incorrectly framed as law? Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site? Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "question": "Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-14",
+            "title": "WorkSafeBC OHS Regulation Part 14: Cranes and Hoists",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-15",
+            "title": "WorkSafeBC OHS Regulation Part 15: Rigging",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-16",
+            "title": "WorkSafeBC OHS Regulation Part 16: Mobile Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-19",
+            "title": "WorkSafeBC OHS Regulation Part 19: Electrical Safety",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
+            "lastChecked": "2026-06-20"
+          }
+        ]
+      },
+      {
+        "id": "exclusion-zone:humanReview:3",
+        "issueType": "article-check",
+        "articleSlug": "exclusion-zone",
+        "articleTitle": "Exclusion Zone",
+        "articlePath": "/wiki/articles/exclusion-zone",
+        "reviewTier": "Tier 2",
+        "section": "humanReview",
+        "sectionTitle": "Human review",
+        "index": 3,
+        "contextAnchor": "human-review-exclusion-zone-3",
+        "statement": "Plain-language/copyright",
+        "originalText": "Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "beforeText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site?",
+        "afterText": "",
+        "contextText": "Field safety: Would the procedure and checklists be safe and practical for the trades and tasks listed on a BC construction site? Plain-language/copyright: Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "question": "Is the wording original, worker-readable, and free of copied manual or proprietary text?",
+        "reason": "This whole-article check must be completed by a human reviewer before the article is locally marked ready.",
+        "citationIds": [],
+        "citations": [],
+        "sourceNotes": [
+          {
+            "id": "source-note-worksafebc-ohs-guidelines",
+            "title": "WorkSafeBC OHS Guidelines",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "source-note-worksafebc-ohs-regulation",
+            "title": "WorkSafeBC OHS Regulation",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-14",
+            "title": "WorkSafeBC OHS Regulation Part 14: Cranes and Hoists",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-14-cranes-and-hoists",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-15",
+            "title": "WorkSafeBC OHS Regulation Part 15: Rigging",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-15-rigging",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-16",
+            "title": "WorkSafeBC OHS Regulation Part 16: Mobile Equipment",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-16-mobile-equipment",
+            "lastChecked": "2026-06-20"
+          },
+          {
+            "id": "worksafebc-ohsr-part-19",
+            "title": "WorkSafeBC OHS Regulation Part 19: Electrical Safety",
+            "publisher": "WorkSafeBC",
+            "url": "https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-regulation/part-19-electrical-safety",
             "lastChecked": "2026-06-20"
           }
         ]

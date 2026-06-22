@@ -74,7 +74,6 @@ related:
   - "training-records"
   - "toolbox-talks"
   - "worker-rights-and-responsibilities"
-  - "occupational-first-aid-requirements"
 prepStatus: "AI source-prepped"
 prepReviewedDate: "2026-06-20"
 prepReviewTier: "Tier 3"
@@ -190,6 +189,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[cranes-and-hoists]]
 - [[rigging-basics]]
 - [[lift-plans]]
+- [[exclusion-zone]]
 - [[mobile-equipment]]
 - [[concrete-formwork]]
 - [[prime-contractor-duties]]
@@ -204,7 +204,6 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[training-records]]
 - [[toolbox-talks]]
 - [[worker-rights-and-responsibilities]]
-- [[occupational-first-aid-requirements]]
 
 ## Official sources
 

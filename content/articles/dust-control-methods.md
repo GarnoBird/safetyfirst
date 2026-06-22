@@ -77,7 +77,6 @@ related:
   - "workplace-inspections"
   - "corrective-actions"
   - "training-records"
-  - "toolbox-talks"
 prepStatus: "AI source-prepped"
 prepReviewedDate: "2026-06-20"
 prepReviewTier: "Tier 3"
@@ -195,6 +194,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[hepa-vacuums]]
 - [[respirators]]
 - [[ventilation]]
+- [[air-monitoring]]
 - [[lead-exposure-control]]
 - [[demolition-planning]]
 - [[whmis-basics]]
@@ -207,7 +207,6 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[workplace-inspections]]
 - [[corrective-actions]]
 - [[training-records]]
-- [[toolbox-talks]]
 
 ## Official sources
 

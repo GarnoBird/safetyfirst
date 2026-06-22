@@ -1,14 +1,14 @@
 # Wiki Link Suggestions
 
-Generated: 2026-06-22T00:24:46.543Z
+Generated: 2026-06-22T01:35:43.823Z
 
 This report proposes internal wiki links only. It does not edit article Markdown.
 
 ## Summary
 
-- Articles scanned: 100
-- Link terms indexed: 1047
-- Suggestions: 343
+- Articles scanned: 102
+- Link terms indexed: 1069
+- Suggestions: 349
 - Max suggestions per article: 8
 - Max suggestions per target per article: 1
 
@@ -33,6 +33,14 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 168, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
   - Target: Mobile Equipment (mobile-equipment); matched title
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
+### Air Monitoring (air-monitoring)
+
+- Line 125, Legal requirements: `incident investigation` -> `[[incident-investigation|incident investigation]]`
+  - Target: Incident Investigation (incident-investigation); matched title
+  - Context: ...to assessments, inspections, air monitoring, worker instruction, and incident investigation where they apply. {{cite:ohsr-6-32}}
+- Line 171, Worker checklist: `alarm` -> `[[evacuation|alarm]]`
+  - Target: Evacuation (evacuation); matched alias
+  - Context: - [ ] I will stop if the supervisor, hygienist, instrument alarm, or procedure says to stop.
 ### Anchor Points (anchor-points)
 
 - Line 91, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
@@ -72,16 +80,16 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - Treating cleanup as general housekeeping instead of controlled contamination work.
 ### Carbon Monoxide (carbon-monoxide)
 
-- Line 110, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 109, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 124, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 123, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
-- Line 132, Required documents: `exposure control plan where required` -> `[[mould-in-restoration|exposure control plan where required]]`
+- Line 131, Required documents: `exposure control plan where required` -> `[[mould-in-restoration|exposure control plan where required]]`
   - Target: Mould in Restoration (mould-in-restoration); matched requiredDocument
   - Context: - Carbon monoxide exposure control plan where required: records the expected control before the task starts. {{cite:ohsr-par...
-- Line 136, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
+- Line 135, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Worker instruction record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-oh...
 ### Cardiac Arrest on Site (cardiac-arrest-on-site)
@@ -133,10 +141,10 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - Fall protection plan: keeps the field method tied to the actual hazard, equipment, and loc...
 ### Concrete Pumping (concrete-pumping)
 
-- Line 108, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 107, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 122, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 121, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
 ### Confined Space Entry (confined-space-entry)
@@ -250,16 +258,16 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - An inspection, near miss, refusal, or worker concern suggests the current control is not worki...
 ### Dust Control Methods (dust-control-methods)
 
-- Line 111, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 110, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 125, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 124, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
-- Line 137, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
+- Line 136, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-si...
-- Line 175, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
+- Line 174, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
   - Target: Mobile Equipment (mobile-equipment); matched title
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
 ### Electrical Safety Near Power Lines (electrical-safety-near-power-lines)
@@ -326,9 +334,6 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 158, Step-by-step safe procedure: `Stop work` -> `[[refusal-of-unsafe-work|Stop work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: 9. Stop work if cracking, sloughing, water, utility conflict, equipment loading, o...
-- Line 170, Worker checklist: `suspended loads` -> `[[cranes-and-hoists|suspended loads]]`
-  - Target: Cranes and Hoists (cranes-and-hoists); matched hazard
-  - Context: - [ ] I will stay clear of operating equipment and suspended loads.
 ### Excavation Spoil Piles (excavation-spoil-piles)
 
 - Line 104, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
@@ -340,6 +345,20 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 129, Required documents: `storage layout` -> `[[material-handling|storage layout]]`
   - Target: Material Handling (material-handling); matched requiredDocument
   - Context: - Spoil/storage layout: keeps the field method tied to the actual hazard, equipment, and loc...
+### Exclusion Zone (exclusion-zone)
+
+- Line 131, Best practice: `traffic control persons` -> `[[traffic-control-persons|traffic control persons]]`
+  - Target: Traffic Control Persons (traffic-control-persons); matched title
+  - Context: - Brief affected trades, delivery drivers, traffic control persons, and the prime contractor when the zone affects their route.
+- Line 131, Best practice: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
+  - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
+  - Context: ...f affected trades, delivery drivers, traffic control persons, and the prime contractor when the zone affects their route.
+- Line 141, Required documents: `Corrective action` -> `[[incident-investigation|Corrective action]]`
+  - Target: Incident Investigation (incident-investigation); matched alias
+  - Context: - Corrective action record: tracks missing barriers, repeated entry, unclear signage, or...
+- Line 154, Step-by-step safe procedure: `deficiency` -> `[[corrective-actions|deficiency]]`
+  - Target: Corrective Actions (corrective-actions); matched alias
+  - Context: 10. Record any deficiency, near miss, boundary change, or repeated entry problem before the nex...
 ### Eye and Face Protection (eye-and-face-protection)
 
 - Line 122, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
@@ -379,6 +398,9 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 123, Legal requirements: `evacuation` -> `[[evacuation|evacuation]]`
   - Target: Evacuation (evacuation); matched title
   - Context: - Include procedures for rescue or evacuation in the fall protection plan and coordinate those procedures with site...
+- Line 128, Best practice: `exclusion zones` -> `[[exclusion-zone|exclusion zones]]`
+  - Target: Exclusion Zone (exclusion-zone); matched alias
+  - Context: ...sketch or marked photo for anchors, edges, access, rescue route, and exclusion zones.
 - Line 132, Best practice: `swing stage` -> `[[swing-stages|swing stage]]`
   - Target: Swing Stages (swing-stages); matched alias
   - Context: - Use a separate lift, swing stage, scaffold, or roof-area plan when the rescue method is different.
@@ -388,9 +410,6 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 140, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Equipment inspection record: helps the prime contractor and affected trades coordinate overlapping work. {{cite:ohsr-11-6}}
-- Line 152, Step-by-step safe procedure: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
-  - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
-  - Context: ...re the task starts and confirm they understand the tie-off points and stop-work triggers.
 ### Fall Protection (fall-protection)
 
 - Line 102, When this applies: `platform` -> `[[work-platforms|platform]]`
@@ -687,19 +706,19 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - An inspection, near miss, refusal, or worker concern suggests the current control is not worki...
 ### Lead Exposure Control (lead-exposure-control)
 
-- Line 107, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 106, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 121, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 120, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
-- Line 129, Required documents: `risk assessment` -> `[[traffic-control|risk assessment]]`
+- Line 128, Required documents: `risk assessment` -> `[[traffic-control|risk assessment]]`
   - Target: Traffic Control (traffic-control); matched requiredDocument
   - Context: - Lead risk assessment: records the expected control before the task starts. {{cite:ohsr-par...
-- Line 133, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
+- Line 132, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Hygiene and decontamination procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-le...
-- Line 171, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
+- Line 170, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
   - Target: Mobile Equipment (mobile-equipment); matched title
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
 ### Leading Edge Work (leading-edge-work)
@@ -802,6 +821,9 @@ This report proposes internal wiki links only. It does not edit article Markdown
 - Line 118, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
+- Line 126, Required documents: `exposure assessment` -> `[[air-monitoring|exposure assessment]]`
+  - Target: Air Monitoring (air-monitoring); matched alias
+  - Context: - Noise exposure assessment: records the expected control before the task starts. {{cite:ohsr-par...
 - Line 130, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-oh...
@@ -1088,10 +1110,10 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
 ### Tilt-Up Construction (tilt-up-construction)
 
-- Line 108, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 107, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 122, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 121, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
 ### Toolbox Talks (toolbox-talks)
@@ -1159,19 +1181,19 @@ This report proposes internal wiki links only. It does not edit article Markdown
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
 ### Ventilation (ventilation)
 
-- Line 96, Summary: `hot work` -> `[[hot-work|hot work]]`
+- Line 95, Summary: `hot work` -> `[[hot-work|hot work]]`
   - Target: Hot Work (hot-work); matched title
   - Context: ...safety reference page for silica work, lead work, mould remediation, hot work. It helps a supervisor or worker connect the topic to the site condit...
-- Line 107, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
+- Line 106, When this applies: `near miss` -> `[[incident-investigation|near miss]]`
   - Target: Incident Investigation (incident-investigation); matched alias
   - Context: - An inspection, near miss, refusal, incident, or worker concern suggests the existing control n...
-- Line 121, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
+- Line 120, Best practice: `stop-work` -> `[[refusal-of-unsafe-work|stop-work]]`
   - Target: Refusal of Unsafe Work (refusal-of-unsafe-work); matched alias
   - Context: ...erson who can approve field changes and the condition that triggers a stop-work pause.
-- Line 133, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
+- Line 132, Required documents: `prime contractor` -> `[[prime-contractor-duties|prime contractor]]`
   - Target: Prime Contractor Duties (prime-contractor-duties); matched alias
   - Context: - Site-specific safe work procedure: helps the prime contractor and affected trades coordinate overlapping work. {{cite:worksafebc-oh...
-- Line 171, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
+- Line 170, Supervisor checklist: `mobile equipment` -> `[[mobile-equipment|mobile equipment]]`
   - Target: Mobile Equipment (mobile-equipment); matched title
   - Context: - [ ] Adjacent trades, public interface, mobile equipment, emergency access, and weather are considered.
 ### Welding and Cutting (welding-and-cutting)

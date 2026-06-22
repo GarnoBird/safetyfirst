@@ -204,6 +204,7 @@ This Tier 1 draft supports field planning and still needs qualified source revie
 
 - [[rigging-basics]]
 - [[lift-plans]]
+- [[exclusion-zone]]
 - [[crane-operator-signaller-responsibilities]]
 - [[cranes-near-power-lines]]
 - [[electrical-safety-near-power-lines]]

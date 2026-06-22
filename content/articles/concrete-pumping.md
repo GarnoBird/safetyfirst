@@ -68,7 +68,6 @@ related:
   - "ladders"
   - "scaffolds"
   - "hot-work"
-  - "roof-work"
   - "site-orientation"
   - "corrective-actions"
   - "training-records"
@@ -190,6 +189,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[mobile-equipment]]
 - [[traffic-control]]
 - [[electrical-safety-near-power-lines]]
+- [[exclusion-zone]]
 - [[concrete-formwork]]
 - [[rebar-impalement-protection]]
 - [[site-specific-safety-plan]]
@@ -198,7 +198,6 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[ladders]]
 - [[scaffolds]]
 - [[hot-work]]
-- [[roof-work]]
 - [[site-orientation]]
 - [[corrective-actions]]
 - [[training-records]]

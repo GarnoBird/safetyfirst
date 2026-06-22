@@ -67,7 +67,6 @@ related:
   - "mould-in-restoration"
   - "noise-exposure"
   - "heat-stress"
-  - "cold-stress"
   - "site-specific-safety-plan"
   - "site-orientation"
   - "workplace-inspections"
@@ -189,6 +188,7 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[hazardous-materials-before-demolition]]
 - [[demolition-planning]]
 - [[respirators]]
+- [[air-monitoring]]
 - [[whmis-basics]]
 - [[ventilation]]
 - [[dust-control-methods]]
@@ -197,7 +197,6 @@ The field value is in the checks: what changed today, who is affected, what cont
 - [[mould-in-restoration]]
 - [[noise-exposure]]
 - [[heat-stress]]
-- [[cold-stress]]
 - [[site-specific-safety-plan]]
 - [[site-orientation]]
 - [[workplace-inspections]]

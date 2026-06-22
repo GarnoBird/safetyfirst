@@ -82,6 +82,99 @@ export const generatedWikiSearchIndex = [
     "searchText": "aeds on construction sites aeds on construction sites is a bc construction safety reference page for emergency response first aid planning site orientation it helps a supervisor or worker connect the topic to the site condition the people exposed the documents that should exist and the related articles that carry deeper legal or procedure detail aeds on construction sites is a bc construction safety reference page for emergency response first aid planning site orientation it helps a supervisor or worker connect the topic to the site condition the people exposed the documents that should exist and the related articles that carry deeper legal or procedure detail the field value is in the checks what changed today who is affected what control is already in place what record proves the control was reviewed and when the crew must stop for a supervisor read this page with cardiac arrest on site occupational first aid requirements first aid assessment so the topic does not sit apart from the rest of the site safety system emergency medical aed defibrillator automated external defibrillator cardiac arrest equipment all construction trades cardiac arrest delayed defibrillation unknown aed location emergency response first aid planning site orientation aed inspection record aed location map emergency response procedure first aid assessment note site specific safe work procedure worker instruction or training record inspection or pre use check record corrective action record when a deficiency is found ohsr part 3 ohsr part 32 worksafebc ohs regulation worksafebc first aid requirements heart stroke cpr worksafebc ohs guidelines the work involves emergency response first aid planning site orientation or the topic affects how the work is planned the work can expose workers nearby trades visitors tenants pedestrians traffic or the public to cardiac arrest delayed defibrillation unknown aed location a document inspection orientation permit plan or record needs to be prepared or updated before work continues a supervisor is assigning the task to a worker who is new to the site new to the task or unsure which rule applies weather access equipment public interface other trades or the work sequence changes the original plan an inspection near miss refusal incident or worker concern suggests the existing control needs review a maintainer needs a clear reference article that links to higher risk pages source notes tools and related documents check the cited worksafebc source and any related official guidance before using this article for site direction identify the hazards connected to aeds on construction sites and control them before workers are exposed provide information instruction supervision equipment and ppe that match the worker and task keep written plans procedures inspections permits assessments or records when the source or site condition calls for them start with the actual site condition and crew then choose the control and document set that match that condition use the most protective practical control before relying on reminders signs or ppe alone name the person who can approve field changes and the condition that triggers a stop work pause keep the article linked to related hazards so workers can move from a broad topic to the specific control they need use simple sketches photos tags labels or location notes when they prevent confusion in the field review the topic after a near miss failed inspection equipment change crew change or recurring deficiency record follow up so the same issue is not reopened at every inspection aed inspection record records the expected control before the task starts aed location map shows the crew had a current instruction source for the work emergency response procedure supports follow up when a deficiency refusal incident or source review question is raised first aid assessment note keeps the field method tied to the actual hazard equipment and location site specific safe work procedure helps the prime contractor and affected trades coordinate overlapping work worker instruction or training record shows workers received task specific instruction before doing the work inspection or pre use check record gives the crew a reference point when conditions change mid shift corrective action record when a deficiency is found creates a review trail for the next source or safety check define how aeds on construction sites connects to today s work area task crew and equipment read the related article that carries the closest legal or high risk control before relying on this page alone identify the likely hazards including cardiac arrest delayed defibrillation unknown aed location and who could be affected confirm the official source site rule or procedure that applies to the work prepare or update aed inspection record and any supporting record that the site requires set up controls before production work starts and make sure workers understand the limits brief workers on the stop work trigger reporting path and emergency or first aid contact route check the work during the shift for changed conditions missing controls or nearby work that affects the topic record deficiencies with an owner interim control and follow up time update links source notes or procedures when review finds a missing citation or unclear field instruction i understand how aeds on construction sites affects my task today i know the likely hazards including cardiac arrest delayed defibrillation unknown aed location i know the control that must be in place before i start i know where aed inspection record or the related site procedure is kept i have the required ppe tools equipment and instructions for the task i know who is supervising the work and who can answer questions i know how to report a hazard near miss refusal or changed condition i can name one condition that means the work must stop i know the emergency response or first aid contact path if something goes wrong i will not continue if the work no longer matches the plan the topic has been checked against current source notes for aeds on construction sites workers understand which part is legal requirement best practice sample procedure and checklist required documents are current and match the actual site condition workers are trained instructed supervised or otherwise competent for the assigned work controls are installed before work starts and checked while work continues adjacent trades public interface mobile equipment emergency access and weather are considered deficiencies have an owner due time and interim control changed conditions trigger a pause and review before work continues records are kept without collecting unnecessary personal information treating a support article as if it contains every legal detail for the task using a generic instruction that does not match the actual crew equipment location or sequence starting work before the required document briefing inspection or review is complete relying on ppe or worker memory when a stronger control is practical failing to update the plan after weather access equipment crew or adjacent work changes closing a deficiency without checking the corrective action in the field not telling nearby trades or the prime contractor when the hazard can affect them letting a familiar construction hazard continue because it has not caused an incident yet"
   },
   {
+    "slug": "air-monitoring",
+    "title": "Air Monitoring",
+    "category": "Health Hazards",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "aliases": [
+      "air monitoring record",
+      "exposure monitoring",
+      "personal air sampling",
+      "area air sampling",
+      "exposure assessment"
+    ],
+    "redirectTerms": [],
+    "glossaryTerms": [],
+    "hazards": [
+      "Airborne exposure",
+      "Silica dust",
+      "Asbestos fibres",
+      "Lead exposure",
+      "Carbon monoxide"
+    ],
+    "trades": [
+      "Demolition",
+      "Concrete",
+      "Restoration",
+      "Mechanical",
+      "All construction trades"
+    ],
+    "tasks": [
+      "Exposure assessment",
+      "Dust control verification",
+      "Asbestos work",
+      "Lead work",
+      "Ventilation checks"
+    ],
+    "documents": [
+      "Exposure control plan",
+      "Air monitoring record",
+      "Sampling plan",
+      "Lab report or instrument record",
+      "Respirator selection record",
+      "Corrective action record"
+    ],
+    "requiredDocuments": [
+      "Exposure control plan",
+      "Air monitoring record",
+      "Sampling plan",
+      "Lab report or instrument record",
+      "Respirator selection record",
+      "Corrective action record"
+    ],
+    "regulationRefs": [
+      "ohsr-part-5",
+      "ohsr-part-6",
+      "ohsr-5-100",
+      "ohsr-6-6",
+      "ohsr-6-32",
+      "ohsr-8-39"
+    ],
+    "citationIds": [
+      "ohsr-part-5",
+      "ohsr-part-6",
+      "ohsr-5-100",
+      "ohsr-6-6",
+      "ohsr-6-32",
+      "ohsr-8-39",
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines",
+      "worksafebc-asbestos",
+      "worksafebc-silica",
+      "worksafebc-carbon-monoxide"
+    ],
+    "sourceIds": [
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines",
+      "worksafebc-asbestos",
+      "worksafebc-silica",
+      "worksafebc-carbon-monoxide"
+    ],
+    "sourceNoteIds": [
+      "worksafebc-ohsr-part-5",
+      "worksafebc-ohsr-part-6",
+      "worksafebc-ohsr-part-8",
+      "source-note-worksafebc-ohs-regulation",
+      "source-note-worksafebc-ohs-guidelines",
+      "source-note-worksafebc-asbestos",
+      "source-note-worksafebc-silica",
+      "source-note-worksafebc-carbon-monoxide"
+    ],
+    "snippet": "Air monitoring is the planned measurement of airborne hazards such as respirable silica dust, asbestos fibres, lead, carbon monoxide, welding fumes, solvent vapours, or other contaminants. It can be used to check exposure levels,...",
+    "searchText": "air monitoring air monitoring is the planned measurement of airborne hazards such as respirable silica dust asbestos fibres lead carbon monoxide welding fumes solvent vapours or other contaminants it can be used to check exposure levels confirm whether controls are working support respirator selection and decide whether work conditions have changed air monitoring is the planned measurement of airborne hazards such as respirable silica dust asbestos fibres lead carbon monoxide welding fumes solvent vapours or other contaminants it can be used to check exposure levels confirm whether controls are working support respirator selection and decide whether work conditions have changed air monitoring is not a guess a dust photo or a one time comfort check the method equipment sampling time worker group lab analysis and interpretation must match the substance and the work on higher risk work a qualified occupational hygiene or safety reviewer may be needed to decide what monitoring is required and what the results mean use this article with silica exposure control asbestos basics lead exposure control carbon monoxide ventilation and respirators health hazards air monitoring record exposure monitoring personal air sampling area air sampling exposure assessment demolition concrete restoration mechanical all construction trades airborne exposure silica dust asbestos fibres lead exposure carbon monoxide exposure assessment dust control verification asbestos work lead work ventilation checks exposure control plan air monitoring record sampling plan lab report or instrument record respirator selection record corrective action record ohsr part 5 ohsr part 6 ohsr 5 100 ohsr 6 6 ohsr 6 32 ohsr 8 39 worksafebc ohs regulation worksafebc ohs guidelines worksafebc asbestos worksafebc silica worksafebc carbon monoxide work could release respirable silica asbestos fibres lead dust carbon monoxide fumes vapours or other airborne contaminants an exposure control plan or safe work procedure calls for sampling direct reading instruments or exposure assessment respirator selection cartridge change out ventilation or work method decisions depend on exposure information a worker reports symptoms visible dust odour poor ventilation or unexpected material the crew changes tools production rate location enclosure ventilation wet method or cleanup method a regulator owner hygienist consultant or site procedure requires records of exposure monitoring the supervisor needs evidence that controls are working before continuing similar work assess hazardous substance risks before workers are exposed and keep the assessment tied to the actual work follow substance specific requirements that apply to the material such as asbestos lead silica carbon monoxide or another regulated exposure for asbestos work have the work assessed and classified so the controls match the risk keep required asbestos records including records connected to assessments inspections air monitoring worker instruction and incident investigation where they apply select use and maintain respiratory protection that matches the hazard and work conditions use current worksafebc regulatory and guideline material before treating a sampling result or exposure estimate as proof of compliance decide the monitoring purpose before sampling worker exposure area control clearance support ventilation check or emergency investigation use a qualified person to choose the method when results may affect legal compliance respirator selection or worker health decisions sample the task and worker group that represent the real exposure not the easiest or cleanest part of the shift record tools materials weather ventilation enclosure water flow production rate ppe and unusual events with the sample treat direct reading instruments as tools that need calibration bump checks limits and competent interpretation compare results to the correct exposure limit action trigger or site procedure only after confirming the source and method re monitor when the task material control crew location or production rate changes enough to affect exposure exposure control plan explains the hazard controls monitoring approach training and review triggers air monitoring record records who or what was sampled when where for how long and under what work conditions sampling plan identifies the substance task workers method instruments lab and reason for monitoring lab report or instrument record preserves the result units method calibration and reviewer interpretation respirator selection record connects exposure information to respirator type filters or cartridges fit testing and change out needs corrective action record tracks failed controls overexposure concerns equipment changes and follow up sampling identify the airborne hazard material task tool control method and workers who could be exposed confirm whether the site procedure exposure control plan regulation owner requirement or hygienist requires air monitoring decide whether the monitoring is personal exposure sampling area monitoring direct reading instrument use or another method confirm who is qualified to set up the sampling and interpret the result brief affected workers on the reason for monitoring where equipment will be placed and what work conditions must be recorded set up controls first unless the sampling purpose requires measuring uncontrolled exposure under a reviewed plan record work conditions during the sampling period including changes in tools material ventilation weather and production stop or reassess the work if monitoring equipment alarms controls fail or workers report symptoms review results against the correct source exposure limit procedure or hygienist instruction before deciding next steps keep records and update the exposure control plan respirator selection training and work method when the results require changes i know what airborne hazard is being checked i know whether i am wearing a sampling device or working near an area monitor i will not move cover tamper with or shut off monitoring equipment i will tell the supervisor if the task material tool water ventilation or enclosure changes i will report dust odour smoke fumes symptoms alarms or damaged controls i know what respirator and ppe rules apply during the task i know whether the monitoring changes the work method today or only collects information for review i know where the exposure control plan or procedure is kept i will stop if the supervisor hygienist instrument alarm or procedure says to stop i will not treat a clear looking area as safe unless the required controls and review are complete the monitoring purpose is clear before sampling starts the person selecting the method and interpreting results is qualified for the substance and task the sampled worker area tool material duration and controls represent the exposure being evaluated workers understand what the monitoring equipment does and what not to disturb work conditions are recorded during sampling not reconstructed from memory later respirator ventilation wet method enclosure and cleanup controls stay in place unless a qualified plan says otherwise alarm symptom failed control or high result triggers are known before work starts results are filed with the exposure control plan training respirator and corrective action records changes to controls equipment crew or production trigger review before relying on old results treating a single sample as proof that every future task is safe sampling the cleanest worker or easiest part of the shift instead of the representative exposure forgetting to record tool type water use ventilation enclosure weather or production rate comparing results to the wrong exposure limit or using the wrong units ignoring visible dust or symptoms because a previous sample was acceptable using an instrument without calibration bump check or competent interpretation changing respirator requirements without confirming the exposure and source basis keeping results in a file but not updating the procedure training or controls"
+  },
+  {
     "slug": "anchor-points",
     "title": "Anchor Points",
     "category": "High-Risk Work",
@@ -2082,6 +2175,91 @@ export const generatedWikiSearchIndex = [
     "searchText": "excavation spoil piles excavation spoil piles is a bc construction safety reference page for excavation trenching utility work earthmoving it helps a supervisor or worker connect the topic to the site condition the people exposed the documents that should exist and the related articles that carry deeper legal or procedure detail excavation spoil piles is a bc construction safety reference page for excavation trenching utility work earthmoving it helps a supervisor or worker connect the topic to the site condition the people exposed the documents that should exist and the related articles that carry deeper legal or procedure detail the field value is in the checks what changed today who is affected what control is already in place what record proves the control was reviewed and when the crew must stop for a supervisor read this page with excavation and trenching underground utilities mobile equipment so the topic does not sit apart from the rest of the site safety system high risk work spoil pile excavated material soil pile stockpile surcharge load all construction trades cave in falling material surcharge loading blocked access water runoff excavation trenching utility work earthmoving excavation plan daily excavation inspection record shoring sloping plan where required spoil storage layout site specific safe work procedure worker instruction or training record inspection or pre use check record corrective action record when a deficiency is found ohsr part 20 ohsr part 16 worksafebc ohs regulation worksafebc ohs guidelines the work involves excavation trenching utility work earthmoving or the topic affects how the work is planned the work can expose workers nearby trades visitors tenants pedestrians traffic or the public to cave in falling material surcharge loading blocked access a document inspection orientation permit plan or record needs to be prepared or updated before work continues a supervisor is assigning the task to a worker who is new to the site new to the task or unsure which rule applies weather access equipment public interface other trades or the work sequence changes the original plan an inspection near miss refusal incident or worker concern suggests the existing control needs review a maintainer needs a clear reference article that links to higher risk pages source notes tools and related documents check the cited worksafebc source and any related official guidance before using this article for site direction identify the hazards connected to excavation spoil piles and control them before workers are exposed provide information instruction supervision equipment and ppe that match the worker and task keep written plans procedures inspections permits assessments or records when the source or site condition calls for them start with the actual site condition and crew then choose the control and document set that match that condition use the most protective practical control before relying on reminders signs or ppe alone name the person who can approve field changes and the condition that triggers a stop work pause keep the article linked to related hazards so workers can move from a broad topic to the specific control they need use simple sketches photos tags labels or location notes when they prevent confusion in the field review the topic after a near miss failed inspection equipment change crew change or recurring deficiency record follow up so the same issue is not reopened at every inspection excavation plan records the expected control before the task starts daily excavation inspection record shows the crew had a current instruction source for the work shoring sloping plan where required supports follow up when a deficiency refusal incident or source review question is raised spoil storage layout keeps the field method tied to the actual hazard equipment and location site specific safe work procedure helps the prime contractor and affected trades coordinate overlapping work worker instruction or training record shows workers received task specific instruction before doing the work inspection or pre use check record gives the crew a reference point when conditions change mid shift corrective action record when a deficiency is found creates a review trail for the next source or safety check define how excavation spoil piles connects to today s work area task crew and equipment read the related article that carries the closest legal or high risk control before relying on this page alone identify the likely hazards including cave in falling material surcharge loading blocked access and who could be affected confirm the official source site rule or procedure that applies to the work prepare or update excavation plan and any supporting record that the site requires set up controls before production work starts and make sure workers understand the limits brief workers on the stop work trigger reporting path and emergency or first aid contact route check the work during the shift for changed conditions missing controls or nearby work that affects the topic record deficiencies with an owner interim control and follow up time update links source notes or procedures when review finds a missing citation or unclear field instruction i understand how excavation spoil piles affects my task today i know the likely hazards including cave in falling material surcharge loading blocked access i know the control that must be in place before i start i know where excavation plan or the related site procedure is kept i have the required ppe tools equipment and instructions for the task i know who is supervising the work and who can answer questions i know how to report a hazard near miss refusal or changed condition i can name one condition that means the work must stop i know the emergency response or first aid contact path if something goes wrong i will not continue if the work no longer matches the plan the topic has been checked against current source notes for excavation spoil piles workers understand which part is legal requirement best practice sample procedure and checklist required documents are current and match the actual site condition workers are trained instructed supervised or otherwise competent for the assigned work controls are installed before work starts and checked while work continues adjacent trades public interface mobile equipment emergency access and weather are considered deficiencies have an owner due time and interim control changed conditions trigger a pause and review before work continues records are kept without collecting unnecessary personal information treating a support article as if it contains every legal detail for the task using a generic instruction that does not match the actual crew equipment location or sequence starting work before the required document briefing inspection or review is complete relying on ppe or worker memory when a stronger control is practical failing to update the plan after weather access equipment crew or adjacent work changes closing a deficiency without checking the corrective action in the field not telling nearby trades or the prime contractor when the hazard can affect them letting a familiar construction hazard continue because it has not caused an incident yet"
   },
   {
+    "slug": "exclusion-zone",
+    "title": "Exclusion Zone",
+    "category": "High-Risk Work",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "aliases": [
+      "exclusion zones",
+      "keep out zone",
+      "restricted work area",
+      "controlled access zone",
+      "load path exclusion"
+    ],
+    "redirectTerms": [],
+    "glossaryTerms": [],
+    "hazards": [
+      "Suspended loads",
+      "Swinging equipment",
+      "Struck-by",
+      "Power line contact",
+      "Public interface"
+    ],
+    "trades": [
+      "Crane",
+      "Concrete",
+      "Steel",
+      "Civil",
+      "All construction trades"
+    ],
+    "tasks": [
+      "Planning lifts",
+      "Concrete pumping",
+      "Mobile equipment movement",
+      "Tilt-up panel erection",
+      "Work near power lines"
+    ],
+    "documents": [
+      "Lift plan",
+      "Exclusion zone sketch",
+      "Traffic or pedestrian control plan",
+      "Communication plan",
+      "Pre-task briefing record",
+      "Corrective action record"
+    ],
+    "requiredDocuments": [
+      "Lift plan",
+      "Exclusion zone sketch",
+      "Traffic or pedestrian control plan",
+      "Communication plan",
+      "Pre-task briefing record",
+      "Corrective action record"
+    ],
+    "regulationRefs": [
+      "ohsr-14-2",
+      "ohsr-14-42",
+      "ohsr-14-42-1",
+      "ohsr-15-20",
+      "ohsr-16-10",
+      "ohsr-19-24-1"
+    ],
+    "citationIds": [
+      "ohsr-14-2",
+      "ohsr-14-42",
+      "ohsr-14-42-1",
+      "ohsr-15-20",
+      "ohsr-16-10",
+      "ohsr-19-24-1",
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines"
+    ],
+    "sourceIds": [
+      "worksafebc-ohs-regulation",
+      "worksafebc-ohs-guidelines"
+    ],
+    "sourceNoteIds": [
+      "worksafebc-ohsr-part-14",
+      "worksafebc-ohsr-part-15",
+      "worksafebc-ohsr-part-16",
+      "worksafebc-ohsr-part-19",
+      "source-note-worksafebc-ohs-regulation",
+      "source-note-worksafebc-ohs-guidelines"
+    ],
+    "snippet": "An exclusion zone is a clearly defined area that workers, visitors, pedestrians, or other trades must stay out of while a hazard is active. On construction sites, the zone is often used around suspended loads, crane swing areas,...",
+    "searchText": "exclusion zone an exclusion zone is a clearly defined area that workers visitors pedestrians or other trades must stay out of while a hazard is active on construction sites the zone is often used around suspended loads crane swing areas concrete pump booms tilt up panel lifts mobile equipment falling object hazards and work near energized equipment an exclusion zone is a clearly defined area that workers visitors pedestrians or other trades must stay out of while a hazard is active on construction sites the zone is often used around suspended loads crane swing areas concrete pump booms tilt up panel lifts mobile equipment falling object hazards and work near energized equipment the value of an exclusion zone is that it turns a moving hazard into a visible boundary with a person responsible for controlling it a line on a drawing is not enough by itself workers need to know where the boundary is when it applies who may enter who controls entry and what changes stop the work use this article with cranes and hoists rigging basics mobile equipment traffic control and electrical safety near power lines high risk work exclusion zones keep out zone restricted work area controlled access zone load path exclusion crane concrete steel civil all construction trades suspended loads swinging equipment struck by power line contact public interface planning lifts concrete pumping mobile equipment movement tilt up panel erection work near power lines lift plan exclusion zone sketch traffic or pedestrian control plan communication plan pre task briefing record corrective action record ohsr 14 2 ohsr 14 42 ohsr 14 42 1 ohsr 15 20 ohsr 16 10 ohsr 19 24 1 worksafebc ohs regulation worksafebc ohs guidelines a load boom counterweight bucket panel pipe hose or equipment part could strike a person a crane hoist boom truck concrete pump excavator forklift or other mobile equipment is operating near workers workers could walk under a suspended load or through a planned load path a task creates a temporary danger area such as tilt up panel erection demolition drop zones or overhead work the public traffic tenants visitors or nearby trades could enter the work area by mistake work is near high voltage conductors and a minimum approach distance or work limit must be respected the lift plan traffic plan or site layout changes during the shift use cranes and hoists that meet the applicable standards and requirements for the equipment and work use standard or agreed communication methods when crane or hoist signalling is required for tandem lifts prepare and communicate the required written lift plan where the regulation requires it for critical lifts prepare and communicate the required written lift plan where the regulation requires it keep people out of the range of hazardous swinging mobile equipment loads or parts and do not move the load or part while a person is exposed where mobile equipment cannot be positioned to keep the required clearance from an obstruction in an accessible area prevent entry by barriers or other effective means maintain required distances or obtain required authorization before work proceeds near high voltage conductors mark the exclusion zone before the hazard starts not after the first lift or movement begins use physical controls where practical barriers cones snow fence hoarding spotters locked gates or tape backed by a person controlling entry make the boundary easy to understand from worker eye level including at corners doors stairs ramps and blind approaches name who can authorize entry and what conditions must exist before entry is allowed keep the zone large enough for load swing boom movement hose whip dropped objects blind spots wind and emergency escape brief affected trades delivery drivers traffic control persons and the prime contractor when the zone affects their route stop the task if the boundary is unclear workers keep entering communication fails or the hazard changes lift plan records the load path landing area signal person and workers who must stay outside the zone exclusion zone sketch shows the boundary access points spotter location and affected routes traffic or pedestrian control plan coordinates workers vehicles pedestrians and public access around the zone communication plan explains signals radios handoff points and who controls entry pre task briefing record shows affected workers were told where the zone is and when it applies corrective action record tracks missing barriers repeated entry unclear signage or changed conditions identify the hazard that needs a keep out area suspended load swing radius power line limit overhead work equipment movement or public interface decide the boundary using the actual task equipment reach load path blind spots falling object risk weather and escape routes mark the zone on the ground or site plan and confirm that all access points are controlled assign the person who controls the zone and the person who can approve entry brief the operator signal person spotter receiving crew nearby trades traffic control and the prime contractor install barriers cones tape signs gates spotters or other controls before the hazard starts confirm workers know whether they are inside the work crew or outside the zone keep the zone active until the load equipment or overhead hazard is stable and the supervisor releases the area stop if anyone enters the zone without authorization or if the hazard grows beyond the marked boundary record any deficiency near miss boundary change or repeated entry problem before the next similar task i know where the exclusion zone starts and ends i know whether i am allowed inside the zone for this task i know who controls entry into the zone i will not walk under a suspended load or through the load path i will not enter a swing radius boom area or equipment blind spot unless assigned and authorized i will use the planned route around the zone i will tell the supervisor if cones tape barriers or signs are missing or unclear i will stop if another worker driver visitor or member of the public enters the zone i know the communication method for the task i know where to stand if the task pauses or the load changes direction the exclusion zone matches the actual task equipment load path power line limit public interface and weather the zone is marked before work starts and is visible from likely approach routes entry points doors stairs ramps traffic routes and blind approaches are controlled workers know who may enter and who controls the boundary the operator signal person spotter receiving crew and affected trades have the same understanding of the zone public and traffic interfaces are coordinated with hoarding signage traffic control or pedestrian routes the zone is adjusted when the load path boom position wind equipment setup or adjacent work changes deficiencies and unauthorized entry are corrected before the task continues treating an exclusion zone as caution tape only with no one controlling entry making the zone too small for load swing boom movement hose whip or falling object bounce forgetting doors stairwells ramps delivery routes and blind corners letting workers pass through the zone because the task feels routine moving the load before the receiving area and escape route are ready failing to brief other trades or traffic control when the zone blocks their route leaving barriers in place after the hazard is gone so workers stop respecting them not recording repeated unauthorized entry as a corrective action"
+  },
+  {
     "slug": "eye-and-face-protection",
     "title": "Eye and Face Protection",
     "category": "PPE & Equipment",
@@ -2257,7 +2435,7 @@ export const generatedWikiSearchIndex = [
       "source-note-worksafebc-ohs-guidelines"
     ],
     "snippet": "Fall arrest is a last-line fall protection system that stops a worker after a fall has started. It is not the same as fall restraint, because the worker may still fall, hit lower levels, swing into structure, or hang suspended until...",
-    "searchText": "fall arrest fall arrest is a last line fall protection system that stops a worker after a fall has started it is not the same as fall restraint because the worker may still fall hit lower levels swing into structure or hang suspended until rescue starts fall arrest is a last line fall protection system that stops a worker after a fall has started it is not the same as fall restraint because the worker may still fall hit lower levels swing into structure or hang suspended until rescue starts a fall arrest setup is only as reliable as the whole chain harness connector lifeline anchor clearance edge protection compatibility inspection and rescue a single weak part can make the system unsuitable for the work use this article with fall protection plan anchor points and fall rescue plan high risk work harness lanyard self retracting lifeline srl personal fall arrest all construction trades roofing concrete mechanical falls from height swing fall equipment failure suspension trauma using harnesses connecting to anchors working near unguarded edges inspecting fall arrest equipment fall protection plan rescue plan equipment inspection record manufacturer instructions training instruction record anchor approval record ohsr 11 2 ohsr 11 3 ohsr 11 4 ohsr 11 5 ohsr 11 6 ohsr 11 9 ohsr 11 10 ohsr 32 4 worksafebc ohs regulation worksafebc ohs guidelines a worker is wearing a harness and connecting to a lanyard vertical lifeline horizontal lifeline or self retracting lifeline guardrails or restraint cannot fully prevent access to the fall hazard a crew is selecting or checking anchors for personal fall protection the work area has limited clearance below the worker there are swing fall paths sharp edges rebar materials equipment or lower floors below a fall arrest component has been damaged exposed to chemicals heavily worn or used in a fall a rescue plan is needed because a worker could be suspended after a fall use fall protection when part 11 requires it and a worker is exposed to the fall hazard select the proper body support equipment for the fall protection method being used use equipment that meets applicable fall protection equipment requirements use anchors that are suitable for the system and load they are intended to support inspect and maintain fall protection equipment before use and as required by the system remove equipment from service when it has arrested a fall or when damage defects or uncertainty make it unreliable include rescue planning when fall arrest could leave a worker suspended do not use non standard fall arrest arrangements unless the equipment anchor compatibility inspection clearance and rescue method are confirmed for the intended use use restraint or guardrails instead of arrest when the work can be arranged to prevent a fall calculate clearance before work starts do not assume the lanyard length alone tells you whether the system works keep lanyards and lifelines away from sharp or abrasive edges unless the equipment is rated and protected for that use mark anchors so workers do not choose plumbing conduit guardrails or temporary bracing by mistake use compatible components from the same system or confirmed by a qualified reviewer store equipment clean dry and away from concrete slurry welding damage chemicals and crushing practice the rescue method before relying on it for high exposure work fall protection plan records the site specific control expected before the task starts rescue plan supports worker instruction supervisor review and follow up when conditions change equipment inspection record keeps the field method tied to the hazard equipment and work location manufacturer instructions helps the prime contractor and affected trades coordinate overlapping work training instruction record creates a review trail if an inspection incident or refusal raises the issue anchor approval record confirms the plan equipment or instruction workers are expected to use confirm that fall arrest is the right control and that stronger controls are not practical for this task review the fall protection plan rescue plan and equipment instructions inspect the harness connector lifeline labels stitching hardware and shock absorber confirm the anchor location rating and intended use before connecting check free fall distance deceleration distance worker height connector length swing path and lower level clearance protect the lifeline from sharp edges heat chemicals traffic and moving equipment connect using the approved d ring and connector orientation keep slack controlled and stay within the planned work area stop and replace equipment if damage missing labels impact loading contamination or uncertainty is found record inspection problems and any equipment removed from service i inspected my harness and connector before using them i know the approved anchor for this task i know my fall clearance and swing fall limits i know the lifeline is protected from sharp edges and damage i know what equipment must be removed from service i know how rescue would start if i fell i will not connect to guardrails pipe conduit rebar or unknown structure i will not use damaged altered contaminated or unlabeled equipment i will keep slack controlled while i work i will stop if the work changes from the planned setup fall arrest has been selected only after stronger controls were considered the system matches the written fall protection plan anchors and equipment are suitable for the intended use workers understand clearance swing fall edge and rescue limits equipment inspections are complete and suspect gear is removed from service the rescue method is available and practical for the actual fall location manufacturer instructions are available for unusual or specialized equipment workers are supervised when using a new system or changed anchor layout inspection records identify deficiencies and corrective actions not checking fall clearance below the worker connecting to a convenient but unapproved anchor letting workers use personal equipment that has not been inspected using arrest where the worker can swing into structure allowing lifelines to run over sharp concrete or steel edges without protection forgetting that rescue is part of the fall arrest system ignoring manufacturer limits on connection orientation and compatibility returning a harness to service after impact loading because it still looks usable"
+    "searchText": "fall arrest fall arrest is a last line fall protection system that stops a worker after a fall has started it is not the same as fall restraint because the worker may still fall hit lower levels swing into structure or hang suspended until rescue starts fall arrest is a last line fall protection system that stops a worker after a fall has started it is not the same as fall restraint because the worker may still fall hit lower levels swing into structure or hang suspended until rescue starts a fall arrest setup is only as reliable as the whole chain harness connector lifeline anchor clearance edge protection compatibility inspection and rescue a single weak part can make the system unsuitable for the work use this article with fall protection plan anchor points and fall rescue plan high risk work harness lanyard self retracting lifeline srl personal fall arrest all construction trades roofing concrete mechanical falls from height swing fall equipment failure suspension trauma using harnesses connecting to anchors working near unguarded edges inspecting fall arrest equipment fall protection plan rescue plan equipment inspection record manufacturer instructions training instruction record anchor approval record ohsr 11 2 ohsr 11 3 ohsr 11 4 ohsr 11 5 ohsr 11 6 ohsr 11 9 ohsr 11 10 ohsr 32 4 worksafebc ohs regulation worksafebc ohs guidelines a worker is wearing a harness and connecting to a lanyard vertical lifeline horizontal lifeline or self retracting lifeline guardrails or restraint cannot fully prevent access to the fall hazard a crew is selecting or checking anchors for personal fall protection the work area has limited clearance below the worker there are swing fall paths sharp edges rebar materials equipment or lower floors below a fall arrest component has been damaged exposed to chemicals heavily worn or used in a fall a rescue plan is needed because a worker could be suspended after a fall use fall protection when work is at a place where a fall of 3 m 10 ft or more may occur or where a shorter fall could cause greater injury than impact on a flat surface select the proper body support equipment for the fall protection method being used use equipment that meets applicable fall protection equipment requirements use anchors that are suitable for the system and load they are intended to support inspect and maintain fall protection equipment before use and as required by the system remove equipment from service when it has arrested a fall or when damage defects or uncertainty make it unreliable include rescue planning when fall arrest could leave a worker suspended do not use non standard fall arrest arrangements unless the equipment anchor compatibility inspection clearance and rescue method are confirmed for the intended use use restraint or guardrails instead of arrest when the work can be arranged to prevent a fall calculate clearance before work starts do not assume the lanyard length alone tells you whether the system works keep lanyards and lifelines away from sharp or abrasive edges unless the equipment is rated and protected for that use mark anchors so workers do not choose plumbing conduit guardrails or temporary bracing by mistake use compatible components from the same system or confirmed by a qualified reviewer store equipment clean dry and away from concrete slurry welding damage chemicals and crushing practice the rescue method before relying on it for high exposure work fall protection plan records the site specific control expected before the task starts rescue plan supports worker instruction supervisor review and follow up when conditions change equipment inspection record keeps the field method tied to the hazard equipment and work location manufacturer instructions helps the prime contractor and affected trades coordinate overlapping work training instruction record creates a review trail if an inspection incident or refusal raises the issue anchor approval record confirms the plan equipment or instruction workers are expected to use confirm that fall arrest is the right control and that stronger controls are not practical for this task review the fall protection plan rescue plan and equipment instructions inspect the harness connector lifeline labels stitching hardware and shock absorber confirm the anchor location rating and intended use before connecting check free fall distance deceleration distance worker height connector length swing path and lower level clearance protect the lifeline from sharp edges heat chemicals traffic and moving equipment connect using the approved d ring and connector orientation keep slack controlled and stay within the planned work area stop and replace equipment if damage missing labels impact loading contamination or uncertainty is found record inspection problems and any equipment removed from service i inspected my harness and connector before using them i know the approved anchor for this task i know my fall clearance and swing fall limits i know the lifeline is protected from sharp edges and damage i know what equipment must be removed from service i know how rescue would start if i fell i will not connect to guardrails pipe conduit rebar or unknown structure i will not use damaged altered contaminated or unlabeled equipment i will keep slack controlled while i work i will stop if the work changes from the planned setup fall arrest has been selected only after stronger controls were considered the system matches the written fall protection plan anchors and equipment are suitable for the intended use workers understand clearance swing fall edge and rescue limits equipment inspections are complete and suspect gear is removed from service the rescue method is available and practical for the actual fall location manufacturer instructions are available for unusual or specialized equipment workers are supervised when using a new system or changed anchor layout inspection records identify deficiencies and corrective actions not checking fall clearance below the worker connecting to a convenient but unapproved anchor letting workers use personal equipment that has not been inspected using arrest where the worker can swing into structure allowing lifelines to run over sharp concrete or steel edges without protection forgetting that rescue is part of the fall arrest system ignoring manufacturer limits on connection orientation and compatibility returning a harness to service after impact loading because it still looks usable"
   },
   {
     "slug": "fall-protection-plan",
@@ -8488,6 +8666,24 @@ export const generatedWikiQualityMetrics = [
     "issues": []
   },
   {
+    "slug": "air-monitoring",
+    "title": "Air Monitoring",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "exactCitationCount": 4,
+    "broadCitationCount": 2,
+    "sourceReviewFlagCount": 0,
+    "outboundLinkCount": 12,
+    "inboundLinkCount": 5,
+    "relatedToolCount": 24,
+    "sourceNoteCount": 8,
+    "wordCount": 1163,
+    "score": 90,
+    "issues": [
+      "Tier 2 exact citation count is 4; expected at least 5"
+    ]
+  },
+  {
     "slug": "anchor-points",
     "title": "Anchor Points",
     "reviewTier": "Tier 3",
@@ -8511,8 +8707,8 @@ export const generatedWikiQualityMetrics = [
     "exactCitationCount": 17,
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
-    "outboundLinkCount": 12,
-    "inboundLinkCount": 14,
+    "outboundLinkCount": 13,
+    "inboundLinkCount": 15,
     "relatedToolCount": 26,
     "sourceNoteCount": 6,
     "wordCount": 1129,
@@ -8528,7 +8724,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 4,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 1,
+    "inboundLinkCount": 2,
     "relatedToolCount": 24,
     "sourceNoteCount": 8,
     "wordCount": 1139,
@@ -8608,7 +8804,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 5,
+    "inboundLinkCount": 6,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1125,
@@ -8672,7 +8868,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 2,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 4,
+    "inboundLinkCount": 5,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1108,
@@ -8687,8 +8883,8 @@ export const generatedWikiQualityMetrics = [
     "exactCitationCount": 14,
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
-    "outboundLinkCount": 12,
-    "inboundLinkCount": 11,
+    "outboundLinkCount": 13,
+    "inboundLinkCount": 12,
     "relatedToolCount": 25,
     "sourceNoteCount": 6,
     "wordCount": 952,
@@ -8704,7 +8900,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 4,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 5,
+    "inboundLinkCount": 6,
     "relatedToolCount": 24,
     "sourceNoteCount": 8,
     "wordCount": 1154,
@@ -8752,7 +8948,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 16,
+    "inboundLinkCount": 17,
     "relatedToolCount": 24,
     "sourceNoteCount": 7,
     "wordCount": 1130,
@@ -8767,8 +8963,8 @@ export const generatedWikiQualityMetrics = [
     "exactCitationCount": 9,
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
-    "outboundLinkCount": 12,
-    "inboundLinkCount": 6,
+    "outboundLinkCount": 13,
+    "inboundLinkCount": 7,
     "relatedToolCount": 28,
     "sourceNoteCount": 6,
     "wordCount": 1012,
@@ -8856,6 +9052,22 @@ export const generatedWikiQualityMetrics = [
     "issues": []
   },
   {
+    "slug": "exclusion-zone",
+    "title": "Exclusion Zone",
+    "reviewTier": "Tier 2",
+    "maturity": "Draft",
+    "exactCitationCount": 6,
+    "broadCitationCount": 0,
+    "sourceReviewFlagCount": 0,
+    "outboundLinkCount": 12,
+    "inboundLinkCount": 5,
+    "relatedToolCount": 24,
+    "sourceNoteCount": 6,
+    "wordCount": 1196,
+    "score": 100,
+    "issues": []
+  },
+  {
     "slug": "eye-and-face-protection",
     "title": "Eye and Face Protection",
     "reviewTier": "Tier 3",
@@ -8883,7 +9095,7 @@ export const generatedWikiQualityMetrics = [
     "inboundLinkCount": 21,
     "relatedToolCount": 24,
     "sourceNoteCount": 4,
-    "wordCount": 977,
+    "wordCount": 996,
     "score": 100,
     "issues": []
   },
@@ -9104,7 +9316,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 14,
+    "inboundLinkCount": 15,
     "relatedToolCount": 24,
     "sourceNoteCount": 7,
     "wordCount": 1115,
@@ -9152,7 +9364,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 4,
+    "inboundLinkCount": 5,
     "relatedToolCount": 24,
     "sourceNoteCount": 8,
     "wordCount": 1113,
@@ -9184,7 +9396,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 6,
+    "inboundLinkCount": 7,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1145,
@@ -9296,7 +9508,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 11,
+    "inboundLinkCount": 12,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1127,
@@ -9328,7 +9540,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 4,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 17,
-    "inboundLinkCount": 6,
+    "inboundLinkCount": 7,
     "relatedToolCount": 24,
     "sourceNoteCount": 7,
     "wordCount": 1099,
@@ -9392,7 +9604,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 17,
-    "inboundLinkCount": 27,
+    "inboundLinkCount": 28,
     "relatedToolCount": 24,
     "sourceNoteCount": 3,
     "wordCount": 1121,
@@ -9456,7 +9668,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 12,
-    "inboundLinkCount": 63,
+    "inboundLinkCount": 62,
     "relatedToolCount": 28,
     "sourceNoteCount": 6,
     "wordCount": 956,
@@ -9584,7 +9796,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 12,
-    "inboundLinkCount": 25,
+    "inboundLinkCount": 26,
     "relatedToolCount": 25,
     "sourceNoteCount": 7,
     "wordCount": 1018,
@@ -9599,8 +9811,8 @@ export const generatedWikiQualityMetrics = [
     "exactCitationCount": 17,
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
-    "outboundLinkCount": 12,
-    "inboundLinkCount": 7,
+    "outboundLinkCount": 13,
+    "inboundLinkCount": 8,
     "relatedToolCount": 27,
     "sourceNoteCount": 5,
     "wordCount": 943,
@@ -9616,7 +9828,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 14,
+    "inboundLinkCount": 13,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1129,
@@ -9712,7 +9924,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 12,
-    "inboundLinkCount": 14,
+    "inboundLinkCount": 15,
     "relatedToolCount": 25,
     "sourceNoteCount": 6,
     "wordCount": 986,
@@ -9840,7 +10052,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 1,
+    "inboundLinkCount": 2,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1118,
@@ -9856,7 +10068,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 1,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 14,
-    "inboundLinkCount": 85,
+    "inboundLinkCount": 81,
     "relatedToolCount": 24,
     "sourceNoteCount": 5,
     "wordCount": 1122,
@@ -9904,7 +10116,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 1,
     "outboundLinkCount": 12,
-    "inboundLinkCount": 26,
+    "inboundLinkCount": 27,
     "relatedToolCount": 26,
     "sourceNoteCount": 5,
     "wordCount": 1018,
@@ -9920,7 +10132,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 1,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 14,
-    "inboundLinkCount": 90,
+    "inboundLinkCount": 91,
     "relatedToolCount": 24,
     "sourceNoteCount": 5,
     "wordCount": 1116,
@@ -9952,7 +10164,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 3,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 17,
+    "inboundLinkCount": 18,
     "relatedToolCount": 24,
     "sourceNoteCount": 5,
     "wordCount": 1137,
@@ -9984,7 +10196,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 4,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 4,
+    "inboundLinkCount": 5,
     "relatedToolCount": 24,
     "sourceNoteCount": 7,
     "wordCount": 1128,
@@ -10000,7 +10212,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 1,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 18,
-    "inboundLinkCount": 19,
+    "inboundLinkCount": 20,
     "relatedToolCount": 24,
     "sourceNoteCount": 3,
     "wordCount": 1053,
@@ -10048,7 +10260,7 @@ export const generatedWikiQualityMetrics = [
     "broadCitationCount": 0,
     "sourceReviewFlagCount": 0,
     "outboundLinkCount": 13,
-    "inboundLinkCount": 91,
+    "inboundLinkCount": 92,
     "relatedToolCount": 24,
     "sourceNoteCount": 6,
     "wordCount": 1143,
@@ -10073,10 +10285,10 @@ export const generatedWikiQualityMetrics = [
   }
 ];
 export const generatedWikiSourceCoverage = {
-  "generatedAt": "2026-06-21T18:51:16.067Z",
-  "articleCount": 100,
+  "generatedAt": "2026-06-22T01:36:31.821Z",
+  "articleCount": 102,
   "sourceNoteCount": 53,
-  "articlesWithSourceNotes": 100,
+  "articlesWithSourceNotes": 102,
   "articlesMissingSourceNotes": [],
   "unresolvedSourceReviewArticles": [
     {
@@ -10087,7 +10299,26 @@ export const generatedWikiSourceCoverage = {
   ],
   "staleReviewArticles": [],
   "weakTierOne": [],
-  "weakTierTwo": [],
+  "weakTierTwo": [
+    {
+      "slug": "air-monitoring",
+      "title": "Air Monitoring",
+      "reviewTier": "Tier 2",
+      "maturity": "Draft",
+      "exactCitationCount": 4,
+      "broadCitationCount": 2,
+      "sourceReviewFlagCount": 0,
+      "outboundLinkCount": 12,
+      "inboundLinkCount": 5,
+      "relatedToolCount": 24,
+      "sourceNoteCount": 8,
+      "wordCount": 1163,
+      "score": 90,
+      "issues": [
+        "Tier 2 exact citation count is 4; expected at least 5"
+      ]
+    }
+  ],
   "sourceNotesBySourceId": {
     "bc-building-code": "source-note-bc-building-code",
     "bc-hydro-power-line-safety": "source-note-bc-hydro-power-line-safety",

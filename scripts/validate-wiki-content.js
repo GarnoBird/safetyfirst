@@ -16,7 +16,9 @@ for (const article of wikiArticles) {
     errors.push(`Duplicate article slug: ${article.slug}`);
   }
   articleSlugs.add(article.slug);
+}
 
+for (const article of wikiArticles) {
   if (!article.title || !article.summary) {
     errors.push(`${article.slug}: missing title or summary`);
   }
