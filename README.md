@@ -15,6 +15,8 @@ The existing safety tracker remains browser-local. The worker sign-in backend en
 
 1. Create a Supabase project.
 2. Run `supabase/migrations/001_worker_signins.sql` in the Supabase SQL editor.
+   Run the later migrations in order as well, including `007_form_submissions.sql`
+   for worker accounts, submissions, and the private submission storage bucket.
 3. Add the environment variables from `.env.example` to Vercel.
 4. Seed the testing staff user:
 
@@ -30,6 +32,20 @@ The default seeded staff account is:
 
 Change this password before using real production data.
 
+### OneDrive backup
+
+Safety form submissions use Microsoft Graph for staff-only OneDrive backup. Add
+these server-side Vercel environment variables before relying on backup status:
+
+- `MS_TENANT_ID`
+- `MS_CLIENT_ID`
+- `MS_CLIENT_SECRET`
+- `MS_DRIVE_ID`
+- `MS_FORMS_FOLDER_ID`
+
+If these are missing, submissions still save in Supabase, but backup status is
+marked failed and can be retried from Staff Forms after Microsoft is configured.
+
 ## Routes
 
 - `/wiki`: public BC Construction Safety Wiki section with plain wiki-style styling.
@@ -38,9 +54,17 @@ Change this password before using real production data.
 - `/worker-sign-in`: public worker sign-in form.
 - `/worker-sign-out-qr`: QR poster page for worker sign-out.
 - `/worker-sign-out`: public worker sign-out confirmation.
+- `/worker-login`: worker login for safety form submission accounts.
+- `/forms`: worker form picker for toolbox talk, site inspection, and daily hazard assessment submissions.
+- `/forms/toolbox_talk`: toolbox talk submission flow.
+- `/forms/site_inspection`: site inspection submission flow.
+- `/forms/daily_hazard_assessment`: daily hazard assessment submission flow.
+- `/my-submissions`: worker submission history and app-side deletion.
 - `/staff-login`: staff login.
 - `/staff/home`: staff landing page with roster counts, QR links, reports, and settings access.
 - `/staff/sign-ins`: staff "Who's Here" records, grouping, export, and manual email report.
+- `/staff/forms`: staff form submission filtering, detail view, and OneDrive backup retry.
+- `/staff/workers`: staff worker account creation, editing, deactivation, and password reset.
 - `/staff/settings`: staff-only site settings, editable email report settings, reminder placeholder, and privacy notes.
 
 ## Email Reports

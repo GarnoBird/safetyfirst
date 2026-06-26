@@ -15,12 +15,18 @@ import { loadSafetyData, resetSafetyData, saveSafetyData } from "./storage.js";
 import {
   StaffHomePage,
   StaffCompanySummaryPage,
+  StaffFormSubmissionsPage,
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
   StaffTrendsPage,
+  StaffWorkersPage,
+  WorkerFormSubmissionPage,
+  WorkerFormsHomePage,
+  WorkerLoginPage,
   WorkerSignInPage,
   WorkerSignInQr,
+  WorkerSubmissionHistoryPage,
   WorkerSignOutPage,
   WorkerSignOutQr,
 } from "./WorkerSignIn.jsx";
@@ -64,6 +70,22 @@ export default function App() {
     return <WorkerSignInPage />;
   }
 
+  if (routePath === "/worker-login") {
+    return <WorkerLoginPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/forms") {
+    return <WorkerFormsHomePage navigateTo={navigateTo} />;
+  }
+
+  if (routePath.startsWith("/forms/")) {
+    return <WorkerFormSubmissionPage routePath={routePath} navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/my-submissions") {
+    return <WorkerSubmissionHistoryPage navigateTo={navigateTo} />;
+  }
+
   if (routePath === "/worker-sign-out-qr") {
     return <WorkerSignOutQr navigateTo={navigateTo} />;
   }
@@ -86,6 +108,14 @@ export default function App() {
 
   if (routePath === "/staff/sign-ins/company") {
     return <StaffCompanySummaryPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/forms") {
+    return <StaffFormSubmissionsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/workers") {
+    return <StaffWorkersPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/trends") {

@@ -26,3 +26,24 @@ select cron.schedule(
     ) as request_id;
   $$
 );
+
+select cron.unschedule('safetyfirst-submission-maintenance-hourly')
+where exists (
+  select 1 from cron.job where jobname = 'safetyfirst-submission-maintenance-hourly'
+);
+
+select cron.schedule(
+  'safetyfirst-submission-maintenance-hourly',
+  '17 * * * *',
+  $$
+  select
+    net.http_post(
+      url := (select decrypted_secret from vault.decrypted_secrets where name = 'safetyfirst_app_public_url') || '/api/cron/submission-maintenance',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'safetyfirst_supabase_cron_secret')
+      ),
+      body := '{}'::jsonb
+    ) as request_id;
+  $$
+);

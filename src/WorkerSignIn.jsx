@@ -18,6 +18,8 @@ const STAFF_MOBILE_NAV_ITEMS = [
     label: "ON SITE - COMPANY",
     path: "/staff/sign-ins/company",
   },
+  { id: "forms", label: "FORMS", path: "/staff/forms" },
+  { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "trends", label: "TRENDS", path: "/staff/trends" },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
@@ -106,6 +108,30 @@ const EMPTY_WORKER_SIGNIN_FORM = {
   phone: "",
   companyName: "",
   otherCompanyName: "",
+};
+
+const SAFETY_FORM_TYPES = [
+  { id: "toolbox_talk", label: "Toolbox Talk" },
+  { id: "site_inspection", label: "Site Inspection" },
+  { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
+];
+
+const STAFF_FORM_SORT_LABELS = {
+  submitted_at: "Submitted",
+  company: "Company",
+  worker_phone: "Phone",
+  worker_name: "Name",
+  form_type: "Form Type",
+  one_drive_backup_status: "Backup",
+};
+
+const EMPTY_STAFF_WORKER_FORM = {
+  name: "",
+  company: "",
+  phone: "",
+  username: "",
+  password: "",
+  active: true,
 };
 
 export function WorkerSignInQr({ navigateTo }) {
@@ -793,6 +819,44 @@ export function StaffHomePage({ navigateTo }) {
               Sign-Out QR
             </button>
           </div>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open forms"
+          eyebrow="Submissions"
+          text="Review toolbox talks, site inspections, daily hazard assessments, file backups, and retry failed OneDrive uploads."
+          title="Safety Forms"
+          onAction={() => navigateTo("/staff/forms")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Worker link</dt>
+              <dd>/worker-login</dd>
+            </div>
+            <div>
+              <dt>Retention</dt>
+              <dd>30 days after backup</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Manage workers"
+          eyebrow="Accounts"
+          text="Create worker usernames, phone mappings, company ties, passwords, and active status."
+          title="Worker Accounts"
+          onAction={() => navigateTo("/staff/workers")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Login</dt>
+              <dd>Phone or username</dd>
+            </div>
+            <div>
+              <dt>Remember me</dt>
+              <dd>Long-lived session</dd>
+            </div>
+          </dl>
         </StaffActionCard>
 
         <StaffActionCard
@@ -1975,6 +2039,965 @@ export function StaffTrendsPage({ navigateTo }) {
   );
 }
 
+export function WorkerLoginPage({ navigateTo }) {
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/worker-me", { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (active && payload.worker) navigateTo("/forms");
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [navigateTo]);
+
+  const submitLogin = async (event) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setMessage("");
+
+    try {
+      await readApiJson(
+        await fetch("/api/auth/worker-login", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ identifier, password, rememberMe }),
+        }),
+      );
+      navigateTo("/forms");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="public-page worker-page form-platform-page">
+      <section className="worker-card">
+        <div className="brand-mark">APPIA</div>
+        <form className="worker-form" onSubmit={submitLogin}>
+          <h1>Worker Forms</h1>
+          <label>
+            <span>Phone or username</span>
+            <input
+              required
+              autoComplete="username"
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Password</span>
+            <input
+              required
+              autoComplete="current-password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </label>
+          <label className="remember-worker-field">
+            <input
+              checked={rememberMe}
+              type="checkbox"
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            <span>Remember me</span>
+          </label>
+          <button className="primary-button" disabled={submitting} type="submit">
+            {submitting ? "Signing in..." : "Sign in"}
+          </button>
+          {message ? <p className="form-message error">{message}</p> : null}
+        </form>
+      </section>
+    </main>
+  );
+}
+
+export function WorkerFormsHomePage({ navigateTo }) {
+  const { worker } = useWorkerSession(navigateTo);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const signOut = async () => {
+    setSigningOut(true);
+    await fetch("/api/auth/worker-logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    navigateTo("/worker-login");
+  };
+
+  if (!worker) return <WorkerFormLoadingScreen />;
+
+  return (
+    <main className="public-page form-platform-page">
+      <section className="form-platform-shell">
+        <header className="form-platform-header">
+          <div>
+            <div className="brand-mark">APPIA</div>
+            <h1>Submit a Safety Form</h1>
+            <p>{worker.name} / {worker.company}</p>
+          </div>
+          <div className="form-platform-actions">
+            <button type="button" onClick={() => navigateTo("/my-submissions")}>
+              My submissions
+            </button>
+            <button disabled={signingOut} type="button" onClick={signOut}>
+              {signingOut ? "Signing out..." : "Sign out"}
+            </button>
+          </div>
+        </header>
+
+        <div className="safety-form-grid">
+          {SAFETY_FORM_TYPES.map((form) => (
+            <button
+              className="safety-form-card"
+              key={form.id}
+              type="button"
+              onClick={() => navigateTo(`/forms/${form.id}`)}
+            >
+              <span>{form.label}</span>
+              <strong>Open</strong>
+            </button>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
+  const { worker } = useWorkerSession(navigateTo);
+  const formType = routePath.split("/").filter(Boolean).pop();
+  const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
+  const [mode, setMode] = useState("");
+  const [file, setFile] = useState(null);
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "", date: "" });
+  const submitted = status.type === "success";
+
+  useEffect(() => {
+    if (worker && !form) navigateTo("/forms");
+  }, [form, navigateTo, worker]);
+
+  const submitFilledForm = async (event) => {
+    event.preventDefault();
+    await submitSubmission({
+      formType,
+      submissionMode: "fill_form",
+      notes,
+    });
+  };
+
+  const submitFileForm = async (event) => {
+    event.preventDefault();
+    if (!file) {
+      setStatus({ type: "error", message: "Choose a file or photo.", date: "" });
+      return;
+    }
+
+    const uploadPayload = await submitUpload(file);
+    await submitSubmission({
+      formType,
+      submissionMode: "submit_file",
+      notes,
+      file: {
+        storagePath: uploadPayload.storagePath,
+        originalFilename: file.name,
+        mimeType: file.type || "application/octet-stream",
+        sizeBytes: file.size,
+      },
+    });
+  };
+
+  const submitUpload = async (selectedFile) => {
+    const payload = await readApiJson(
+      await fetch("/api/worker/submissions/file-upload-url", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          formType,
+          file: {
+            originalFilename: selectedFile.name,
+            mimeType: selectedFile.type || "application/octet-stream",
+            sizeBytes: selectedFile.size,
+          },
+        }),
+      }),
+    );
+
+    const formData = new FormData();
+    formData.append("cacheControl", "3600");
+    formData.append("", selectedFile);
+    const uploadResponse = await fetch(payload.upload.signedUrl, {
+      method: "PUT",
+      body: formData,
+    });
+    if (!uploadResponse.ok) {
+      throw new Error("File upload failed.");
+    }
+    return payload.upload;
+  };
+
+  const submitSubmission = async (body) => {
+    setSubmitting(true);
+    setStatus({ type: "", message: "", date: "" });
+
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/worker/submissions", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      );
+      setStatus({
+        type: "success",
+        message: "Your form has been submitted",
+        date: formatDateString(payload.submission.submitted_date_vancouver),
+      });
+    } catch (error) {
+      setStatus({ type: "error", message: error.message, date: "" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!worker || !form) return <WorkerFormLoadingScreen />;
+
+  return (
+    <main className="public-page form-platform-page">
+      <section className="form-platform-shell">
+        <header className="form-platform-header">
+          <div>
+            <button className="text-button" type="button" onClick={() => navigateTo("/forms")}>
+              Back
+            </button>
+            <h1>{form.label}</h1>
+            <p>{worker.name} / {worker.company}</p>
+          </div>
+          <button type="button" onClick={() => navigateTo("/my-submissions")}>
+            My submissions
+          </button>
+        </header>
+
+        <div className={submitted ? "worker-form submitted form-submit-panel" : "worker-form form-submit-panel"}>
+          {submitted ? (
+            <div className="worker-thank-you" role="status">
+              <h1>Thank You</h1>
+              <p>Your form has been submitted - {status.date}</p>
+            </div>
+          ) : (
+            <>
+              {!mode ? (
+                <div className="submission-mode-grid">
+                  <button type="button" onClick={() => setMode("submit_file")}>
+                    <strong>Submit File</strong>
+                    <span>Upload a document, photo, or camera image.</span>
+                  </button>
+                  <button type="button" onClick={() => setMode("fill_form")}>
+                    <strong>Fill Form</strong>
+                    <span>Use the simple placeholder form.</span>
+                  </button>
+                </div>
+              ) : null}
+
+              {mode === "submit_file" ? (
+                <form className="submission-form" onSubmit={submitFileForm}>
+                  <div className="file-choice-grid">
+                    <FileChoice label="Upload File" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*" onFile={setFile} />
+                    <FileChoice label="Upload Photo" accept="image/*" onFile={setFile} />
+                    <FileChoice label="Take Photo" accept="image/*" capture="environment" onFile={setFile} />
+                  </div>
+                  {file ? (
+                    <p className="selected-file">
+                      {file.name} / {formatFileSize(file.size)}
+                    </p>
+                  ) : null}
+                  <label>
+                    <span>Notes</span>
+                    <textarea
+                      rows="4"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                    />
+                  </label>
+                  <div className="form-platform-actions">
+                    <button type="button" onClick={() => setMode("")}>
+                      Change option
+                    </button>
+                    <button className="primary-button" disabled={submitting} type="submit">
+                      {submitting ? "Submitting..." : "Submit"}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+
+              {mode === "fill_form" ? (
+                <form className="submission-form" onSubmit={submitFilledForm}>
+                  <label>
+                    <span>Notes</span>
+                    <textarea
+                      autoFocus
+                      rows="7"
+                      placeholder="Optional"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                    />
+                  </label>
+                  <div className="form-placeholder-panel" aria-hidden="true" />
+                  <div className="form-platform-actions">
+                    <button type="button" onClick={() => setMode("")}>
+                      Change option
+                    </button>
+                    <button className="primary-button" disabled={submitting} type="submit">
+                      {submitting ? "Submitting..." : "Submit"}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+            </>
+          )}
+          {status.type === "error" ? (
+            <p className="form-message error">{status.message}</p>
+          ) : null}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export function WorkerSubmissionHistoryPage({ navigateTo }) {
+  const { worker } = useWorkerSession(navigateTo);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState("");
+
+  const loadRows = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/worker/submissions", { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (worker) loadRows();
+  }, [worker]);
+
+  const deleteSubmission = async (id) => {
+    setDeletingId(id);
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/worker/submissions/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      setRows((current) => current.filter((row) => row.id !== id));
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setDeletingId("");
+    }
+  };
+
+  if (!worker) return <WorkerFormLoadingScreen />;
+
+  return (
+    <main className="public-page form-platform-page">
+      <section className="form-platform-shell">
+        <header className="form-platform-header">
+          <div>
+            <button className="text-button" type="button" onClick={() => navigateTo("/forms")}>
+              Back
+            </button>
+            <h1>My Submissions</h1>
+            <p>{worker.name} / {worker.company}</p>
+          </div>
+          <button type="button" onClick={loadRows}>
+            Refresh
+          </button>
+        </header>
+
+        {message ? <p className="form-message error">{message}</p> : null}
+        <div className="submission-history-list">
+          {loading ? <p className="empty-state">Loading submissions...</p> : null}
+          {!loading && !rows.length ? (
+            <p className="empty-state">No submissions yet.</p>
+          ) : null}
+          {rows.map((row) => (
+            <article className="submission-history-item" key={row.id}>
+              <div>
+                <strong>{formTypeLabel(row.form_type)}</strong>
+                <span>{formatDateTime(row.submitted_at)}</span>
+                <small>
+                  {submissionModeLabel(row.submission_mode)} / {backupStatusLabel(row.one_drive_backup_status)}
+                </small>
+              </div>
+              <button
+                disabled={deletingId === row.id}
+                type="button"
+                onClick={() => deleteSubmission(row.id)}
+              >
+                {deletingId === row.id ? "Deleting..." : "Delete"}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export function StaffWorkersPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [rows, setRows] = useState([]);
+  const [form, setForm] = useState(EMPTY_STAFF_WORKER_FORM);
+  const [editingId, setEditingId] = useState("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadWorkers = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      const payload = await readApiJson(
+        await fetch(`/api/staff/workers?${params}`, { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadWorkers();
+  }, [staff]);
+
+  const updateForm = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const startEdit = (worker) => {
+    setEditingId(worker.id);
+    setForm({
+      name: worker.name || "",
+      company: worker.company || "",
+      phone: worker.phone || "",
+      username: worker.username || "",
+      password: "",
+      active: worker.active,
+    });
+  };
+
+  const resetForm = () => {
+    setEditingId("");
+    setForm(EMPTY_STAFF_WORKER_FORM);
+  };
+
+  const saveWorker = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      const method = editingId ? "PATCH" : "POST";
+      const body = editingId ? { ...form, id: editingId } : form;
+      if (editingId && !body.password) delete body.password;
+      await readApiJson(
+        await fetch("/api/staff/workers", {
+          method,
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      );
+      resetForm();
+      await loadWorkers();
+      setMessage(editingId ? "Worker account updated." : "Worker account created.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleActive = async (worker) => {
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch("/api/staff/workers", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: worker.id, active: !worker.active }),
+        }),
+      );
+      await loadWorkers();
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="workers" contentWide navigateTo={navigateTo}>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-form-admin-grid">
+        <form className="staff-admin-form" onSubmit={saveWorker}>
+          <h2>{editingId ? "Edit worker" : "Create worker"}</h2>
+          <label className="field">
+            <span>Name</span>
+            <input required value={form.name} onChange={(event) => updateForm("name", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Company</span>
+            <input required value={form.company} onChange={(event) => updateForm("company", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Phone</span>
+            <input required inputMode="tel" value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Username</span>
+            <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>{editingId ? "New password" : "Password"}</span>
+            <input
+              required={!editingId}
+              type="password"
+              value={form.password}
+              onChange={(event) => updateForm("password", event.target.value)}
+            />
+          </label>
+          <label className="remember-worker-field">
+            <input
+              checked={form.active}
+              type="checkbox"
+              onChange={(event) => updateForm("active", event.target.checked)}
+            />
+            <span>Active</span>
+          </label>
+          <div className="staff-card-actions">
+            {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
+            <button className="primary-button" disabled={saving} type="submit">
+              {saving ? "Saving..." : editingId ? "Save worker" : "Create worker"}
+            </button>
+          </div>
+        </form>
+
+        <section className="staff-table-panel">
+          <div className="staff-list-controls">
+            <label className="staff-search-field">
+              <span>Search workers</span>
+              <input
+                placeholder="Search workers"
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") loadWorkers();
+                }}
+              />
+            </label>
+            <button type="button" onClick={loadWorkers}>Search</button>
+          </div>
+          <WorkerAccountsTable
+            loading={loading}
+            rows={rows}
+            onEdit={startEdit}
+            onToggleActive={toggleActive}
+          />
+        </section>
+      </section>
+    </StaffShell>
+  );
+}
+
+export function StaffFormSubmissionsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const today = useMemo(todayInVancouver, []);
+  const [filters, setFilters] = useState({
+    from: addDaysToISODate(today, -29),
+    to: today,
+    company: "",
+    phone: "",
+    name: "",
+    formType: "",
+    backupStatus: "",
+    sort: "submitted_at",
+    dir: "desc",
+  });
+  const [records, setRecords] = useState({ rows: [] });
+  const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [retryingId, setRetryingId] = useState("");
+  const [message, setMessage] = useState("");
+
+  const loadSubmissions = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams(
+        Object.entries(filters).filter(([, value]) => value),
+      );
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions?${params}`, {
+          credentials: "include",
+        }),
+      );
+      setRecords(payload);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadSubmissions();
+  }, [staff]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  const changeSort = (value) => {
+    const [sort, dir] = value.split(":");
+    setFilters((current) => ({ ...current, sort, dir }));
+  };
+
+  const retryBackup = async (id) => {
+    setRetryingId(id);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${id}/backup-retry`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      setRecords((current) => ({
+        ...current,
+        rows: current.rows.map((row) =>
+          row.id === id ? payload.submission : row,
+        ),
+      }));
+      setMessage("Backup retry completed.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setRetryingId("");
+    }
+  };
+
+  const openDetails = async (row) => {
+    setSelected(row);
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}`, {
+          credentials: "include",
+        }),
+      );
+      setSelected(payload.submission);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="forms" contentWide navigateTo={navigateTo}>
+      <section className="staff-toolbar staff-form-filter-toolbar">
+        <label className="field">
+          <span>From</span>
+          <input type="date" value={filters.from} onChange={(event) => updateFilter("from", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>To</span>
+          <input type="date" value={filters.to} onChange={(event) => updateFilter("to", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Company</span>
+          <input value={filters.company} onChange={(event) => updateFilter("company", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Phone</span>
+          <input value={filters.phone} onChange={(event) => updateFilter("phone", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Name</span>
+          <input value={filters.name} onChange={(event) => updateFilter("name", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Form</span>
+          <select value={filters.formType} onChange={(event) => updateFilter("formType", event.target.value)}>
+            <option value="">All</option>
+            {SAFETY_FORM_TYPES.map((form) => (
+              <option key={form.id} value={form.id}>{form.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>Backup</span>
+          <select value={filters.backupStatus} onChange={(event) => updateFilter("backupStatus", event.target.value)}>
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="backed_up">Backed up</option>
+            <option value="failed">Failed</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>Sort</span>
+          <select value={`${filters.sort}:${filters.dir}`} onChange={(event) => changeSort(event.target.value)}>
+            <option value="submitted_at:desc">Newest</option>
+            <option value="submitted_at:asc">Oldest</option>
+            <option value="company:asc">Company A-Z</option>
+            <option value="worker_name:asc">Name A-Z</option>
+            <option value="worker_phone:asc">Phone A-Z</option>
+            <option value="form_type:asc">Form type</option>
+            <option value="one_drive_backup_status:asc">Backup</option>
+          </select>
+        </label>
+        <button className="primary-button" type="button" onClick={loadSubmissions}>
+          Apply
+        </button>
+      </section>
+
+      {message ? <p className="staff-message">{message}</p> : null}
+
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <strong>{records.rows.length} form submissions</strong>
+          <span>{describeStaffFormSort(filters.sort, filters.dir)}</span>
+        </div>
+        <FormSubmissionsTable
+          loading={loading}
+          retryingId={retryingId}
+          rows={records.rows}
+          onDetails={openDetails}
+          onRetry={retryBackup}
+        />
+      </section>
+
+      {selected ? (
+        <SubmissionDetailsDialog
+          row={selected}
+          onClose={() => setSelected(null)}
+          onRetry={retryBackup}
+          retryingId={retryingId}
+        />
+      ) : null}
+    </StaffShell>
+  );
+}
+
+function WorkerAccountsTable({ loading, rows, onEdit, onToggleActive }) {
+  if (loading) return <p className="empty-state">Loading workers...</p>;
+  if (!rows.length) return <p className="empty-state">No worker accounts found.</p>;
+
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Phone</th>
+            <th>Username</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((worker) => (
+            <tr key={worker.id}>
+              <td>{worker.name}</td>
+              <td>{worker.company}</td>
+              <td><a href={`tel:${phoneHref(worker.phone)}`}>{worker.phone}</a></td>
+              <td>{worker.username}</td>
+              <td><StatusPill value={worker.active ? "Active" : "Inactive"} /></td>
+              <td>
+                <div className="table-action-row">
+                  <button type="button" onClick={() => onEdit(worker)}>Edit</button>
+                  <button type="button" onClick={() => onToggleActive(worker)}>
+                    {worker.active ? "Deactivate" : "Activate"}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry }) {
+  if (loading) return <p className="empty-state">Loading form submissions...</p>;
+  if (!rows.length) return <p className="empty-state">No form submissions found.</p>;
+
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table form-submissions-table">
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Company</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Form</th>
+            <th>Type</th>
+            <th>Backup</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td>{formatDateTime(row.submitted_at)}</td>
+              <td>{row.company}</td>
+              <td>{row.worker_name}</td>
+              <td><a href={`tel:${phoneHref(row.worker_phone)}`}>{row.worker_phone}</a></td>
+              <td>{formTypeLabel(row.form_type)}</td>
+              <td>{submissionModeLabel(row.submission_mode)}</td>
+              <td><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
+              <td>
+                <div className="table-action-row">
+                  <button type="button" onClick={() => onDetails(row)}>Details</button>
+                  {row.one_drive_backup_status === "failed" ? (
+                    <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
+                      {retryingId === row.id ? "Retrying" : "Retry"}
+                    </button>
+                  ) : null}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
+  const files = row.files || [];
+  return (
+    <div className="staff-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Submission details"
+        className="staff-detail-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>{formTypeLabel(row.form_type)}</h2>
+            <p>{row.worker_name} / {row.company}</p>
+          </div>
+          <button type="button" onClick={onClose}>Close</button>
+        </div>
+        <dl className="staff-detail-list">
+          <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+          <div><dt>Phone</dt><dd>{row.worker_phone}</dd></div>
+          <div><dt>Username</dt><dd>{row.worker_username}</dd></div>
+          <div><dt>Mode</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
+          <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
+          {row.backup_error ? <div><dt>Backup error</dt><dd>{row.backup_error}</dd></div> : null}
+          {row.one_drive_web_url ? (
+            <div><dt>OneDrive</dt><dd><a href={row.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a></dd></div>
+          ) : null}
+          {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
+        </dl>
+        {files.length ? (
+          <div className="submission-file-list">
+            <h3>Files</h3>
+            {files.map((file) => (
+              <div className="submission-file-row" key={file.id}>
+                <span>{file.original_filename}</span>
+                <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
+                {file.one_drive_web_url ? (
+                  <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open</a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {row.one_drive_backup_status === "failed" ? (
+          <button
+            className="primary-button"
+            disabled={retryingId === row.id}
+            type="button"
+            onClick={() => onRetry(row.id)}
+          >
+            {retryingId === row.id ? "Retrying..." : "Retry backup"}
+          </button>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
+function FileChoice({ accept, capture, label, onFile }) {
+  return (
+    <label className="file-choice">
+      <input
+        accept={accept}
+        capture={capture}
+        type="file"
+        onChange={(event) => onFile(event.target.files?.[0] || null)}
+      />
+      <strong>{label}</strong>
+    </label>
+  );
+}
+
+function StatusPill({ value }) {
+  return <span className={`status-pill status-${String(value).toLowerCase().replace(/\s+/g, "-")}`}>{value}</span>;
+}
+
+function WorkerFormLoadingScreen() {
+  return (
+    <main className="public-page worker-page">
+      <section className="worker-card">
+        <div className="brand-mark">APPIA</div>
+        <p className="muted">Loading...</p>
+      </section>
+    </main>
+  );
+}
+
 function StaffShell({ active, children, contentWide = false, navigateTo }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const activeMobileItem =
@@ -2575,6 +3598,28 @@ function TrendDirection({ value }) {
   return <span className={`trend-direction trend-${value || "flat"}`}>{label}</span>;
 }
 
+function useWorkerSession(navigateTo) {
+  const [worker, setWorker] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/worker-me", { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (active) setWorker(payload.worker);
+      })
+      .catch(() => {
+        if (active) navigateTo("/worker-login");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [navigateTo]);
+
+  return { worker };
+}
+
 function useStaffSession(navigateTo) {
   const [staff, setStaff] = useState(null);
 
@@ -2977,6 +4022,36 @@ function formatCompactTime(value) {
 function describeSort(sort, dir) {
   const label = STAFF_SORT_LABELS[sort] || sort;
   return `Sort: ${label} ${dir}`;
+}
+
+function describeStaffFormSort(sort, dir) {
+  const label = STAFF_FORM_SORT_LABELS[sort] || sort;
+  return `Sort: ${label} ${dir}`;
+}
+
+function formTypeLabel(value) {
+  return SAFETY_FORM_TYPES.find((form) => form.id === value)?.label || value;
+}
+
+function submissionModeLabel(value) {
+  if (value === "submit_file") return "Submit File";
+  if (value === "fill_form") return "Fill Form";
+  return value;
+}
+
+function backupStatusLabel(value) {
+  if (value === "backed_up") return "Backed up";
+  if (value === "pending") return "Pending";
+  if (value === "failed") return "Failed";
+  return value || "Unknown";
+}
+
+function formatFileSize(value) {
+  const bytes = Number(value || 0);
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function formatShortDate(record, dateField, timestampField) {
