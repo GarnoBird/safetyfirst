@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 
 const STAFF_SORT_LABELS = {
@@ -116,6 +116,136 @@ const SAFETY_FORM_TYPES = [
   { id: "toolbox_talk", label: "Toolbox Talk" },
   { id: "site_inspection", label: "Site Inspection" },
   { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
+];
+
+const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
+const EMPTY_SAFETY_CONCERN = { concern: "", actionToTake: "", dateTaken: "" };
+const EMPTY_ATTENDEE = { name: "" };
+
+const TOOLBOX_TALK_TOPIC_GROUPS = [
+  {
+    id: "rights_responsibilities",
+    label: "Rights and Responsibilities",
+    topics: [
+      "Young workers / Supervisors / Workers",
+      "Inspections / corrective actions",
+      "Housekeeping / clean-up",
+      "Refusal of work",
+      "Circumvention of safeguards",
+      "Impairment",
+      "Work alone",
+      "Bullying and Harassment",
+      "Guardrails / handrails",
+      "Lighting",
+    ],
+  },
+  {
+    id: "general_conditions",
+    label: "General Conditions",
+    topics: ["Dropped / falling objects", "Smoking / vaping", "Pers. hygiene"],
+  },
+  {
+    id: "chemical_biological",
+    label: "Chemical Agents and Biological Agents",
+    topics: ["WHMIS", "Storage / spills", "Flammable / pressure", "Indoor use of engines"],
+  },
+  {
+    id: "substance_specific",
+    label: "Substance Specific Requirements",
+    topics: ["Asbestos", "Biological", "Lead", "Silica"],
+  },
+  {
+    id: "noise_vibration_temperature",
+    label: "Noise, Vibration, Radiation and Temperature",
+    topics: ["Exposure", "Vibration / Impact", "Hearing test", "High / low temp work"],
+  },
+  {
+    id: "ppe",
+    label: "Personal Protective Clothing and Equipment",
+    topics: ["Head / eye / face", "Respiratory", "Footwear", "High Vis. / flame resist."],
+  },
+  {
+    id: "confined_spaces",
+    label: "Confined Spaces",
+    topics: ["Identification", "Assessment", "Procedure", "Trained / approved"],
+  },
+  {
+    id: "lockout",
+    label: "De-energization and Lockout",
+    topics: ["When required", "Locations on this site", "Who is responsible"],
+  },
+  {
+    id: "fall_protection",
+    label: "Fall Protection",
+    topics: ["When needed", "Hierarchy", "Anchors", "Pre-use inspection"],
+  },
+  {
+    id: "tools_equipment",
+    label: "Tools, Machinery and Equipment",
+    topics: ["Safeguards", "Removal from service", "Instructions"],
+  },
+  {
+    id: "ladders_platforms",
+    label: "Ladders, Scaffolds and Temporary Work Platforms",
+    topics: ["Short duration work", "Pre-use inspection", "Right ladder", "3 x base height / pre-use"],
+  },
+  {
+    id: "cranes_hoists",
+    label: "Cranes and Hoists",
+    topics: ["Certified operator", "Look up and listen", "High voltage", "No fly"],
+  },
+  {
+    id: "rigging",
+    label: "Rigging",
+    topics: ["Qualified rigger", "Certified lifting device", "Pre-use inspections", "Bulk bags"],
+  },
+  {
+    id: "mobile_equipment",
+    label: "Mobile Equipment",
+    topics: ["Pre-use inspection", "Competent operator", "Unobstructed / unattended", "Secure loads"],
+  },
+  {
+    id: "traffic_control",
+    label: "Traffic Control",
+    topics: ["Plan", "Order of controls", "TCP"],
+  },
+  {
+    id: "electrical_safety",
+    label: "Electrical Safety",
+    topics: ["Low voltage - LOA", "High voltage - LOA", "30M33", "Call before dig"],
+  },
+  {
+    id: "construction_excavation_demolition",
+    label: "Construction, Excavation and Demolition",
+    topics: [
+      "Prime Contractor",
+      "After hours work",
+      "Report all injuries",
+      "Report all incidents",
+      "Safe Access",
+      "Excavations",
+      "Fly forms",
+      "Deck turnover",
+      "Thrust out platforms",
+      "Stacking material",
+    ],
+  },
+  {
+    id: "evacuation_rescue",
+    label: "Evacuation and Rescue",
+    topics: ["Muster station", "Fire plan", "Notify if leave site", "DEP"],
+  },
+  {
+    id: "psychological_health_safety",
+    label: "Psychological health and safety",
+    topics: [
+      "Ask for help and offer to help",
+      "Have a tolerant, non-judgemental attitude toward others",
+      "Report Bullying and Harassment situations",
+      "Encourage respectful behaviors",
+      "Talk to a professional when needed",
+    ],
+  },
 ];
 
 const STAFF_FORM_SORT_LABELS = {
@@ -2235,6 +2365,14 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     });
   };
 
+  const submitToolboxTalkForm = async (formData) => {
+    await submitSubmission({
+      formType,
+      submissionMode: "fill_form",
+      formData,
+    });
+  };
+
   const submitFileForm = async (event) => {
     event.preventDefault();
     if (!file) {
@@ -2394,27 +2532,36 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
               ) : null}
 
               {mode === "fill_form" ? (
-                <form className="submission-form" onSubmit={submitFilledForm}>
-                  <label>
-                    <span>Notes</span>
-                    <textarea
-                      autoFocus
-                      rows="7"
-                      placeholder="Optional"
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                    />
-                  </label>
-                  <div className="form-placeholder-panel" aria-hidden="true" />
-                  <div className="form-platform-actions">
-                    <button type="button" onClick={() => setMode("")}>
-                      Change option
-                    </button>
-                    <button className="primary-button" disabled={submitting} type="submit">
-                      {submitting ? "Submitting..." : "Submit"}
-                    </button>
-                  </div>
-                </form>
+                formType === "toolbox_talk" ? (
+                  <ToolboxTalkDigitalForm
+                    submitting={submitting}
+                    worker={worker}
+                    onCancel={() => setMode("")}
+                    onSubmit={submitToolboxTalkForm}
+                  />
+                ) : (
+                  <form className="submission-form" onSubmit={submitFilledForm}>
+                    <label>
+                      <span>Notes</span>
+                      <textarea
+                        autoFocus
+                        rows="7"
+                        placeholder="Optional"
+                        value={notes}
+                        onChange={(event) => setNotes(event.target.value)}
+                      />
+                    </label>
+                    <div className="form-placeholder-panel" aria-hidden="true" />
+                    <div className="form-platform-actions">
+                      <button type="button" onClick={() => setMode("")}>
+                        Change option
+                      </button>
+                      <button className="primary-button" disabled={submitting} type="submit">
+                        {submitting ? "Submitting..." : "Submit"}
+                      </button>
+                    </div>
+                  </form>
+                )
               ) : null}
             </>
           )}
@@ -2424,6 +2571,409 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         </div>
       </section>
     </main>
+  );
+}
+
+function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
+  const [form, setForm] = useState(() => initialToolboxTalkForm(worker));
+  const [error, setError] = useState("");
+
+  const selectedTopicKeys = useMemo(
+    () => new Set(form.topics.selected.map((topic) => topicKey(topic))),
+    [form.topics.selected],
+  );
+
+  const updateHeader = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      header: { ...current.header, [field]: value },
+    }));
+  };
+
+  const updateTopics = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      topics: { ...current.topics, [field]: value },
+    }));
+  };
+
+  const updateIncident = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      incidentReview: { ...current.incidentReview, [field]: value },
+    }));
+  };
+
+  const updateConcern = (index, field, value) => {
+    setForm((current) => ({
+      ...current,
+      safetyConcerns: current.safetyConcerns.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row,
+      ),
+    }));
+  };
+
+  const updateAttendee = (index, value) => {
+    setForm((current) => ({
+      ...current,
+      attendance: current.attendance.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, name: value } : row,
+      ),
+    }));
+  };
+
+  const updateConfirmation = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      confirmation: { ...current.confirmation, [field]: value },
+    }));
+  };
+
+  const toggleTopic = (group, label) => {
+    const topic = {
+      categoryId: group.id,
+      categoryLabel: group.label,
+      topicId: slugifyTopic(label),
+      label,
+    };
+    const key = topicKey(topic);
+    setForm((current) => {
+      const selected = current.topics.selected.some((item) => topicKey(item) === key)
+        ? current.topics.selected.filter((item) => topicKey(item) !== key)
+        : [...current.topics.selected, topic];
+      return {
+        ...current,
+        topics: { ...current.topics, selected },
+      };
+    });
+  };
+
+  const addConcern = () => {
+    setForm((current) => ({
+      ...current,
+      safetyConcerns: [...current.safetyConcerns, { ...EMPTY_SAFETY_CONCERN }],
+    }));
+  };
+
+  const removeConcern = (index) => {
+    setForm((current) => ({
+      ...current,
+      safetyConcerns:
+        current.safetyConcerns.length === 1
+          ? [{ ...EMPTY_SAFETY_CONCERN }]
+          : current.safetyConcerns.filter((_, rowIndex) => rowIndex !== index),
+    }));
+  };
+
+  const addAttendee = () => {
+    setForm((current) => ({
+      ...current,
+      attendance: [...current.attendance, { ...EMPTY_ATTENDEE }],
+    }));
+  };
+
+  const removeAttendee = (index) => {
+    setForm((current) => ({
+      ...current,
+      attendance:
+        current.attendance.length === 1
+          ? [{ ...EMPTY_ATTENDEE }]
+          : current.attendance.filter((_, rowIndex) => rowIndex !== index),
+    }));
+  };
+
+  const submitForm = async (event) => {
+    event.preventDefault();
+    const validationError = validateToolboxTalkForm(form);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError("");
+    rememberToolboxTalkDefaults(form);
+    await onSubmit(cleanToolboxTalkClientForm(form));
+  };
+
+  return (
+    <form className="submission-form toolbox-talk-form" onSubmit={submitForm}>
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Meeting Info</h2>
+          <span>Prefilled where possible</span>
+        </div>
+        <div className="toolbox-field-grid">
+          <label>
+            <span>Project Name</span>
+            <input
+              required
+              value={form.header.projectName}
+              onChange={(event) => updateHeader("projectName", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Address</span>
+            <input
+              required
+              value={form.header.address}
+              onChange={(event) => updateHeader("address", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Date</span>
+            <input
+              required
+              type="date"
+              value={form.header.date}
+              onChange={(event) => updateHeader("date", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Time</span>
+            <input
+              required
+              type="time"
+              value={form.header.time}
+              onChange={(event) => updateHeader("time", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Presenter</span>
+            <input
+              required
+              value={form.header.presenter}
+              onChange={(event) => updateHeader("presenter", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Supervisor</span>
+            <input
+              required
+              value={form.header.supervisor}
+              onChange={(event) => updateHeader("supervisor", event.target.value)}
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Topics Discussed</h2>
+          <span>{form.topics.selected.length} selected</span>
+        </div>
+        <div className="toolbox-topic-list">
+          {TOOLBOX_TALK_TOPIC_GROUPS.map((group) => (
+            <details className="toolbox-topic-group" key={group.id}>
+              <summary>{group.label}</summary>
+              <div className="toolbox-topic-chip-grid">
+                {group.topics.map((label) => {
+                  const active = selectedTopicKeys.has(
+                    topicKey({ categoryId: group.id, topicId: slugifyTopic(label) }),
+                  );
+                  return (
+                    <button
+                      className={active ? "topic-chip active" : "topic-chip"}
+                      key={label}
+                      type="button"
+                      onClick={() => toggleTopic(group, label)}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </details>
+          ))}
+        </div>
+        <label>
+          <span>Additional topics / procedures reviewed</span>
+          <textarea
+            rows="4"
+            placeholder="Procedure name, revision/date, or other topic details"
+            value={form.topics.other}
+            onChange={(event) => updateTopics("other", event.target.value)}
+          />
+        </label>
+      </section>
+
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Review Notes</h2>
+          <span>Optional unless it applies</span>
+        </div>
+        <div className="toolbox-field-grid compact">
+          <label>
+            <span># of FA since last meeting</span>
+            <input
+              min="0"
+              inputMode="numeric"
+              type="number"
+              value={form.incidentReview.firstAidCount}
+              onChange={(event) => updateIncident("firstAidCount", event.target.value)}
+            />
+          </label>
+          <label>
+            <span># of Medical Aids</span>
+            <input
+              min="0"
+              inputMode="numeric"
+              type="number"
+              value={form.incidentReview.medicalAidCount}
+              onChange={(event) => updateIncident("medicalAidCount", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Near miss / accident to review?</span>
+            <select
+              value={form.incidentReview.nearMissReviewed}
+              onChange={(event) => updateIncident("nearMissReviewed", event.target.value)}
+            >
+              <option value="">Not selected</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+        </div>
+        {form.incidentReview.nearMissReviewed === "yes" ? (
+          <label>
+            <span>Near miss / accident description</span>
+            <textarea
+              rows="3"
+              value={form.incidentReview.nearMissDescription}
+              onChange={(event) =>
+                updateIncident("nearMissDescription", event.target.value)
+              }
+            />
+          </label>
+        ) : null}
+        <label>
+          <span>Lessons that can be learnt from the above numbers</span>
+          <textarea
+            rows="4"
+            value={form.incidentReview.lessonsLearned}
+            onChange={(event) => updateIncident("lessonsLearned", event.target.value)}
+          />
+        </label>
+      </section>
+
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Safety Concerns</h2>
+          <button type="button" onClick={addConcern}>Add concern</button>
+        </div>
+        <div className="toolbox-row-list">
+          {form.safetyConcerns.map((row, index) => (
+            <div className="toolbox-repeat-row" key={`concern-${index}`}>
+              <label>
+                <span>Concern</span>
+                <input
+                  value={row.concern}
+                  onChange={(event) => updateConcern(index, "concern", event.target.value)}
+                />
+              </label>
+              <label>
+                <span>Action to take</span>
+                <input
+                  value={row.actionToTake}
+                  onChange={(event) =>
+                    updateConcern(index, "actionToTake", event.target.value)
+                  }
+                />
+              </label>
+              <label>
+                <span>Date taken</span>
+                <input
+                  type="date"
+                  value={row.dateTaken}
+                  onChange={(event) =>
+                    updateConcern(index, "dateTaken", event.target.value)
+                  }
+                />
+              </label>
+              <button type="button" onClick={() => removeConcern(index)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Attendance</h2>
+          <button type="button" onClick={addAttendee}>Add person</button>
+        </div>
+        <div className="toolbox-row-list attendance">
+          {form.attendance.map((row, index) => (
+            <div className="toolbox-repeat-row attendee" key={`attendee-${index}`}>
+              <label>
+                <span>Name</span>
+                <input
+                  required={index === 0}
+                  value={row.name}
+                  onChange={(event) => updateAttendee(index, event.target.value)}
+                />
+              </label>
+              <button type="button" onClick={() => removeAttendee(index)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>Final Check</h2>
+          <span>Completed by presenter</span>
+        </div>
+        <label>
+          <span>Additional comments</span>
+          <textarea
+            rows="4"
+            value={form.additionalComments}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                additionalComments: event.target.value,
+              }))
+            }
+          />
+        </label>
+        <div className="toolbox-field-grid compact">
+          <label>
+            <span>Presenter / Supervisor name</span>
+            <input
+              required
+              value={form.confirmation.name}
+              onChange={(event) => updateConfirmation("name", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Date</span>
+            <input
+              required
+              type="date"
+              value={form.confirmation.date}
+              onChange={(event) => updateConfirmation("date", event.target.value)}
+            />
+          </label>
+        </div>
+        <label className="toolbox-confirmation">
+          <input
+            required
+            checked={form.confirmation.confirmed}
+            type="checkbox"
+            onChange={(event) => updateConfirmation("confirmed", event.target.checked)}
+          />
+          <span>I confirm the listed workers participated in this toolbox talk.</span>
+        </label>
+      </section>
+
+      {error ? <p className="form-message error">{error}</p> : null}
+
+      <div className="form-platform-actions">
+        <button type="button" onClick={onCancel}>Change option</button>
+        <button className="primary-button" disabled={submitting} type="submit">
+          {submitting ? "Submitting..." : "Submit Toolbox Talk"}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -2987,6 +3537,9 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
           ) : null}
           {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
         </dl>
+        {isDigitalToolboxTalkSubmission(row) ? (
+          <ToolboxTalkSubmissionDetails data={row.form_data} />
+        ) : null}
         {files.length ? (
           <div className="submission-file-list">
             <h3>Files</h3>
@@ -3011,6 +3564,101 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
             {retryingId === row.id ? "Retrying..." : "Retry backup"}
           </button>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+function ToolboxTalkSubmissionDetails({ data }) {
+  const header = data.header || {};
+  const incident = data.incidentReview || {};
+  const selectedTopics = data.topics?.selected || [];
+  const safetyConcerns = data.safetyConcerns || [];
+  const attendance = data.attendance || [];
+  const confirmation = data.confirmation || {};
+
+  return (
+    <div className="toolbox-detail">
+      <section>
+        <h3>Meeting Info</h3>
+        <dl className="staff-detail-list">
+          <div><dt>Project</dt><dd>{header.projectName || "-"}</dd></div>
+          <div><dt>Address</dt><dd>{header.address || "-"}</dd></div>
+          <div><dt>Date</dt><dd>{header.date ? formatDateString(header.date) : "-"}</dd></div>
+          <div><dt>Time</dt><dd>{header.time || "-"}</dd></div>
+          <div><dt>Presenter</dt><dd>{header.presenter || "-"}</dd></div>
+          <div><dt>Supervisor</dt><dd>{header.supervisor || "-"}</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h3>Topics Discussed</h3>
+        {selectedTopics.length ? (
+          <div className="toolbox-detail-chip-list">
+            {selectedTopics.map((topic) => (
+              <span key={`${topic.categoryId}-${topic.topicId}`}>
+                {topic.categoryLabel}: {topic.label}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        {data.topics?.other ? (
+          <p className="toolbox-detail-text">{data.topics.other}</p>
+        ) : null}
+      </section>
+
+      <section>
+        <h3>Review Notes</h3>
+        <dl className="staff-detail-list">
+          <div><dt># of FA</dt><dd>{displayOptionalNumber(incident.firstAidCount)}</dd></div>
+          <div><dt># of Medical Aids</dt><dd>{displayOptionalNumber(incident.medicalAidCount)}</dd></div>
+          <div><dt>Near miss / accident</dt><dd>{nearMissLabel(incident.nearMissReviewed)}</dd></div>
+          {incident.nearMissDescription ? (
+            <div><dt>Description</dt><dd>{incident.nearMissDescription}</dd></div>
+          ) : null}
+          {incident.lessonsLearned ? (
+            <div><dt>Lessons</dt><dd>{incident.lessonsLearned}</dd></div>
+          ) : null}
+        </dl>
+      </section>
+
+      {safetyConcerns.length ? (
+        <section>
+          <h3>Safety Concerns</h3>
+          <div className="toolbox-detail-table">
+            <div className="header">Concern</div>
+            <div className="header">Action</div>
+            <div className="header">Date</div>
+            {safetyConcerns.map((row, index) => (
+              <Fragment key={`concern-detail-${index}`}>
+                <div>{row.concern || "-"}</div>
+                <div>{row.actionToTake || "-"}</div>
+                <div>{row.dateTaken ? formatDateString(row.dateTaken) : "-"}</div>
+              </Fragment>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section>
+        <h3>Attendance</h3>
+        <div className="toolbox-detail-chip-list">
+          {attendance.map((row, index) => (
+            <span key={`attendance-detail-${index}`}>{row.name}</span>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h3>Final Check</h3>
+        <dl className="staff-detail-list">
+          {data.additionalComments ? (
+            <div><dt>Comments</dt><dd>{data.additionalComments}</dd></div>
+          ) : null}
+          <div><dt>Confirmed by</dt><dd>{confirmation.name || "-"}</dd></div>
+          <div><dt>Confirmation date</dt><dd>{confirmation.date ? formatDateString(confirmation.date) : "-"}</dd></div>
+          <div><dt>Participation confirmed</dt><dd>{confirmation.confirmed ? "Yes" : "No"}</dd></div>
+        </dl>
       </section>
     </div>
   );
@@ -4194,6 +4842,131 @@ function previewReminderMessage(template) {
     .replaceAll("{{signout_link}}", publicUrl("/worker-sign-out"));
 }
 
+function initialToolboxTalkForm(worker) {
+  const defaults = readToolboxTalkDefaults();
+  const today = todayInVancouver();
+  return {
+    header: {
+      projectName: defaults.projectName || "",
+      address: defaults.address || "",
+      date: today,
+      time: timeInVancouver(),
+      presenter: worker?.name || "",
+      supervisor: defaults.supervisor || "",
+    },
+    topics: {
+      selected: [],
+      other: "",
+    },
+    incidentReview: {
+      firstAidCount: "",
+      medicalAidCount: "",
+      nearMissReviewed: "",
+      nearMissDescription: "",
+      lessonsLearned: "",
+    },
+    safetyConcerns: [{ ...EMPTY_SAFETY_CONCERN }],
+    attendance: [{ ...EMPTY_ATTENDEE }],
+    additionalComments: "",
+    confirmation: {
+      name: worker?.name || "",
+      date: today,
+      confirmed: false,
+    },
+  };
+}
+
+function readToolboxTalkDefaults() {
+  if (typeof window === "undefined") return {};
+  try {
+    const value = JSON.parse(window.localStorage.getItem(TOOLBOX_TALK_DEFAULTS_KEY) || "{}");
+    return value && typeof value === "object" ? value : {};
+  } catch {
+    return {};
+  }
+}
+
+function rememberToolboxTalkDefaults(form) {
+  if (typeof window === "undefined") return;
+  const defaults = {
+    projectName: form.header.projectName.trim(),
+    address: form.header.address.trim(),
+    supervisor: form.header.supervisor.trim(),
+  };
+  window.localStorage.setItem(TOOLBOX_TALK_DEFAULTS_KEY, JSON.stringify(defaults));
+}
+
+function validateToolboxTalkForm(form) {
+  const required = [
+    [form.header.projectName, "Project Name is required."],
+    [form.header.address, "Address is required."],
+    [form.header.date, "Date is required."],
+    [form.header.time, "Time is required."],
+    [form.header.presenter, "Presenter is required."],
+    [form.header.supervisor, "Supervisor is required."],
+    [form.confirmation.name, "Presenter / Supervisor name is required."],
+    [form.confirmation.date, "Confirmation date is required."],
+  ];
+  const missing = required.find(([value]) => !String(value || "").trim());
+  if (missing) return missing[1];
+  if (!form.topics.selected.length && !form.topics.other.trim()) {
+    return "Select at least one topic or enter an additional topic.";
+  }
+  if (!form.attendance.some((row) => row.name.trim())) {
+    return "Add at least one attendee.";
+  }
+  if (!form.confirmation.confirmed) {
+    return "Confirm that the listed workers participated.";
+  }
+  return "";
+}
+
+function cleanToolboxTalkClientForm(form) {
+  return {
+    kind: "toolbox_talk_v1",
+    version: 1,
+    header: cleanObjectStrings(form.header),
+    topics: {
+      selected: form.topics.selected,
+      other: form.topics.other.trim(),
+    },
+    incidentReview: cleanObjectStrings(form.incidentReview),
+    safetyConcerns: form.safetyConcerns
+      .map(cleanObjectStrings)
+      .filter((row) => row.concern || row.actionToTake || row.dateTaken),
+    attendance: form.attendance
+      .map((row) => ({ name: row.name.trim() }))
+      .filter((row) => row.name),
+    additionalComments: form.additionalComments.trim(),
+    confirmation: {
+      name: form.confirmation.name.trim(),
+      date: form.confirmation.date,
+      confirmed: Boolean(form.confirmation.confirmed),
+    },
+  };
+}
+
+function cleanObjectStrings(object) {
+  return Object.fromEntries(
+    Object.entries(object || {}).map(([key, value]) => [
+      key,
+      typeof value === "string" ? value.trim() : value,
+    ]),
+  );
+}
+
+function topicKey(topic) {
+  return `${topic.categoryId}:${topic.topicId}`;
+}
+
+function slugifyTopic(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 function todayInVancouver() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Vancouver",
@@ -4201,6 +4974,18 @@ function todayInVancouver() {
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
+}
+
+function timeInVancouver() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Vancouver",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = parts.find((part) => part.type === "hour")?.value || "00";
+  const minute = parts.find((part) => part.type === "minute")?.value || "00";
+  return `${hour}:${minute}`;
 }
 
 function addDaysToISODate(value, days) {
@@ -4265,6 +5050,20 @@ function backupStatusLabel(value) {
   if (value === "pending") return "Pending";
   if (value === "failed") return "Failed";
   return value || "Unknown";
+}
+
+function isDigitalToolboxTalkSubmission(row) {
+  return row?.form_type === "toolbox_talk" && row?.form_data?.kind === "toolbox_talk_v1";
+}
+
+function displayOptionalNumber(value) {
+  return value === null || value === undefined || value === "" ? "-" : String(value);
+}
+
+function nearMissLabel(value) {
+  if (value === "yes") return "Yes";
+  if (value === "no") return "No";
+  return "Not selected";
 }
 
 function canRetryBackup(value) {

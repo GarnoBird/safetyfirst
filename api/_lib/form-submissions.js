@@ -23,6 +23,10 @@ export const FORM_TYPES = [
 export const SUBMISSION_MODES = ["submit_file", "fill_form"];
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+const MAX_FORM_TEXT_LENGTH = 600;
+const MAX_FORM_LONG_TEXT_LENGTH = 4000;
+const MAX_TOOLBOX_TOPICS = 80;
+const MAX_TOOLBOX_ROWS = 80;
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -47,7 +51,7 @@ const STAFF_SORT_FIELDS = [
 const FILE_SELECT =
   "id, submission_id, bucket, storage_path, original_filename, mime_type, size_bytes, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_status, backup_attempted_at, backup_error, app_deleted_at, created_at";
 const SUBMISSION_SELECT =
-  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, submitted_at, submitted_date_vancouver, deleted_by_worker_at, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
+  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, submitted_at, submitted_date_vancouver, deleted_by_worker_at, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
 const SUBMISSION_WITH_FILES_SELECT = `${SUBMISSION_SELECT}, submission_files(${FILE_SELECT})`;
 
 export function publicSubmission(row) {
@@ -111,7 +115,13 @@ export async function createFileUploadTarget(worker, body) {
 export async function createWorkerSubmission(worker, body) {
   const formType = cleanFormType(body?.formType || body?.form_type);
   const submissionMode = cleanSubmissionMode(body?.submissionMode || body?.submission_mode);
-  const notes = String(body?.notes || "").trim().slice(0, 4000);
+  const formData = cleanSubmissionFormData(
+    formType,
+    submissionMode,
+    body?.formData ?? body?.form_data,
+    worker,
+  );
+  const notes = buildSubmissionNotes(formType, submissionMode, body?.notes, formData);
   const now = new Date();
 
   let inserted;
@@ -128,6 +138,7 @@ export async function createWorkerSubmission(worker, body) {
           form_type: formType,
           submission_mode: submissionMode,
           notes,
+          form_data: formData,
           submitted_at: now.toISOString(),
           submitted_date_vancouver: getVancouverDate(now),
           one_drive_backup_status: "pending",
@@ -426,6 +437,7 @@ async function backupFilledSubmission(submission) {
             username: submission.worker_username,
           },
           notes: submission.notes,
+          formData: submission.form_data || {},
           submittedAt: submission.submitted_at,
           submittedDate: submission.submitted_date_vancouver,
         },
@@ -587,6 +599,12 @@ async function updateFileBackupStatus(id, status, attemptedAt, errorMessage = ""
 }
 
 async function createFallbackWorkerSubmission(worker, { body, formType, submissionMode, notes, now }) {
+  const formData = cleanSubmissionFormData(
+    formType,
+    submissionMode,
+    body?.formData ?? body?.form_data,
+    worker,
+  );
   const submission = {
     id: crypto.randomUUID(),
     worker_id: worker.id,
@@ -597,6 +615,7 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
     form_type: formType,
     submission_mode: submissionMode,
     notes,
+    form_data: formData,
     submitted_at: now.toISOString(),
     submitted_date_vancouver: getVancouverDate(now),
     deleted_by_worker_at: null,
@@ -753,6 +772,7 @@ async function backupFallbackSubmission(id) {
               username: submission.worker_username,
             },
             notes: submission.notes,
+            formData: submission.form_data || {},
             submittedAt: submission.submitted_at,
             submittedDate: submission.submitted_date_vancouver,
           },
@@ -954,6 +974,7 @@ function normalizeFallbackSubmission(row) {
   const files = Array.isArray(row.files) ? row.files : row.submission_files || [];
   return {
     ...row,
+    form_data: row.form_data && typeof row.form_data === "object" ? row.form_data : {},
     files,
     submission_files: files,
   };
@@ -1034,6 +1055,180 @@ function cleanSubmittedFile(file, workerId) {
     throw error;
   }
   return { ...metadata, storagePath };
+}
+
+function cleanSubmissionFormData(formType, submissionMode, value, worker) {
+  if (submissionMode !== "fill_form" || formType !== "toolbox_talk") return {};
+  return cleanToolboxTalkFormData(value, worker);
+}
+
+function buildSubmissionNotes(formType, submissionMode, value, formData) {
+  if (submissionMode === "fill_form" && formType === "toolbox_talk") {
+    const header = formData.header || {};
+    const topicLabels = (formData.topics?.selected || [])
+      .map((topic) => topic.label)
+      .filter(Boolean)
+      .slice(0, 4);
+    const topicSummary = topicLabels.length
+      ? topicLabels.join(", ")
+      : cleanText(formData.topics?.other || "", MAX_FORM_TEXT_LENGTH);
+    const attendeeCount = (formData.attendance || []).length;
+    return [
+      `Project: ${header.projectName}`,
+      topicSummary ? `Topics: ${topicSummary}` : "",
+      `${attendeeCount} attendee${attendeeCount === 1 ? "" : "s"}`,
+    ]
+      .filter(Boolean)
+      .join(" / ")
+      .slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+  }
+
+  return String(value || "").trim().slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+}
+
+function cleanToolboxTalkFormData(value, worker) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throwBadRequest("Toolbox talk form data is required.");
+  }
+
+  const headerInput = value.header || {};
+  const header = {
+    projectName: requireText(headerInput.projectName, "Project name"),
+    address: requireText(headerInput.address, "Address"),
+    date: cleanDate(headerInput.date, "Date"),
+    time: cleanTime(headerInput.time, "Time"),
+    presenter: requireText(headerInput.presenter || worker?.name, "Presenter"),
+    supervisor: requireText(headerInput.supervisor, "Supervisor"),
+  };
+
+  const selectedTopics = cleanSelectedToolboxTopics(value.topics?.selected);
+  const otherTopics = cleanText(value.topics?.other || "", MAX_FORM_LONG_TEXT_LENGTH);
+  if (!selectedTopics.length && !otherTopics) {
+    throwBadRequest("Select at least one topic or enter an additional topic.");
+  }
+
+  const incidentInput = value.incidentReview || {};
+  const nearMissReviewed = cleanChoice(
+    incidentInput.nearMissReviewed,
+    ["", "yes", "no"],
+    "Near miss review",
+  );
+
+  const safetyConcerns = cleanRows(value.safetyConcerns, (row) => ({
+    concern: cleanText(row?.concern, MAX_FORM_TEXT_LENGTH),
+    actionToTake: cleanText(row?.actionToTake ?? row?.action, MAX_FORM_TEXT_LENGTH),
+    dateTaken: cleanOptionalDate(row?.dateTaken),
+  })).filter((row) => row.concern || row.actionToTake || row.dateTaken);
+
+  const attendance = cleanRows(value.attendance, (row) => ({
+    name: cleanText(row?.name, MAX_FORM_TEXT_LENGTH),
+  })).filter((row) => row.name);
+  if (!attendance.length) {
+    throwBadRequest("Add at least one attendee.");
+  }
+
+  const confirmationInput = value.confirmation || {};
+  if (confirmationInput.confirmed !== true) {
+    throwBadRequest("Confirm that the listed workers participated.");
+  }
+
+  return {
+    kind: "toolbox_talk_v1",
+    version: 1,
+    header,
+    topics: {
+      selected: selectedTopics,
+      other: otherTopics,
+    },
+    incidentReview: {
+      firstAidCount: cleanOptionalCount(incidentInput.firstAidCount),
+      medicalAidCount: cleanOptionalCount(incidentInput.medicalAidCount),
+      nearMissReviewed,
+      nearMissDescription: cleanText(
+        incidentInput.nearMissDescription,
+        MAX_FORM_LONG_TEXT_LENGTH,
+      ),
+      lessonsLearned: cleanText(incidentInput.lessonsLearned, MAX_FORM_LONG_TEXT_LENGTH),
+    },
+    safetyConcerns,
+    attendance,
+    additionalComments: cleanText(value.additionalComments, MAX_FORM_LONG_TEXT_LENGTH),
+    confirmation: {
+      name: requireText(confirmationInput.name, "Presenter confirmation name"),
+      date: cleanDate(confirmationInput.date, "Confirmation date"),
+      confirmed: true,
+    },
+  };
+}
+
+function cleanSelectedToolboxTopics(value) {
+  const rows = Array.isArray(value) ? value : [];
+  return rows
+    .slice(0, MAX_TOOLBOX_TOPICS)
+    .map((topic) => ({
+      categoryId: cleanText(topic?.categoryId, 80),
+      categoryLabel: cleanText(topic?.categoryLabel, MAX_FORM_TEXT_LENGTH),
+      topicId: cleanText(topic?.topicId, 120),
+      label: cleanText(topic?.label, MAX_FORM_TEXT_LENGTH),
+    }))
+    .filter((topic) => topic.categoryId && topic.topicId && topic.label);
+}
+
+function cleanRows(value, cleaner) {
+  const rows = Array.isArray(value) ? value : [];
+  return rows.slice(0, MAX_TOOLBOX_ROWS).map(cleaner);
+}
+
+function requireText(value, label) {
+  const cleaned = cleanText(value, MAX_FORM_TEXT_LENGTH);
+  if (!cleaned) throwBadRequest(`${label} is required.`);
+  return cleaned;
+}
+
+function cleanText(value, maxLength) {
+  return String(value || "").trim().slice(0, maxLength);
+}
+
+function cleanDate(value, label) {
+  const date = String(value || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throwBadRequest(`${label} must use YYYY-MM-DD format.`);
+  }
+  return date;
+}
+
+function cleanOptionalDate(value) {
+  const date = String(value || "").trim();
+  if (!date) return "";
+  return cleanDate(date, "Date taken");
+}
+
+function cleanTime(value, label) {
+  const time = String(value || "").trim();
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+    throwBadRequest(`${label} must use HH:MM format.`);
+  }
+  return time;
+}
+
+function cleanChoice(value, choices, label) {
+  const choice = String(value || "").trim();
+  if (!choices.includes(choice)) throwBadRequest(`${label} is not valid.`);
+  return choice;
+}
+
+function cleanOptionalCount(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+  if (!/^\d{1,4}$/.test(text)) throwBadRequest("Counts must be whole numbers.");
+  return Number(text);
+}
+
+function throwBadRequest(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  error.exposeMessage = true;
+  throw error;
 }
 
 function sanitizeStorageFilename(value) {

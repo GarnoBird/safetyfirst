@@ -16,7 +16,8 @@ The existing safety tracker remains browser-local. The worker sign-in backend en
 1. Create a Supabase project.
 2. Run `supabase/migrations/001_worker_signins.sql` in the Supabase SQL editor.
    Run the later migrations in order as well, including `007_form_submissions.sql`
-   for worker accounts, submissions, and the private submission storage bucket.
+   for worker accounts, submissions, and the private submission storage bucket,
+   then `008_form_submission_form_data.sql` for digital form answers.
 3. Add the environment variables from `.env.example` to Vercel.
 4. Seed the testing staff user:
 
