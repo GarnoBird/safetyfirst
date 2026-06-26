@@ -273,49 +273,49 @@ function SafetyFirstApp({ navigateTo }) {
                   {view.label}
                 </button>
               ))}
-              <button
-                className="tab-button"
-                type="button"
-                onClick={() => {
-                  setExtrasOpen(false);
-                  navigateTo("/worker-sign-in-qr");
-                }}
-              >
-                Sign-In QR
-              </button>
-              <button
-                className="tab-button"
-                type="button"
-                onClick={() => {
-                  setExtrasOpen(false);
-                  navigateTo("/worker-sign-out-qr");
-                }}
-              >
-                Sign-Out QR
-              </button>
-              <button
-                className="tab-button"
-                type="button"
-                onClick={() => {
-                  setExtrasOpen(false);
-                  navigateTo("/worker-login");
-                }}
-              >
-                Worker Login
-              </button>
-              <button
-                className="tab-button"
-                type="button"
-                onClick={() => {
-                  setExtrasOpen(false);
-                  navigateTo("/staff-login");
-                }}
-              >
-                Staff
-              </button>
             </div>
           ) : null}
         </div>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => {
+            setExtrasOpen(false);
+            navigateTo("/worker-sign-in-qr");
+          }}
+        >
+          Sign-In QR
+        </button>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => {
+            setExtrasOpen(false);
+            navigateTo("/worker-sign-out-qr");
+          }}
+        >
+          Sign-Out QR
+        </button>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => {
+            setExtrasOpen(false);
+            navigateTo("/worker-login");
+          }}
+        >
+          Worker Login
+        </button>
+        <button
+          className="tab-button"
+          type="button"
+          onClick={() => {
+            setExtrasOpen(false);
+            navigateTo("/staff-login");
+          }}
+        >
+          Staff
+        </button>
       </nav>
 
       <main className="app-main">{renderActiveView()}</main>
