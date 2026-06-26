@@ -1,6 +1,9 @@
+import { getFallbackRecord, upsertFallbackRecord } from "./fallback-store.js";
+import { hasOneDriveConfig } from "./onedrive.js";
 import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
 
 const SETTINGS_ID = "default";
+const ONE_DRIVE_BACKUP_SETTING_ID = "one_drive_backup";
 const MAX_TEXT_LENGTH = 120;
 const MAX_MESSAGE_LENGTH = 320;
 const MAX_REPORT_RECIPIENTS = 10;
@@ -24,6 +27,7 @@ const DEFAULT_SETTINGS = {
   report_auto_enabled: true,
   report_auto_time: "08:00",
   report_format: "both",
+  one_drive_backup_enabled: false,
 };
 
 export async function getSiteSettings() {
@@ -42,11 +46,12 @@ export async function getSiteSettings() {
 }
 
 export async function getStaffSettings(staffId) {
-  const [siteSettings, reportSettings] = await Promise.all([
+  const [siteSettings, reportSettings, oneDriveSettings] = await Promise.all([
     getSiteSettings(),
     getStaffReportSettings(staffId),
+    getOneDriveBackupSettings(),
   ]);
-  return mergeStaffSettings(siteSettings, reportSettings);
+  return mergeStaffSettings(siteSettings, reportSettings, oneDriveSettings);
 }
 
 export async function updateSiteSettings(body, staffId) {
@@ -72,6 +77,7 @@ export async function updateStaffSettings(body, staffId) {
   const input = body && typeof body === "object" ? body : {};
   const siteUpdates = validateSiteSettingsInput(input);
   const reportUpdates = validateReportSettingsInput(input);
+  const oneDriveUpdates = validateOneDriveBackupSettingsInput(input);
   const now = new Date().toISOString();
   const supabase = getSupabaseServiceClient();
 
@@ -106,10 +112,16 @@ export async function updateStaffSettings(body, staffId) {
       .single(),
     "Report settings could not be saved.",
   );
+  const oneDriveSettings = await updateOneDriveBackupSettings(
+    oneDriveUpdates,
+    staffId,
+    now,
+  );
 
   return mergeStaffSettings(
     normalizeSiteSettings(siteRow),
     normalizeStaffReportSettings(reportRow),
+    oneDriveSettings,
   );
 }
 
@@ -165,7 +177,13 @@ export function getSettingsSystemStatus() {
         ? "configured"
         : "not configured",
     sms: "not connected",
+    oneDrive: hasOneDriveConfig() ? "configured" : "not configured",
   };
+}
+
+export async function isOneDriveBackupEnabled() {
+  const settings = await getOneDriveBackupSettings();
+  return Boolean(settings.one_drive_backup_enabled);
 }
 
 async function loadSettingsRow() {
@@ -227,6 +245,13 @@ function validateReportSettingsInput(body) {
   };
 }
 
+function validateOneDriveBackupSettingsInput(body) {
+  const input = body && typeof body === "object" ? body : {};
+  return {
+    one_drive_backup_enabled: cleanBoolean(input.one_drive_backup_enabled),
+  };
+}
+
 function normalizeSiteSettings(row) {
   const settings = {
     ...DEFAULT_SETTINGS,
@@ -275,7 +300,39 @@ function normalizeStaffReportSettings(row, fallback = DEFAULT_SETTINGS) {
   };
 }
 
-function mergeStaffSettings(siteSettings, reportSettings) {
+async function getOneDriveBackupSettings() {
+  try {
+    const record = await getFallbackRecord("setting", ONE_DRIVE_BACKUP_SETTING_ID);
+    return normalizeOneDriveBackupSettings(record);
+  } catch {
+    return normalizeOneDriveBackupSettings(null);
+  }
+}
+
+async function updateOneDriveBackupSettings(settings, staffId, now) {
+  const record = await upsertFallbackRecord(
+    "setting",
+    ONE_DRIVE_BACKUP_SETTING_ID,
+    {
+      ...normalizeOneDriveBackupSettings(settings),
+      updated_at: now,
+      updated_by_staff_id: staffId,
+    },
+    staffId,
+  );
+  return normalizeOneDriveBackupSettings(record);
+}
+
+function normalizeOneDriveBackupSettings(row) {
+  return {
+    one_drive_backup_enabled:
+      row?.one_drive_backup_enabled === undefined
+        ? DEFAULT_SETTINGS.one_drive_backup_enabled
+        : Boolean(row.one_drive_backup_enabled),
+  };
+}
+
+function mergeStaffSettings(siteSettings, reportSettings, oneDriveSettings) {
   return {
     ...siteSettings,
     report_recipient_email: reportSettings.recipient_emails,
@@ -283,6 +340,9 @@ function mergeStaffSettings(siteSettings, reportSettings) {
     report_auto_time: reportSettings.auto_time,
     report_timezone: reportSettings.timezone,
     report_format: reportSettings.report_format,
+    one_drive_backup_enabled: Boolean(
+      oneDriveSettings?.one_drive_backup_enabled,
+    ),
   };
 }
 

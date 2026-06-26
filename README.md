@@ -43,8 +43,10 @@ these server-side Vercel environment variables before relying on backup status:
 - `MS_DRIVE_ID`
 - `MS_FORMS_FOLDER_ID`
 
-If these are missing, submissions still save in Supabase, but backup status is
-marked failed and can be retried from Staff Forms after Microsoft is configured.
+Staff Settings includes a `OneDrive Backup` checkbox. It is off by default while
+Microsoft details are missing. While off, submissions still save in Supabase with
+backup status `Pending`, and can be retried from Staff Forms after Microsoft is
+configured and the checkbox is turned on.
 
 ## Routes
 

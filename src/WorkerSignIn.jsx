@@ -36,12 +36,14 @@ const DEFAULT_SITE_SETTINGS = {
   report_auto_enabled: true,
   report_auto_time: "08:00",
   report_format: "both",
+  one_drive_backup_enabled: false,
 };
 
 const DEFAULT_SYSTEM_STATUS = {
   database: "checking",
   email: "checking",
   sms: "not connected",
+  oneDrive: "checking",
 };
 
 const TREND_PRESETS = [
@@ -1210,6 +1212,37 @@ export function StaffSettingsPage({ navigateTo }) {
         </SettingsSection>
 
         <SettingsSection
+          description="Controls whether completed safety forms are copied to the staff OneDrive backup folder."
+          title="OneDrive Backup"
+        >
+          <label className="settings-checkbox">
+            <input
+              checked={Boolean(settings.one_drive_backup_enabled)}
+              type="checkbox"
+              onChange={(event) =>
+                updateSetting("one_drive_backup_enabled", event.target.checked)
+              }
+            />
+            <span>
+              <strong>OneDrive Backup</strong>
+              <small>
+                {settings.one_drive_backup_enabled
+                  ? "On - submissions will attempt OneDrive backup when Microsoft settings are configured."
+                  : "Off - submissions stay in app storage with backup marked Pending."}
+              </small>
+            </span>
+          </label>
+          <div className="settings-status-line">
+            <span>Microsoft Graph</span>
+            <strong>{system.oneDrive}</strong>
+          </div>
+          <p className="settings-note">
+            Leave this off until the Microsoft tenant, app, drive, and folder values are added.
+            Pending backups can be retried later.
+          </p>
+        </SettingsSection>
+
+        <SettingsSection
           description="SMS is planned, but not connected in this build."
           title="Sign-Out Reminders"
         >
@@ -1262,6 +1295,7 @@ export function StaffSettingsPage({ navigateTo }) {
             <SystemStatus label="Database" value={system.database} />
             <SystemStatus label="Email" value={system.email} />
             <SystemStatus label="SMS" value={system.sms} />
+            <SystemStatus label="OneDrive" value={system.oneDrive} />
           </div>
         </SettingsSection>
 
@@ -2896,7 +2930,7 @@ function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry })
               <td>
                 <div className="table-action-row">
                   <button type="button" onClick={() => onDetails(row)}>Details</button>
-                  {row.one_drive_backup_status === "failed" ? (
+                  {canRetryBackup(row.one_drive_backup_status) ? (
                     <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
                       {retryingId === row.id ? "Retrying" : "Retry"}
                     </button>
@@ -2954,7 +2988,7 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
             ))}
           </div>
         ) : null}
-        {row.one_drive_backup_status === "failed" ? (
+        {canRetryBackup(row.one_drive_backup_status) ? (
           <button
             className="primary-button"
             disabled={retryingId === row.id}
@@ -4044,6 +4078,10 @@ function backupStatusLabel(value) {
   if (value === "pending") return "Pending";
   if (value === "failed") return "Failed";
   return value || "Unknown";
+}
+
+function canRetryBackup(value) {
+  return ["pending", "failed"].includes(value);
 }
 
 function formatFileSize(value) {

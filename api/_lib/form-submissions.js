@@ -7,6 +7,7 @@ import {
   upsertFallbackRecord,
 } from "./fallback-store.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
+import { isOneDriveBackupEnabled } from "./settings.js";
 import {
   getSupabaseServiceClient,
   isSupabaseMissingRelationError,
@@ -326,21 +327,24 @@ export async function retrySubmissionBackup(id) {
 }
 
 export async function runSubmissionMaintenance() {
+  const backupEnabled = await isOneDriveBackupEnabled();
   let retryRows;
   try {
-    retryRows = throwIfSupabaseError(
-      await getSupabaseServiceClient()
-        .from("form_submissions")
-        .select("id")
-        .in("one_drive_backup_status", ["pending", "failed"])
-        .is("app_purged_at", null)
-        .order("submitted_at", { ascending: true })
-        .limit(25),
-      "Pending backups could not be loaded.",
-    );
+    retryRows = backupEnabled
+      ? throwIfSupabaseError(
+          await getSupabaseServiceClient()
+            .from("form_submissions")
+            .select("id")
+            .in("one_drive_backup_status", ["pending", "failed"])
+            .is("app_purged_at", null)
+            .order("submitted_at", { ascending: true })
+            .limit(25),
+          "Pending backups could not be loaded.",
+        )
+      : [];
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
-    return runFallbackSubmissionMaintenance();
+    return runFallbackSubmissionMaintenance({ backupEnabled });
   }
 
   const backupResults = [];
@@ -378,12 +382,15 @@ export async function runSubmissionMaintenance() {
   return {
     retried: backupResults.length,
     backups: backupResults,
+    backupSkipped: !backupEnabled,
+    backupSkipReason: backupEnabled ? "" : oneDriveBackupDisabledMessage(),
     purged: purgeResults.length,
     purgeResults,
   };
 }
 
 async function backupSubmissionBestEffort(id) {
+  if (!(await isOneDriveBackupEnabled())) return;
   try {
     await backupSubmission(id);
   } catch {
@@ -394,6 +401,7 @@ async function backupSubmissionBestEffort(id) {
 async function backupSubmission(id) {
   const submission = await getSubmissionById(id, { includeDeleted: true });
   if (submission.one_drive_backup_status === "backed_up") return submission;
+  await assertOneDriveBackupEnabled();
 
   if (submission.submission_mode === "fill_form") {
     return backupFilledSubmission(submission);
@@ -710,6 +718,7 @@ async function saveFallbackSubmission(submission) {
 }
 
 async function backupFallbackSubmissionBestEffort(id) {
+  if (!(await isOneDriveBackupEnabled())) return;
   try {
     await backupFallbackSubmission(id);
   } catch {
@@ -725,6 +734,7 @@ async function backupFallbackSubmission(id) {
     throw error;
   }
   if (submission.one_drive_backup_status === "backed_up") return submission;
+  await assertOneDriveBackupEnabled();
 
   const attemptedAt = new Date().toISOString();
   try {
@@ -819,13 +829,17 @@ async function backupFallbackSubmission(id) {
   }
 }
 
-async function runFallbackSubmissionMaintenance() {
+async function runFallbackSubmissionMaintenance({ backupEnabled } = {}) {
+  const canBackup =
+    backupEnabled === undefined ? await isOneDriveBackupEnabled() : backupEnabled;
   const submissions = await listFallbackSubmissions();
-  const retryRows = submissions
-    .filter((row) => ["pending", "failed"].includes(row.one_drive_backup_status))
-    .filter((row) => !row.app_purged_at)
-    .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
-    .slice(0, 25);
+  const retryRows = canBackup
+    ? submissions
+        .filter((row) => ["pending", "failed"].includes(row.one_drive_backup_status))
+        .filter((row) => !row.app_purged_at)
+        .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
+        .slice(0, 25)
+    : [];
 
   const backupResults = [];
   for (const row of retryRows) {
@@ -858,9 +872,23 @@ async function runFallbackSubmissionMaintenance() {
   return {
     retried: backupResults.length,
     backups: backupResults,
+    backupSkipped: !canBackup,
+    backupSkipReason: canBackup ? "" : oneDriveBackupDisabledMessage(),
     purged: purgeResults.length,
     purgeResults,
   };
+}
+
+async function assertOneDriveBackupEnabled() {
+  if (await isOneDriveBackupEnabled()) return;
+  const error = new Error(oneDriveBackupDisabledMessage());
+  error.statusCode = 409;
+  error.exposeMessage = true;
+  throw error;
+}
+
+function oneDriveBackupDisabledMessage() {
+  return "OneDrive backup is turned off in Staff Settings.";
 }
 
 async function purgeFallbackSubmissionAppCopy(row) {
