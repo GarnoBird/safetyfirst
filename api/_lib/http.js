@@ -73,6 +73,14 @@ export function getRequiredEnv(name) {
 
 export function handleApiError(res, error) {
   const statusCode = error.statusCode || 500;
+  if (statusCode >= 500) {
+    console.error("API error", {
+      message: error.message,
+      statusCode,
+      causeCode: error.cause?.code || error.cause?.statusCode || error.cause?.status,
+      causeMessage: error.cause?.message || error.cause?.error,
+    });
+  }
   const message =
     statusCode >= 500 && !error.exposeMessage
       ? "The server could not complete the request."

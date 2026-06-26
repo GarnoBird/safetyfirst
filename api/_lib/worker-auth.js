@@ -1,11 +1,21 @@
 import crypto from "node:crypto";
 import { promisify } from "node:util";
+import {
+  getFallbackRecord,
+  listFallbackRecords,
+  upsertFallbackRecord,
+} from "./fallback-store.js";
 import { parseCookies, serializeCookie } from "./http.js";
-import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
+import {
+  getSupabaseServiceClient,
+  isSupabaseMissingRelationError,
+  throwIfSupabaseError,
+} from "./supabase.js";
 
 const scrypt = promisify(crypto.scrypt);
 
 const WORKER_COOKIE_NAME = "sf_worker_session";
+const STATELESS_SESSION_PREFIX = "sfw1";
 const REMEMBER_SESSION_TTL_SECONDS = 60 * 60 * 24 * 400;
 const STANDARD_SESSION_TTL_SECONDS = 60 * 60 * 12;
 const WORKER_SELECT =
@@ -71,19 +81,24 @@ export async function verifyWorkerPassword(password, storedHash) {
 export async function createWorkerProfile(body, staffId) {
   const cleaned = cleanWorkerProfileInput(body, { requirePassword: true });
   const password_hash = await hashWorkerPassword(body.password);
-  return throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("worker_profiles")
-      .insert({
-        ...cleaned,
-        password_hash,
-        created_by_staff_id: staffId,
-        updated_by_staff_id: staffId,
-      })
-      .select(WORKER_SELECT)
-      .single(),
-    "Worker account could not be created.",
-  );
+  try {
+    return throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_profiles")
+        .insert({
+          ...cleaned,
+          password_hash,
+          created_by_staff_id: staffId,
+          updated_by_staff_id: staffId,
+        })
+        .select(WORKER_SELECT)
+        .single(),
+      "Worker account could not be created.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return createFallbackWorkerProfile(cleaned, password_hash, staffId);
+  }
 }
 
 export async function updateWorkerProfile(body, staffId) {
@@ -111,35 +126,47 @@ export async function updateWorkerProfile(body, staffId) {
   update.updated_at = new Date().toISOString();
   update.updated_by_staff_id = staffId;
 
-  const worker = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("worker_profiles")
-      .update(update)
-      .eq("id", id)
-      .select(WORKER_SELECT)
-      .single(),
-    "Worker account could not be updated.",
-  );
+  let worker;
+  try {
+    worker = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_profiles")
+        .update(update)
+        .eq("id", id)
+        .select(WORKER_SELECT)
+        .single(),
+      "Worker account could not be updated.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    worker = await updateFallbackWorkerProfile(id, update, staffId);
+  }
 
   if (body?.active === false) await revokeWorkerSessions(id);
   return worker;
 }
 
 export async function listWorkerProfiles({ search = "", company = "", active = "all" } = {}) {
-  let query = getSupabaseServiceClient()
-    .from("worker_profiles")
-    .select(WORKER_SELECT)
-    .order("company", { ascending: true })
-    .order("name", { ascending: true });
+  let rows;
+  try {
+    let query = getSupabaseServiceClient()
+      .from("worker_profiles")
+      .select(WORKER_SELECT)
+      .order("company", { ascending: true })
+      .order("name", { ascending: true });
 
-  if (company) query = query.eq("company", company);
-  if (active === "true") query = query.eq("active", true);
-  if (active === "false") query = query.eq("active", false);
+    if (company) query = query.eq("company", company);
+    if (active === "true") query = query.eq("active", true);
+    if (active === "false") query = query.eq("active", false);
 
-  const rows = throwIfSupabaseError(
-    await query,
-    "Worker accounts could not be loaded.",
-  );
+    rows = throwIfSupabaseError(
+      await query,
+      "Worker accounts could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    rows = await listFallbackWorkers({ company, active });
+  }
 
   const normalizedSearch = String(search || "").trim().toLowerCase();
   if (!normalizedSearch) return rows;
@@ -167,7 +194,7 @@ export async function loginWorker(identifier, password, rememberMe = false) {
 
   return {
     worker: publicWorker(worker),
-    sessionToken: await createWorkerSession(worker.id, rememberMe),
+    sessionToken: await createWorkerSession(worker, rememberMe),
   };
 }
 
@@ -203,18 +230,32 @@ export function clearWorkerSessionCookie(res) {
 export async function getWorkerFromRequest(req) {
   const token = parseCookies(req)[WORKER_COOKIE_NAME];
   if (!token) return null;
+
+  if (String(token).startsWith(`${STATELESS_SESSION_PREFIX}.`)) {
+    const session = verifyStatelessWorkerSession(token);
+    if (!session?.workerId) return null;
+    const worker = await loadWorkerById(session.workerId);
+    return worker?.active ? publicWorker(worker) : null;
+  }
+
   const tokenHash = hashSessionToken(token);
 
-  const session = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("worker_sessions")
-      .select(`id, worker_id, expires_at, revoked_at, worker_profiles!inner(${WORKER_SELECT})`)
-      .eq("token_hash", tokenHash)
-      .is("revoked_at", null)
-      .gt("expires_at", new Date().toISOString())
-      .maybeSingle(),
-    "Worker session could not be verified.",
-  );
+  let session;
+  try {
+    session = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_sessions")
+        .select(`id, worker_id, expires_at, revoked_at, worker_profiles!inner(${WORKER_SELECT})`)
+        .eq("token_hash", tokenHash)
+        .is("revoked_at", null)
+        .gt("expires_at", new Date().toISOString())
+        .maybeSingle(),
+      "Worker session could not be verified.",
+    );
+  } catch (error) {
+    if (isSupabaseMissingRelationError(error)) return null;
+    throw error;
+  }
 
   if (!session?.worker_profiles?.active) return null;
 
@@ -239,11 +280,15 @@ export async function requireWorker(req) {
 export async function logoutWorker(req) {
   const token = parseCookies(req)[WORKER_COOKIE_NAME];
   if (!token) return;
-  await getSupabaseServiceClient()
-    .from("worker_sessions")
-    .update({ revoked_at: new Date().toISOString() })
-    .eq("token_hash", hashSessionToken(token))
-    .is("revoked_at", null);
+  if (String(token).startsWith(`${STATELESS_SESSION_PREFIX}.`)) return;
+  const result = await getSupabaseServiceClient()
+      .from("worker_sessions")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("token_hash", hashSessionToken(token))
+      .is("revoked_at", null);
+  if (result.error && !isSupabaseMissingRelationError(result.error)) {
+    throwIfSupabaseError(result, "Worker session could not be ended.");
+  }
 }
 
 async function findWorkerForLogin(identifier) {
@@ -261,32 +306,47 @@ async function findWorkerForLogin(identifier) {
     query = query.eq("username", username);
   }
 
-  const rows = throwIfSupabaseError(await query, "Worker account could not be loaded.");
-  return rows[0] || null;
+  try {
+    const rows = throwIfSupabaseError(await query, "Worker account could not be loaded.");
+    return rows[0] || null;
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return findFallbackWorkerForLogin(identifier);
+  }
 }
 
-async function createWorkerSession(workerId, rememberMe) {
+async function createWorkerSession(worker, rememberMe) {
+  if (worker._fallbackStore) return createStatelessWorkerSession(worker.id, rememberMe);
+
   const token = crypto.randomBytes(32).toString("base64url");
   const ttl = rememberMe ? REMEMBER_SESSION_TTL_SECONDS : STANDARD_SESSION_TTL_SECONDS;
   const expiresAt = new Date(Date.now() + ttl * 1000).toISOString();
-  throwIfSupabaseError(
-    await getSupabaseServiceClient().from("worker_sessions").insert({
-      worker_id: workerId,
-      token_hash: hashSessionToken(token),
-      remember_me: Boolean(rememberMe),
-      expires_at: expiresAt,
-    }),
-    "Worker session could not be created.",
-  );
+  try {
+    throwIfSupabaseError(
+      await getSupabaseServiceClient().from("worker_sessions").insert({
+        worker_id: worker.id,
+        token_hash: hashSessionToken(token),
+        remember_me: Boolean(rememberMe),
+        expires_at: expiresAt,
+      }),
+      "Worker session could not be created.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return createStatelessWorkerSession(worker.id, rememberMe);
+  }
   return token;
 }
 
 async function revokeWorkerSessions(workerId) {
-  await getSupabaseServiceClient()
+  const result = await getSupabaseServiceClient()
     .from("worker_sessions")
     .update({ revoked_at: new Date().toISOString() })
     .eq("worker_id", workerId)
     .is("revoked_at", null);
+  if (result.error && !isSupabaseMissingRelationError(result.error)) {
+    throwIfSupabaseError(result, "Worker sessions could not be revoked.");
+  }
 }
 
 function hashSessionToken(token) {
@@ -302,6 +362,169 @@ function publicWorker(worker) {
     username: worker.username,
     active: worker.active,
   };
+}
+
+async function createFallbackWorkerProfile(cleaned, passwordHash, staffId) {
+  const existing = await listFallbackWorkers();
+  assertFallbackWorkerUnique(existing, cleaned);
+
+  const now = new Date().toISOString();
+  const saved = await upsertFallbackRecord(
+    "worker",
+    crypto.randomUUID(),
+    {
+      ...cleaned,
+      password_hash: passwordHash,
+      active: cleaned.active,
+      created_at: now,
+      updated_at: now,
+      created_by_staff_id: staffId,
+      updated_by_staff_id: staffId,
+      _fallbackStore: true,
+    },
+    staffId,
+  );
+  return staffWorker(saved);
+}
+
+async function updateFallbackWorkerProfile(id, update, staffId) {
+  const worker = await getFallbackRecord("worker", id);
+  if (!worker) {
+    const error = new Error("Worker account was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const next = {
+    ...worker,
+    ...update,
+    id,
+    phone_normalized:
+      update.phone !== undefined ? normalizePhone(update.phone) : worker.phone_normalized,
+    updated_at: new Date().toISOString(),
+    updated_by_staff_id: staffId,
+    _fallbackStore: true,
+  };
+
+  const existing = await listFallbackWorkers();
+  assertFallbackWorkerUnique(existing.filter((row) => row.id !== id), next);
+  return staffWorker(await upsertFallbackRecord("worker", id, next, staffId));
+}
+
+async function listFallbackWorkers({ company = "", active = "all", includeSecrets = false } = {}) {
+  return (await listFallbackRecords("worker"))
+    .map((worker) => ({ ...worker, _fallbackStore: true }))
+    .filter((worker) => !company || worker.company === company)
+    .filter((worker) => active === "all" || String(Boolean(worker.active)) === active)
+    .sort((a, b) => a.company.localeCompare(b.company) || a.name.localeCompare(b.name))
+    .map((worker) => (includeSecrets ? worker : staffWorker(worker)));
+}
+
+async function findFallbackWorkerForLogin(identifier) {
+  const username = normalizeUsername(identifier);
+  const phoneNormalized = normalizePhone(identifier);
+  const workers = await listFallbackWorkers({ active: "true", includeSecrets: true });
+  return (
+    workers.find((worker) =>
+      phoneNormalized && /^[\d\s()+.-]+$/.test(identifier)
+        ? worker.phone_normalized === phoneNormalized
+        : worker.username === username,
+    ) || null
+  );
+}
+
+async function loadWorkerById(id) {
+  try {
+    const row = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_profiles")
+        .select(WORKER_SELECT)
+        .eq("id", id)
+        .maybeSingle(),
+      "Worker account could not be loaded.",
+    );
+    return row;
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    const fallback = await getFallbackRecord("worker", id);
+    return fallback ? { ...fallback, _fallbackStore: true } : null;
+  }
+}
+
+function assertFallbackWorkerUnique(existing, worker) {
+  const sameUsername = existing.find((row) => row.username === worker.username);
+  if (sameUsername) {
+    const error = new Error("Username is already in use.");
+    error.statusCode = 409;
+    throw error;
+  }
+  const samePhone = existing.find(
+    (row) => row.phone_normalized && row.phone_normalized === worker.phone_normalized,
+  );
+  if (samePhone) {
+    const error = new Error("Phone number is already in use.");
+    error.statusCode = 409;
+    throw error;
+  }
+}
+
+function staffWorker(worker) {
+  return {
+    id: worker.id,
+    name: worker.name,
+    company: worker.company,
+    phone: worker.phone,
+    phone_normalized: worker.phone_normalized,
+    username: worker.username,
+    active: worker.active,
+    created_at: worker.created_at,
+    updated_at: worker.updated_at,
+  };
+}
+
+function createStatelessWorkerSession(workerId, rememberMe) {
+  const ttl = rememberMe ? REMEMBER_SESSION_TTL_SECONDS : STANDARD_SESSION_TTL_SECONDS;
+  const payload = Buffer.from(
+    JSON.stringify({
+      workerId,
+      exp: Math.floor(Date.now() / 1000) + ttl,
+    }),
+  ).toString("base64url");
+  return `${STATELESS_SESSION_PREFIX}.${payload}.${signWorkerSessionPayload(payload)}`;
+}
+
+function verifyStatelessWorkerSession(token) {
+  const [prefix, payload, signature] = String(token || "").split(".");
+  if (prefix !== STATELESS_SESSION_PREFIX || !payload || !signature) return null;
+  const expected = signWorkerSessionPayload(payload);
+  const expectedBytes = Buffer.from(expected);
+  const signatureBytes = Buffer.from(signature);
+  if (
+    expectedBytes.length !== signatureBytes.length ||
+    !crypto.timingSafeEqual(expectedBytes, signatureBytes)
+  ) {
+    return null;
+  }
+  const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+  if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
+  return parsed;
+}
+
+function signWorkerSessionPayload(payload) {
+  return crypto
+    .createHmac("sha256", getWorkerSessionSecret())
+    .update(payload)
+    .digest("base64url");
+}
+
+function getWorkerSessionSecret() {
+  const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET;
+  if (!secret) {
+    const error = new Error("Missing SESSION_SECRET or CRON_SECRET.");
+    error.statusCode = 503;
+    throw error;
+  }
+  return secret;
 }
 
 function cleanUuid(value, message) {

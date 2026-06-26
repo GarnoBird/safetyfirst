@@ -38,10 +38,28 @@ export function getSupabaseAuthClient() {
 
 export function throwIfSupabaseError(result, message = "Database request failed.") {
   if (result.error) {
-    const error = new Error(message);
+    const missingRelation = isSupabaseMissingRelationError(result.error);
+    const error = new Error(
+      missingRelation
+        ? `${message} Run the latest Supabase migration before using this feature.`
+        : message,
+    );
     error.cause = result.error;
-    error.statusCode = 500;
+    error.statusCode = missingRelation ? 503 : 500;
+    error.exposeMessage = missingRelation;
     throw error;
   }
   return result.data;
+}
+
+export function isSupabaseMissingRelationError(error) {
+  const source = error?.cause || error;
+  const code = source?.code;
+  const message = String(source?.message || source?.details || "");
+  return (
+    ["42P01", "PGRST204", "PGRST205"].includes(code) ||
+    /relation .* does not exist/i.test(message) ||
+    /could not find the table/i.test(message) ||
+    /schema cache/i.test(message)
+  );
 }

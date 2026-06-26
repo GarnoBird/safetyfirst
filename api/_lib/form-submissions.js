@@ -1,7 +1,17 @@
 import crypto from "node:crypto";
 import { assertDateString, getVancouverDate } from "./date.js";
+import {
+  deleteFallbackRecord,
+  getFallbackRecord,
+  listFallbackRecords,
+  upsertFallbackRecord,
+} from "./fallback-store.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
-import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
+import {
+  getSupabaseServiceClient,
+  isSupabaseMissingRelationError,
+  throwIfSupabaseError,
+} from "./supabase.js";
 
 export const SUBMISSION_BUCKET = "safety-form-submissions";
 export const FORM_TYPES = [
@@ -12,6 +22,19 @@ export const FORM_TYPES = [
 export const SUBMISSION_MODES = ["submit_file", "fill_form"];
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+const ALLOWED_SUBMISSION_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/plain",
+];
 const STAFF_SORT_FIELDS = [
   "submitted_at",
   "company",
@@ -47,9 +70,29 @@ export async function createFileUploadTarget(worker, body) {
     .createSignedUploadUrl(storagePath);
 
   if (result.error) {
+    if (isStorageBucketMissing(result.error)) {
+      await ensureSubmissionBucket();
+      const retry = await getSupabaseServiceClient()
+        .storage
+        .from(SUBMISSION_BUCKET)
+        .createSignedUploadUrl(storagePath);
+      if (!retry.error) {
+        return {
+          bucket: SUBMISSION_BUCKET,
+          storagePath,
+          signedUrl: retry.data.signedUrl,
+          token: retry.data.token,
+          path: retry.data.path,
+          formType,
+          file,
+        };
+      }
+      result.error = retry.error;
+    }
     const error = new Error("Upload URL could not be created.");
     error.cause = result.error;
     error.statusCode = 500;
+    error.exposeMessage = true;
     throw error;
   }
 
@@ -70,26 +113,38 @@ export async function createWorkerSubmission(worker, body) {
   const notes = String(body?.notes || "").trim().slice(0, 4000);
   const now = new Date();
 
-  const inserted = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("form_submissions")
-      .insert({
-        worker_id: worker.id,
-        worker_name: worker.name,
-        worker_phone: worker.phone,
-        worker_username: worker.username,
-        company: worker.company,
-        form_type: formType,
-        submission_mode: submissionMode,
-        notes,
-        submitted_at: now.toISOString(),
-        submitted_date_vancouver: getVancouverDate(now),
-        one_drive_backup_status: "pending",
-      })
-      .select(SUBMISSION_SELECT)
-      .single(),
-    "Submission could not be saved.",
-  );
+  let inserted;
+  try {
+    inserted = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .insert({
+          worker_id: worker.id,
+          worker_name: worker.name,
+          worker_phone: worker.phone,
+          worker_username: worker.username,
+          company: worker.company,
+          form_type: formType,
+          submission_mode: submissionMode,
+          notes,
+          submitted_at: now.toISOString(),
+          submitted_date_vancouver: getVancouverDate(now),
+          one_drive_backup_status: "pending",
+        })
+        .select(SUBMISSION_SELECT)
+        .single(),
+      "Submission could not be saved.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return createFallbackWorkerSubmission(worker, {
+      body,
+      formType,
+      submissionMode,
+      notes,
+      now,
+    });
+  }
 
   if (submissionMode === "submit_file") {
     const file = cleanSubmittedFile(body?.file, worker.id);
@@ -114,32 +169,44 @@ export async function createWorkerSubmission(worker, body) {
 }
 
 export async function listWorkerSubmissions(worker) {
-  const rows = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("form_submissions")
-      .select(SUBMISSION_WITH_FILES_SELECT)
-      .eq("worker_id", worker.id)
-      .is("deleted_by_worker_at", null)
-      .is("app_purged_at", null)
-      .order("submitted_at", { ascending: false })
-      .limit(200),
-    "Submissions could not be loaded.",
-  );
+  let rows;
+  try {
+    rows = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select(SUBMISSION_WITH_FILES_SELECT)
+        .eq("worker_id", worker.id)
+        .is("deleted_by_worker_at", null)
+        .is("app_purged_at", null)
+        .order("submitted_at", { ascending: false })
+        .limit(200),
+      "Submissions could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    rows = await listFallbackWorkerSubmissions(worker);
+  }
   return rows.map(publicSubmission);
 }
 
 export async function deleteWorkerSubmission(worker, submissionId) {
   const id = cleanUuid(submissionId, "Submission id is not valid.");
-  const row = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("form_submissions")
-      .select(SUBMISSION_WITH_FILES_SELECT)
-      .eq("id", id)
-      .eq("worker_id", worker.id)
-      .is("app_purged_at", null)
-      .maybeSingle(),
-    "Submission could not be loaded.",
-  );
+  let row;
+  try {
+    row = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select(SUBMISSION_WITH_FILES_SELECT)
+        .eq("id", id)
+        .eq("worker_id", worker.id)
+        .is("app_purged_at", null)
+        .maybeSingle(),
+      "Submission could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return deleteFallbackWorkerSubmission(worker, id);
+  }
 
   if (!row) {
     const error = new Error("Submission was not found.");
@@ -192,10 +259,26 @@ export async function listStaffSubmissions(query) {
     dbQuery = dbQuery.eq("one_drive_backup_status", backupStatus);
   }
 
-  const rows = throwIfSupabaseError(
-    await dbQuery.order(sort, { ascending: dir === "asc" }).limit(500),
-    "Submissions could not be loaded.",
-  );
+  let rows;
+  try {
+    rows = throwIfSupabaseError(
+      await dbQuery.order(sort, { ascending: dir === "asc" }).limit(500),
+      "Submissions could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    rows = await listFallbackStaffSubmissions({
+      from,
+      to,
+      company,
+      phone,
+      name,
+      formType,
+      backupStatus,
+      sort,
+      dir,
+    });
+  }
 
   return {
     rows: rows.map(publicSubmission),
@@ -212,10 +295,16 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
     .is("app_purged_at", null);
   if (!includeDeleted) query = query.is("deleted_by_worker_at", null);
 
-  const row = throwIfSupabaseError(
-    await query.maybeSingle(),
-    "Submission could not be loaded.",
-  );
+  let row;
+  try {
+    row = throwIfSupabaseError(
+      await query.maybeSingle(),
+      "Submission could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    row = await getFallbackSubmissionById(id, { includeDeleted });
+  }
   if (!row) {
     const error = new Error("Submission was not found.");
     error.statusCode = 404;
@@ -225,21 +314,34 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
 }
 
 export async function retrySubmissionBackup(id) {
-  await backupSubmission(cleanUuid(id, "Submission id is not valid."));
-  return getSubmissionById(id, { includeDeleted: true });
+  const cleanId = cleanUuid(id, "Submission id is not valid.");
+  try {
+    await backupSubmission(cleanId);
+    return getSubmissionById(cleanId, { includeDeleted: true });
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    await backupFallbackSubmission(cleanId);
+    return getFallbackSubmissionById(cleanId, { includeDeleted: true });
+  }
 }
 
 export async function runSubmissionMaintenance() {
-  const retryRows = throwIfSupabaseError(
-    await getSupabaseServiceClient()
-      .from("form_submissions")
-      .select("id")
-      .in("one_drive_backup_status", ["pending", "failed"])
-      .is("app_purged_at", null)
-      .order("submitted_at", { ascending: true })
-      .limit(25),
-    "Pending backups could not be loaded.",
-  );
+  let retryRows;
+  try {
+    retryRows = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select("id")
+        .in("one_drive_backup_status", ["pending", "failed"])
+        .is("app_purged_at", null)
+        .order("submitted_at", { ascending: true })
+        .limit(25),
+      "Pending backups could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return runFallbackSubmissionMaintenance();
+  }
 
   const backupResults = [];
   for (const row of retryRows) {
@@ -474,6 +576,381 @@ async function updateFileBackupStatus(id, status, attemptedAt, errorMessage = ""
       .single(),
     "File backup status could not be saved.",
   );
+}
+
+async function createFallbackWorkerSubmission(worker, { body, formType, submissionMode, notes, now }) {
+  const submission = {
+    id: crypto.randomUUID(),
+    worker_id: worker.id,
+    worker_name: worker.name,
+    worker_phone: worker.phone,
+    worker_username: worker.username,
+    company: worker.company,
+    form_type: formType,
+    submission_mode: submissionMode,
+    notes,
+    submitted_at: now.toISOString(),
+    submitted_date_vancouver: getVancouverDate(now),
+    deleted_by_worker_at: null,
+    app_purged_at: null,
+    one_drive_backup_status: "pending",
+    one_drive_item_id: null,
+    one_drive_item_name: null,
+    one_drive_web_url: null,
+    one_drive_path: null,
+    backup_attempted_at: null,
+    backup_error: null,
+    files: [],
+  };
+
+  if (submissionMode === "submit_file") {
+    const file = cleanSubmittedFile(body?.file, worker.id);
+    submission.files = [
+      {
+        id: crypto.randomUUID(),
+        submission_id: submission.id,
+        bucket: SUBMISSION_BUCKET,
+        storage_path: file.storagePath,
+        original_filename: file.originalFilename,
+        mime_type: file.mimeType,
+        size_bytes: file.sizeBytes,
+        one_drive_item_id: null,
+        one_drive_item_name: null,
+        one_drive_web_url: null,
+        one_drive_path: null,
+        backup_status: "pending",
+        backup_attempted_at: null,
+        backup_error: null,
+        app_deleted_at: null,
+        created_at: now.toISOString(),
+      },
+    ];
+  }
+
+  await saveFallbackSubmission(submission);
+  await backupFallbackSubmissionBestEffort(submission.id);
+  return getFallbackSubmissionById(submission.id, { includeDeleted: true });
+}
+
+async function listFallbackWorkerSubmissions(worker) {
+  return (await listFallbackSubmissions())
+    .filter((row) => row.worker_id === worker.id)
+    .filter((row) => !row.deleted_by_worker_at && !row.app_purged_at)
+    .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at))
+    .slice(0, 200);
+}
+
+async function deleteFallbackWorkerSubmission(worker, id) {
+  const row = await getFallbackSubmissionById(id, { includeDeleted: true });
+  if (!row || row.worker_id !== worker.id || row.app_purged_at) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (row.one_drive_backup_status === "backed_up") {
+    await purgeFallbackSubmissionAppCopy(row);
+    return { deleted: true, purged: true };
+  }
+
+  row.deleted_by_worker_at = new Date().toISOString();
+  await saveFallbackSubmission(row);
+  await backupFallbackSubmissionBestEffort(id);
+  return { deleted: true, purged: false };
+}
+
+async function listFallbackStaffSubmissions(filters) {
+  const {
+    from,
+    to,
+    company,
+    phone,
+    name,
+    formType,
+    backupStatus,
+    sort,
+    dir,
+  } = filters;
+
+  return (await listFallbackSubmissions())
+    .filter((row) => !row.deleted_by_worker_at && !row.app_purged_at)
+    .filter((row) => !from || row.submitted_date_vancouver >= from)
+    .filter((row) => !to || row.submitted_date_vancouver <= to)
+    .filter((row) => textIncludes(row.company, company))
+    .filter((row) => textIncludes(row.worker_phone, phone))
+    .filter((row) => textIncludes(row.worker_name, name))
+    .filter((row) => !FORM_TYPES.includes(formType) || row.form_type === formType)
+    .filter((row) =>
+      !["pending", "backed_up", "failed"].includes(backupStatus) ||
+      row.one_drive_backup_status === backupStatus
+    )
+    .sort((a, b) => compareFallbackSubmissions(a, b, sort, dir))
+    .slice(0, 500);
+}
+
+async function getFallbackSubmissionById(id, { includeDeleted = false } = {}) {
+  const row = normalizeFallbackSubmission(await getFallbackRecord("submission", id));
+  if (!row || row.app_purged_at) return null;
+  if (!includeDeleted && row.deleted_by_worker_at) return null;
+  return row;
+}
+
+async function listFallbackSubmissions() {
+  return (await listFallbackRecords("submission"))
+    .map(normalizeFallbackSubmission)
+    .filter(Boolean);
+}
+
+async function saveFallbackSubmission(submission) {
+  const normalized = normalizeFallbackSubmission(submission);
+  normalized.updated_at = new Date().toISOString();
+  return normalizeFallbackSubmission(
+    await upsertFallbackRecord("submission", normalized.id, normalized),
+  );
+}
+
+async function backupFallbackSubmissionBestEffort(id) {
+  try {
+    await backupFallbackSubmission(id);
+  } catch {
+    // Backup status is persisted; submission creation should still succeed.
+  }
+}
+
+async function backupFallbackSubmission(id) {
+  const submission = await getFallbackSubmissionById(id, { includeDeleted: true });
+  if (!submission) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  if (submission.one_drive_backup_status === "backed_up") return submission;
+
+  const attemptedAt = new Date().toISOString();
+  try {
+    if (submission.submission_mode === "fill_form") {
+      const buffer = Buffer.from(
+        JSON.stringify(
+          {
+            id: submission.id,
+            formType: submission.form_type,
+            mode: submission.submission_mode,
+            company: submission.company,
+            worker: {
+              id: submission.worker_id,
+              name: submission.worker_name,
+              phone: submission.worker_phone,
+              username: submission.worker_username,
+            },
+            notes: submission.notes,
+            submittedAt: submission.submitted_at,
+            submittedDate: submission.submitted_date_vancouver,
+          },
+          null,
+          2,
+        ),
+        "utf8",
+      );
+      const oneDrive = await uploadBufferToOneDrive({
+        buffer,
+        filename: buildOneDriveFilename({
+          submission,
+          file: {
+            original_filename: "filled-form.json",
+            mime_type: "application/json",
+          },
+        }),
+        mimeType: "application/json",
+      });
+      applyFallbackSubmissionBackupStatus(submission, "backed_up", attemptedAt, "", oneDrive);
+      await saveFallbackSubmission(submission);
+      return submission;
+    }
+
+    const files = submission.files || [];
+    if (!files.length) throw new Error("Submission file is missing.");
+    for (const file of files) {
+      if (file.backup_status === "backed_up") continue;
+      const downloaded = await getSupabaseServiceClient()
+        .storage
+        .from(file.bucket || SUBMISSION_BUCKET)
+        .download(file.storage_path);
+      if (downloaded.error) throw downloaded.error;
+      const arrayBuffer = await downloaded.data.arrayBuffer();
+      const oneDrive = await uploadBufferToOneDrive({
+        buffer: Buffer.from(arrayBuffer),
+        filename: buildOneDriveFilename({ submission, file }),
+        mimeType: file.mime_type,
+      });
+      Object.assign(file, {
+        backup_status: "backed_up",
+        backup_attempted_at: attemptedAt,
+        backup_error: null,
+        one_drive_item_id: oneDrive.itemId || null,
+        one_drive_item_name: oneDrive.itemName || null,
+        one_drive_web_url: oneDrive.webUrl || null,
+        one_drive_path: oneDrive.path || null,
+      });
+    }
+
+    const firstBackedUp = files.find((file) => file.one_drive_item_id) || files[0];
+    applyFallbackSubmissionBackupStatus(submission, "backed_up", attemptedAt, "", {
+      itemId: firstBackedUp.one_drive_item_id,
+      itemName: firstBackedUp.one_drive_item_name,
+      webUrl: firstBackedUp.one_drive_web_url,
+      path: firstBackedUp.one_drive_path,
+    });
+    await saveFallbackSubmission(submission);
+    return submission;
+  } catch (error) {
+    applyFallbackSubmissionBackupStatus(submission, "failed", attemptedAt, error.message);
+    submission.files = (submission.files || []).map((file) =>
+      file.backup_status === "backed_up"
+        ? file
+        : {
+            ...file,
+            backup_status: "failed",
+            backup_attempted_at: attemptedAt,
+            backup_error: error.message,
+          },
+    );
+    await saveFallbackSubmission(submission);
+    throw error;
+  }
+}
+
+async function runFallbackSubmissionMaintenance() {
+  const submissions = await listFallbackSubmissions();
+  const retryRows = submissions
+    .filter((row) => ["pending", "failed"].includes(row.one_drive_backup_status))
+    .filter((row) => !row.app_purged_at)
+    .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
+    .slice(0, 25);
+
+  const backupResults = [];
+  for (const row of retryRows) {
+    try {
+      await backupFallbackSubmission(row.id);
+      backupResults.push({ id: row.id, status: "backed_up" });
+    } catch (error) {
+      backupResults.push({ id: row.id, status: "failed", error: error.message });
+    }
+  }
+
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const purgeRows = submissions
+    .filter((row) => row.one_drive_backup_status === "backed_up")
+    .filter((row) => !row.app_purged_at)
+    .filter((row) => row.submitted_at < cutoff || row.deleted_by_worker_at)
+    .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
+    .slice(0, 100);
+
+  const purgeResults = [];
+  for (const row of purgeRows) {
+    try {
+      await purgeFallbackSubmissionAppCopy(row);
+      purgeResults.push({ id: row.id, purged: true });
+    } catch (error) {
+      purgeResults.push({ id: row.id, purged: false, error: error.message });
+    }
+  }
+
+  return {
+    retried: backupResults.length,
+    backups: backupResults,
+    purged: purgeResults.length,
+    purgeResults,
+  };
+}
+
+async function purgeFallbackSubmissionAppCopy(row) {
+  const files = row.files || [];
+  const paths = files
+    .filter((file) => !file.app_deleted_at && file.storage_path)
+    .map((file) => file.storage_path);
+
+  if (paths.length) {
+    const result = await getSupabaseServiceClient()
+      .storage
+      .from(SUBMISSION_BUCKET)
+      .remove(paths);
+    if (result.error) {
+      const error = new Error("Stored app files could not be removed.");
+      error.cause = result.error;
+      error.statusCode = 500;
+      throw error;
+    }
+  }
+
+  await deleteFallbackRecord("submission", row.id);
+}
+
+async function ensureSubmissionBucket() {
+  const result = await getSupabaseServiceClient().storage.createBucket(
+    SUBMISSION_BUCKET,
+    {
+      public: false,
+      fileSizeLimit: MAX_FILE_SIZE_BYTES,
+      allowedMimeTypes: ALLOWED_SUBMISSION_MIME_TYPES,
+    },
+  );
+  if (result.error && !isStorageBucketAlreadyExists(result.error)) {
+    const error = new Error("Submission storage bucket could not be created.");
+    error.cause = result.error;
+    error.statusCode = 500;
+    error.exposeMessage = true;
+    throw error;
+  }
+}
+
+function applyFallbackSubmissionBackupStatus(
+  submission,
+  status,
+  attemptedAt,
+  errorMessage = "",
+  oneDrive = {},
+) {
+  Object.assign(submission, {
+    one_drive_backup_status: status,
+    one_drive_item_id: oneDrive.itemId || null,
+    one_drive_item_name: oneDrive.itemName || null,
+    one_drive_web_url: oneDrive.webUrl || null,
+    one_drive_path: oneDrive.path || null,
+    backup_attempted_at: attemptedAt,
+    backup_error: errorMessage || null,
+  });
+}
+
+function normalizeFallbackSubmission(row) {
+  if (!row) return null;
+  const files = Array.isArray(row.files) ? row.files : row.submission_files || [];
+  return {
+    ...row,
+    files,
+    submission_files: files,
+  };
+}
+
+function compareFallbackSubmissions(a, b, sort, dir) {
+  const aValue = String(a[sort] || "");
+  const bValue = String(b[sort] || "");
+  const result = aValue.localeCompare(bValue);
+  return dir === "asc" ? result : -result;
+}
+
+function textIncludes(value, search) {
+  if (!search) return true;
+  return String(value || "").toLowerCase().includes(String(search).toLowerCase());
+}
+
+function isStorageBucketMissing(error) {
+  const message = String(error?.message || error?.error || "");
+  return String(error?.statusCode || error?.status || "") === "404" || /bucket.*not found/i.test(message);
+}
+
+function isStorageBucketAlreadyExists(error) {
+  const message = String(error?.message || error?.error || "");
+  return String(error?.statusCode || error?.status || "") === "409" || /already exists/i.test(message);
 }
 
 function cleanFormType(value) {
