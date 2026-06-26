@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 
 const STAFF_SORT_LABELS = {
@@ -2218,6 +2218,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "", date: "" });
   const submitted = status.type === "success";
 
@@ -2354,8 +2355,20 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   <div className="file-choice-grid">
                     <FileChoice label="Upload File" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*" onFile={setFile} />
                     <FileChoice label="Upload Photo" accept="image/*" onFile={setFile} />
-                    <FileChoice label="Take Photo" accept="image/*" capture="environment" onFile={setFile} />
+                    <button className="file-choice" type="button" onClick={() => setCameraOpen(true)}>
+                      <strong>Take Photo</strong>
+                      <span>Open camera</span>
+                    </button>
                   </div>
+                  {cameraOpen ? (
+                    <CameraCaptureDialog
+                      onCapture={(capturedFile) => {
+                        setFile(capturedFile);
+                        setCameraOpen(false);
+                      }}
+                      onClose={() => setCameraOpen(false)}
+                    />
+                  ) : null}
                   {file ? (
                     <p className="selected-file">
                       {file.name} / {formatFileSize(file.size)}
@@ -3015,6 +3028,180 @@ function FileChoice({ accept, capture, label, onFile }) {
       <strong>{label}</strong>
     </label>
   );
+}
+
+function CameraCaptureDialog({ onCapture, onClose }) {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const [cameraError, setCameraError] = useState("");
+  const [capturedFile, setCapturedFile] = useState(null);
+  const [capturedUrl, setCapturedUrl] = useState("");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const startCamera = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError("Camera is not available in this browser.");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: "environment" },
+          },
+        });
+        if (!active) {
+          stopCameraStream(stream);
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        setReady(true);
+      } catch {
+        if (active) {
+          setCameraError("Camera permission was denied or no camera is available.");
+        }
+      }
+    };
+
+    startCamera();
+
+    return () => {
+      active = false;
+      stopCameraStream(streamRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (capturedUrl) URL.revokeObjectURL(capturedUrl);
+    };
+  }, [capturedUrl]);
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !video.videoWidth || !video.videoHeight) {
+      setCameraError("Camera is still starting. Try again in a moment.");
+      return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      setCameraError("Photo could not be captured.");
+      return;
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setCameraError("Photo could not be captured.");
+          return;
+        }
+        if (capturedUrl) URL.revokeObjectURL(capturedUrl);
+        const nextFile = new File([blob], `camera-photo-${Date.now()}.jpg`, {
+          type: "image/jpeg",
+        });
+        setCapturedFile(nextFile);
+        setCapturedUrl(URL.createObjectURL(blob));
+        setCameraError("");
+      },
+      "image/jpeg",
+      0.9,
+    );
+  };
+
+  const retakePhoto = () => {
+    if (capturedUrl) URL.revokeObjectURL(capturedUrl);
+    setCapturedFile(null);
+    setCapturedUrl("");
+    setCameraError("");
+  };
+
+  const chooseFallbackPhoto = (selectedFile) => {
+    if (selectedFile) onCapture(selectedFile);
+  };
+
+  return (
+    <div className="camera-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Take photo"
+        className="camera-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="camera-dialog-heading">
+          <h2>Take Photo</h2>
+          <button type="button" onClick={onClose}>Close</button>
+        </div>
+
+        <div className="camera-preview">
+          {capturedUrl ? (
+            <img alt="Captured form upload" src={capturedUrl} />
+          ) : (
+            <video ref={videoRef} autoPlay muted playsInline />
+          )}
+          {!ready && !capturedUrl && !cameraError ? (
+            <span>Starting camera...</span>
+          ) : null}
+        </div>
+        <canvas ref={canvasRef} hidden />
+
+        {cameraError ? (
+          <p className="form-message error">{cameraError}</p>
+        ) : null}
+
+        <div className="camera-dialog-actions">
+          {capturedFile ? (
+            <>
+              <button type="button" onClick={retakePhoto}>Retake</button>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => onCapture(capturedFile)}
+              >
+                Use Photo
+              </button>
+            </>
+          ) : (
+            <button
+              className="primary-button"
+              disabled={!ready}
+              type="button"
+              onClick={capturePhoto}
+            >
+              Capture
+            </button>
+          )}
+          {cameraError ? (
+            <label className="camera-fallback-button">
+              <input
+                accept="image/*"
+                capture="environment"
+                type="file"
+                onChange={(event) => chooseFallbackPhoto(event.target.files?.[0] || null)}
+              />
+              Choose Photo Instead
+            </label>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function stopCameraStream(stream) {
+  stream?.getTracks?.().forEach((track) => track.stop());
 }
 
 function StatusPill({ value }) {
