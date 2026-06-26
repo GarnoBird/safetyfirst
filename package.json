@@ -36,7 +36,8 @@
     "verify:demo-data": "node scripts/verify-demo-data.js",
     "validate:wiki": "node scripts/validate-wiki-content.js",
     "verify:wiki-expansion": "node scripts/verify-wiki-expansion.js",
-    "seed:staff": "node scripts/seed-staff-user.js"
+    "seed:staff": "node scripts/seed-staff-user.js",
+    "smoke:ops": "node scripts/smoke-security-ops.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

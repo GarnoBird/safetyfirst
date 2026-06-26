@@ -15,11 +15,15 @@ import { loadSafetyData, resetSafetyData, saveSafetyData } from "./storage.js";
 import {
   StaffHomePage,
   StaffCompanySummaryPage,
+  StaffAuditPage,
+  StaffBackupsPage,
   StaffFormSubmissionsPage,
+  StaffHealthPage,
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
   StaffTrendsPage,
+  StaffUsersPage,
   StaffWorkersPage,
   WorkerFormSubmissionPage,
   WorkerFormsHomePage,
@@ -116,6 +120,22 @@ export default function App() {
 
   if (routePath === "/staff/workers") {
     return <StaffWorkersPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/users") {
+    return <StaffUsersPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/backups") {
+    return <StaffBackupsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/health") {
+    return <StaffHealthPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/audit") {
+    return <StaffAuditPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/trends") {

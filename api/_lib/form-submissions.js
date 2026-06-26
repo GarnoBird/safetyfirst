@@ -40,6 +40,21 @@ const ALLOWED_SUBMISSION_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "text/plain",
 ];
+const ALLOWED_UPLOAD_EXTENSIONS = {
+  ".jpg": ["image/jpeg"],
+  ".jpeg": ["image/jpeg"],
+  ".png": ["image/png"],
+  ".webp": ["image/webp"],
+  ".heic": ["image/heic", "image/heif"],
+  ".heif": ["image/heic", "image/heif"],
+  ".pdf": ["application/pdf"],
+  ".doc": ["application/msword"],
+  ".docx": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+  ".xls": ["application/vnd.ms-excel"],
+  ".xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+  ".txt": ["text/plain"],
+};
+const GENERIC_UPLOAD_MIME_TYPES = ["", "application/octet-stream"];
 const STAFF_SORT_FIELDS = [
   "submitted_at",
   "company",
@@ -62,6 +77,57 @@ export function publicSubmission(row) {
   };
 }
 
+async function uploadTargetPayload(worker, formType, file, storagePath, data) {
+  await recordSubmissionUpload(worker, formType, file, storagePath);
+  return {
+    bucket: SUBMISSION_BUCKET,
+    storagePath,
+    signedUrl: data.signedUrl,
+    token: data.token,
+    path: data.path,
+    formType,
+    file,
+  };
+}
+
+async function recordSubmissionUpload(worker, formType, file, storagePath) {
+  try {
+    throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("submission_uploads")
+        .insert({
+          worker_id: worker.id,
+          bucket: SUBMISSION_BUCKET,
+          storage_path: storagePath,
+          original_filename: file.originalFilename,
+          mime_type: file.mimeType,
+          size_bytes: file.sizeBytes,
+          form_type: formType,
+        }),
+      "Upload tracking record could not be created.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+  }
+}
+
+async function markUploadAttached(storagePath, submissionId) {
+  try {
+    const result = await getSupabaseServiceClient()
+      .from("submission_uploads")
+      .update({
+        attached_submission_id: submissionId,
+        attached_at: new Date().toISOString(),
+      })
+      .eq("storage_path", storagePath);
+    if (result.error && !isSupabaseMissingRelationError(result.error)) {
+      throwIfSupabaseError(result, "Upload tracking record could not be updated.");
+    }
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+  }
+}
+
 export async function createFileUploadTarget(worker, body) {
   const formType = cleanFormType(body?.formType || body?.form_type);
   const file = cleanFileMetadata(body?.file || body);
@@ -82,15 +148,7 @@ export async function createFileUploadTarget(worker, body) {
         .from(SUBMISSION_BUCKET)
         .createSignedUploadUrl(storagePath);
       if (!retry.error) {
-        return {
-          bucket: SUBMISSION_BUCKET,
-          storagePath,
-          signedUrl: retry.data.signedUrl,
-          token: retry.data.token,
-          path: retry.data.path,
-          formType,
-          file,
-        };
+        return uploadTargetPayload(worker, formType, file, storagePath, retry.data);
       }
       result.error = retry.error;
     }
@@ -101,15 +159,7 @@ export async function createFileUploadTarget(worker, body) {
     throw error;
   }
 
-  return {
-    bucket: SUBMISSION_BUCKET,
-    storagePath,
-    signedUrl: result.data.signedUrl,
-    token: result.data.token,
-    path: result.data.path,
-    formType,
-    file,
-  };
+  return uploadTargetPayload(worker, formType, file, storagePath, result.data);
 }
 
 export async function createWorkerSubmission(worker, body) {
@@ -174,6 +224,7 @@ export async function createWorkerSubmission(worker, body) {
         }),
       "Submission file could not be saved.",
     );
+    await markUploadAttached(file.storagePath, inserted.id);
   }
 
   await backupSubmissionBestEffort(inserted.id);
@@ -337,6 +388,30 @@ export async function retrySubmissionBackup(id) {
   }
 }
 
+export async function retryFailedSubmissionBackups({ limit = 50 } = {}) {
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_submissions")
+      .select("id")
+      .eq("one_drive_backup_status", "failed")
+      .is("app_purged_at", null)
+      .order("backup_attempted_at", { ascending: true, nullsFirst: true })
+      .limit(Math.min(100, Math.max(1, Number(limit) || 50))),
+    "Failed backups could not be loaded.",
+  );
+
+  const results = [];
+  for (const row of rows) {
+    try {
+      await backupSubmission(row.id);
+      results.push({ id: row.id, status: "backed_up" });
+    } catch (error) {
+      results.push({ id: row.id, status: "failed", error: error.message });
+    }
+  }
+  return { attempted: results.length, results };
+}
+
 export async function runSubmissionMaintenance() {
   const backupEnabled = await isOneDriveBackupEnabled();
   let retryRows;
@@ -390,6 +465,8 @@ export async function runSubmissionMaintenance() {
     }
   }
 
+  const abandonedUploads = await cleanupAbandonedUploads();
+
   return {
     retried: backupResults.length,
     backups: backupResults,
@@ -397,6 +474,7 @@ export async function runSubmissionMaintenance() {
     backupSkipReason: backupEnabled ? "" : oneDriveBackupDisabledMessage(),
     purged: purgeResults.length,
     purgeResults,
+    abandonedUploads,
   };
 }
 
@@ -556,6 +634,51 @@ async function purgeSubmissionAppCopy(row) {
       .eq("id", row.id),
     "Submission row could not be purged.",
   );
+}
+
+async function cleanupAbandonedUploads() {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  let rows;
+  try {
+    rows = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("submission_uploads")
+        .select("id, bucket, storage_path")
+        .is("attached_submission_id", null)
+        .is("deleted_at", null)
+        .lt("created_at", cutoff)
+        .order("created_at", { ascending: true })
+        .limit(100),
+      "Abandoned uploads could not be loaded.",
+    );
+  } catch (error) {
+    if (isSupabaseMissingRelationError(error)) return { checked: false, deleted: 0, errors: [] };
+    throw error;
+  }
+
+  const deleted = [];
+  const errors = [];
+  for (const row of rows) {
+    const result = await getSupabaseServiceClient()
+      .storage
+      .from(row.bucket || SUBMISSION_BUCKET)
+      .remove([row.storage_path]);
+    if (result.error) {
+      errors.push({ id: row.id, path: row.storage_path, error: result.error.message });
+      continue;
+    }
+    const update = await getSupabaseServiceClient()
+      .from("submission_uploads")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", row.id);
+    if (update.error) {
+      errors.push({ id: row.id, path: row.storage_path, error: update.error.message });
+      continue;
+    }
+    deleted.push(row.id);
+  }
+
+  return { checked: true, scanned: rows.length, deleted: deleted.length, errors };
 }
 
 async function updateSubmissionBackupStatus(id, status, attemptedAt, errorMessage = "", oneDrive = {}) {
@@ -1023,9 +1146,16 @@ function cleanSubmissionMode(value) {
 }
 
 function cleanFileMetadata(file) {
+  const originalFilename = String(file?.originalFilename || file?.name || "").trim();
+  const extension = fileExtension(originalFilename);
+  const allowedMimeTypes = ALLOWED_UPLOAD_EXTENSIONS[extension] || [];
+  const rawMimeType = String(file?.mimeType || file?.type || "").trim().toLowerCase();
+  const mimeType = GENERIC_UPLOAD_MIME_TYPES.includes(rawMimeType)
+    ? allowedMimeTypes[0] || "application/octet-stream"
+    : rawMimeType;
   const cleaned = {
-    originalFilename: String(file?.originalFilename || file?.name || "").trim(),
-    mimeType: String(file?.mimeType || file?.type || "application/octet-stream").trim(),
+    originalFilename,
+    mimeType,
     sizeBytes: Number(file?.sizeBytes || file?.size || 0),
   };
   if (!cleaned.originalFilename) {
@@ -1041,6 +1171,18 @@ function cleanFileMetadata(file) {
   if (cleaned.sizeBytes > MAX_FILE_SIZE_BYTES) {
     const error = new Error("File must be 50 MiB or smaller.");
     error.statusCode = 400;
+    throw error;
+  }
+  if (!allowedMimeTypes.length) {
+    const error = new Error("File type is not allowed. Use an image, PDF, Word, Excel, or text file.");
+    error.statusCode = 400;
+    error.exposeMessage = true;
+    throw error;
+  }
+  if (!allowedMimeTypes.includes(cleaned.mimeType)) {
+    const error = new Error("File extension and file type do not match.");
+    error.statusCode = 400;
+    error.exposeMessage = true;
     throw error;
   }
   return cleaned;
@@ -1237,6 +1379,13 @@ function sanitizeStorageFilename(value) {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .slice(0, 120);
+}
+
+function fileExtension(value) {
+  const name = String(value || "").trim().toLowerCase();
+  const index = name.lastIndexOf(".");
+  if (index <= 0 || index === name.length - 1) return "";
+  return name.slice(index);
 }
 
 function cleanUuid(value, message) {

@@ -2,9 +2,12 @@ import {
   clearStaffSessionCookie,
   getStaffFromRequest,
   loginStaff,
+  publicStaff,
   requireStaff,
+  requireStaffRole,
   setStaffSessionCookie,
 } from "./_lib/auth.js";
+import { listAuditEvents, recordAuditEvent } from "./_lib/audit.js";
 import { processStaffAutoReports } from "./_lib/auto-reports.js";
 import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
@@ -15,6 +18,7 @@ import {
   getSubmissionById,
   listStaffSubmissions,
   listWorkerSubmissions,
+  retryFailedSubmissionBackups,
   retrySubmissionBackup,
   runSubmissionMaintenance,
 } from "./_lib/form-submissions.js";
@@ -27,11 +31,25 @@ import {
 } from "./_lib/http.js";
 import { buildCompanySummaryReport, buildSignInReport, sendSignInReportEmail } from "./_lib/reports.js";
 import {
+  createSystemAlert,
+  getBackupQueue,
+  getSystemHealth,
+  listSystemAlerts,
+  recordJobRun,
+  updateSystemAlert,
+} from "./_lib/ops.js";
+import { assertLoginAllowed, recordLoginAttempt } from "./_lib/security.js";
+import {
   getSettingsSystemStatus,
   getStaffReportSettings,
   getStaffSettings,
   updateStaffSettings,
 } from "./_lib/settings.js";
+import {
+  createStaffUser,
+  listStaffUsers,
+  updateStaffUser,
+} from "./_lib/staff-users.js";
 import {
   clearWorkerSignInCookie,
   getCurrentWorkerSignIn,
@@ -78,15 +96,43 @@ async function handleAuth(req, res, parts) {
   if (route === "login") {
     if (req.method !== "POST") return sendMethodNotAllowed(res, ["POST"]);
     const body = await readJson(req);
-    const staff = await loginStaff(body.username, body.password);
-    setStaffSessionCookie(res, staff);
-    return sendJson(res, 200, {
-      staff: {
-        username: staff.username,
-        email: staff.email,
-        role: staff.role,
-      },
-    });
+    await assertLoginAllowed({ scope: "staff", identifier: body.username, req });
+    try {
+      const staff = await loginStaff(body.username, body.password);
+      await recordLoginAttempt({
+        scope: "staff",
+        identifier: body.username,
+        success: true,
+        req,
+      });
+      await recordAuditEvent({
+        req,
+        staff,
+        action: "staff_login_success",
+        targetType: "staff",
+        targetId: staff.id,
+        summary: `${staff.username} signed in.`,
+      });
+      setStaffSessionCookie(res, staff);
+      return sendJson(res, 200, { staff: publicStaff(staff) });
+    } catch (error) {
+      await recordLoginAttempt({
+        scope: "staff",
+        identifier: body.username,
+        success: false,
+        failureReason: error.message,
+        req,
+      });
+      await recordAuditEvent({
+        req,
+        action: "staff_login_failed",
+        targetType: "staff",
+        targetId: String(body.username || "").trim().toLowerCase(),
+        summary: "Staff login failed.",
+        metadata: { reason: error.statusCode === 401 ? "invalid_credentials" : error.message },
+      });
+      throw error;
+    }
   }
 
   if (route === "logout") {
@@ -99,21 +145,41 @@ async function handleAuth(req, res, parts) {
     if (req.method !== "GET") return sendMethodNotAllowed(res, ["GET"]);
     const staff = await getStaffFromRequest(req);
     if (!staff) return sendJson(res, 401, { staff: null });
-    return sendJson(res, 200, {
-      staff: {
-        username: staff.username,
-        email: staff.email,
-        role: staff.role,
-      },
-    });
+    return sendJson(res, 200, { staff: publicStaff(staff) });
   }
 
   if (route === "worker-login") {
     if (req.method !== "POST") return sendMethodNotAllowed(res, ["POST"]);
     const body = await readJson(req);
-    const result = await loginWorker(body.identifier, body.password, body.rememberMe);
-    setWorkerSessionCookie(res, result.sessionToken, body.rememberMe);
-    return sendJson(res, 200, { worker: result.worker });
+    await assertLoginAllowed({ scope: "worker", identifier: body.identifier, req });
+    try {
+      const result = await loginWorker(body.identifier, body.password, body.rememberMe);
+      await recordLoginAttempt({
+        scope: "worker",
+        identifier: body.identifier,
+        success: true,
+        req,
+      });
+      setWorkerSessionCookie(res, result.sessionToken, body.rememberMe);
+      return sendJson(res, 200, { worker: result.worker });
+    } catch (error) {
+      await recordLoginAttempt({
+        scope: "worker",
+        identifier: body.identifier,
+        success: false,
+        failureReason: error.message,
+        req,
+      });
+      await recordAuditEvent({
+        req,
+        action: "worker_login_failed",
+        targetType: "worker",
+        targetId: String(body.identifier || "").trim().toLowerCase(),
+        summary: "Worker login failed.",
+        metadata: { reason: error.statusCode === 401 ? "invalid_credentials" : error.message },
+      });
+      throw error;
+    }
   }
 
   if (route === "worker-logout") {
@@ -138,10 +204,74 @@ async function handleCron(req, res, parts) {
   assertCronAuthorized(req);
   const route = parts.join("/");
   if (route === "auto-reports") {
-    return sendJson(res, 200, await processStaffAutoReports());
+    const startedAt = new Date().toISOString();
+    try {
+      const result = await processStaffAutoReports();
+      await recordJobRun({
+        jobName: "auto_reports",
+        status: "succeeded",
+        triggeredBy: "cron",
+        startedAt,
+        summary: result,
+      });
+      return sendJson(res, 200, result);
+    } catch (error) {
+      await recordJobRun({
+        jobName: "auto_reports",
+        status: "failed",
+        triggeredBy: "cron",
+        startedAt,
+        error: error.message,
+      });
+      await createSystemAlert({
+        source: "cron",
+        alertKey: "auto_reports_failed",
+        severity: "critical",
+        title: "Auto report cron failed",
+        body: error.message,
+      });
+      throw error;
+    }
   }
   if (route === "submission-maintenance") {
-    return sendJson(res, 200, await runSubmissionMaintenance());
+    const startedAt = new Date().toISOString();
+    try {
+      const result = await runSubmissionMaintenance();
+      await recordJobRun({
+        jobName: "submission_maintenance",
+        status: result.backupSkipped ? "skipped" : "succeeded",
+        triggeredBy: "cron",
+        startedAt,
+        summary: result,
+      });
+      if ((result.backups || []).some((item) => item.status === "failed")) {
+        await createSystemAlert({
+          source: "backup",
+          alertKey: "maintenance_backup_failures",
+          severity: "warning",
+          title: "Submission maintenance found failed backups",
+          body: "One or more form submissions could not be backed up during maintenance.",
+          metadata: result,
+        });
+      }
+      return sendJson(res, 200, result);
+    } catch (error) {
+      await recordJobRun({
+        jobName: "submission_maintenance",
+        status: "failed",
+        triggeredBy: "cron",
+        startedAt,
+        error: error.message,
+      });
+      await createSystemAlert({
+        source: "cron",
+        alertKey: "submission_maintenance_failed",
+        severity: "critical",
+        title: "Submission maintenance cron failed",
+        body: error.message,
+      });
+      throw error;
+    }
   }
   return sendJson(res, 404, { error: "Not found" });
 }
@@ -153,7 +283,12 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "company-profiles") return handleCompanyProfiles(req, res, staff);
   if (parts[0] === "signins") return handleStaffSignIns(req, res, staff, parts.slice(1));
   if (parts[0] === "workers") return handleStaffWorkers(req, res, staff);
-  if (parts[0] === "submissions") return handleStaffSubmissions(req, res, parts.slice(1));
+  if (parts[0] === "users") return handleStaffUsers(req, res, staff);
+  if (parts[0] === "audit") return handleStaffAudit(req, res, staff);
+  if (parts[0] === "alerts") return handleStaffAlerts(req, res, staff, parts.slice(1));
+  if (parts[0] === "health") return handleStaffHealth(req, res);
+  if (parts[0] === "backups") return handleStaffBackups(req, res, staff, parts.slice(1));
+  if (parts[0] === "submissions") return handleStaffSubmissions(req, res, staff, parts.slice(1));
   return sendJson(res, 404, { error: "Not found" });
 }
 
@@ -161,10 +296,22 @@ async function handleSettings(req, res, staff) {
   if (!["GET", "PATCH"].includes(req.method)) {
     return sendMethodNotAllowed(res, ["GET", "PATCH"]);
   }
-  const settings =
-    req.method === "PATCH"
-      ? await updateStaffSettings(await readJson(req), staff.id)
-      : await getStaffSettings(staff.id);
+  let settings;
+  if (req.method === "PATCH") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    settings = await updateStaffSettings(await readJson(req), staff.id);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "settings_updated",
+      targetType: "settings",
+      targetId: "default",
+      summary: `${staff.username} updated staff settings.`,
+      metadata: { oneDriveBackupEnabled: settings.one_drive_backup_enabled },
+    });
+  } else {
+    settings = await getStaffSettings(staff.id);
+  }
   return sendJson(res, 200, {
     settings,
     system: getSettingsSystemStatus(),
@@ -178,8 +325,17 @@ async function handleTrends(req, res) {
 
 async function handleCompanyProfiles(req, res, staff) {
   if (req.method !== "PATCH") return sendMethodNotAllowed(res, ["PATCH"]);
+  requireStaffRole(staff, ["owner", "admin"]);
   const body = await readJson(req);
   const mappings = await updateCompanyMappings(body.mappings, staff.id);
+  await recordAuditEvent({
+    req,
+    staff,
+    action: "company_profiles_updated",
+    targetType: "company_profiles",
+    summary: `${staff.username} updated company profile mappings.`,
+    metadata: { count: Array.isArray(body.mappings) ? body.mappings.length : 0 },
+  });
   return sendJson(res, 200, { mappings });
 }
 
@@ -261,17 +417,203 @@ async function handleStaffWorkers(req, res, staff) {
     return sendJson(res, 200, { rows });
   }
   if (req.method === "POST") {
-    const worker = await createWorkerProfile(await readJson(req), staff.id);
+    requireStaffRole(staff, ["owner", "admin"]);
+    const body = await readJson(req);
+    const worker = await createWorkerProfile(body, staff.id);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "worker_created",
+      targetType: "worker",
+      targetId: worker.id,
+      summary: `${staff.username} created worker ${worker.username}.`,
+      metadata: { username: worker.username, company: worker.company },
+    });
     return sendJson(res, 201, { worker });
   }
   if (req.method === "PATCH") {
-    const worker = await updateWorkerProfile(await readJson(req), staff.id);
+    requireStaffRole(staff, ["owner", "admin"]);
+    const body = await readJson(req);
+    const worker = await updateWorkerProfile(body, staff.id);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: body.password ? "worker_password_reset" : "worker_updated",
+      targetType: "worker",
+      targetId: worker.id,
+      summary: `${staff.username} updated worker ${worker.username}.`,
+      metadata: {
+        username: worker.username,
+        company: worker.company,
+        active: worker.active,
+        passwordReset: Boolean(body.password),
+      },
+    });
     return sendJson(res, 200, { worker });
   }
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH"]);
 }
 
-async function handleStaffSubmissions(req, res, parts) {
+async function handleStaffUsers(req, res, staff) {
+  requireStaffRole(staff, ["owner", "admin"]);
+  if (req.method === "GET") {
+    const query = parseQuery(req);
+    const rows = await listStaffUsers({
+      search: query.get("search") || "",
+      role: query.get("role") || "",
+      active: query.get("active") || "all",
+    });
+    return sendJson(res, 200, { rows });
+  }
+  if (req.method === "POST") {
+    const body = await readJson(req);
+    const user = await createStaffUser(body, staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "staff_user_created",
+      targetType: "staff",
+      targetId: user.id,
+      summary: `${staff.username} created staff user ${user.username}.`,
+      metadata: { username: user.username, role: user.role, active: user.active },
+    });
+    return sendJson(res, 201, { user });
+  }
+  if (req.method === "PATCH") {
+    const body = await readJson(req);
+    const user = await updateStaffUser(body, staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: body.password ? "staff_password_reset" : "staff_user_updated",
+      targetType: "staff",
+      targetId: user.id,
+      summary: `${staff.username} updated staff user ${user.username}.`,
+      metadata: {
+        username: user.username,
+        role: user.role,
+        active: user.active,
+        passwordReset: Boolean(body.password),
+      },
+    });
+    return sendJson(res, 200, { user });
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH"]);
+}
+
+async function handleStaffAudit(req, res, staff) {
+  requireStaffRole(staff, ["owner", "admin"]);
+  if (req.method !== "GET") return sendMethodNotAllowed(res, ["GET"]);
+  return sendJson(res, 200, await listAuditEvents(req));
+}
+
+async function handleStaffAlerts(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, await listSystemAlerts(req));
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const alert = await updateSystemAlert(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "system_alert_updated",
+      targetType: "system_alert",
+      targetId: alert.id,
+      summary: `${staff.username} set alert ${alert.title} to ${alert.status}.`,
+      metadata: { status: alert.status, severity: alert.severity },
+    });
+    return sendJson(res, 200, { alert });
+  }
+  return sendMethodNotAllowed(res, ["GET", "PATCH"]);
+}
+
+async function handleStaffHealth(req, res) {
+  if (req.method !== "GET") return sendMethodNotAllowed(res, ["GET"]);
+  return sendJson(res, 200, await getSystemHealth());
+}
+
+async function handleStaffBackups(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, await getBackupQueue());
+  }
+  if (parts.length === 1 && parts[0] === "retry-all" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const startedAt = new Date().toISOString();
+    const result = await retryFailedSubmissionBackups();
+    await recordJobRun({
+      jobName: "backup_retry_all",
+      status: result.results.some((item) => item.status === "failed") ? "failed" : "succeeded",
+      triggeredBy: "staff",
+      staff,
+      startedAt,
+      summary: result,
+      error: result.results.find((item) => item.status === "failed")?.error || "",
+    });
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "backup_retry_all",
+      targetType: "backup",
+      summary: `${staff.username} retried all failed backups.`,
+      metadata: result,
+    });
+    if (result.results.some((item) => item.status === "failed")) {
+      await createSystemAlert({
+        source: "backup",
+        alertKey: "manual_retry_failures",
+        severity: "warning",
+        title: "Manual backup retry had failures",
+        body: "One or more failed form backups still could not be completed.",
+        metadata: result,
+      });
+    }
+    return sendJson(res, 200, result);
+  }
+  if (parts.length === 1 && parts[0] === "maintenance" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const startedAt = new Date().toISOString();
+    try {
+      const result = await runSubmissionMaintenance();
+      await recordJobRun({
+        jobName: "submission_maintenance",
+        status: result.backupSkipped ? "skipped" : "succeeded",
+        triggeredBy: "staff",
+        staff,
+        startedAt,
+        summary: result,
+      });
+      await recordAuditEvent({
+        req,
+        staff,
+        action: "submission_maintenance_ran",
+        targetType: "backup",
+        summary: `${staff.username} ran submission maintenance manually.`,
+        metadata: result,
+      });
+      return sendJson(res, 200, result);
+    } catch (error) {
+      await recordJobRun({
+        jobName: "submission_maintenance",
+        status: "failed",
+        triggeredBy: "staff",
+        staff,
+        startedAt,
+        error: error.message,
+      });
+      await createSystemAlert({
+        source: "backup",
+        alertKey: "manual_maintenance_failed",
+        severity: "critical",
+        title: "Manual submission maintenance failed",
+        body: error.message,
+      });
+      throw error;
+    }
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST"]);
+}
+
+async function handleStaffSubmissions(req, res, staff, parts) {
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, await listStaffSubmissions(parseQuery(req)));
   }
@@ -280,7 +622,48 @@ async function handleStaffSubmissions(req, res, parts) {
     return sendJson(res, 200, { submission });
   }
   if (parts.length === 2 && parts[1] === "backup-retry" && req.method === "POST") {
-    const submission = await retrySubmissionBackup(parts[0]);
+    requireStaffRole(staff, ["owner", "admin"]);
+    const startedAt = new Date().toISOString();
+    let submission;
+    try {
+      submission = await retrySubmissionBackup(parts[0]);
+      await recordJobRun({
+        jobName: "backup_retry_one",
+        status: "succeeded",
+        triggeredBy: "staff",
+        staff,
+        startedAt,
+        summary: { submissionId: parts[0], status: submission.one_drive_backup_status },
+      });
+    } catch (error) {
+      await recordJobRun({
+        jobName: "backup_retry_one",
+        status: "failed",
+        triggeredBy: "staff",
+        staff,
+        startedAt,
+        summary: { submissionId: parts[0] },
+        error: error.message,
+      });
+      await createSystemAlert({
+        source: "backup",
+        alertKey: `backup_retry_failed_${parts[0]}`,
+        severity: "warning",
+        title: "Form backup retry failed",
+        body: error.message,
+        metadata: { submissionId: parts[0] },
+      });
+      throw error;
+    }
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "backup_retry_one",
+      targetType: "submission",
+      targetId: submission.id,
+      summary: `${staff.username} retried a form backup.`,
+      metadata: { backupStatus: submission.one_drive_backup_status },
+    });
     return sendJson(res, 200, { submission });
   }
   return sendMethodNotAllowed(res, ["GET", "POST"]);

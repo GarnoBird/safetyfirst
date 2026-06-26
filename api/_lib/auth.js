@@ -8,6 +8,8 @@ import {
 
 const COOKIE_NAME = "sf_staff_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const STAFF_SELECT =
+  "id, auth_user_id, username, email, display_name, role, active, last_login_at";
 
 function getSessionSecret() {
   const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET;
@@ -57,9 +59,13 @@ function verifySessionToken(token) {
     return null;
   }
 
-  const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-  if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
-  return parsed;
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export function setStaffSessionCookie(res, profile) {
@@ -101,7 +107,7 @@ export async function loginStaff(username, password) {
   const profile = throwIfSupabaseError(
     await supabase
       .from("staff_profiles")
-      .select("id, auth_user_id, username, email, role, active")
+      .select(STAFF_SELECT)
       .eq("username", normalizedUsername)
       .eq("active", true)
       .maybeSingle(),
@@ -124,7 +130,17 @@ export async function loginStaff(username, password) {
     throw error;
   }
 
-  return profile;
+  const updated = throwIfSupabaseError(
+    await supabase
+      .from("staff_profiles")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("id", profile.id)
+      .select(STAFF_SELECT)
+      .single(),
+    "Staff login could not be finalized.",
+  );
+
+  return updated;
 }
 
 export async function getStaffFromRequest(req) {
@@ -135,7 +151,7 @@ export async function getStaffFromRequest(req) {
   const profile = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("staff_profiles")
-      .select("id, auth_user_id, username, email, role, active")
+      .select(STAFF_SELECT)
       .eq("id", session.staffId)
       .eq("active", true)
       .maybeSingle(),
@@ -153,4 +169,24 @@ export async function requireStaff(req) {
     throw error;
   }
   return staff;
+}
+
+export function requireStaffRole(staff, roles) {
+  const allowed = Array.isArray(roles) ? roles : [roles];
+  if (allowed.includes(staff?.role)) return staff;
+  const error = new Error("You do not have permission to perform this staff action.");
+  error.statusCode = 403;
+  error.exposeMessage = true;
+  throw error;
+}
+
+export function publicStaff(staff) {
+  if (!staff) return null;
+  return {
+    id: staff.id,
+    username: staff.username,
+    email: staff.email,
+    display_name: staff.display_name || staff.username,
+    role: staff.role,
+  };
 }

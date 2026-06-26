@@ -3142,6 +3142,80 @@ p {
   background: #fff1d8;
 }
 
+.status-owner,
+.status-admin,
+.status-critical {
+  color: #194c49;
+  background: #dff3ef;
+}
+
+.status-warning,
+.status-skipped {
+  color: #8a5200;
+  background: #fff1d8;
+}
+
+.status-open,
+.status-failed {
+  color: #8b2f28;
+  background: #fdecea;
+}
+
+.status-acknowledged,
+.status-succeeded,
+.status-staff,
+.status-info {
+  color: #40504c;
+  background: #edf2f0;
+}
+
+.ops-page-heading {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ops-page-heading p {
+  color: #2f6f6b;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ops-page-heading h1 {
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.ops-page-heading span,
+.table-subtext {
+  color: var(--muted);
+}
+
+.ops-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.ops-metric-card {
+  min-height: 112px;
+}
+
+.ops-status-grid {
+  margin-bottom: 14px;
+}
+
+.table-subtext {
+  margin-top: 4px;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
 .form-submissions-table td,
 .form-submissions-table th {
   min-width: 138px;
@@ -3413,7 +3487,8 @@ p {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .trend-metric-grid {
+  .trend-metric-grid,
+  .ops-metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -3452,6 +3527,11 @@ p {
   .staff-mobile-menu {
     width: min(100%, 720px);
     margin: 0 auto 16px;
+  }
+
+  .ops-page-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .staff-mobile-menu-wide {
@@ -3614,7 +3694,8 @@ p {
     padding-top: 22px;
   }
 
-  .trend-metric-grid {
+  .trend-metric-grid,
+  .ops-metric-grid {
     grid-template-columns: 1fr;
   }
 

@@ -6,6 +6,8 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const username = process.env.SEED_STAFF_USERNAME || "lbird";
 const email = process.env.SEED_STAFF_EMAIL || "garnobird@gmail.com";
 const password = process.env.SEED_STAFF_PASSWORD || "123";
+const displayName = process.env.SEED_STAFF_DISPLAY_NAME || "Garnet Bird";
+const role = process.env.SEED_STAFF_ROLE || "owner";
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.");
@@ -67,8 +69,10 @@ const { error: profileError } = await supabase.from("staff_profiles").upsert(
     auth_user_id: authUserId,
     username,
     email,
-    role: "staff",
+    display_name: displayName,
+    role,
     active: true,
+    updated_at: new Date().toISOString(),
   },
   { onConflict: "username" },
 );

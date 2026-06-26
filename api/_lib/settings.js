@@ -169,6 +169,32 @@ export async function listActiveStaffReportSettings() {
     }));
 }
 
+export async function listStaffReportRecipientEmails() {
+  const supabase = getSupabaseServiceClient();
+  const rows = throwIfSupabaseError(
+    await supabase
+      .from("staff_report_settings")
+      .select(`${STAFF_REPORT_SETTINGS_SELECT}, staff_profiles!inner(id, active)`)
+      .eq("staff_profiles.active", true),
+    "Report recipients could not be loaded.",
+  );
+
+  const recipients = new Set();
+  rows.forEach((row) => {
+    safeReportRecipientEmails(row.recipient_emails)
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+      .forEach((email) => recipients.add(email));
+  });
+
+  if (recipients.size) return [...recipients];
+  return safeReportRecipientEmails((await getSiteSettings()).report_recipient_email)
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function getSettingsSystemStatus() {
   return {
     database: "connected",

@@ -20,6 +20,10 @@ const STAFF_MOBILE_NAV_ITEMS = [
   },
   { id: "forms", label: "FORMS", path: "/staff/forms" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
+  { id: "users", label: "USERS", path: "/staff/users" },
+  { id: "backups", label: "BACKUPS", path: "/staff/backups" },
+  { id: "health", label: "HEALTH", path: "/staff/health" },
+  { id: "audit", label: "AUDIT", path: "/staff/audit" },
   { id: "trends", label: "TRENDS", path: "/staff/trends" },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
@@ -263,6 +267,15 @@ const EMPTY_STAFF_WORKER_FORM = {
   phone: "",
   username: "",
   password: "",
+  active: true,
+};
+
+const EMPTY_STAFF_USER_FORM = {
+  display_name: "",
+  email: "",
+  username: "",
+  password: "",
+  role: "staff",
   active: true,
 };
 
@@ -992,6 +1005,63 @@ export function StaffHomePage({ navigateTo }) {
         </StaffActionCard>
 
         <StaffActionCard
+          actionLabel="Manage users"
+          eyebrow="Staff security"
+          text="Create named staff accounts, assign owner/admin/staff roles, deactivate accounts, and reset passwords."
+          title="Staff Users"
+          onAction={() => navigateTo("/staff/users")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Roles</dt>
+              <dd>Owner / Admin / Staff</dd>
+            </div>
+            <div>
+              <dt>Legacy</dt>
+              <dd>lbird stays owner</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open backups"
+          eyebrow="OneDrive readiness"
+          text="Review pending and failed form backups, retry failed items, and run retention maintenance."
+          title="Backup Queue"
+          onAction={() => navigateTo("/staff/backups")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>OneDrive</dt>
+              <dd>{settings.one_drive_backup_enabled ? "Enabled" : "Off"}</dd>
+            </div>
+            <div>
+              <dt>Cleanup</dt>
+              <dd>After backup</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open health"
+          eyebrow="Operations"
+          text="Check database, storage, email, OneDrive readiness, active alerts, and recent job runs."
+          title="System Health"
+          onAction={() => navigateTo("/staff/health")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Alerts</dt>
+              <dd>Critical emails only</dd>
+            </div>
+            <div>
+              <dt>Audit</dt>
+              <dd>Permanent log</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
           eyebrow="Today"
           text={`Exports today's worker sign-ins as CSV, XML, or emails both files to ${formatReportRecipientSummary(
             settings.report_recipient_email,
@@ -1041,6 +1111,25 @@ export function StaffHomePage({ navigateTo }) {
             <div>
               <dt>Reminder SMS</dt>
               <dd>Not connected</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open audit"
+          eyebrow="Accountability"
+          text="Search staff actions, login failures, settings updates, worker changes, and backup operations."
+          title="Audit Log"
+          onAction={() => navigateTo("/staff/audit")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Retention</dt>
+              <dd>Indefinite</dd>
+            </div>
+            <div>
+              <dt>Access</dt>
+              <dd>Owner / Admin</dd>
             </div>
           </dl>
         </StaffActionCard>
@@ -1415,7 +1504,7 @@ export function StaffSettingsPage({ navigateTo }) {
           <ul className="settings-list">
             <li>No medical information or private first aid details.</li>
             <li>Worker phone numbers are personal information and stay staff-only.</li>
-            <li>Records are kept for safe keeping until a retention policy is added.</li>
+            <li>App-side form copies purge after backup and retention rules allow it.</li>
             <li>CSV and XML export are available to staff users.</li>
           </ul>
         </SettingsSection>
@@ -3241,6 +3330,444 @@ export function StaffWorkersPage({ navigateTo }) {
   );
 }
 
+export function StaffUsersPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [rows, setRows] = useState([]);
+  const [form, setForm] = useState(EMPTY_STAFF_USER_FORM);
+  const [editingId, setEditingId] = useState("");
+  const [search, setSearch] = useState("");
+  const [role, setRole] = useState("");
+  const [active, setActive] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadUsers = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (role) params.set("role", role);
+      if (active) params.set("active", active);
+      const payload = await readApiJson(
+        await fetch(`/api/staff/users?${params}`, { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadUsers();
+  }, [staff]);
+
+  const updateForm = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const startEdit = (user) => {
+    setEditingId(user.id);
+    setForm({
+      display_name: user.display_name || "",
+      email: user.email || "",
+      username: user.username || "",
+      password: "",
+      role: user.role || "staff",
+      active: user.active,
+    });
+  };
+
+  const resetForm = () => {
+    setEditingId("");
+    setForm(EMPTY_STAFF_USER_FORM);
+  };
+
+  const saveUser = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      const method = editingId ? "PATCH" : "POST";
+      const body = editingId ? { ...form, id: editingId } : form;
+      if (editingId && !body.password) delete body.password;
+      await readApiJson(
+        await fetch("/api/staff/users", {
+          method,
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      );
+      resetForm();
+      await loadUsers();
+      setMessage(editingId ? "Staff user updated." : "Staff user created.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleActive = async (user) => {
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch("/api/staff/users", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: user.id, active: !user.active }),
+        }),
+      );
+      await loadUsers();
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="users" contentWide navigateTo={navigateTo}>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-form-admin-grid">
+        <form className="staff-admin-form" onSubmit={saveUser}>
+          <h2>{editingId ? "Edit staff user" : "Create staff user"}</h2>
+          <label className="field">
+            <span>Name</span>
+            <input required value={form.display_name} onChange={(event) => updateForm("display_name", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Email</span>
+            <input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Username</span>
+            <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>{editingId ? "New password" : "Password"}</span>
+            <input
+              required={!editingId}
+              type="password"
+              value={form.password}
+              onChange={(event) => updateForm("password", event.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span>Role</span>
+            <select value={form.role} onChange={(event) => updateForm("role", event.target.value)}>
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+              <option value="owner">Owner</option>
+            </select>
+          </label>
+          <label className="remember-worker-field">
+            <input
+              checked={form.active}
+              type="checkbox"
+              onChange={(event) => updateForm("active", event.target.checked)}
+            />
+            <span>Active</span>
+          </label>
+          <div className="staff-card-actions">
+            {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
+            <button className="primary-button" disabled={saving} type="submit">
+              {saving ? "Saving..." : editingId ? "Save user" : "Create user"}
+            </button>
+          </div>
+        </form>
+
+        <section className="staff-table-panel">
+          <div className="staff-list-controls">
+            <label className="staff-search-field">
+              <span>Search users</span>
+              <input placeholder="Search users" type="search" value={search} onChange={(event) => setSearch(event.target.value)} />
+            </label>
+            <label className="staff-sort-select">
+              <span>Role</span>
+              <select value={role} onChange={(event) => setRole(event.target.value)}>
+                <option value="">All roles</option>
+                <option value="owner">Owner</option>
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+              </select>
+            </label>
+            <label className="staff-sort-select">
+              <span>Status</span>
+              <select value={active} onChange={(event) => setActive(event.target.value)}>
+                <option value="all">All</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </label>
+            <button type="button" onClick={loadUsers}>Search</button>
+          </div>
+          <StaffUsersTable
+            currentStaffId={staff.id}
+            loading={loading}
+            rows={rows}
+            onEdit={startEdit}
+            onToggleActive={toggleActive}
+          />
+        </section>
+      </section>
+    </StaffShell>
+  );
+}
+
+export function StaffBackupsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [queue, setQueue] = useState({ summary: {}, rows: [] });
+  const [loading, setLoading] = useState(true);
+  const [running, setRunning] = useState("");
+  const [message, setMessage] = useState("");
+
+  const loadQueue = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/backups", { credentials: "include" }),
+      );
+      setQueue(payload);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadQueue();
+  }, [staff]);
+
+  const runAction = async (action, label) => {
+    setRunning(action);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/backups/${action}`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      setMessage(`${label} completed. ${payload.attempted || payload.retried || 0} backups checked.`);
+      await loadQueue();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setRunning("");
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  const summary = queue.summary || {};
+
+  return (
+    <StaffShell active="backups" contentWide navigateTo={navigateTo}>
+      <section className="ops-page-heading">
+        <div>
+          <p>OneDrive readiness</p>
+          <h1>Backups</h1>
+          <span>Review pending, failed, backed-up, and retention-blocked form submissions.</span>
+        </div>
+        <div className="staff-card-actions">
+          <button disabled={running === "retry-all"} type="button" onClick={() => runAction("retry-all", "Retry all failed backups")}>
+            {running === "retry-all" ? "Retrying..." : "Retry failed"}
+          </button>
+          <button className="primary-button" disabled={running === "maintenance"} type="button" onClick={() => runAction("maintenance", "Maintenance")}>
+            {running === "maintenance" ? "Running..." : "Run maintenance"}
+          </button>
+        </div>
+      </section>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="ops-metric-grid">
+        <OpsMetric label="Pending" value={summary.pending} />
+        <OpsMetric label="Failed" value={summary.failed} />
+        <OpsMetric label="Backed up" value={summary.backedUp} />
+        <OpsMetric label="Retention blocked" value={summary.retentionBlocked} />
+      </section>
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <strong>{queue.rows?.length || 0} queue rows</strong>
+          <span>{summary.oldestPendingAt ? `Oldest pending ${formatDateTime(summary.oldestPendingAt)}` : "No pending backups"}</span>
+        </div>
+        <BackupQueueTable loading={loading} rows={queue.rows || []} />
+      </section>
+    </StaffShell>
+  );
+}
+
+export function StaffHealthPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const loadHealth = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/health", { credentials: "include" }),
+      );
+      setHealth(payload);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadHealth();
+  }, [staff]);
+
+  const updateAlert = async (alert, status) => {
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/alerts/${alert.id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ status }),
+        }),
+      );
+      await loadHealth();
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  const services = health?.services || {};
+  const backups = health?.backups || {};
+  const jobs = health?.jobs || [];
+  const alerts = health?.alerts?.rows || [];
+
+  return (
+    <StaffShell active="health" contentWide navigateTo={navigateTo}>
+      <section className="ops-page-heading">
+        <div>
+          <p>Operations</p>
+          <h1>System Health</h1>
+          <span>{loading ? "Loading..." : `Last checked ${formatDateTime(health?.generatedAt)}`}</span>
+        </div>
+        <button type="button" onClick={loadHealth}>Refresh</button>
+      </section>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="system-status-grid ops-status-grid">
+        <SystemStatus label="Database" value={services.database || "checking"} />
+        <SystemStatus label="Storage" value={services.storage || "checking"} />
+        <SystemStatus label="Email" value={services.email || "checking"} />
+        <SystemStatus label="OneDrive" value={services.oneDriveReady ? "ready" : services.oneDrive || "checking"} />
+      </section>
+      <section className="ops-metric-grid">
+        <OpsMetric label="Pending backups" value={backups.pending} />
+        <OpsMetric label="Failed backups" value={backups.failed} />
+        <OpsMetric label="Retention blocked" value={backups.retentionBlocked} />
+        <OpsMetric label="Open alerts" value={health?.alerts?.open} />
+      </section>
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <strong>Active alerts</strong>
+          <span>{alerts.length} shown</span>
+        </div>
+        <AlertsTable rows={alerts} onUpdate={updateAlert} />
+      </section>
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <strong>Recent jobs</strong>
+          <span>Maintenance, report, and backup runs</span>
+        </div>
+        <JobRunsTable rows={jobs} />
+      </section>
+    </StaffShell>
+  );
+}
+
+export function StaffAuditPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const today = useMemo(todayInVancouver, []);
+  const [filters, setFilters] = useState({
+    from: addDaysToISODate(today, -29),
+    to: today,
+    action: "",
+    search: "",
+  });
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const loadAudit = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams(
+        Object.entries(filters).filter(([, value]) => value),
+      );
+      const payload = await readApiJson(
+        await fetch(`/api/staff/audit?${params}`, { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadAudit();
+  }, [staff]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="audit" contentWide navigateTo={navigateTo}>
+      <section className="staff-toolbar staff-form-filter-toolbar">
+        <label className="field">
+          <span>From</span>
+          <input type="date" value={filters.from} onChange={(event) => updateFilter("from", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>To</span>
+          <input type="date" value={filters.to} onChange={(event) => updateFilter("to", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Action</span>
+          <input value={filters.action} onChange={(event) => updateFilter("action", event.target.value)} />
+        </label>
+        <label className="field">
+          <span>Search</span>
+          <input value={filters.search} onChange={(event) => updateFilter("search", event.target.value)} />
+        </label>
+        <button className="primary-button" type="button" onClick={loadAudit}>Apply</button>
+      </section>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <strong>{rows.length} audit events</strong>
+          <span>Newest first</span>
+        </div>
+        <AuditEventsTable loading={loading} rows={rows} />
+      </section>
+    </StaffShell>
+  );
+}
+
 export function StaffFormSubmissionsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const today = useMemo(todayInVancouver, []);
@@ -3458,6 +3985,200 @@ function WorkerAccountsTable({ loading, rows, onEdit, onToggleActive }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+function StaffUsersTable({ currentStaffId, loading, rows, onEdit, onToggleActive }) {
+  if (loading) return <p className="empty-state">Loading staff users...</p>;
+  if (!rows.length) return <p className="empty-state">No staff users found.</p>;
+
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last login</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((user) => (
+            <tr key={user.id}>
+              <td>{user.display_name}</td>
+              <td>{user.username}</td>
+              <td><a href={`mailto:${user.email}`}>{user.email}</a></td>
+              <td><StatusPill value={roleLabel(user.role)} /></td>
+              <td><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
+              <td>{user.last_login_at ? formatDateTime(user.last_login_at) : "Never"}</td>
+              <td>
+                <div className="table-action-row">
+                  <button type="button" onClick={() => onEdit(user)}>Edit</button>
+                  <button
+                    disabled={user.id === currentStaffId}
+                    type="button"
+                    onClick={() => onToggleActive(user)}
+                  >
+                    {user.active ? "Deactivate" : "Activate"}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BackupQueueTable({ loading, rows }) {
+  if (loading) return <p className="empty-state">Loading backup queue...</p>;
+  if (!rows.length) return <p className="empty-state">No pending or retention-blocked backup rows.</p>;
+
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table form-submissions-table">
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Company</th>
+            <th>Name</th>
+            <th>Form</th>
+            <th>Backup</th>
+            <th>Last error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td>{formatDateTime(row.submitted_at)}</td>
+              <td>{row.company}</td>
+              <td>{row.worker_name}</td>
+              <td>{formTypeLabel(row.form_type)}</td>
+              <td><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
+              <td>{row.backup_error || (row.deleted_by_worker_at ? "Worker deleted; waiting for backup." : "")}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AlertsTable({ rows, onUpdate }) {
+  if (!rows.length) return <p className="empty-state">No active alerts.</p>;
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Alert</th>
+            <th>Status</th>
+            <th>Last seen</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((alert) => (
+            <tr key={alert.id}>
+              <td><StatusPill value={alert.severity} /></td>
+              <td>
+                <strong>{alert.title}</strong>
+                <div className="table-subtext">{alert.body}</div>
+              </td>
+              <td><StatusPill value={alert.status} /></td>
+              <td>{formatDateTime(alert.last_seen_at)}</td>
+              <td>
+                <div className="table-action-row">
+                  {alert.status === "open" ? (
+                    <button type="button" onClick={() => onUpdate(alert, "acknowledged")}>Acknowledge</button>
+                  ) : null}
+                  <button type="button" onClick={() => onUpdate(alert, "resolved")}>Resolve</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function JobRunsTable({ rows }) {
+  if (!rows.length) return <p className="empty-state">No operational job runs recorded yet.</p>;
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Status</th>
+            <th>Triggered by</th>
+            <th>Started</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((job) => (
+            <tr key={job.id}>
+              <td>{job.job_name}</td>
+              <td><StatusPill value={job.status} /></td>
+              <td>{job.triggered_by}</td>
+              <td>{formatDateTime(job.started_at)}</td>
+              <td>{job.error || ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AuditEventsTable({ loading, rows }) {
+  if (loading) return <p className="empty-state">Loading audit events...</p>;
+  if (!rows.length) return <p className="empty-state">No audit events found.</p>;
+
+  return (
+    <div className="staff-table-scroll staff-form-table-scroll">
+      <table className="staff-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Actor</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Summary</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td>{formatDateTime(row.created_at)}</td>
+              <td>{row.actor_username || "system"}</td>
+              <td>{row.action}</td>
+              <td>{[row.target_type, row.target_id].filter(Boolean).join(" / ")}</td>
+              <td>{row.summary}</td>
+              <td>{row.ip_address || ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function OpsMetric({ label, value }) {
+  return (
+    <article className="trend-metric-card ops-metric-card">
+      <span>{label}</span>
+      <strong>{formatTrendNumber(value || 0)}</strong>
+    </article>
   );
 }
 
@@ -3967,7 +4688,7 @@ function SettingsSection({ children, description, title }) {
 }
 
 function SystemStatus({ label, value }) {
-  const connected = ["connected", "configured"].includes(String(value).toLowerCase());
+  const connected = ["connected", "configured", "ready"].includes(String(value).toLowerCase());
   return (
     <div className={connected ? "system-status connected" : "system-status"}>
       <span>{label}</span>
@@ -5050,6 +5771,12 @@ function backupStatusLabel(value) {
   if (value === "pending") return "Pending";
   if (value === "failed") return "Failed";
   return value || "Unknown";
+}
+
+function roleLabel(value) {
+  if (value === "owner") return "Owner";
+  if (value === "admin") return "Admin";
+  return "Staff";
 }
 
 function isDigitalToolboxTalkSubmission(row) {

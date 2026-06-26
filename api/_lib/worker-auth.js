@@ -505,9 +505,13 @@ function verifyStatelessWorkerSession(token) {
   ) {
     return null;
   }
-  const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-  if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
-  return parsed;
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 function signWorkerSessionPayload(payload) {
