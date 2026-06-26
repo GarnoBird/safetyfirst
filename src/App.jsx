@@ -298,6 +298,16 @@ function SafetyFirstApp({ navigateTo }) {
                 type="button"
                 onClick={() => {
                   setExtrasOpen(false);
+                  navigateTo("/worker-login");
+                }}
+              >
+                Worker Login
+              </button>
+              <button
+                className="tab-button"
+                type="button"
+                onClick={() => {
+                  setExtrasOpen(false);
                   navigateTo("/staff-login");
                 }}
               >
