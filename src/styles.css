@@ -196,7 +196,7 @@ p {
   z-index: 5;
   display: flex;
   gap: 8px;
-  overflow-x: auto;
+  overflow: visible;
   padding: 10px clamp(16px, 4vw, 48px);
   border-bottom: 1px solid var(--border);
   background: rgba(244, 246, 245, 0.94);
@@ -212,6 +212,34 @@ p {
 .tab-button.active {
   border-color: #245f5b;
   color: #ffffff;
+  background: #245f5b;
+}
+
+.extras-menu {
+  position: relative;
+}
+
+.extras-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(860px, calc(100vw - 32px));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.extras-menu-panel .tab-button {
+  background: #ffffff;
+}
+
+.extras-menu-panel .tab-button.active {
   background: #245f5b;
 }
 

@@ -164,6 +164,7 @@ export default function App() {
 function SafetyFirstApp({ navigateTo }) {
   const [data, setData] = useState(loadSafetyData);
   const [activeView, setActiveView] = useState("dashboard");
+  const [extrasOpen, setExtrasOpen] = useState(false);
 
   useEffect(() => {
     saveSafetyData(data);
@@ -238,37 +239,73 @@ function SafetyFirstApp({ navigateTo }) {
       </header>
 
       <nav className="view-tabs" aria-label="Safety app sections">
-        {VIEWS.map((view) => (
+        <button
+          className={activeView === "dashboard" ? "tab-button active" : "tab-button"}
+          type="button"
+          onClick={() => {
+            setActiveView("dashboard");
+            setExtrasOpen(false);
+          }}
+        >
+          Dashboard
+        </button>
+        <div className="extras-menu">
           <button
-            className={view.id === activeView ? "tab-button active" : "tab-button"}
-            key={view.id}
+            aria-expanded={extrasOpen}
+            className={activeView === "dashboard" ? "tab-button" : "tab-button active"}
             type="button"
-            onClick={() => setActiveView(view.id)}
+            onClick={() => setExtrasOpen((open) => !open)}
           >
-            {view.label}
+            Extras
           </button>
-        ))}
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => navigateTo("/worker-sign-in-qr")}
-        >
-          Sign-In QR
-        </button>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => navigateTo("/worker-sign-out-qr")}
-        >
-          Sign-Out QR
-        </button>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => navigateTo("/staff-login")}
-        >
-          Staff
-        </button>
+          {extrasOpen ? (
+            <div className="extras-menu-panel">
+              {VIEWS.slice(1).map((view) => (
+                <button
+                  className={view.id === activeView ? "tab-button active" : "tab-button"}
+                  key={view.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveView(view.id);
+                    setExtrasOpen(false);
+                  }}
+                >
+                  {view.label}
+                </button>
+              ))}
+              <button
+                className="tab-button"
+                type="button"
+                onClick={() => {
+                  setExtrasOpen(false);
+                  navigateTo("/worker-sign-in-qr");
+                }}
+              >
+                Sign-In QR
+              </button>
+              <button
+                className="tab-button"
+                type="button"
+                onClick={() => {
+                  setExtrasOpen(false);
+                  navigateTo("/worker-sign-out-qr");
+                }}
+              >
+                Sign-Out QR
+              </button>
+              <button
+                className="tab-button"
+                type="button"
+                onClick={() => {
+                  setExtrasOpen(false);
+                  navigateTo("/staff-login");
+                }}
+              >
+                Staff
+              </button>
+            </div>
+          ) : null}
+        </div>
       </nav>
 
       <main className="app-main">{renderActiveView()}</main>
