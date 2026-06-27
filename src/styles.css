@@ -2802,6 +2802,7 @@ p {
 .file-choice {
   display: grid;
   gap: 9px;
+  min-width: 0;
   min-height: 138px;
   align-content: center;
   border: 1px solid #d9e3de;
@@ -2815,8 +2816,11 @@ p {
 .safety-form-card span,
 .submission-mode-grid strong,
 .file-choice strong {
+  display: block;
+  max-width: 100%;
   font-size: 1.1rem;
   font-weight: 900;
+  overflow-wrap: break-word;
 }
 
 .safety-form-card strong,
