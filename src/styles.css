@@ -3309,6 +3309,19 @@ p {
   background: #fff;
 }
 
+.submission-history-item.clickable {
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.submission-history-item.clickable:hover,
+.submission-history-item.clickable:focus-visible {
+  border-color: #9dc9bb;
+  outline: none;
+  box-shadow: 0 10px 28px rgba(21, 35, 30, 0.08);
+  transform: translateY(-1px);
+}
+
 .submission-history-item div {
   display: grid;
   gap: 4px;
@@ -3318,6 +3331,18 @@ p {
 .submission-history-item small {
   color: var(--muted);
   font-weight: 750;
+}
+
+.worker-submission-detail {
+  display: grid;
+  gap: 14px;
+}
+
+.worker-submission-summary {
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fff;
 }
 
 .staff-form-admin-grid {

@@ -30,6 +30,7 @@ import {
   WorkerLoginPage,
   WorkerSignInPage,
   WorkerSignInQr,
+  WorkerSubmissionDetailPage,
   WorkerSubmissionHistoryPage,
   WorkerSignOutPage,
   WorkerSignOutQr,
@@ -88,6 +89,10 @@ export default function App() {
 
   if (routePath === "/my-submissions") {
     return <WorkerSubmissionHistoryPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath.startsWith("/my-submissions/")) {
+    return <WorkerSubmissionDetailPage routePath={routePath} navigateTo={navigateTo} />;
   }
 
   if (routePath === "/worker-sign-out-qr") {

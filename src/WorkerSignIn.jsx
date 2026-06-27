@@ -3515,6 +3515,10 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
     }
   };
 
+  const openSubmission = (id) => {
+    navigateTo(`/my-submissions/${id}`);
+  };
+
   if (!worker) return <WorkerFormLoadingScreen />;
 
   return (
@@ -3540,7 +3544,12 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
             <p className="empty-state">No submissions yet.</p>
           ) : null}
           {rows.map((row) => (
-            <article className="submission-history-item" key={row.id}>
+            <article
+              aria-label={`View ${formTypeLabel(row.form_type)} submitted ${formatDateTime(row.submitted_at)}`}
+              className="submission-history-item clickable"
+              key={row.id}
+              onClick={() => openSubmission(row.id)}
+            >
               <div>
                 <strong>{formTypeLabel(row.form_type)}</strong>
                 <span>{formatDateTime(row.submitted_at)}</span>
@@ -3551,7 +3560,10 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
               <button
                 disabled={deletingId === row.id}
                 type="button"
-                onClick={() => deleteSubmission(row.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteSubmission(row.id);
+                }}
               >
                 {deletingId === row.id ? "Deleting..." : "Delete"}
               </button>
@@ -3560,6 +3572,106 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
         </div>
       </section>
     </main>
+  );
+}
+
+export function WorkerSubmissionDetailPage({ navigateTo, routePath }) {
+  const { worker } = useWorkerSession(navigateTo);
+  const submissionId = routePath.split("/").filter(Boolean).pop();
+  const [row, setRow] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    const loadSubmission = async () => {
+      if (!worker) return;
+      setLoading(true);
+      setMessage("");
+      try {
+        const payload = await readApiJson(
+          await fetch("/api/worker/submissions", { credentials: "include" }),
+        );
+        const match = (payload.rows || []).find((item) => item.id === submissionId);
+        if (active) {
+          setRow(match || null);
+          setMessage(match ? "" : "Submission was not found.");
+        }
+      } catch (error) {
+        if (active) setMessage(error.message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadSubmission();
+    return () => {
+      active = false;
+    };
+  }, [submissionId, worker]);
+
+  if (!worker) return <WorkerFormLoadingScreen />;
+
+  return (
+    <main className="public-page form-platform-page">
+      <section className="form-platform-shell">
+        <header className="form-platform-header">
+          <div>
+            <button className="text-button" type="button" onClick={() => navigateTo("/my-submissions")}>
+              Back
+            </button>
+            <h1>{row ? formTypeLabel(row.form_type) : "Submission"}</h1>
+            <p>{worker.name} / {worker.company}</p>
+          </div>
+          <button type="button" onClick={() => navigateTo("/forms")}>
+            New form
+          </button>
+        </header>
+
+        {loading ? <p className="empty-state">Loading submission...</p> : null}
+        {message ? <p className="form-message error">{message}</p> : null}
+        {row ? <WorkerSubmissionReadOnlyView row={row} /> : null}
+      </section>
+    </main>
+  );
+}
+
+function WorkerSubmissionReadOnlyView({ row }) {
+  const files = row.files || [];
+  return (
+    <section className="worker-submission-detail">
+      <div className="worker-submission-summary">
+        <dl className="staff-detail-list">
+          <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+          <div><dt>Form type</dt><dd>{formTypeLabel(row.form_type)}</dd></div>
+          <div><dt>Submission</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
+          <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
+          {row.notes ? <div><dt>Summary</dt><dd>{row.notes}</dd></div> : null}
+        </dl>
+      </div>
+
+      {isDigitalToolboxTalkSubmission(row) ? (
+        <ToolboxTalkSubmissionDetails data={row.form_data} />
+      ) : null}
+
+      {files.length ? (
+        <div className="submission-file-list">
+          <h3>Files</h3>
+          {files.map((file) => (
+            <div className="submission-file-row" key={file.id}>
+              <span>{file.original_filename}</span>
+              <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
+              {file.one_drive_web_url ? (
+                <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {!isDigitalToolboxTalkSubmission(row) && !files.length ? (
+        <p className="empty-state">No additional form details were saved for this submission.</p>
+      ) : null}
+    </section>
   );
 }
 
