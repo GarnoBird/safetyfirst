@@ -66,7 +66,7 @@ const STAFF_SORT_FIELDS = [
 const FILE_SELECT =
   "id, submission_id, bucket, storage_path, original_filename, mime_type, size_bytes, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_status, backup_attempted_at, backup_error, app_deleted_at, created_at";
 const SUBMISSION_SELECT =
-  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, submitted_at, submitted_date_vancouver, deleted_by_worker_at, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
+  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
 const SUBMISSION_WITH_FILES_SELECT = `${SUBMISSION_SELECT}, submission_files(${FILE_SELECT})`;
 
 export function publicSubmission(row) {
@@ -240,6 +240,7 @@ export async function listWorkerSubmissions(worker) {
         .select(SUBMISSION_WITH_FILES_SELECT)
         .eq("worker_id", worker.id)
         .is("deleted_by_worker_at", null)
+        .is("deleted_by_staff_at", null)
         .is("app_purged_at", null)
         .order("submitted_at", { ascending: false })
         .limit(200),
@@ -262,6 +263,8 @@ export async function deleteWorkerSubmission(worker, submissionId) {
         .select(SUBMISSION_WITH_FILES_SELECT)
         .eq("id", id)
         .eq("worker_id", worker.id)
+        .is("deleted_by_worker_at", null)
+        .is("deleted_by_staff_at", null)
         .is("app_purged_at", null)
         .maybeSingle(),
       "Submission could not be loaded.",
@@ -293,6 +296,103 @@ export async function deleteWorkerSubmission(worker, submissionId) {
   return { deleted: true, purged: false };
 }
 
+export async function deleteStaffSubmission(staff, submissionId) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  let row;
+  try {
+    row = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select(SUBMISSION_WITH_FILES_SELECT)
+        .eq("id", id)
+        .is("deleted_by_staff_at", null)
+        .is("app_purged_at", null)
+        .maybeSingle(),
+      "Submission could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return deleteFallbackStaffSubmission(staff, id);
+  }
+
+  if (!row) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (row.one_drive_backup_status === "backed_up") {
+    await purgeSubmissionAppCopy(row);
+    return { id, deleted: true, purged: true, submission: publicSubmission(row) };
+  }
+
+  const deletedAt = new Date().toISOString();
+  throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_submissions")
+      .update({
+        deleted_by_staff_at: deletedAt,
+        deleted_by_staff_id: staff?.id || null,
+      })
+      .eq("id", id),
+    "Submission could not be deleted.",
+  );
+  await backupSubmissionBestEffort(id);
+  return {
+    id,
+    deleted: true,
+    purged: false,
+    submission: publicSubmission({
+      ...row,
+      deleted_by_staff_at: deletedAt,
+      deleted_by_staff_id: staff?.id || null,
+    }),
+  };
+}
+
+export async function deleteStaffSubmissions(staff, submissionIds) {
+  const ids = Array.from(
+    new Set(
+      (Array.isArray(submissionIds) ? submissionIds : [])
+        .map((id) => String(id || "").trim())
+        .filter(Boolean),
+    ),
+  );
+  if (!ids.length) {
+    const error = new Error("Select at least one form submission to delete.");
+    error.statusCode = 400;
+    error.exposeMessage = true;
+    throw error;
+  }
+  if (ids.length > 100) {
+    const error = new Error("Delete 100 or fewer form submissions at a time.");
+    error.statusCode = 400;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  const results = [];
+  for (const id of ids) {
+    try {
+      results.push(await deleteStaffSubmission(staff, id));
+    } catch (error) {
+      results.push({
+        id,
+        deleted: false,
+        purged: false,
+        error: error.exposeMessage || error.statusCode === 404 ? error.message : "Delete failed.",
+      });
+    }
+  }
+
+  return {
+    requested: ids.length,
+    deleted: results.filter((result) => result.deleted).length,
+    failed: results.filter((result) => !result.deleted).length,
+    results,
+  };
+}
+
 export async function listStaffSubmissions(query) {
   const from = query.get("from") ? assertDateString(query.get("from")) : "";
   const to = query.get("to") ? assertDateString(query.get("to")) : "";
@@ -310,6 +410,7 @@ export async function listStaffSubmissions(query) {
     .from("form_submissions")
     .select(SUBMISSION_WITH_FILES_SELECT)
     .is("deleted_by_worker_at", null)
+    .is("deleted_by_staff_at", null)
     .is("app_purged_at", null);
 
   if (from) dbQuery = dbQuery.gte("submitted_date_vancouver", from);
@@ -356,7 +457,9 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
     .select(SUBMISSION_WITH_FILES_SELECT)
     .eq("id", cleanUuid(id, "Submission id is not valid."))
     .is("app_purged_at", null);
-  if (!includeDeleted) query = query.is("deleted_by_worker_at", null);
+  if (!includeDeleted) {
+    query = query.is("deleted_by_worker_at", null).is("deleted_by_staff_at", null);
+  }
 
   let row;
   try {
@@ -453,7 +556,7 @@ export async function runSubmissionMaintenance() {
       .order("submitted_at", { ascending: true })
       .limit(100),
     "Purge candidates could not be loaded.",
-  ).filter((row) => row.submitted_at < cutoff || row.deleted_by_worker_at);
+  ).filter((row) => row.submitted_at < cutoff || row.deleted_by_worker_at || row.deleted_by_staff_at);
 
   const purgeResults = [];
   for (const row of purgeCandidates) {
@@ -785,14 +888,20 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
 async function listFallbackWorkerSubmissions(worker) {
   return (await listFallbackSubmissions())
     .filter((row) => row.worker_id === worker.id)
-    .filter((row) => !row.deleted_by_worker_at && !row.app_purged_at)
+    .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at)
     .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at))
     .slice(0, 200);
 }
 
 async function deleteFallbackWorkerSubmission(worker, id) {
   const row = await getFallbackSubmissionById(id, { includeDeleted: true });
-  if (!row || row.worker_id !== worker.id || row.app_purged_at) {
+  if (
+    !row ||
+    row.worker_id !== worker.id ||
+    row.deleted_by_worker_at ||
+    row.deleted_by_staff_at ||
+    row.app_purged_at
+  ) {
     const error = new Error("Submission was not found.");
     error.statusCode = 404;
     throw error;
@@ -809,6 +918,26 @@ async function deleteFallbackWorkerSubmission(worker, id) {
   return { deleted: true, purged: false };
 }
 
+async function deleteFallbackStaffSubmission(staff, id) {
+  const row = await getFallbackSubmissionById(id, { includeDeleted: true });
+  if (!row || row.deleted_by_staff_at || row.app_purged_at) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (row.one_drive_backup_status === "backed_up") {
+    await purgeFallbackSubmissionAppCopy(row);
+    return { id, deleted: true, purged: true, submission: publicSubmission(row) };
+  }
+
+  row.deleted_by_staff_at = new Date().toISOString();
+  row.deleted_by_staff_id = staff?.id || null;
+  await saveFallbackSubmission(row);
+  await backupFallbackSubmissionBestEffort(id);
+  return { id, deleted: true, purged: false, submission: publicSubmission(row) };
+}
+
 async function listFallbackStaffSubmissions(filters) {
   const {
     from,
@@ -823,7 +952,7 @@ async function listFallbackStaffSubmissions(filters) {
   } = filters;
 
   return (await listFallbackSubmissions())
-    .filter((row) => !row.deleted_by_worker_at && !row.app_purged_at)
+    .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at)
     .filter((row) => !from || row.submitted_date_vancouver >= from)
     .filter((row) => !to || row.submitted_date_vancouver <= to)
     .filter((row) => textIncludes(row.company, company))
@@ -841,7 +970,7 @@ async function listFallbackStaffSubmissions(filters) {
 async function getFallbackSubmissionById(id, { includeDeleted = false } = {}) {
   const row = normalizeFallbackSubmission(await getFallbackRecord("submission", id));
   if (!row || row.app_purged_at) return null;
-  if (!includeDeleted && row.deleted_by_worker_at) return null;
+  if (!includeDeleted && (row.deleted_by_worker_at || row.deleted_by_staff_at)) return null;
   return row;
 }
 
@@ -998,7 +1127,7 @@ async function runFallbackSubmissionMaintenance({ backupEnabled } = {}) {
   const purgeRows = submissions
     .filter((row) => row.one_drive_backup_status === "backed_up")
     .filter((row) => !row.app_purged_at)
-    .filter((row) => row.submitted_at < cutoff || row.deleted_by_worker_at)
+    .filter((row) => row.submitted_at < cutoff || row.deleted_by_worker_at || row.deleted_by_staff_at)
     .sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
     .slice(0, 100);
 
@@ -1098,6 +1227,8 @@ function normalizeFallbackSubmission(row) {
   return {
     ...row,
     form_data: row.form_data && typeof row.form_data === "object" ? row.form_data : {},
+    deleted_by_staff_at: row.deleted_by_staff_at || null,
+    deleted_by_staff_id: row.deleted_by_staff_id || null,
     files,
     submission_files: files,
   };

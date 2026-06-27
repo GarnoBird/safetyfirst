@@ -3798,6 +3798,7 @@ export function StaffAuditPage({ navigateTo }) {
 
 export function StaffFormSubmissionsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canDeleteSubmissions = ["owner", "admin"].includes(staff?.role);
   const today = useMemo(todayInVancouver, []);
   const [filters, setFilters] = useState({
     from: addDaysToISODate(today, -29),
@@ -3812,9 +3813,18 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   });
   const [records, setRecords] = useState({ rows: [] });
   const [selected, setSelected] = useState(null);
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingId, setRetryingId] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState("");
+  const visibleSubmissionIds = useMemo(
+    () => records.rows.map((row) => row.id),
+    [records.rows],
+  );
+  const allVisibleSelected =
+    visibleSubmissionIds.length > 0 &&
+    visibleSubmissionIds.every((id) => selectedSubmissionIds.includes(id));
 
   const loadSubmissions = async () => {
     setLoading(true);
@@ -3829,6 +3839,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         }),
       );
       setRecords(payload);
+      setSelectedSubmissionIds([]);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -3870,6 +3881,84 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
       setMessage(error.message);
     } finally {
       setRetryingId("");
+    }
+  };
+
+  const toggleSubmissionSelection = (id, checked) => {
+    setSelectedSubmissionIds((current) => {
+      if (checked) return current.includes(id) ? current : [...current, id];
+      return current.filter((currentId) => currentId !== id);
+    });
+  };
+
+  const toggleAllSubmissionSelection = (checked) => {
+    setSelectedSubmissionIds(checked ? visibleSubmissionIds : []);
+  };
+
+  const deleteSingleSubmission = async (row) => {
+    if (!window.confirm(`Delete this ${formTypeLabel(row.form_type)} submission? This removes the app copy for staff and workers. OneDrive backups are not deleted.`)) {
+      return;
+    }
+    setDeleting(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      setRecords((current) => ({
+        ...current,
+        rows: current.rows.filter((record) => record.id !== payload.id),
+      }));
+      setSelectedSubmissionIds((current) => current.filter((id) => id !== payload.id));
+      if (selected?.id === payload.id) setSelected(null);
+      setMessage("Form submission deleted.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deleteSelectedSubmissions = async () => {
+    const ids = selectedSubmissionIds.filter((id) => visibleSubmissionIds.includes(id));
+    if (!ids.length) return;
+    if (!window.confirm(`Delete ${ids.length} selected form submission${ids.length === 1 ? "" : "s"}? This removes the app copies for staff and workers. OneDrive backups are not deleted.`)) {
+      return;
+    }
+    setDeleting(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/submissions/bulk-delete", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ids }),
+        }),
+      );
+      const deletedIds = new Set(
+        (payload.results || [])
+          .filter((result) => result.deleted)
+          .map((result) => result.id),
+      );
+      setRecords((current) => ({
+        ...current,
+        rows: current.rows.filter((row) => !deletedIds.has(row.id)),
+      }));
+      setSelectedSubmissionIds([]);
+      if (selected && deletedIds.has(selected.id)) setSelected(null);
+      setMessage(
+        payload.failed
+          ? `Deleted ${payload.deleted} form submission${payload.deleted === 1 ? "" : "s"}. ${payload.failed} could not be deleted.`
+          : `Deleted ${payload.deleted} form submission${payload.deleted === 1 ? "" : "s"}.`,
+      );
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -3951,15 +4040,37 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
       <section className="staff-table-panel">
         <div className="staff-table-heading">
-          <strong>{records.rows.length} form submissions</strong>
-          <span>{describeStaffFormSort(filters.sort, filters.dir)}</span>
+          <div className="staff-table-heading-main">
+            <strong>{records.rows.length} form submissions</strong>
+            <span>{describeStaffFormSort(filters.sort, filters.dir)}</span>
+          </div>
+          {canDeleteSubmissions ? (
+            <div className="staff-bulk-actions">
+              <span>{selectedSubmissionIds.length} selected</span>
+              <button
+                className="danger-button"
+                disabled={!selectedSubmissionIds.length || deleting}
+                type="button"
+                onClick={deleteSelectedSubmissions}
+              >
+                {deleting ? "Deleting..." : "Delete selected"}
+              </button>
+            </div>
+          ) : null}
         </div>
         <FormSubmissionsTable
+          allVisibleSelected={allVisibleSelected}
+          canDelete={canDeleteSubmissions}
+          deleting={deleting}
           loading={loading}
           retryingId={retryingId}
           rows={records.rows}
+          selectedIds={selectedSubmissionIds}
+          onDelete={deleteSingleSubmission}
           onDetails={openDetails}
           onRetry={retryBackup}
+          onSelectAll={toggleAllSubmissionSelection}
+          onSelectRow={toggleSubmissionSelection}
         />
       </section>
 
@@ -4219,7 +4330,20 @@ function OpsMetric({ label, value }) {
   );
 }
 
-function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry }) {
+function FormSubmissionsTable({
+  allVisibleSelected,
+  canDelete,
+  deleting,
+  loading,
+  retryingId,
+  rows,
+  selectedIds,
+  onDelete,
+  onDetails,
+  onRetry,
+  onSelectAll,
+  onSelectRow,
+}) {
   if (loading) return <p className="empty-state">Loading form submissions...</p>;
   if (!rows.length) return <p className="empty-state">No form submissions found.</p>;
 
@@ -4228,6 +4352,16 @@ function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry })
       <table className="staff-table form-submissions-table">
         <thead>
           <tr>
+            {canDelete ? (
+              <th className="select-column">
+                <input
+                  aria-label="Select all visible form submissions"
+                  checked={allVisibleSelected}
+                  type="checkbox"
+                  onChange={(event) => onSelectAll(event.target.checked)}
+                />
+              </th>
+            ) : null}
             <th>Submitted</th>
             <th>Company</th>
             <th>Name</th>
@@ -4241,6 +4375,16 @@ function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry })
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
+              {canDelete ? (
+                <td className="select-column">
+                  <input
+                    aria-label={`Select ${formTypeLabel(row.form_type)} submitted by ${row.worker_name}`}
+                    checked={selectedIds.includes(row.id)}
+                    type="checkbox"
+                    onChange={(event) => onSelectRow(row.id, event.target.checked)}
+                  />
+                </td>
+              ) : null}
               <td>{formatDateTime(row.submitted_at)}</td>
               <td>{row.company}</td>
               <td>{row.worker_name}</td>
@@ -4254,6 +4398,16 @@ function FormSubmissionsTable({ loading, retryingId, rows, onDetails, onRetry })
                   {canRetryBackup(row.one_drive_backup_status) ? (
                     <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
                       {retryingId === row.id ? "Retrying" : "Retry"}
+                    </button>
+                  ) : null}
+                  {canDelete ? (
+                    <button
+                      className="danger-button"
+                      disabled={deleting}
+                      type="button"
+                      onClick={() => onDelete(row)}
+                    >
+                      Delete
                     </button>
                   ) : null}
                 </div>

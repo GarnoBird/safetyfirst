@@ -13,6 +13,8 @@ import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
   createFileUploadTarget,
+  deleteStaffSubmission,
+  deleteStaffSubmissions,
   createWorkerSubmission,
   deleteWorkerSubmission,
   getSubmissionById,
@@ -635,9 +637,41 @@ async function handleStaffSubmissions(req, res, staff, parts) {
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, await listStaffSubmissions(parseQuery(req)));
   }
+  if (parts.length === 1 && parts[0] === "bulk-delete" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const result = await deleteStaffSubmissions(staff, (await readJson(req))?.ids);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submissions_deleted",
+      targetType: "submission",
+      summary: `${staff.username} deleted ${result.deleted} form submission${result.deleted === 1 ? "" : "s"}.`,
+      metadata: {
+        requested: result.requested,
+        deleted: result.deleted,
+        failed: result.failed,
+        ids: result.results.map((row) => row.id),
+      },
+    });
+    return sendJson(res, 200, result);
+  }
   if (parts.length === 1 && req.method === "GET") {
     const submission = await getSubmissionById(parts[0], { includeDeleted: true });
     return sendJson(res, 200, { submission });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const result = await deleteStaffSubmission(staff, parts[0]);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submission_deleted",
+      targetType: "submission",
+      targetId: result.id,
+      summary: `${staff.username} deleted a form submission.`,
+      metadata: { purged: result.purged },
+    });
+    return sendJson(res, 200, result);
   }
   if (parts.length === 2 && parts[1] === "backup-retry" && req.method === "POST") {
     requireStaffRole(staff, ["owner", "admin"]);
@@ -684,7 +718,7 @@ async function handleStaffSubmissions(req, res, staff, parts) {
     });
     return sendJson(res, 200, { submission });
   }
-  return sendMethodNotAllowed(res, ["GET", "POST"]);
+  return sendMethodNotAllowed(res, ["GET", "POST", "DELETE"]);
 }
 
 async function handleWorker(req, res, parts) {

@@ -2269,8 +2269,24 @@ p {
   padding: 15px 16px;
 }
 
+.staff-table-heading-main {
+  display: grid;
+  gap: 4px;
+}
+
 .staff-table-heading span {
   color: var(--muted);
+}
+
+.staff-bulk-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.staff-bulk-actions span {
+  white-space: nowrap;
 }
 
 .staff-mobile-sort {
@@ -2346,6 +2362,19 @@ p {
   color: #245f5b;
   font-weight: 750;
   text-decoration: none;
+}
+
+.staff-table .select-column {
+  width: 48px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.staff-table .select-column input {
+  width: 18px;
+  height: 18px;
+  accent-color: #286d68;
+  cursor: pointer;
 }
 
 .staff-table-empty {
