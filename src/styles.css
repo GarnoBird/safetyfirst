@@ -3176,6 +3176,15 @@ p {
   font: inherit;
 }
 
+.native-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .file-choice input {
   position: absolute;
   width: 1px;
@@ -3188,6 +3197,15 @@ p {
   color: #245f5b;
   font-size: 0.88rem;
   font-weight: 850;
+}
+
+.scanned-copy-picker {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.scanned-copy-picker button {
+  width: min(100%, 320px);
 }
 
 .selected-file {

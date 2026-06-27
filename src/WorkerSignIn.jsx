@@ -121,6 +121,7 @@ const SAFETY_FORM_TYPES = [
   { id: "site_inspection", label: "Site Inspection" },
   { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
 ];
+const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
 const WORKER_SESSION_CACHE_KEY = "sf_worker_session_cache_v1";
@@ -2482,6 +2483,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const [submitting, setSubmitting] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "", date: "" });
+  const scannedCopyInputRef = useRef(null);
   const submitted = status.type === "success" || status.type === "queued";
 
   useEffect(() => {
@@ -2549,6 +2551,21 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         sizeBytes: file.size,
       },
     });
+  };
+
+  const handleScannedCopyFile = (event) => {
+    const selectedFile = event.target.files?.[0] || null;
+    event.target.value = "";
+    if (!selectedFile) return;
+    setCameraOpen(false);
+    setFile(selectedFile);
+    setMode("submit_file");
+    setStatus({ type: "", message: "", date: "" });
+  };
+
+  const openScannedCopyPicker = () => {
+    setStatus({ type: "", message: "", date: "" });
+    scannedCopyInputRef.current?.click();
   };
 
   const submitUpload = async (selectedFile) => {
@@ -2627,6 +2644,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   return (
     <main className="public-page form-platform-page">
       <section className="form-platform-shell">
+        <input
+          ref={scannedCopyInputRef}
+          accept={SCANNED_COPY_ACCEPT}
+          className="native-file-input"
+          type="file"
+          onChange={handleScannedCopyFile}
+        />
         <header className="form-platform-header">
           <div>
             <button className="text-button" type="button" onClick={() => navigateTo("/forms")}>
@@ -2679,14 +2703,22 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
               {mode === "submit_file" ? (
                 <form className="submission-form" onSubmit={submitFileForm}>
-                  <div className="file-choice-grid">
-                    <FileChoice label="Upload File" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*" onFile={setFile} />
-                    <FileChoice label="Upload Photo" accept="image/*" onFile={setFile} />
-                    <button className="file-choice" type="button" onClick={() => setCameraOpen(true)}>
-                      <strong>Take Photo</strong>
-                      <span>Open camera</span>
-                    </button>
-                  </div>
+                  {isToolboxTalk ? (
+                    <div className="scanned-copy-picker">
+                      <button type="button" onClick={openScannedCopyPicker}>
+                        {file ? "Change scanned copy" : "Choose scanned copy"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="file-choice-grid">
+                      <FileChoice label="Upload File" accept={SCANNED_COPY_ACCEPT} onFile={setFile} />
+                      <FileChoice label="Upload Photo" accept="image/*" onFile={setFile} />
+                      <button className="file-choice" type="button" onClick={() => setCameraOpen(true)}>
+                        <strong>Take Photo</strong>
+                        <span>Open camera</span>
+                      </button>
+                    </div>
+                  )}
                   {cameraOpen ? (
                     <CameraCaptureDialog
                       onCapture={(capturedFile) => {
@@ -2728,14 +2760,14 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                         <strong>Digital form</strong>
                         <span>Fast mobile version</span>
                       </div>
-                      <button type="button" onClick={() => setMode("submit_file")}>
+                      <button type="button" onClick={openScannedCopyPicker}>
                         Submit scanned copy
                       </button>
                     </div>
                     <ToolboxTalkDigitalForm
                       submitting={submitting}
                       worker={worker}
-                      onCancel={() => setMode("submit_file")}
+                      onCancel={openScannedCopyPicker}
                       onSubmit={submitToolboxTalkForm}
                     />
                   </>
