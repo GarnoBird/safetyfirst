@@ -5069,17 +5069,8 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
         </div>
         <div className="file-preview-actions">
           <button disabled={sharing} type="button" onClick={shareOrSave}>
-            {sharing ? "Opening..." : "Share / Save"}
+            {sharing ? "Opening..." : "Save"}
           </button>
-          <a
-            className="secondary-button file-preview-save"
-            download={fileName}
-            href={preview.downloadUrl || preview.url}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Download
-          </a>
           <button
             disabled={!canPreview}
             type="button"
@@ -5087,7 +5078,6 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
           >
             Print
           </button>
-          <button type="button" onClick={onClose}>Close</button>
         </div>
         {shareStatus ? <p className="file-preview-status">{shareStatus}</p> : null}
       </section>

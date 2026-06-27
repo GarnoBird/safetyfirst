@@ -3738,18 +3738,6 @@ p {
   border-top: 1px solid #e5eeea;
 }
 
-.file-preview-save {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  border: 1px solid #cbded7;
-  border-radius: 8px;
-  padding: 0 14px;
-  color: #17211f;
-  font-weight: 850;
-  text-decoration: none;
-}
-
 .file-preview-status {
   margin: -2px 12px 12px;
   color: #8a5200;
