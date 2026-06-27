@@ -479,6 +479,58 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
   return publicSubmission(row);
 }
 
+export async function createStaffSubmissionFileAccess(submissionId, fileId) {
+  const submission = await getSubmissionById(submissionId, { includeDeleted: true });
+  const cleanFileId = cleanUuid(fileId, "File id is not valid.");
+  const file = (submission.files || []).find((item) => item.id === cleanFileId);
+  if (!file) {
+    const error = new Error("Submission file was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  if (file.app_deleted_at || !file.storage_path) {
+    const error = new Error("The app copy of this file is no longer available.");
+    error.statusCode = 410;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  const bucket = file.bucket || SUBMISSION_BUCKET;
+  const storage = getSupabaseServiceClient().storage.from(bucket);
+  const preview = await storage.createSignedUrl(file.storage_path, 10 * 60);
+  if (preview.error) {
+    const error = new Error("File preview URL could not be created.");
+    error.cause = preview.error;
+    error.statusCode = 500;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  let downloadUrl = preview.data.signedUrl;
+  try {
+    const download = await storage.createSignedUrl(file.storage_path, 10 * 60, {
+      download: file.original_filename || true,
+    });
+    if (!download.error) downloadUrl = download.data.signedUrl;
+  } catch {
+    downloadUrl = preview.data.signedUrl;
+  }
+
+  return {
+    file: {
+      id: file.id,
+      original_filename: file.original_filename,
+      mime_type: file.mime_type,
+      size_bytes: file.size_bytes,
+      backup_status: file.backup_status,
+      one_drive_web_url: file.one_drive_web_url,
+    },
+    url: preview.data.signedUrl,
+    downloadUrl,
+    expiresInSeconds: 10 * 60,
+  };
+}
+
 export async function retrySubmissionBackup(id) {
   const cleanId = cleanUuid(id, "Submission id is not valid.");
   try {

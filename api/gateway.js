@@ -13,6 +13,7 @@ import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
   createFileUploadTarget,
+  createStaffSubmissionFileAccess,
   deleteStaffSubmission,
   deleteStaffSubmissions,
   createWorkerSubmission,
@@ -658,6 +659,10 @@ async function handleStaffSubmissions(req, res, staff, parts) {
   if (parts.length === 1 && req.method === "GET") {
     const submission = await getSubmissionById(parts[0], { includeDeleted: true });
     return sendJson(res, 200, { submission });
+  }
+  if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
+    const access = await createStaffSubmissionFileAccess(parts[0], parts[2]);
+    return sendJson(res, 200, access);
   }
   if (parts.length === 1 && req.method === "DELETE") {
     requireStaffRole(staff, ["owner", "admin"]);

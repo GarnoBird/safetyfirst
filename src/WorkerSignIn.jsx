@@ -4916,6 +4916,27 @@ function FormSubmissionsTable({
 
 function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
   const files = row.files || [];
+  const [filePreview, setFilePreview] = useState(null);
+  const [previewLoadingId, setPreviewLoadingId] = useState("");
+  const [filePreviewMessage, setFilePreviewMessage] = useState("");
+
+  const openFilePreview = async (file) => {
+    setPreviewLoadingId(file.id);
+    setFilePreviewMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}/files/${file.id}/url`, {
+          credentials: "include",
+        }),
+      );
+      setFilePreview(payload);
+    } catch (error) {
+      setFilePreviewMessage(error.message);
+    } finally {
+      setPreviewLoadingId("");
+    }
+  };
+
   return (
     <div className="staff-dialog-backdrop" role="presentation" onClick={onClose}>
       <section
@@ -4949,9 +4970,17 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
         {files.length ? (
           <div className="submission-file-list">
             <h3>Files</h3>
+            {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
             {files.map((file) => (
               <div className="submission-file-row" key={file.id}>
-                <span>{file.original_filename}</span>
+                <button
+                  className="submission-file-name-button"
+                  disabled={previewLoadingId === file.id}
+                  type="button"
+                  onClick={() => openFilePreview(file)}
+                >
+                  {previewLoadingId === file.id ? "Opening..." : file.original_filename}
+                </button>
                 <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
                 {file.one_drive_web_url ? (
                   <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open</a>
@@ -4970,6 +4999,73 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
             {retryingId === row.id ? "Retrying..." : "Retry backup"}
           </button>
         ) : null}
+      </section>
+      {filePreview ? (
+        <SubmissionFilePreviewDialog
+          preview={filePreview}
+          onClose={() => setFilePreview(null)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function SubmissionFilePreviewDialog({ onClose, preview }) {
+  const file = preview.file || {};
+  const fileName = file.original_filename || "Attachment";
+  const canPreview = isPreviewableImage(file) || isPreviewablePdf(file);
+  return (
+    <div
+      className="file-preview-backdrop"
+      role="presentation"
+      onClick={(event) => {
+        event.stopPropagation();
+        onClose();
+      }}
+    >
+      <section
+        aria-label={`${fileName} preview`}
+        className="file-preview-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="file-preview-heading">
+          <div>
+            <h3>{fileName}</h3>
+            <p>{formatFileSize(file.size_bytes)} / {file.mime_type || "File"}</p>
+          </div>
+          <button aria-label="Close preview" type="button" onClick={onClose}>X</button>
+        </div>
+        <div className="file-preview-surface">
+          {isPreviewableImage(file) ? (
+            <img alt={fileName} src={preview.url} />
+          ) : null}
+          {isPreviewablePdf(file) ? (
+            <iframe title={fileName} src={preview.url} />
+          ) : null}
+          {!canPreview ? (
+            <p>This file type cannot be previewed here. Use Save to open or download it.</p>
+          ) : null}
+        </div>
+        <div className="file-preview-actions">
+          <a
+            className="secondary-button file-preview-save"
+            download={fileName}
+            href={preview.downloadUrl || preview.url}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Save
+          </a>
+          <button
+            disabled={!canPreview}
+            type="button"
+            onClick={() => printSubmissionAttachment(preview)}
+          >
+            Print
+          </button>
+          <button type="button" onClick={onClose}>Close</button>
+        </div>
       </section>
     </div>
   );
@@ -6844,6 +6940,57 @@ function formatFileSize(value) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function isPreviewableImage(file) {
+  return String(file?.mime_type || "").startsWith("image/");
+}
+
+function isPreviewablePdf(file) {
+  return String(file?.mime_type || "").toLowerCase() === "application/pdf";
+}
+
+function printSubmissionAttachment(preview) {
+  const file = preview.file || {};
+  const fileName = file.original_filename || "Attachment";
+  const printWindow = window.open("", "_blank", "width=900,height=1100");
+  if (!printWindow) {
+    window.open(preview.url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  const escapedUrl = escapeHtml(preview.url);
+  const escapedName = escapeHtml(fileName);
+  const body = isPreviewableImage(file)
+    ? `<img alt="${escapedName}" src="${escapedUrl}" onload="setTimeout(() => window.print(), 250)" />`
+    : `<iframe title="${escapedName}" src="${escapedUrl}" onload="setTimeout(() => window.print(), 600)"></iframe>`;
+  printWindow.document.write(`<!doctype html>
+    <html>
+      <head>
+        <title>${escapedName}</title>
+        <style>
+          html, body { min-height: 100%; margin: 0; font-family: Arial, sans-serif; }
+          body { display: grid; gap: 12px; padding: 16px; }
+          img { max-width: 100%; height: auto; align-self: start; justify-self: center; }
+          iframe { width: 100%; height: 92vh; border: 0; }
+          button { width: fit-content; min-height: 40px; padding: 0 14px; }
+          @media print { button { display: none; } body { padding: 0; } iframe { height: 100vh; } }
+        </style>
+      </head>
+      <body>
+        <button onclick="window.print()">Print</button>
+        ${body}
+      </body>
+    </html>`);
+  printWindow.document.close();
+  printWindow.focus();
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function formatShortDate(record, dateField, timestampField) {
