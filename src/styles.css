@@ -2892,42 +2892,6 @@ p {
   gap: 18px;
 }
 
-.toolbox-required-strip {
-  display: grid;
-  gap: 9px;
-  border: 1px solid #cbded7;
-  border-radius: 8px;
-  padding: 12px;
-  background: #fff;
-}
-
-.toolbox-required-strip > strong {
-  color: #173b38;
-  font-size: 1rem;
-}
-
-.toolbox-required-strip div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.toolbox-required-strip span {
-  border: 1px solid #f1cf9a;
-  border-radius: 999px;
-  padding: 6px 9px;
-  color: #8a5200;
-  font-size: 0.82rem;
-  font-weight: 850;
-  background: #fff7e8;
-}
-
-.toolbox-required-strip span.complete {
-  border-color: #bdd8cb;
-  color: #1d5f45;
-  background: #eaf7f0;
-}
-
 .toolbox-section {
   display: grid;
   gap: 12px;

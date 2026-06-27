@@ -2838,8 +2838,6 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
       comments: hasTextValue(draftForm?.additionalComments),
     };
   });
-  const completionItems = useMemo(() => toolboxTalkCompletionItems(form), [form]);
-  const missingCount = completionItems.filter((item) => !item.complete).length;
   const recentTopicLabels = useMemo(
     () =>
       recentToolbox.topicLabels
@@ -3076,17 +3074,6 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           ) : null}
         </div>
       ) : null}
-
-      <div className="toolbox-required-strip" aria-label="Required items">
-        <strong>{missingCount ? `${missingCount} missing` : "Ready"}</strong>
-        <div>
-          {completionItems.map((item) => (
-            <span className={item.complete ? "complete" : ""} key={item.id}>
-              {item.complete ? "OK" : "Need"} {item.label}
-            </span>
-          ))}
-        </div>
-      </div>
 
       <section className="toolbox-section">
         <div className="toolbox-section-heading">
@@ -6680,41 +6667,6 @@ function cleanToolboxTalkClientForm(form) {
       confirmed: Boolean(form.confirmation.confirmed),
     },
   };
-}
-
-function toolboxTalkCompletionItems(form) {
-  return [
-    {
-      id: "job",
-      label: "job info",
-      complete: [
-        form.header.projectName,
-        form.header.address,
-        form.header.date,
-        form.header.time,
-        form.header.presenter,
-        form.header.supervisor,
-      ].every(hasTextValue),
-    },
-    {
-      id: "topics",
-      label: "topic",
-      complete: Boolean(form.topics.selected.length || hasTextValue(form.topics.other)),
-    },
-    {
-      id: "attendance",
-      label: "attendance",
-      complete: form.attendance.some((row) => hasTextValue(row.name)),
-    },
-    {
-      id: "confirm",
-      label: "confirmation",
-      complete:
-        hasTextValue(form.confirmation.name) &&
-        hasTextValue(form.confirmation.date) &&
-        Boolean(form.confirmation.confirmed),
-    },
-  ];
 }
 
 function filterToolboxTopicGroups(search) {
