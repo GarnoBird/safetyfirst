@@ -2810,6 +2810,7 @@ p {
   padding: 18px;
   color: #17211f;
   text-align: left;
+  white-space: normal;
   background: #fff;
 }
 
@@ -2817,10 +2818,14 @@ p {
 .submission-mode-grid strong,
 .file-choice strong {
   display: block;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   font-size: 1.1rem;
   font-weight: 900;
   overflow-wrap: break-word;
+  text-wrap: balance;
+  white-space: normal;
 }
 
 .safety-form-card strong,
