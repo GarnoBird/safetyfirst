@@ -5014,6 +5014,26 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
   const file = preview.file || {};
   const fileName = file.original_filename || "Attachment";
   const canPreview = isPreviewableImage(file) || isPreviewablePdf(file);
+  const [shareStatus, setShareStatus] = useState("");
+  const [sharing, setSharing] = useState(false);
+
+  const shareOrSave = async () => {
+    setSharing(true);
+    setShareStatus("");
+    try {
+      const shared = await shareSubmissionAttachment(preview);
+      if (!shared) {
+        window.open(preview.downloadUrl || preview.url, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setShareStatus(error.message || "This device could not open the share sheet.");
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <div
       className="file-preview-backdrop"
@@ -5048,6 +5068,9 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
           ) : null}
         </div>
         <div className="file-preview-actions">
+          <button disabled={sharing} type="button" onClick={shareOrSave}>
+            {sharing ? "Opening..." : "Share / Save"}
+          </button>
           <a
             className="secondary-button file-preview-save"
             download={fileName}
@@ -5055,7 +5078,7 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
             rel="noreferrer"
             target="_blank"
           >
-            Save
+            Download
           </a>
           <button
             disabled={!canPreview}
@@ -5066,6 +5089,7 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
           </button>
           <button type="button" onClick={onClose}>Close</button>
         </div>
+        {shareStatus ? <p className="file-preview-status">{shareStatus}</p> : null}
       </section>
     </div>
   );
@@ -6948,6 +6972,36 @@ function isPreviewableImage(file) {
 
 function isPreviewablePdf(file) {
   return String(file?.mime_type || "").toLowerCase() === "application/pdf";
+}
+
+async function shareSubmissionAttachment(preview) {
+  const file = preview.file || {};
+  const fileName = file.original_filename || "Attachment";
+  if (!navigator.share) return false;
+
+  try {
+    const response = await fetch(preview.url);
+    if (!response.ok) throw new Error("Attachment could not be prepared for sharing.");
+    const blob = await response.blob();
+    const attachment = new File([blob], fileName, {
+      type: file.mime_type || blob.type || "application/octet-stream",
+    });
+    if (navigator.canShare?.({ files: [attachment] })) {
+      await navigator.share({
+        files: [attachment],
+        title: fileName,
+      });
+      return true;
+    }
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
+  }
+
+  await navigator.share({
+    title: fileName,
+    url: preview.url,
+  });
+  return true;
 }
 
 function printSubmissionAttachment(preview) {

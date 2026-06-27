@@ -3733,6 +3733,7 @@ p {
 }
 
 .file-preview-actions {
+  flex-wrap: wrap;
   justify-content: flex-end;
   border-top: 1px solid #e5eeea;
 }
@@ -3747,6 +3748,13 @@ p {
   color: #17211f;
   font-weight: 850;
   text-decoration: none;
+}
+
+.file-preview-status {
+  margin: -2px 12px 12px;
+  color: #8a5200;
+  font-size: 0.88rem;
+  font-weight: 750;
 }
 
 .staff-signin-card {
