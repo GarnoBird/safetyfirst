@@ -3172,34 +3172,14 @@ p {
   color: #17211f;
 }
 
-.toolbox-sticky-submit {
-  position: sticky;
-  bottom: 12px;
-  z-index: 12;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #bdd8cb;
-  border-radius: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 14px 40px rgba(17, 23, 21, 0.14);
-  backdrop-filter: blur(8px);
-}
-
-.toolbox-sticky-submit > div:first-child {
+.toolbox-submit-actions {
   display: grid;
-  gap: 3px;
 }
 
-.toolbox-sticky-submit strong {
-  color: #173b38;
-}
-
-.toolbox-sticky-submit span {
-  color: #5f716d;
-  font-size: 0.86rem;
+.toolbox-submit-actions .primary-button {
+  width: 100%;
+  min-height: 62px;
+  font-size: 1.35rem;
   font-weight: 800;
 }
 
@@ -4206,7 +4186,6 @@ p {
 
   .form-platform-actions,
   .toolbox-fast-actions,
-  .toolbox-sticky-submit,
   .offline-queue-banner,
   .offline-draft-status,
   .submission-history-item {
@@ -4216,15 +4195,10 @@ p {
 
   .form-platform-actions button,
   .toolbox-fast-actions button,
-  .toolbox-sticky-submit button,
   .offline-queue-banner button,
   .offline-draft-status button,
   .submission-history-item button {
     width: 100%;
-  }
-
-  .toolbox-sticky-submit {
-    bottom: 8px;
   }
 
   .submission-file-row,

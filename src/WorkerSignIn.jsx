@@ -2761,7 +2761,6 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     <ToolboxTalkDigitalForm
                       submitting={submitting}
                       worker={worker}
-                      onCancel={openScannedCopyPicker}
                       onSubmit={submitToolboxTalkForm}
                     />
                   </>
@@ -2814,7 +2813,7 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
   );
 }
 
-function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
+function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
   const [form, setForm] = useState(
     () => restoredDraftRef.current?.form || initialToolboxTalkForm(worker),
@@ -3456,17 +3455,10 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
 
       {error ? <p className="form-message error">{error}</p> : null}
 
-      <div className="toolbox-sticky-submit">
-        <div>
-          <strong>{missingCount ? `${missingCount} missing` : "Ready to submit"}</strong>
-          <span>{draftSavedAt ? `Draft saved ${formatCompactTime(draftSavedAt)}` : "Draft autosaves"}</span>
-        </div>
-        <div className="form-platform-actions">
-          <button type="button" onClick={onCancel}>Submit scanned copy</button>
-          <button className="primary-button" disabled={submitting} type="submit">
-            {submitting ? "Submitting..." : "Submit Toolbox Talk"}
-          </button>
-        </div>
+      <div className="toolbox-submit-actions">
+        <button className="primary-button" disabled={submitting} type="submit">
+          {submitting ? "Submitting..." : "Submit Toolbox Talk"}
+        </button>
       </div>
     </form>
   );
