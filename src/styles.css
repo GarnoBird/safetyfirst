@@ -3368,6 +3368,37 @@ p {
   max-width: none;
 }
 
+.staff-filter-toggle-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.staff-filter-icon-button {
+  display: inline-grid;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  min-height: 46px;
+  place-items: center;
+  padding: 0;
+}
+
+.staff-filter-icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.staff-filter-icon-button.active {
+  border-color: #245f5b;
+  color: #fff;
+  background: #245f5b;
+}
+
 .table-action-row {
   display: flex;
   flex-wrap: wrap;

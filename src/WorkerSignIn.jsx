@@ -4305,6 +4305,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     sort: "submitted_at",
     dir: "desc",
   });
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [records, setRecords] = useState({ rows: [] });
   const [selected, setSelected] = useState(null);
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
@@ -4474,61 +4475,78 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
   return (
     <StaffShell active="forms" contentWide navigateTo={navigateTo}>
-      <section className="staff-toolbar staff-form-filter-toolbar">
-        <label className="field">
-          <span>From</span>
-          <input type="date" value={filters.from} onChange={(event) => updateFilter("from", event.target.value)} />
-        </label>
-        <label className="field">
-          <span>To</span>
-          <input type="date" value={filters.to} onChange={(event) => updateFilter("to", event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Company</span>
-          <input value={filters.company} onChange={(event) => updateFilter("company", event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Phone</span>
-          <input value={filters.phone} onChange={(event) => updateFilter("phone", event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Name</span>
-          <input value={filters.name} onChange={(event) => updateFilter("name", event.target.value)} />
-        </label>
-        <label className="field">
-          <span>Form</span>
-          <select value={filters.formType} onChange={(event) => updateFilter("formType", event.target.value)}>
-            <option value="">All</option>
-            {SAFETY_FORM_TYPES.map((form) => (
-              <option key={form.id} value={form.id}>{form.label}</option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Backup</span>
-          <select value={filters.backupStatus} onChange={(event) => updateFilter("backupStatus", event.target.value)}>
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="backed_up">Backed up</option>
-            <option value="failed">Failed</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Sort</span>
-          <select value={`${filters.sort}:${filters.dir}`} onChange={(event) => changeSort(event.target.value)}>
-            <option value="submitted_at:desc">Newest</option>
-            <option value="submitted_at:asc">Oldest</option>
-            <option value="company:asc">Company A-Z</option>
-            <option value="worker_name:asc">Name A-Z</option>
-            <option value="worker_phone:asc">Phone A-Z</option>
-            <option value="form_type:asc">Form type</option>
-            <option value="one_drive_backup_status:asc">Backup</option>
-          </select>
-        </label>
-        <button className="primary-button" type="button" onClick={loadSubmissions}>
-          Apply
+      <div className="staff-filter-toggle-row">
+        <button
+          aria-controls="staff-form-filters"
+          aria-expanded={filtersOpen}
+          aria-label={filtersOpen ? "Hide filters" : "Show filters"}
+          className={filtersOpen ? "staff-filter-icon-button active" : "staff-filter-icon-button"}
+          type="button"
+          onClick={() => setFiltersOpen((current) => !current)}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M4 5h16l-6 7v5l-4 2v-7L4 5z" />
+          </svg>
         </button>
-      </section>
+      </div>
+
+      {filtersOpen ? (
+        <section className="staff-toolbar staff-form-filter-toolbar" id="staff-form-filters">
+          <label className="field">
+            <span>From</span>
+            <input type="date" value={filters.from} onChange={(event) => updateFilter("from", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>To</span>
+            <input type="date" value={filters.to} onChange={(event) => updateFilter("to", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Company</span>
+            <input value={filters.company} onChange={(event) => updateFilter("company", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Phone</span>
+            <input value={filters.phone} onChange={(event) => updateFilter("phone", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Name</span>
+            <input value={filters.name} onChange={(event) => updateFilter("name", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Form</span>
+            <select value={filters.formType} onChange={(event) => updateFilter("formType", event.target.value)}>
+              <option value="">All</option>
+              {SAFETY_FORM_TYPES.map((form) => (
+                <option key={form.id} value={form.id}>{form.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Backup</span>
+            <select value={filters.backupStatus} onChange={(event) => updateFilter("backupStatus", event.target.value)}>
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="backed_up">Backed up</option>
+              <option value="failed">Failed</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>Sort</span>
+            <select value={`${filters.sort}:${filters.dir}`} onChange={(event) => changeSort(event.target.value)}>
+              <option value="submitted_at:desc">Newest</option>
+              <option value="submitted_at:asc">Oldest</option>
+              <option value="company:asc">Company A-Z</option>
+              <option value="worker_name:asc">Name A-Z</option>
+              <option value="worker_phone:asc">Phone A-Z</option>
+              <option value="form_type:asc">Form type</option>
+              <option value="one_drive_backup_status:asc">Backup</option>
+            </select>
+          </label>
+          <button className="primary-button" type="button" onClick={loadSubmissions}>
+            Apply
+          </button>
+        </section>
+      ) : null}
 
       {message ? <p className="staff-message">{message}</p> : null}
 
