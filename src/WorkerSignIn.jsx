@@ -123,6 +123,11 @@ const SAFETY_FORM_TYPES = [
 ];
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
+const WORKER_SESSION_CACHE_KEY = "sf_worker_session_cache_v1";
+const WORKER_FORM_DRAFTS_KEY = "sf_worker_form_drafts_v1";
+const WORKER_SUBMISSION_QUEUE_KEY = "sf_worker_submission_queue_v1";
+const WORKER_SUBMISSION_QUEUE_EVENT = "sf_worker_submission_queue_changed";
+const DRAFT_SAVE_DELAY_MS = 350;
 const EMPTY_SAFETY_CONCERN = { concern: "", actionToTake: "", dateTaken: "" };
 const EMPTY_ATTENDEE = { name: "" };
 
@@ -2304,6 +2309,7 @@ export function WorkerLoginPage({ navigateTo }) {
     fetch("/api/auth/worker-me", { credentials: "include" })
       .then(readApiJson)
       .then((payload) => {
+        if (payload.worker) writeCachedWorkerSession(payload.worker);
         if (active && payload.worker) navigateTo("/forms");
       })
       .catch(() => {});
@@ -2318,7 +2324,7 @@ export function WorkerLoginPage({ navigateTo }) {
     setMessage("");
 
     try {
-      await readApiJson(
+      const payload = await readApiJson(
         await fetch("/api/auth/worker-login", {
           method: "POST",
           credentials: "include",
@@ -2326,6 +2332,7 @@ export function WorkerLoginPage({ navigateTo }) {
           body: JSON.stringify({ identifier, password, rememberMe }),
         }),
       );
+      writeCachedWorkerSession(payload.worker);
       navigateTo("/forms");
     } catch (error) {
       setMessage(error.message);
@@ -2379,6 +2386,12 @@ export function WorkerLoginPage({ navigateTo }) {
 
 export function WorkerFormsHomePage({ navigateTo }) {
   const { worker } = useWorkerSession(navigateTo);
+  const {
+    queuedCount,
+    queueMessage,
+    syncing,
+    syncNow,
+  } = useWorkerSubmissionQueue(worker);
   const [signingOut, setSigningOut] = useState(false);
 
   const signOut = async () => {
@@ -2387,6 +2400,7 @@ export function WorkerFormsHomePage({ navigateTo }) {
       method: "POST",
       credentials: "include",
     });
+    clearCachedWorkerSession();
     navigateTo("/worker-login");
   };
 
@@ -2411,6 +2425,15 @@ export function WorkerFormsHomePage({ navigateTo }) {
           </div>
         </header>
 
+        {queuedCount ? (
+          <OfflineQueueBanner
+            count={queuedCount}
+            message={queueMessage}
+            syncing={syncing}
+            onSync={syncNow}
+          />
+        ) : null}
+
         <div className="safety-form-grid">
           {SAFETY_FORM_TYPES.map((form) => (
             <button
@@ -2433,17 +2456,42 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const { worker } = useWorkerSession(navigateTo);
   const formType = routePath.split("/").filter(Boolean).pop();
   const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
+  const {
+    queuedCount,
+    queueMessage,
+    refreshQueue,
+    syncing,
+    syncNow,
+  } = useWorkerSubmissionQueue(worker);
   const [mode, setMode] = useState("");
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "", date: "" });
-  const submitted = status.type === "success";
+  const submitted = status.type === "success" || status.type === "queued";
 
   useEffect(() => {
     if (worker && !form) navigateTo("/forms");
   }, [form, navigateTo, worker]);
+
+  useEffect(() => {
+    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk") return;
+    const draft = readWorkerFormDraft(worker, formType, "fill_form");
+    if (typeof draft?.notes === "string") setNotes(draft.notes);
+  }, [form, formType, mode, worker]);
+
+  useEffect(() => {
+    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk") return undefined;
+    const timeout = window.setTimeout(() => {
+      if (notes.trim()) {
+        writeWorkerFormDraft(worker, formType, "fill_form", { notes });
+      } else {
+        clearWorkerFormDraft(worker, formType, "fill_form");
+      }
+    }, DRAFT_SAVE_DELAY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [form, formType, mode, notes, worker]);
 
   const submitFilledForm = async (event) => {
     event.preventDefault();
@@ -2526,13 +2574,29 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
           body: JSON.stringify(body),
         }),
       );
+      clearWorkerFormDraft(worker, body.formType, body.submissionMode);
       setStatus({
         type: "success",
         message: "Your form has been submitted",
         date: formatDateString(payload.submission.submitted_date_vancouver),
       });
     } catch (error) {
-      setStatus({ type: "error", message: error.message, date: "" });
+      if (body.submissionMode === "fill_form" && shouldQueueWorkerSubmission(error)) {
+        try {
+          const queued = queueWorkerSubmission(worker, body);
+          clearWorkerFormDraft(worker, body.formType, body.submissionMode);
+          refreshQueue();
+          setStatus({
+            type: "queued",
+            message: "Your form has been saved on this device",
+            date: formatDateString(queued.submittedDateVancouver),
+          });
+        } catch (queueError) {
+          setStatus({ type: "error", message: queueError.message, date: "" });
+        }
+      } else {
+        setStatus({ type: "error", message: error.message, date: "" });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -2556,11 +2620,27 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
           </button>
         </header>
 
+        {queuedCount ? (
+          <OfflineQueueBanner
+            count={queuedCount}
+            message={queueMessage}
+            syncing={syncing}
+            onSync={syncNow}
+          />
+        ) : null}
+
         <div className={submitted ? "worker-form submitted form-submit-panel" : "worker-form form-submit-panel"}>
           {submitted ? (
             <div className="worker-thank-you" role="status">
               <h1>Thank You</h1>
-              <p>Your form has been submitted - {status.date}</p>
+              {status.type === "queued" ? (
+                <>
+                  <p>{status.message} - {status.date}</p>
+                  <p>It will submit automatically when this device is online.</p>
+                </>
+              ) : (
+                <p>Your form has been submitted - {status.date}</p>
+              )}
             </div>
           ) : (
             <>
@@ -2663,14 +2743,46 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   );
 }
 
+function OfflineQueueBanner({ count, message, onSync, syncing }) {
+  return (
+    <aside className="offline-queue-banner" role="status">
+      <div>
+        <strong>{count} saved form{count === 1 ? "" : "s"} waiting to sync</strong>
+        <span>{message || "This device will submit them automatically when it is online."}</span>
+      </div>
+      <button disabled={syncing || !isBrowserOnline()} type="button" onClick={onSync}>
+        {syncing ? "Syncing..." : "Sync now"}
+      </button>
+    </aside>
+  );
+}
+
 function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
-  const [form, setForm] = useState(() => initialToolboxTalkForm(worker));
+  const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
+  const [form, setForm] = useState(
+    () => restoredDraftRef.current?.form || initialToolboxTalkForm(worker),
+  );
+  const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraftRef.current?.form));
+  const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
   const [error, setError] = useState("");
 
   const selectedTopicKeys = useMemo(
     () => new Set(form.topics.selected.map((topic) => topicKey(topic))),
     [form.topics.selected],
   );
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      if (isToolboxTalkDraftMeaningful(form)) {
+        const savedAt = writeWorkerFormDraft(worker, "toolbox_talk", "fill_form", { form });
+        setDraftSavedAt(savedAt);
+        return;
+      }
+      clearWorkerFormDraft(worker, "toolbox_talk", "fill_form");
+      setDraftSavedAt("");
+    }, DRAFT_SAVE_DELAY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [form, worker]);
 
   const updateHeader = (field, value) => {
     setForm((current) => ({
@@ -2771,6 +2883,14 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     }));
   };
 
+  const startFresh = () => {
+    clearWorkerFormDraft(worker, "toolbox_talk", "fill_form");
+    setForm(initialToolboxTalkForm(worker));
+    setDraftRestored(false);
+    setDraftSavedAt("");
+    setError("");
+  };
+
   const submitForm = async (event) => {
     event.preventDefault();
     const validationError = validateToolboxTalkForm(form);
@@ -2785,6 +2905,20 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
 
   return (
     <form className="submission-form toolbox-talk-form" onSubmit={submitForm}>
+      {draftRestored || draftSavedAt ? (
+        <div className="offline-draft-status">
+          <div>
+            <strong>{draftRestored ? "Draft restored" : "Draft saved"}</strong>
+            {draftSavedAt ? <span>Saved {formatCompactTime(draftSavedAt)}</span> : null}
+          </div>
+          {draftRestored ? (
+            <button type="button" onClick={startFresh}>
+              Start fresh
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       <section className="toolbox-section">
         <div className="toolbox-section-heading">
           <h2>Meeting Info</h2>
@@ -5379,18 +5513,89 @@ function TrendDirection({ value }) {
   return <span className={`trend-direction trend-${value || "flat"}`}>{label}</span>;
 }
 
+function useWorkerSubmissionQueue(worker) {
+  const [queuedCount, setQueuedCount] = useState(0);
+  const [queueMessage, setQueueMessage] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const syncingRef = useRef(false);
+
+  const refreshQueue = () => {
+    setQueuedCount(countQueuedWorkerSubmissions(worker));
+  };
+
+  const syncNow = async ({ silent = false } = {}) => {
+    if (!worker || syncingRef.current) return;
+    refreshQueue();
+    if (!isBrowserOnline()) {
+      if (!silent) setQueueMessage("Offline. Saved forms will sync when the connection returns.");
+      return;
+    }
+
+    syncingRef.current = true;
+    setSyncing(true);
+    if (!silent) setQueueMessage("");
+    try {
+      const result = await syncQueuedWorkerSubmissions(worker);
+      setQueuedCount(result.remaining);
+      if (!silent) {
+        if (result.synced) {
+          setQueueMessage(`${result.synced} saved form${result.synced === 1 ? "" : "s"} synced.`);
+        } else if (result.failed) {
+          setQueueMessage("Saved forms could not sync yet.");
+        } else {
+          setQueueMessage("");
+        }
+      }
+    } finally {
+      syncingRef.current = false;
+      setSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!worker) return undefined;
+    refreshQueue();
+    syncNow({ silent: true });
+
+    const handleQueueChange = () => refreshQueue();
+    const handleOnline = () => syncNow({ silent: true });
+    window.addEventListener(WORKER_SUBMISSION_QUEUE_EVENT, handleQueueChange);
+    window.addEventListener("online", handleOnline);
+    return () => {
+      window.removeEventListener(WORKER_SUBMISSION_QUEUE_EVENT, handleQueueChange);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [worker?.id]);
+
+  return {
+    queuedCount,
+    queueMessage,
+    refreshQueue,
+    syncing,
+    syncNow,
+  };
+}
+
 function useWorkerSession(navigateTo) {
-  const [worker, setWorker] = useState(null);
+  const [worker, setWorker] = useState(() => readCachedWorkerSession()?.worker || null);
 
   useEffect(() => {
     let active = true;
     fetch("/api/auth/worker-me", { credentials: "include" })
       .then(readApiJson)
       .then((payload) => {
+        if (payload.worker) writeCachedWorkerSession(payload.worker);
         if (active) setWorker(payload.worker);
       })
       .catch(() => {
-        if (active) navigateTo("/worker-login");
+        if (!active) return;
+        const cached = readCachedWorkerSession();
+        if (!isBrowserOnline() && cached?.worker) {
+          setWorker(cached.worker);
+          return;
+        }
+        clearCachedWorkerSession();
+        navigateTo("/worker-login");
       });
 
     return () => {
@@ -5461,6 +5666,196 @@ async function readApiJson(response) {
     throw new Error(payload.error || "The server could not complete the request.");
   }
   return payload;
+}
+
+function isBrowserOnline() {
+  if (typeof navigator === "undefined") return true;
+  return navigator.onLine !== false;
+}
+
+function readStorageJson(key, fallback) {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStorageJson(key, value, { throwOnError = false } = {}) {
+  if (typeof window === "undefined") return false;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (error) {
+    if (throwOnError) throw error;
+    return false;
+  }
+}
+
+function readCachedWorkerSession() {
+  const cached = readStorageJson(WORKER_SESSION_CACHE_KEY, null);
+  return cached?.worker ? cached : null;
+}
+
+function writeCachedWorkerSession(worker) {
+  if (!worker?.id) return;
+  writeStorageJson(WORKER_SESSION_CACHE_KEY, {
+    worker,
+    cachedAt: new Date().toISOString(),
+  });
+}
+
+function clearCachedWorkerSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(WORKER_SESSION_CACHE_KEY);
+}
+
+function workerDraftKey(worker, formType, submissionMode) {
+  return `${worker?.id || "unknown"}:${formType}:${submissionMode}`;
+}
+
+function readWorkerFormDraft(worker, formType, submissionMode) {
+  if (!worker?.id) return null;
+  const drafts = readStorageJson(WORKER_FORM_DRAFTS_KEY, {});
+  return drafts[workerDraftKey(worker, formType, submissionMode)] || null;
+}
+
+function writeWorkerFormDraft(worker, formType, submissionMode, value) {
+  if (!worker?.id) return "";
+  const savedAt = new Date().toISOString();
+  const drafts = readStorageJson(WORKER_FORM_DRAFTS_KEY, {});
+  const saved = writeStorageJson(WORKER_FORM_DRAFTS_KEY, {
+    ...drafts,
+    [workerDraftKey(worker, formType, submissionMode)]: {
+      ...value,
+      savedAt,
+    },
+  });
+  return saved ? savedAt : "";
+}
+
+function clearWorkerFormDraft(worker, formType, submissionMode) {
+  if (!worker?.id) return;
+  const key = workerDraftKey(worker, formType, submissionMode);
+  const drafts = readStorageJson(WORKER_FORM_DRAFTS_KEY, {});
+  if (!drafts[key]) return;
+  const nextDrafts = { ...drafts };
+  delete nextDrafts[key];
+  writeStorageJson(WORKER_FORM_DRAFTS_KEY, nextDrafts);
+}
+
+function readWorkerSubmissionQueue() {
+  const queue = readStorageJson(WORKER_SUBMISSION_QUEUE_KEY, []);
+  return Array.isArray(queue) ? queue : [];
+}
+
+function writeWorkerSubmissionQueue(queue) {
+  writeStorageJson(WORKER_SUBMISSION_QUEUE_KEY, queue, { throwOnError: true });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(WORKER_SUBMISSION_QUEUE_EVENT));
+  }
+}
+
+function countQueuedWorkerSubmissions(worker) {
+  if (!worker?.id) return 0;
+  return readWorkerSubmissionQueue().filter((item) => item.workerId === worker.id).length;
+}
+
+function queueWorkerSubmission(worker, body) {
+  if (!worker?.id) throw new Error("Worker profile is not available for offline save.");
+  const queued = {
+    id: createLocalQueueId(),
+    workerId: worker.id,
+    workerName: worker.name,
+    company: worker.company,
+    formType: body.formType,
+    submissionMode: body.submissionMode,
+    body,
+    queuedAt: new Date().toISOString(),
+    submittedDateVancouver: todayInVancouver(),
+  };
+  try {
+    writeWorkerSubmissionQueue([...readWorkerSubmissionQueue(), queued]);
+  } catch {
+    throw new Error("This device could not save the form locally. Keep this page open and try again.");
+  }
+  return queued;
+}
+
+async function syncQueuedWorkerSubmissions(worker) {
+  const queue = readWorkerSubmissionQueue();
+  const remaining = [];
+  let synced = 0;
+  let failed = 0;
+  let stopCurrentWorker = false;
+
+  for (const item of queue) {
+    if (item.workerId !== worker?.id || stopCurrentWorker) {
+      remaining.push(item);
+      continue;
+    }
+
+    try {
+      await readApiJson(
+        await fetch("/api/worker/submissions", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(item.body),
+        }),
+      );
+      synced += 1;
+    } catch (error) {
+      failed += 1;
+      remaining.push({
+        ...item,
+        lastAttemptAt: new Date().toISOString(),
+        lastError: error.message,
+      });
+      if (shouldQueueWorkerSubmission(error)) stopCurrentWorker = true;
+    }
+  }
+
+  writeWorkerSubmissionQueue(remaining);
+  return {
+    synced,
+    failed,
+    remaining: remaining.filter((item) => item.workerId === worker?.id).length,
+  };
+}
+
+function shouldQueueWorkerSubmission(error) {
+  if (!isBrowserOnline()) return true;
+  const message = String(error?.message || "");
+  return /failed to fetch|networkerror|load failed|network request failed/i.test(message);
+}
+
+function createLocalQueueId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function isToolboxTalkDraftMeaningful(form) {
+  return Boolean(
+    hasTextValue(form?.header?.projectName) ||
+      hasTextValue(form?.header?.address) ||
+      hasTextValue(form?.header?.supervisor) ||
+      form?.topics?.selected?.length ||
+      hasTextValue(form?.topics?.other) ||
+      Object.values(form?.incidentReview || {}).some(hasTextValue) ||
+      (form?.safetyConcerns || []).some((row) => Object.values(row).some(hasTextValue)) ||
+      (form?.attendance || []).some((row) => hasTextValue(row.name)) ||
+      hasTextValue(form?.additionalComments) ||
+      Boolean(form?.confirmation?.confirmed),
+  );
+}
+
+function hasTextValue(value) {
+  return Boolean(String(value || "").trim());
 }
 
 function staffExportUrl(date, format, type = "people") {

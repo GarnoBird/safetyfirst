@@ -2825,6 +2825,36 @@ p {
   text-align: center;
 }
 
+.offline-queue-banner,
+.offline-draft-status {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f6fbf9;
+}
+
+.offline-queue-banner div,
+.offline-draft-status div {
+  display: grid;
+  gap: 3px;
+}
+
+.offline-queue-banner strong,
+.offline-draft-status strong {
+  color: #173b38;
+}
+
+.offline-queue-banner span,
+.offline-draft-status span {
+  color: #5f716d;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
 .submission-form {
   display: grid;
   gap: 14px;
@@ -3903,12 +3933,16 @@ p {
   }
 
   .form-platform-actions,
+  .offline-queue-banner,
+  .offline-draft-status,
   .submission-history-item {
     align-items: stretch;
     flex-direction: column;
   }
 
   .form-platform-actions button,
+  .offline-queue-banner button,
+  .offline-draft-status button,
   .submission-history-item button {
     width: 100%;
   }
