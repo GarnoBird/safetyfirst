@@ -3983,7 +3983,61 @@ p {
 
   .staff-form-table-scroll {
     display: block;
-    overflow-x: auto;
+    overflow-x: visible;
+  }
+
+  .form-submissions-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .form-submissions-table td,
+  .form-submissions-table th {
+    min-width: 0;
+    padding-right: 6px;
+    padding-left: 6px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .form-submissions-table .staff-mobile-hidden {
+    display: none;
+  }
+
+  .form-submissions-table .select-column {
+    width: 36px;
+    min-width: 36px;
+    padding-right: 2px;
+    padding-left: 2px;
+  }
+
+  .form-submissions-table .submitted-column {
+    width: 29%;
+  }
+
+  .form-submissions-table .company-column {
+    width: 22%;
+  }
+
+  .form-submissions-table .form-column {
+    width: 18%;
+  }
+
+  .form-submissions-table .actions-column {
+    width: 64px;
+  }
+
+  .form-submissions-table .table-action-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-submissions-table .table-action-row button {
+    width: 100%;
+    min-height: 32px;
+    padding: 0 6px;
+    font-size: 0.8rem;
   }
 
   .staff-form-admin-grid {

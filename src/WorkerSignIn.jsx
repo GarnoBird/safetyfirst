@@ -4874,14 +4874,14 @@ function FormSubmissionsTable({
                 />
               </th>
             ) : null}
-            <th>Submitted</th>
-            <th>Company</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Form</th>
-            <th>Type</th>
-            <th>Backup</th>
-            <th>Actions</th>
+            <th className="submitted-column">Submitted</th>
+            <th className="company-column">Company</th>
+            <th className="staff-mobile-hidden">Name</th>
+            <th className="staff-mobile-hidden">Phone</th>
+            <th className="form-column">Form</th>
+            <th className="staff-mobile-hidden">Type</th>
+            <th className="staff-mobile-hidden">Backup</th>
+            <th className="actions-column">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -4897,14 +4897,14 @@ function FormSubmissionsTable({
                   />
                 </td>
               ) : null}
-              <td>{formatDateTime(row.submitted_at)}</td>
-              <td>{row.company}</td>
-              <td>{row.worker_name}</td>
-              <td><a href={`tel:${phoneHref(row.worker_phone)}`}>{row.worker_phone}</a></td>
-              <td>{formTypeLabel(row.form_type)}</td>
-              <td>{submissionModeLabel(row.submission_mode)}</td>
-              <td><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
-              <td>
+              <td className="submitted-column">{formatDateTime(row.submitted_at)}</td>
+              <td className="company-column">{row.company}</td>
+              <td className="staff-mobile-hidden">{row.worker_name}</td>
+              <td className="staff-mobile-hidden"><a href={`tel:${phoneHref(row.worker_phone)}`}>{row.worker_phone}</a></td>
+              <td className="form-column">{formTypeLabel(row.form_type)}</td>
+              <td className="staff-mobile-hidden">{submissionModeLabel(row.submission_mode)}</td>
+              <td className="staff-mobile-hidden"><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
+              <td className="actions-column">
                 <div className="table-action-row">
                   <button type="button" onClick={() => onDetails(row)}>Details</button>
                   {canRetryBackup(row.one_drive_backup_status) ? (
