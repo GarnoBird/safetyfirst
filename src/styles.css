@@ -3874,10 +3874,23 @@ p {
     flex-direction: column;
   }
 
-  .safety-form-grid,
   .submission-mode-grid,
   .file-choice-grid {
     grid-template-columns: 1fr;
+  }
+
+  .safety-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .safety-form-card {
+    min-height: 96px;
+    gap: 6px;
+    padding: 14px;
+  }
+
+  .safety-form-card span {
+    line-height: 1.12;
   }
 
   .toolbox-field-grid,
@@ -4234,6 +4247,19 @@ p {
 }
 
 @media (max-width: 380px) {
+  .safety-form-grid {
+    gap: 8px;
+  }
+
+  .safety-form-card {
+    min-height: 86px;
+    padding: 11px;
+  }
+
+  .safety-form-card span {
+    font-size: 1rem;
+  }
+
   .staff-mobile-menu-trigger .brand-mark,
   .staff-mobile-menu-trigger strong {
     font-size: 0.96rem;
