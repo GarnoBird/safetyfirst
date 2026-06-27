@@ -128,6 +128,18 @@ const WORKER_FORM_DRAFTS_KEY = "sf_worker_form_drafts_v1";
 const WORKER_SUBMISSION_QUEUE_KEY = "sf_worker_submission_queue_v1";
 const WORKER_SUBMISSION_QUEUE_EVENT = "sf_worker_submission_queue_changed";
 const DRAFT_SAVE_DELAY_MS = 350;
+const TOOLBOX_TALK_RECENTS_KEY = "sf_toolbox_talk_recents_v1";
+const TOOLBOX_TALK_QUICK_TOPIC_LABELS = [
+  "Housekeeping / clean-up",
+  "When needed",
+  "Anchors",
+  "Pre-use inspection",
+  "Head / eye / face",
+  "Safe Access",
+  "Report all incidents",
+  "Safeguards",
+  "WHMIS",
+];
 const EMPTY_SAFETY_CONCERN = { concern: "", actionToTake: "", dateTaken: "" };
 const EMPTY_ATTENDEE = { name: "" };
 
@@ -2455,6 +2467,7 @@ export function WorkerFormsHomePage({ navigateTo }) {
 export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const { worker } = useWorkerSession(navigateTo);
   const formType = routePath.split("/").filter(Boolean).pop();
+  const isToolboxTalk = formType === "toolbox_talk";
   const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
   const {
     queuedCount,
@@ -2463,7 +2476,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     syncing,
     syncNow,
   } = useWorkerSubmissionQueue(worker);
-  const [mode, setMode] = useState("");
+  const [mode, setMode] = useState(() => (isToolboxTalk ? "fill_form" : ""));
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -2474,6 +2487,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   useEffect(() => {
     if (worker && !form) navigateTo("/forms");
   }, [form, navigateTo, worker]);
+
+  useEffect(() => {
+    setMode(isToolboxTalk ? "fill_form" : "");
+    setFile(null);
+    setNotes("");
+    setStatus({ type: "", message: "", date: "" });
+  }, [formType, isToolboxTalk]);
 
   useEffect(() => {
     if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk") return;
@@ -2644,7 +2664,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
             </div>
           ) : (
             <>
-              {!mode ? (
+              {!mode && !isToolboxTalk ? (
                 <div className="submission-mode-grid">
                   <button type="button" onClick={() => setMode("submit_file")}>
                     <strong>Submit File</strong>
@@ -2690,8 +2710,8 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     />
                   </label>
                   <div className="form-platform-actions">
-                    <button type="button" onClick={() => setMode("")}>
-                      Change option
+                    <button type="button" onClick={() => setMode(isToolboxTalk ? "fill_form" : "")}>
+                      {isToolboxTalk ? "Back to digital form" : "Change option"}
                     </button>
                     <button className="primary-button" disabled={submitting} type="submit">
                       {submitting ? "Submitting..." : "Submit"}
@@ -2702,12 +2722,23 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
               {mode === "fill_form" ? (
                 formType === "toolbox_talk" ? (
-                  <ToolboxTalkDigitalForm
-                    submitting={submitting}
-                    worker={worker}
-                    onCancel={() => setMode("")}
-                    onSubmit={submitToolboxTalkForm}
-                  />
+                  <>
+                    <div className="toolbox-fast-actions">
+                      <div>
+                        <strong>Digital form</strong>
+                        <span>Fast mobile version</span>
+                      </div>
+                      <button type="button" onClick={() => setMode("submit_file")}>
+                        Submit scanned copy
+                      </button>
+                    </div>
+                    <ToolboxTalkDigitalForm
+                      submitting={submitting}
+                      worker={worker}
+                      onCancel={() => setMode("submit_file")}
+                      onSubmit={submitToolboxTalkForm}
+                    />
+                  </>
                 ) : (
                   <form className="submission-form" onSubmit={submitFilledForm}>
                     <label>
@@ -2770,6 +2801,49 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     () => new Set(form.topics.selected.map((topic) => topicKey(topic))),
     [form.topics.selected],
   );
+  const recentToolbox = useMemo(readToolboxTalkRecents, []);
+  const savedDefaults = useMemo(readToolboxTalkDefaults, []);
+  const [topicSearch, setTopicSearch] = useState("");
+  const [optionalOpen, setOptionalOpen] = useState(() => {
+    const draftForm = restoredDraftRef.current?.form;
+    return {
+      review: toolboxIncidentHasValues(draftForm?.incidentReview),
+      concerns: toolboxConcernsHaveValues(draftForm?.safetyConcerns),
+      comments: hasTextValue(draftForm?.additionalComments),
+    };
+  });
+  const completionItems = useMemo(() => toolboxTalkCompletionItems(form), [form]);
+  const missingCount = completionItems.filter((item) => !item.complete).length;
+  const recentTopicLabels = useMemo(
+    () =>
+      recentToolbox.topicLabels
+        .filter((label) => findToolboxTopic(label))
+        .filter((label, index, labels) => labels.indexOf(label) === index)
+        .slice(0, 6),
+    [recentToolbox.topicLabels],
+  );
+  const quickTopicLabels = useMemo(
+    () =>
+      TOOLBOX_TALK_QUICK_TOPIC_LABELS
+        .filter((label) => findToolboxTopic(label))
+        .filter((label) => !recentTopicLabels.includes(label)),
+    [recentTopicLabels],
+  );
+  const filteredTopicGroups = useMemo(
+    () => filterToolboxTopicGroups(topicSearch),
+    [topicSearch],
+  );
+  const selectedAttendeeNames = useMemo(
+    () => new Set(form.attendance.map((row) => row.name.trim().toLowerCase()).filter(Boolean)),
+    [form.attendance],
+  );
+  const hasSavedDefaults = Boolean(
+    savedDefaults.projectName || savedDefaults.address || savedDefaults.supervisor,
+  );
+  const topicLabelIsSelected = (label) => {
+    const match = findToolboxTopic(label);
+    return match ? selectedTopicKeys.has(topicKey(createToolboxTopic(match.group, match.label))) : false;
+  };
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -2849,6 +2923,73 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     });
   };
 
+  const toggleTopicByLabel = (label) => {
+    const match = findToolboxTopic(label);
+    if (!match) return;
+    toggleTopic(match.group, match.label);
+  };
+
+  const addTopicLabels = (labels) => {
+    const topics = labels.map(findToolboxTopic).filter(Boolean);
+    if (!topics.length) return;
+    setForm((current) => {
+      const existing = new Set(current.topics.selected.map(topicKey));
+      const next = [...current.topics.selected];
+      topics.forEach(({ group, label }) => {
+        const topic = createToolboxTopic(group, label);
+        if (!existing.has(topicKey(topic))) {
+          next.push(topic);
+          existing.add(topicKey(topic));
+        }
+      });
+      return {
+        ...current,
+        topics: { ...current.topics, selected: next },
+      };
+    });
+  };
+
+  const toggleOptional = (section) => {
+    setOptionalOpen((current) => ({ ...current, [section]: !current[section] }));
+  };
+
+  const applyLastJobSetup = () => {
+    setForm((current) => ({
+      ...current,
+      header: {
+        ...current.header,
+        projectName: savedDefaults.projectName || current.header.projectName,
+        address: savedDefaults.address || current.header.address,
+        supervisor: savedDefaults.supervisor || current.header.supervisor,
+      },
+    }));
+  };
+
+  const addAttendeeName = (name) => {
+    const trimmed = String(name || "").trim();
+    if (!trimmed) return;
+    setForm((current) => {
+      const existing = current.attendance.some(
+        (row) => row.name.trim().toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (existing) return current;
+      let placed = false;
+      const attendance = current.attendance.map((row) => {
+        if (!placed && !row.name.trim()) {
+          placed = true;
+          return { name: trimmed };
+        }
+        return row;
+      });
+      if (!placed) attendance.push({ name: trimmed });
+      return { ...current, attendance };
+    });
+  };
+
+  const addRecentCrew = () => {
+    recentToolbox.attendeeNames.forEach(addAttendeeName);
+  };
+
   const addConcern = () => {
     setForm((current) => ({
       ...current,
@@ -2900,6 +3041,7 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     }
     setError("");
     rememberToolboxTalkDefaults(form);
+    rememberToolboxTalkRecents(form);
     await onSubmit(cleanToolboxTalkClientForm(form));
   };
 
@@ -2919,10 +3061,27 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
         </div>
       ) : null}
 
+      <div className="toolbox-required-strip" aria-label="Required items">
+        <strong>{missingCount ? `${missingCount} missing` : "Ready"}</strong>
+        <div>
+          {completionItems.map((item) => (
+            <span className={item.complete ? "complete" : ""} key={item.id}>
+              {item.complete ? "OK" : "Need"} {item.label}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <section className="toolbox-section">
         <div className="toolbox-section-heading">
           <h2>Meeting Info</h2>
-          <span>Prefilled where possible</span>
+          {hasSavedDefaults ? (
+            <button type="button" onClick={applyLastJobSetup}>
+              Use last job
+            </button>
+          ) : (
+            <span>Required</span>
+          )}
         </div>
         <div className="toolbox-field-grid">
           <label>
@@ -2983,9 +3142,64 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
           <h2>Topics Discussed</h2>
           <span>{form.topics.selected.length} selected</span>
         </div>
+        <div className="toolbox-topic-shortcuts">
+          {recentTopicLabels.length ? (
+            <div className="toolbox-shortcut-group">
+              <div>
+                <strong>Recent</strong>
+                <button type="button" onClick={() => addTopicLabels(recentTopicLabels)}>
+                  Use recent
+                </button>
+              </div>
+              <div className="toolbox-chip-row">
+                {recentTopicLabels.map((label) => (
+                  <button
+                    className={topicLabelIsSelected(label) ? "topic-chip active" : "topic-chip"}
+                    key={`recent-${label}`}
+                    type="button"
+                    onClick={() => toggleTopicByLabel(label)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <div className="toolbox-shortcut-group">
+            <div>
+              <strong>Common</strong>
+            </div>
+            <div className="toolbox-chip-row">
+              {quickTopicLabels.map((label) => (
+                <button
+                  className={topicLabelIsSelected(label) ? "topic-chip active" : "topic-chip"}
+                  key={`quick-${label}`}
+                  type="button"
+                  onClick={() => toggleTopicByLabel(label)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="toolbox-search-field">
+            <span>Search topics</span>
+            <input
+              inputMode="search"
+              placeholder="Fall, WHMIS, access..."
+              type="search"
+              value={topicSearch}
+              onChange={(event) => setTopicSearch(event.target.value)}
+            />
+          </label>
+        </div>
         <div className="toolbox-topic-list">
-          {TOOLBOX_TALK_TOPIC_GROUPS.map((group) => (
-            <details className="toolbox-topic-group" key={group.id}>
+          {filteredTopicGroups.map((group) => (
+            <details
+              className="toolbox-topic-group"
+              key={group.id}
+              open={topicSearch.trim() ? true : undefined}
+            >
               <summary>{group.label}</summary>
               <div className="toolbox-topic-chip-grid">
                 {group.topics.map((label) => {
@@ -3007,6 +3221,9 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
             </details>
           ))}
         </div>
+        {!filteredTopicGroups.length ? (
+          <p className="empty-state">No topics match that search.</p>
+        ) : null}
         <label>
           <span>Additional topics / procedures reviewed</span>
           <textarea
@@ -3018,104 +3235,121 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
         </label>
       </section>
 
-      <section className="toolbox-section">
+      <section className={optionalOpen.review ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
           <h2>Review Notes</h2>
-          <span>Optional unless it applies</span>
+          <button type="button" onClick={() => toggleOptional("review")}>
+            {optionalOpen.review ? "Hide" : "Add incident / review notes"}
+          </button>
         </div>
-        <div className="toolbox-field-grid compact">
-          <label>
-            <span># of FA since last meeting</span>
-            <input
-              min="0"
-              inputMode="numeric"
-              type="number"
-              value={form.incidentReview.firstAidCount}
-              onChange={(event) => updateIncident("firstAidCount", event.target.value)}
-            />
-          </label>
-          <label>
-            <span># of Medical Aids</span>
-            <input
-              min="0"
-              inputMode="numeric"
-              type="number"
-              value={form.incidentReview.medicalAidCount}
-              onChange={(event) => updateIncident("medicalAidCount", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Near miss / accident to review?</span>
-            <select
-              value={form.incidentReview.nearMissReviewed}
-              onChange={(event) => updateIncident("nearMissReviewed", event.target.value)}
-            >
-              <option value="">Not selected</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </label>
-        </div>
-        {form.incidentReview.nearMissReviewed === "yes" ? (
-          <label>
-            <span>Near miss / accident description</span>
-            <textarea
-              rows="3"
-              value={form.incidentReview.nearMissDescription}
-              onChange={(event) =>
-                updateIncident("nearMissDescription", event.target.value)
-              }
-            />
-          </label>
+        {optionalOpen.review ? (
+          <>
+            <div className="toolbox-field-grid compact">
+              <label>
+                <span># of FA since last meeting</span>
+                <input
+                  min="0"
+                  inputMode="numeric"
+                  type="number"
+                  value={form.incidentReview.firstAidCount}
+                  onChange={(event) => updateIncident("firstAidCount", event.target.value)}
+                />
+              </label>
+              <label>
+                <span># of Medical Aids</span>
+                <input
+                  min="0"
+                  inputMode="numeric"
+                  type="number"
+                  value={form.incidentReview.medicalAidCount}
+                  onChange={(event) => updateIncident("medicalAidCount", event.target.value)}
+                />
+              </label>
+              <div className="toolbox-segment-field">
+                <span>Near miss / accident to review?</span>
+                <div className="toolbox-segmented" role="group" aria-label="Near miss or accident to review">
+                  {["no", "yes"].map((value) => (
+                    <button
+                      className={form.incidentReview.nearMissReviewed === value ? "active" : ""}
+                      key={value}
+                      type="button"
+                      onClick={() => updateIncident("nearMissReviewed", value)}
+                    >
+                      {value === "yes" ? "Yes" : "No"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {form.incidentReview.nearMissReviewed === "yes" ? (
+              <label>
+                <span>Near miss / accident description</span>
+                <textarea
+                  rows="3"
+                  value={form.incidentReview.nearMissDescription}
+                  onChange={(event) =>
+                    updateIncident("nearMissDescription", event.target.value)
+                  }
+                />
+              </label>
+            ) : null}
+            <label>
+              <span>Lessons that can be learnt from the above numbers</span>
+              <textarea
+                rows="4"
+                value={form.incidentReview.lessonsLearned}
+                onChange={(event) => updateIncident("lessonsLearned", event.target.value)}
+              />
+            </label>
+          </>
         ) : null}
-        <label>
-          <span>Lessons that can be learnt from the above numbers</span>
-          <textarea
-            rows="4"
-            value={form.incidentReview.lessonsLearned}
-            onChange={(event) => updateIncident("lessonsLearned", event.target.value)}
-          />
-        </label>
       </section>
 
-      <section className="toolbox-section">
+      <section className={optionalOpen.concerns ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
           <h2>Safety Concerns</h2>
-          <button type="button" onClick={addConcern}>Add concern</button>
+          <button type="button" onClick={() => toggleOptional("concerns")}>
+            {optionalOpen.concerns ? "Hide" : "Add safety concern"}
+          </button>
         </div>
-        <div className="toolbox-row-list">
-          {form.safetyConcerns.map((row, index) => (
-            <div className="toolbox-repeat-row" key={`concern-${index}`}>
-              <label>
-                <span>Concern</span>
-                <input
-                  value={row.concern}
-                  onChange={(event) => updateConcern(index, "concern", event.target.value)}
-                />
-              </label>
-              <label>
-                <span>Action to take</span>
-                <input
-                  value={row.actionToTake}
-                  onChange={(event) =>
-                    updateConcern(index, "actionToTake", event.target.value)
-                  }
-                />
-              </label>
-              <label>
-                <span>Date taken</span>
-                <input
-                  type="date"
-                  value={row.dateTaken}
-                  onChange={(event) =>
-                    updateConcern(index, "dateTaken", event.target.value)
-                  }
-                />
-              </label>
-              <button type="button" onClick={() => removeConcern(index)}>Remove</button>
+        {optionalOpen.concerns ? (
+          <>
+            <div className="toolbox-row-list">
+              {form.safetyConcerns.map((row, index) => (
+                <div className="toolbox-repeat-row" key={`concern-${index}`}>
+                  <label>
+                    <span>Concern</span>
+                    <input
+                      value={row.concern}
+                      onChange={(event) => updateConcern(index, "concern", event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span>Action to take</span>
+                    <input
+                      value={row.actionToTake}
+                      onChange={(event) =>
+                        updateConcern(index, "actionToTake", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span>Date taken</span>
+                    <input
+                      type="date"
+                      value={row.dateTaken}
+                      onChange={(event) =>
+                        updateConcern(index, "dateTaken", event.target.value)
+                      }
+                    />
+                  </label>
+                  <button type="button" onClick={() => removeConcern(index)}>Remove</button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <button type="button" onClick={addConcern}>Add another concern</button>
+          </>
+        ) : null}
       </section>
 
       <section className="toolbox-section">
@@ -3123,6 +3357,32 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
           <h2>Attendance</h2>
           <button type="button" onClick={addAttendee}>Add person</button>
         </div>
+        {recentToolbox.attendeeNames.length ? (
+          <div className="toolbox-shortcut-group">
+            <div>
+              <strong>Recent crew</strong>
+              <button type="button" onClick={addRecentCrew}>
+                Add last crew
+              </button>
+            </div>
+            <div className="toolbox-chip-row">
+              {recentToolbox.attendeeNames.slice(0, 12).map((name) => {
+                const selected = selectedAttendeeNames.has(name.trim().toLowerCase());
+                return (
+                  <button
+                    className={selected ? "attendee-chip active" : "attendee-chip"}
+                    disabled={selected}
+                    key={name}
+                    type="button"
+                    onClick={() => addAttendeeName(name)}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
         <div className="toolbox-row-list attendance">
           {form.attendance.map((row, index) => (
             <div className="toolbox-repeat-row attendee" key={`attendee-${index}`}>
@@ -3145,19 +3405,24 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
           <h2>Final Check</h2>
           <span>Completed by presenter</span>
         </div>
-        <label>
-          <span>Additional comments</span>
-          <textarea
-            rows="4"
-            value={form.additionalComments}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                additionalComments: event.target.value,
-              }))
-            }
-          />
-        </label>
+        <button type="button" onClick={() => toggleOptional("comments")}>
+          {optionalOpen.comments ? "Hide comments" : "Add comments"}
+        </button>
+        {optionalOpen.comments ? (
+          <label>
+            <span>Additional comments</span>
+            <textarea
+              rows="4"
+              value={form.additionalComments}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  additionalComments: event.target.value,
+                }))
+              }
+            />
+          </label>
+        ) : null}
         <div className="toolbox-field-grid compact">
           <label>
             <span>Presenter / Supervisor name</span>
@@ -3190,11 +3455,17 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
 
       {error ? <p className="form-message error">{error}</p> : null}
 
-      <div className="form-platform-actions">
-        <button type="button" onClick={onCancel}>Change option</button>
-        <button className="primary-button" disabled={submitting} type="submit">
-          {submitting ? "Submitting..." : "Submit Toolbox Talk"}
-        </button>
+      <div className="toolbox-sticky-submit">
+        <div>
+          <strong>{missingCount ? `${missingCount} missing` : "Ready to submit"}</strong>
+          <span>{draftSavedAt ? `Draft saved ${formatCompactTime(draftSavedAt)}` : "Draft autosaves"}</span>
+        </div>
+        <div className="form-platform-actions">
+          <button type="button" onClick={onCancel}>Submit scanned copy</button>
+          <button className="primary-button" disabled={submitting} type="submit">
+            {submitting ? "Submitting..." : "Submit Toolbox Talk"}
+          </button>
+        </div>
       </div>
     </form>
   );
@@ -6203,6 +6474,48 @@ function rememberToolboxTalkDefaults(form) {
   window.localStorage.setItem(TOOLBOX_TALK_DEFAULTS_KEY, JSON.stringify(defaults));
 }
 
+function readToolboxTalkRecents() {
+  const value = readStorageJson(TOOLBOX_TALK_RECENTS_KEY, {});
+  return {
+    topicLabels: Array.isArray(value.topicLabels)
+      ? value.topicLabels.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+    attendeeNames: Array.isArray(value.attendeeNames)
+      ? value.attendeeNames.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+  };
+}
+
+function rememberToolboxTalkRecents(form) {
+  const current = readToolboxTalkRecents();
+  writeStorageJson(TOOLBOX_TALK_RECENTS_KEY, {
+    topicLabels: mergeRecentValues(
+      form.topics.selected.map((topic) => topic.label),
+      current.topicLabels,
+      12,
+    ),
+    attendeeNames: mergeRecentValues(
+      form.attendance.map((row) => row.name),
+      current.attendeeNames,
+      40,
+    ),
+  });
+}
+
+function mergeRecentValues(nextValues, currentValues, limit) {
+  const seen = new Set();
+  return [...nextValues, ...currentValues]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .filter((value) => {
+      const key = value.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, limit);
+}
+
 function validateToolboxTalkForm(form) {
   const required = [
     [form.header.projectName, "Project Name is required."],
@@ -6251,6 +6564,80 @@ function cleanToolboxTalkClientForm(form) {
       confirmed: Boolean(form.confirmation.confirmed),
     },
   };
+}
+
+function toolboxTalkCompletionItems(form) {
+  return [
+    {
+      id: "job",
+      label: "job info",
+      complete: [
+        form.header.projectName,
+        form.header.address,
+        form.header.date,
+        form.header.time,
+        form.header.presenter,
+        form.header.supervisor,
+      ].every(hasTextValue),
+    },
+    {
+      id: "topics",
+      label: "topic",
+      complete: Boolean(form.topics.selected.length || hasTextValue(form.topics.other)),
+    },
+    {
+      id: "attendance",
+      label: "attendance",
+      complete: form.attendance.some((row) => hasTextValue(row.name)),
+    },
+    {
+      id: "confirm",
+      label: "confirmation",
+      complete:
+        hasTextValue(form.confirmation.name) &&
+        hasTextValue(form.confirmation.date) &&
+        Boolean(form.confirmation.confirmed),
+    },
+  ];
+}
+
+function filterToolboxTopicGroups(search) {
+  const query = String(search || "").trim().toLowerCase();
+  if (!query) return TOOLBOX_TALK_TOPIC_GROUPS;
+  return TOOLBOX_TALK_TOPIC_GROUPS.map((group) => {
+    const groupMatches = group.label.toLowerCase().includes(query);
+    const topics = groupMatches
+      ? group.topics
+      : group.topics.filter((label) => label.toLowerCase().includes(query));
+    return topics.length ? { ...group, topics } : null;
+  }).filter(Boolean);
+}
+
+function findToolboxTopic(label) {
+  const query = String(label || "").trim().toLowerCase();
+  if (!query) return null;
+  for (const group of TOOLBOX_TALK_TOPIC_GROUPS) {
+    const topicLabel = group.topics.find((topic) => topic.toLowerCase() === query);
+    if (topicLabel) return { group, label: topicLabel };
+  }
+  return null;
+}
+
+function createToolboxTopic(group, label) {
+  return {
+    categoryId: group.id,
+    categoryLabel: group.label,
+    topicId: slugifyTopic(label),
+    label,
+  };
+}
+
+function toolboxIncidentHasValues(incidentReview) {
+  return Object.values(incidentReview || {}).some(hasTextValue);
+}
+
+function toolboxConcernsHaveValues(rows) {
+  return (rows || []).some((row) => Object.values(row).some(hasTextValue));
 }
 
 function cleanObjectStrings(object) {

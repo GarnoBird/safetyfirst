@@ -2825,6 +2825,7 @@ p {
   text-align: center;
 }
 
+.toolbox-fast-actions,
 .offline-queue-banner,
 .offline-draft-status {
   display: flex;
@@ -2837,17 +2838,20 @@ p {
   background: #f6fbf9;
 }
 
+.toolbox-fast-actions div,
 .offline-queue-banner div,
 .offline-draft-status div {
   display: grid;
   gap: 3px;
 }
 
+.toolbox-fast-actions strong,
 .offline-queue-banner strong,
 .offline-draft-status strong {
   color: #173b38;
 }
 
+.toolbox-fast-actions span,
 .offline-queue-banner span,
 .offline-draft-status span {
   color: #5f716d;
@@ -2869,6 +2873,42 @@ p {
   gap: 18px;
 }
 
+.toolbox-required-strip {
+  display: grid;
+  gap: 9px;
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.toolbox-required-strip > strong {
+  color: #173b38;
+  font-size: 1rem;
+}
+
+.toolbox-required-strip div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.toolbox-required-strip span {
+  border: 1px solid #f1cf9a;
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: #8a5200;
+  font-size: 0.82rem;
+  font-weight: 850;
+  background: #fff7e8;
+}
+
+.toolbox-required-strip span.complete {
+  border-color: #bdd8cb;
+  color: #1d5f45;
+  background: #eaf7f0;
+}
+
 .toolbox-section {
   display: grid;
   gap: 12px;
@@ -2876,6 +2916,10 @@ p {
   border-radius: 8px;
   padding: 14px;
   background: #f9fbfa;
+}
+
+.toolbox-section.collapsed {
+  background: #fff;
 }
 
 .toolbox-section-heading {
@@ -2912,6 +2956,42 @@ p {
 .toolbox-row-list {
   display: grid;
   gap: 10px;
+}
+
+.toolbox-topic-shortcuts,
+.toolbox-shortcut-group {
+  display: grid;
+  gap: 10px;
+}
+
+.toolbox-shortcut-group {
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+
+.toolbox-shortcut-group > div:first-child {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toolbox-shortcut-group strong {
+  color: #173b38;
+  font-size: 0.92rem;
+}
+
+.toolbox-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toolbox-search-field {
+  display: grid;
+  gap: 7px;
 }
 
 .toolbox-topic-group {
@@ -2951,6 +3031,24 @@ p {
   background: #245f5b;
 }
 
+.attendee-chip {
+  min-height: 40px;
+  border-color: #cbded7;
+  color: #173b38;
+  font-size: 0.9rem;
+  font-weight: 850;
+  background: #fff;
+}
+
+.attendee-chip.active,
+.attendee-chip:disabled {
+  border-color: #bdd8cb;
+  color: #1d5f45;
+  cursor: default;
+  background: #eaf7f0;
+  opacity: 1;
+}
+
 .toolbox-repeat-row {
   align-items: end;
   border: 1px solid #d9e3de;
@@ -2965,6 +3063,42 @@ p {
 
 .toolbox-repeat-row.attendee {
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.toolbox-segment-field {
+  display: grid;
+  gap: 7px;
+}
+
+.toolbox-segment-field > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.toolbox-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.toolbox-segmented button {
+  min-height: 46px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+}
+
+.toolbox-segmented button + button {
+  border-left: 1px solid #cbded7;
+}
+
+.toolbox-segmented button.active {
+  color: #fff;
+  background: #245f5b;
 }
 
 .toolbox-confirmation {
@@ -2985,6 +3119,37 @@ p {
 
 .toolbox-confirmation span {
   color: #17211f;
+}
+
+.toolbox-sticky-submit {
+  position: sticky;
+  bottom: 12px;
+  z-index: 12;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #bdd8cb;
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 40px rgba(17, 23, 21, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.toolbox-sticky-submit > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.toolbox-sticky-submit strong {
+  color: #173b38;
+}
+
+.toolbox-sticky-submit span {
+  color: #5f716d;
+  font-size: 0.86rem;
+  font-weight: 800;
 }
 
 .file-choice {
@@ -3933,6 +4098,8 @@ p {
   }
 
   .form-platform-actions,
+  .toolbox-fast-actions,
+  .toolbox-sticky-submit,
   .offline-queue-banner,
   .offline-draft-status,
   .submission-history-item {
@@ -3941,10 +4108,16 @@ p {
   }
 
   .form-platform-actions button,
+  .toolbox-fast-actions button,
+  .toolbox-sticky-submit button,
   .offline-queue-banner button,
   .offline-draft-status button,
   .submission-history-item button {
     width: 100%;
+  }
+
+  .toolbox-sticky-submit {
+    bottom: 8px;
   }
 
   .submission-file-row,
