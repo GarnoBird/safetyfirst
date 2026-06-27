@@ -2653,15 +2653,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         />
         <header className="form-platform-header">
           <div>
-            <button className="text-button" type="button" onClick={() => navigateTo("/forms")}>
-              Back
-            </button>
             <h1>{form.label}</h1>
             <p>{worker.name} / {worker.company}</p>
           </div>
-          <button type="button" onClick={() => navigateTo("/my-submissions")}>
-            My submissions
-          </button>
         </header>
 
         {queuedCount ? (
