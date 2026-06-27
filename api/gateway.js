@@ -66,6 +66,7 @@ import { buildStaffTrends, updateCompanyMappings } from "./_lib/trends.js";
 import {
   clearWorkerSessionCookie,
   createWorkerProfile,
+  deleteWorkerProfile,
   getWorkerFromRequest,
   listWorkerProfiles,
   loginWorker,
@@ -282,7 +283,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "trends") return handleTrends(req, res);
   if (parts[0] === "company-profiles") return handleCompanyProfiles(req, res, staff);
   if (parts[0] === "signins") return handleStaffSignIns(req, res, staff, parts.slice(1));
-  if (parts[0] === "workers") return handleStaffWorkers(req, res, staff);
+  if (parts[0] === "workers") return handleStaffWorkers(req, res, staff, parts.slice(1));
   if (parts[0] === "users") return handleStaffUsers(req, res, staff);
   if (parts[0] === "audit") return handleStaffAudit(req, res, staff);
   if (parts[0] === "alerts") return handleStaffAlerts(req, res, staff, parts.slice(1));
@@ -406,7 +407,24 @@ async function handleStaffSignIns(req, res, staff, parts) {
   return sendJson(res, 404, { error: "Not found" });
 }
 
-async function handleStaffWorkers(req, res, staff) {
+async function handleStaffWorkers(req, res, staff, parts = []) {
+  if (parts.length === 1 && req.method === "DELETE") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const worker = await deleteWorkerProfile(parts[0]);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "worker_deleted",
+      targetType: "worker",
+      targetId: worker.id,
+      summary: `${staff.username} deleted worker ${worker.username}.`,
+      metadata: { username: worker.username, company: worker.company },
+    });
+    return sendJson(res, 200, { worker, deleted: true });
+  }
+
+  if (parts.length) return sendJson(res, 404, { error: "Not found" });
+
   if (req.method === "GET") {
     const query = parseQuery(req);
     const rows = await listWorkerProfiles({
@@ -451,7 +469,7 @@ async function handleStaffWorkers(req, res, staff) {
     });
     return sendJson(res, 200, { worker });
   }
-  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH"]);
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
 async function handleStaffUsers(req, res, staff) {

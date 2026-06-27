@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { promisify } from "node:util";
 import {
+  deleteFallbackRecord,
   getFallbackRecord,
   listFallbackRecords,
   upsertFallbackRecord,
@@ -144,6 +145,47 @@ export async function updateWorkerProfile(body, staffId) {
 
   if (body?.active === false) await revokeWorkerSessions(id);
   return worker;
+}
+
+export async function deleteWorkerProfile(id) {
+  const workerId = cleanUuid(id, "Worker id is not valid.");
+  let worker;
+  try {
+    worker = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_profiles")
+        .select(WORKER_SELECT)
+        .eq("id", workerId)
+        .maybeSingle(),
+      "Worker account could not be loaded.",
+    );
+    if (!worker) {
+      const error = new Error("Worker account was not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("worker_profiles")
+        .delete()
+        .eq("id", workerId),
+      "Worker account could not be deleted.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    const fallbackWorker = await getFallbackRecord("worker", workerId);
+    if (!fallbackWorker) {
+      const notFound = new Error("Worker account was not found.");
+      notFound.statusCode = 404;
+      throw notFound;
+    }
+    await deleteFallbackRecord("worker", workerId);
+    worker = { ...fallbackWorker, id: workerId, _fallbackStore: true };
+  }
+
+  await revokeWorkerSessions(workerId);
+  return staffWorker(worker);
 }
 
 export async function listWorkerProfiles({ search = "", company = "", active = "all" } = {}) {

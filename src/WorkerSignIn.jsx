@@ -1018,7 +1018,7 @@ export function StaffHomePage({ navigateTo }) {
             </div>
             <div>
               <dt>Legacy</dt>
-              <dd>lbird stays owner</dd>
+              <dd>lbird stays admin</dd>
             </div>
           </dl>
         </StaffActionCard>
@@ -3160,6 +3160,7 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
 
 export function StaffWorkersPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canManageWorkers = ["owner", "admin"].includes(staff?.role);
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(EMPTY_STAFF_WORKER_FORM);
   const [editingId, setEditingId] = useState("");
@@ -3253,54 +3254,79 @@ export function StaffWorkersPage({ navigateTo }) {
     }
   };
 
+  const deleteWorker = async (worker) => {
+    if (!window.confirm(`Delete worker account for ${worker.name}? Their submitted forms stay in staff records.`)) {
+      return;
+    }
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/workers/${worker.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      if (editingId === worker.id) resetForm();
+      await loadWorkers();
+      setMessage("Worker account deleted.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
   if (!staff) return <StaffLoadingScreen />;
 
   return (
     <StaffShell active="workers" contentWide navigateTo={navigateTo}>
       {message ? <p className="staff-message">{message}</p> : null}
+      {!canManageWorkers ? (
+        <p className="staff-message">Regular staff can view workers. Admin or owner access is required to create, edit, deactivate, or delete worker accounts.</p>
+      ) : null}
       <section className="staff-form-admin-grid">
-        <form className="staff-admin-form" onSubmit={saveWorker}>
-          <h2>{editingId ? "Edit worker" : "Create worker"}</h2>
-          <label className="field">
-            <span>Name</span>
-            <input required value={form.name} onChange={(event) => updateForm("name", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Company</span>
-            <input required value={form.company} onChange={(event) => updateForm("company", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Phone</span>
-            <input required inputMode="tel" value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Username</span>
-            <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>{editingId ? "New password" : "Password"}</span>
-            <input
-              required={!editingId}
-              type="password"
-              value={form.password}
-              onChange={(event) => updateForm("password", event.target.value)}
-            />
-          </label>
-          <label className="remember-worker-field">
-            <input
-              checked={form.active}
-              type="checkbox"
-              onChange={(event) => updateForm("active", event.target.checked)}
-            />
-            <span>Active</span>
-          </label>
-          <div className="staff-card-actions">
-            {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
-            <button className="primary-button" disabled={saving} type="submit">
-              {saving ? "Saving..." : editingId ? "Save worker" : "Create worker"}
-            </button>
-          </div>
-        </form>
+        {canManageWorkers ? (
+          <form className="staff-admin-form" onSubmit={saveWorker}>
+            <h2>{editingId ? "Edit worker" : "Create worker"}</h2>
+            <label className="field">
+              <span>Name</span>
+              <input required value={form.name} onChange={(event) => updateForm("name", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Company</span>
+              <input required value={form.company} onChange={(event) => updateForm("company", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Phone</span>
+              <input required inputMode="tel" value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Username</span>
+              <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>{editingId ? "New password" : "Password"}</span>
+              <input
+                required={!editingId}
+                type="password"
+                value={form.password}
+                onChange={(event) => updateForm("password", event.target.value)}
+              />
+            </label>
+            <label className="remember-worker-field">
+              <input
+                checked={form.active}
+                type="checkbox"
+                onChange={(event) => updateForm("active", event.target.checked)}
+              />
+              <span>Active</span>
+            </label>
+            <div className="staff-card-actions">
+              {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
+              <button className="primary-button" disabled={saving} type="submit">
+                {saving ? "Saving..." : editingId ? "Save worker" : "Create worker"}
+              </button>
+            </div>
+          </form>
+        ) : null}
 
         <section className="staff-table-panel">
           <div className="staff-list-controls">
@@ -3319,8 +3345,10 @@ export function StaffWorkersPage({ navigateTo }) {
             <button type="button" onClick={loadWorkers}>Search</button>
           </div>
           <WorkerAccountsTable
+            canManage={canManageWorkers}
             loading={loading}
             rows={rows}
+            onDelete={deleteWorker}
             onEdit={startEdit}
             onToggleActive={toggleActive}
           />
@@ -3947,7 +3975,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   );
 }
 
-function WorkerAccountsTable({ loading, rows, onEdit, onToggleActive }) {
+function WorkerAccountsTable({ canManage, loading, rows, onDelete, onEdit, onToggleActive }) {
   if (loading) return <p className="empty-state">Loading workers...</p>;
   if (!rows.length) return <p className="empty-state">No worker accounts found.</p>;
 
@@ -3974,10 +4002,19 @@ function WorkerAccountsTable({ loading, rows, onEdit, onToggleActive }) {
               <td><StatusPill value={worker.active ? "Active" : "Inactive"} /></td>
               <td>
                 <div className="table-action-row">
-                  <button type="button" onClick={() => onEdit(worker)}>Edit</button>
-                  <button type="button" onClick={() => onToggleActive(worker)}>
-                    {worker.active ? "Deactivate" : "Activate"}
-                  </button>
+                  {canManage ? (
+                    <>
+                      <button type="button" onClick={() => onEdit(worker)}>Edit</button>
+                      <button type="button" onClick={() => onToggleActive(worker)}>
+                        {worker.active ? "Deactivate" : "Activate"}
+                      </button>
+                      <button className="danger-button" type="button" onClick={() => onDelete(worker)}>
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <span className="muted">View only</span>
+                  )}
                 </div>
               </td>
             </tr>

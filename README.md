@@ -29,6 +29,7 @@ The default seeded staff account is:
 
 - Username: `lbird`
 - Password: `123`
+- Role: `admin`
 - Email/report recipient: `garnobird@gmail.com`
 
 Change this password before using real production data.
