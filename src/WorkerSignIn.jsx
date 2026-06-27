@@ -3532,9 +3532,6 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
             <h1>My Submissions</h1>
             <p>{worker.name} / {worker.company}</p>
           </div>
-          <button type="button" onClick={loadRows}>
-            Refresh
-          </button>
         </header>
 
         {message ? <p className="form-message error">{message}</p> : null}
