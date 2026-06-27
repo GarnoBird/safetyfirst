@@ -259,83 +259,85 @@ function SafetyFirstApp({ navigateTo }) {
       </header>
 
       <nav className="view-tabs" aria-label="Safety app sections">
-        <button
-          className={activeView === "dashboard" ? "tab-button active" : "tab-button"}
-          type="button"
-          onClick={() => {
-            setActiveView("dashboard");
-            setExtrasOpen(false);
-          }}
-        >
-          Dashboard
-        </button>
-        <div className="extras-menu">
+        <div className="view-tab-strip">
           <button
-            aria-expanded={extrasOpen}
-            className={activeView === "dashboard" ? "tab-button" : "tab-button active"}
+            className={activeView === "dashboard" ? "tab-button active" : "tab-button"}
             type="button"
-            onClick={() => setExtrasOpen((open) => !open)}
+            onClick={() => {
+              setActiveView("dashboard");
+              setExtrasOpen(false);
+            }}
           >
-            Extras
+            Dashboard
           </button>
-          {extrasOpen ? (
-            <div className="extras-menu-panel">
-              {VIEWS.slice(1).map((view) => (
-                <button
-                  className={view.id === activeView ? "tab-button active" : "tab-button"}
-                  key={view.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveView(view.id);
-                    setExtrasOpen(false);
-                  }}
-                >
-                  {view.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
+          <div className="extras-menu">
+            <button
+              aria-expanded={extrasOpen}
+              className={activeView === "dashboard" ? "tab-button" : "tab-button active"}
+              type="button"
+              onClick={() => setExtrasOpen((open) => !open)}
+            >
+              Extras
+            </button>
+          </div>
+          <button
+            className="tab-button"
+            type="button"
+            onClick={() => {
+              setExtrasOpen(false);
+              navigateTo("/worker-sign-in-qr");
+            }}
+          >
+            Sign-In QR
+          </button>
+          <button
+            className="tab-button"
+            type="button"
+            onClick={() => {
+              setExtrasOpen(false);
+              navigateTo("/worker-sign-out-qr");
+            }}
+          >
+            Sign-Out QR
+          </button>
+          <button
+            className="tab-button"
+            type="button"
+            onClick={() => {
+              setExtrasOpen(false);
+              navigateTo("/worker-login");
+            }}
+          >
+            Worker Login
+          </button>
+          <button
+            className="tab-button"
+            type="button"
+            onClick={() => {
+              setExtrasOpen(false);
+              navigateTo("/staff-login");
+            }}
+          >
+            Staff
+          </button>
         </div>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => {
-            setExtrasOpen(false);
-            navigateTo("/worker-sign-in-qr");
-          }}
-        >
-          Sign-In QR
-        </button>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => {
-            setExtrasOpen(false);
-            navigateTo("/worker-sign-out-qr");
-          }}
-        >
-          Sign-Out QR
-        </button>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => {
-            setExtrasOpen(false);
-            navigateTo("/worker-login");
-          }}
-        >
-          Worker Login
-        </button>
-        <button
-          className="tab-button"
-          type="button"
-          onClick={() => {
-            setExtrasOpen(false);
-            navigateTo("/staff-login");
-          }}
-        >
-          Staff
-        </button>
+        {extrasOpen ? (
+          <div className="extras-menu-panel">
+            {VIEWS.slice(1).map((view) => (
+              <button
+                className={view.id === activeView ? "tab-button active" : "tab-button"}
+                key={view.id}
+                type="button"
+                onClick={() => {
+                  setActiveView(view.id);
+                  setExtrasOpen(false);
+                }}
+              >
+                {view.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </nav>
 
       <main className="app-main">{renderActiveView()}</main>

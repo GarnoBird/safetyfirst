@@ -194,13 +194,32 @@ p {
   position: sticky;
   top: 0;
   z-index: 5;
-  display: flex;
-  gap: 8px;
+  display: block;
   overflow: visible;
   padding: 10px clamp(16px, 4vw, 48px);
   border-bottom: 1px solid var(--border);
   background: rgba(244, 246, 245, 0.94);
   backdrop-filter: blur(12px);
+}
+
+.view-tab-strip {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.view-tab-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.view-tab-strip > .tab-button,
+.view-tab-strip > .extras-menu {
+  flex: 0 0 auto;
 }
 
 .tab-button {
@@ -222,7 +241,7 @@ p {
 .extras-menu-panel {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  left: clamp(16px, 4vw, 48px);
   z-index: 10;
   display: flex;
   flex-wrap: wrap;
