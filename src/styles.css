@@ -3068,6 +3068,38 @@ p {
   opacity: 1;
 }
 
+.attendance-entry-field {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-tag-list {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.attendance-tag {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  padding: 0 8px 0 2px;
+  color: #17211f;
+  font-size: 1rem;
+  font-weight: 850;
+  background: transparent;
+}
+
+.attendance-tag span {
+  color: #245f5b;
+  font-size: 1.15rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
 .toolbox-repeat-row {
   align-items: end;
   border: 1px solid #d9e3de;

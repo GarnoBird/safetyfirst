@@ -2830,6 +2830,7 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
   const recentToolbox = useMemo(readToolboxTalkRecents, []);
   const savedDefaults = useMemo(readToolboxTalkDefaults, []);
   const [topicSearch, setTopicSearch] = useState("");
+  const [attendeeNameInput, setAttendeeNameInput] = useState("");
   const [optionalOpen, setOptionalOpen] = useState(() => {
     const draftForm = restoredDraftRef.current?.form;
     return {
@@ -2859,8 +2860,11 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     () => filterToolboxTopicGroups(topicSearch),
     [topicSearch],
   );
-  const selectedAttendeeNames = useMemo(
-    () => new Set(form.attendance.map((row) => row.name.trim().toLowerCase()).filter(Boolean)),
+  const attendeeNames = useMemo(
+    () =>
+      (Array.isArray(form.attendance) ? form.attendance : [])
+        .map((row) => String(row?.name || "").trim())
+        .filter(Boolean),
     [form.attendance],
   );
   const hasSavedDefaults = Boolean(
@@ -2910,15 +2914,6 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
       ...current,
       safetyConcerns: current.safetyConcerns.map((row, rowIndex) =>
         rowIndex === index ? { ...row, [field]: value } : row,
-      ),
-    }));
-  };
-
-  const updateAttendee = (index, value) => {
-    setForm((current) => ({
-      ...current,
-      attendance: current.attendance.map((row, rowIndex) =>
-        rowIndex === index ? { ...row, name: value } : row,
       ),
     }));
   };
@@ -2994,26 +2989,21 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
   const addAttendeeName = (name) => {
     const trimmed = String(name || "").trim();
     if (!trimmed) return;
-    setForm((current) => {
-      const existing = current.attendance.some(
-        (row) => row.name.trim().toLowerCase() === trimmed.toLowerCase(),
-      );
-      if (existing) return current;
-      let placed = false;
-      const attendance = current.attendance.map((row) => {
-        if (!placed && !row.name.trim()) {
-          placed = true;
-          return { name: trimmed };
-        }
-        return row;
-      });
-      if (!placed) attendance.push({ name: trimmed });
-      return { ...current, attendance };
-    });
+    setForm((current) => addAttendeeNameToToolboxForm(current, trimmed));
   };
 
-  const addRecentCrew = () => {
-    recentToolbox.attendeeNames.forEach(addAttendeeName);
+  const submitAttendeeName = () => {
+    const trimmed = attendeeNameInput.trim();
+    if (!trimmed) return;
+    addAttendeeName(trimmed);
+    setAttendeeNameInput("");
+    setError("");
+  };
+
+  const handleAttendeeNameKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    submitAttendeeName();
   };
 
   const addConcern = () => {
@@ -3033,26 +3023,20 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
     }));
   };
 
-  const addAttendee = () => {
-    setForm((current) => ({
-      ...current,
-      attendance: [...current.attendance, { ...EMPTY_ATTENDEE }],
-    }));
-  };
-
   const removeAttendee = (index) => {
     setForm((current) => ({
       ...current,
-      attendance:
-        current.attendance.length === 1
-          ? [{ ...EMPTY_ATTENDEE }]
-          : current.attendance.filter((_, rowIndex) => rowIndex !== index),
+      attendance: (Array.isArray(current.attendance) ? current.attendance : [])
+        .map((row) => ({ name: String(row?.name || "").trim() }))
+        .filter((row) => row.name)
+        .filter((_, rowIndex) => rowIndex !== index),
     }));
   };
 
   const startFresh = () => {
     clearWorkerFormDraft(worker, "toolbox_talk", "fill_form");
     setForm(initialToolboxTalkForm(worker));
+    setAttendeeNameInput("");
     setDraftRestored(false);
     setDraftSavedAt("");
     setError("");
@@ -3060,15 +3044,22 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
 
   const submitForm = async (event) => {
     event.preventDefault();
-    const validationError = validateToolboxTalkForm(form);
+    const formForSubmit = attendeeNameInput.trim()
+      ? addAttendeeNameToToolboxForm(form, attendeeNameInput)
+      : form;
+    if (formForSubmit !== form) {
+      setForm(formForSubmit);
+      setAttendeeNameInput("");
+    }
+    const validationError = validateToolboxTalkForm(formForSubmit);
     if (validationError) {
       setError(validationError);
       return;
     }
     setError("");
-    rememberToolboxTalkDefaults(form);
-    rememberToolboxTalkRecents(form);
-    await onSubmit(cleanToolboxTalkClientForm(form));
+    rememberToolboxTalkDefaults(formForSubmit);
+    rememberToolboxTalkRecents(formForSubmit);
+    await onSubmit(cleanToolboxTalkClientForm(formForSubmit));
   };
 
   return (
@@ -3381,47 +3372,31 @@ function ToolboxTalkDigitalForm({ onCancel, onSubmit, submitting, worker }) {
       <section className="toolbox-section">
         <div className="toolbox-section-heading">
           <h2>Attendance</h2>
-          <button type="button" onClick={addAttendee}>Add person</button>
+          <span>{attendeeNames.length ? `${attendeeNames.length} listed` : "Required"}</span>
         </div>
-        {recentToolbox.attendeeNames.length ? (
-          <div className="toolbox-shortcut-group">
-            <div>
-              <strong>Recent crew</strong>
-              <button type="button" onClick={addRecentCrew}>
-                Add last crew
-              </button>
-            </div>
-            <div className="toolbox-chip-row">
-              {recentToolbox.attendeeNames.slice(0, 12).map((name) => {
-                const selected = selectedAttendeeNames.has(name.trim().toLowerCase());
-                return (
-                  <button
-                    className={selected ? "attendee-chip active" : "attendee-chip"}
-                    disabled={selected}
-                    key={name}
-                    type="button"
-                    onClick={() => addAttendeeName(name)}
-                  >
-                    {name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-        <div className="toolbox-row-list attendance">
-          {form.attendance.map((row, index) => (
-            <div className="toolbox-repeat-row attendee" key={`attendee-${index}`}>
-              <label>
-                <span>Name</span>
-                <input
-                  required={index === 0}
-                  value={row.name}
-                  onChange={(event) => updateAttendee(index, event.target.value)}
-                />
-              </label>
-              <button type="button" onClick={() => removeAttendee(index)}>Remove</button>
-            </div>
+        <label className="attendance-entry-field">
+          <span>Name</span>
+          <input
+            autoCapitalize="words"
+            enterKeyHint="done"
+            placeholder="Worker name"
+            value={attendeeNameInput}
+            onChange={(event) => setAttendeeNameInput(event.target.value)}
+            onKeyDown={handleAttendeeNameKeyDown}
+          />
+        </label>
+        <div className="attendance-tag-list" aria-label="Attendance list">
+          {attendeeNames.map((name, index) => (
+            <button
+              className="attendance-tag"
+              key={`${name}-${index}`}
+              type="button"
+              aria-label={`Remove ${name}`}
+              onClick={() => removeAttendee(index)}
+            >
+              <span aria-hidden="true">X</span>
+              {name}
+            </button>
           ))}
         </div>
       </section>
@@ -6649,6 +6624,20 @@ function mergeRecentValues(nextValues, currentValues, limit) {
       return true;
     })
     .slice(0, limit);
+}
+
+function addAttendeeNameToToolboxForm(form, name) {
+  const trimmed = String(name || "").trim();
+  if (!trimmed) return form;
+  const attendance = (Array.isArray(form.attendance) ? form.attendance : [])
+    .map((row) => ({ name: String(row?.name || "").trim() }))
+    .filter((row) => row.name);
+  const existing = attendance.some((row) => row.name.toLowerCase() === trimmed.toLowerCase());
+  if (existing) return form;
+  return {
+    ...form,
+    attendance: [...attendance, { name: trimmed }],
+  };
 }
 
 function validateToolboxTalkForm(form) {
