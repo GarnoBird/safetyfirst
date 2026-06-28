@@ -3602,6 +3602,27 @@ p {
   margin-top: 12px;
 }
 
+.digital-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+
+.digital-form-actions p {
+  flex: 1 0 100%;
+  margin: 0;
+  color: #5f6f6b;
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-align: right;
+}
+
 .toolbox-detail section {
   display: grid;
   gap: 10px;

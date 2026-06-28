@@ -3627,7 +3627,7 @@ function WorkerSubmissionReadOnlyView({ row }) {
       </div>
 
       {isDigitalToolboxTalkSubmission(row) ? (
-        <ToolboxTalkSubmissionDetails data={row.form_data} />
+        <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
       ) : null}
 
       {files.length ? (
@@ -4983,7 +4983,7 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
           {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
         </dl>
         {isDigitalToolboxTalkSubmission(row) ? (
-          <ToolboxTalkSubmissionDetails data={row.form_data} />
+          <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
         ) : null}
         {files.length ? (
           <div className="submission-file-list">
@@ -5103,13 +5103,30 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
   );
 }
 
-function ToolboxTalkSubmissionDetails({ data }) {
+function ToolboxTalkSubmissionDetails({ data, row }) {
   const header = data.header || {};
   const incident = data.incidentReview || {};
   const selectedTopics = data.topics?.selected || [];
   const safetyConcerns = data.safetyConcerns || [];
   const attendance = data.attendance || [];
   const confirmation = data.confirmation || {};
+  const [saveStatus, setSaveStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const saveForm = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const shared = await shareOrSaveDigitalToolboxTalk(row, data);
+      if (!shared) setSaveStatus("Saved as an HTML file.");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSaveStatus(error.message || "This form could not be saved.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="toolbox-detail">
@@ -5194,6 +5211,16 @@ function ToolboxTalkSubmissionDetails({ data }) {
           <div><dt>Participation confirmed</dt><dd>{confirmation.confirmed ? "Yes" : "No"}</dd></div>
         </dl>
       </section>
+
+      <div className="digital-form-actions">
+        <button disabled={saving} type="button" onClick={saveForm}>
+          {saving ? "Opening..." : "Save"}
+        </button>
+        <button type="button" onClick={() => printDigitalToolboxTalk(row, data)}>
+          Print
+        </button>
+        {saveStatus ? <p>{saveStatus}</p> : null}
+      </div>
     </div>
   );
 }
@@ -7045,6 +7072,222 @@ function printSubmissionAttachment(preview) {
     </html>`);
   printWindow.document.close();
   printWindow.focus();
+}
+
+async function shareOrSaveDigitalToolboxTalk(row, data) {
+  const fileName = digitalToolboxTalkFileName(row, data);
+  const html = buildDigitalToolboxTalkHtml(row, data);
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+
+  if (navigator.share && typeof File !== "undefined") {
+    const file = new File([blob], fileName, { type: "text/html" });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: digitalToolboxTalkTitle(row, data),
+      });
+      return true;
+    }
+  }
+
+  downloadBlob(blob, fileName);
+  return false;
+}
+
+function printDigitalToolboxTalk(row, data) {
+  const printWindow = window.open("", "_blank", "width=900,height=1100");
+  const html = buildDigitalToolboxTalkHtml(row, data, { autoPrint: true });
+  if (!printWindow) {
+    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), digitalToolboxTalkFileName(row, data));
+    return;
+  }
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+}
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function digitalToolboxTalkTitle(row, data) {
+  const header = data?.header || {};
+  const project = header.projectName || row?.company || "Toolbox Talk";
+  const date = header.date ? formatDateString(header.date) : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
+  return `Toolbox Talk - ${project} - ${date}`;
+}
+
+function digitalToolboxTalkFileName(row, data) {
+  const header = data?.header || {};
+  const rawDate = header.date || row?.submitted_date_vancouver || todayInVancouver();
+  const project = header.projectName || row?.company || "toolbox-talk";
+  return `${slugifyFilePart(project)}-toolbox-talk-${slugifyFilePart(rawDate)}.html`;
+}
+
+function buildDigitalToolboxTalkHtml(row, data, options = {}) {
+  const header = data?.header || {};
+  const incident = data?.incidentReview || {};
+  const topics = Array.isArray(data?.topics?.selected) ? data.topics.selected : [];
+  const concerns = Array.isArray(data?.safetyConcerns) ? data.safetyConcerns : [];
+  const attendance = Array.isArray(data?.attendance) ? data.attendance : [];
+  const confirmation = data?.confirmation || {};
+  const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
+  const title = digitalToolboxTalkTitle(row, data);
+  const topicRows = topics.length
+    ? topics.map((topic) => `
+        <tr>
+          <td>${escapeHtml(topic.categoryLabel || "")}</td>
+          <td>${escapeHtml(topic.label || "")}</td>
+        </tr>`).join("")
+    : `<tr><td colspan="2">No selected topics</td></tr>`;
+  const concernRows = concerns.length
+    ? concerns.map((concern) => `
+        <tr>
+          <td>${escapeHtml(concern.concern || "-")}</td>
+          <td>${escapeHtml(concern.actionToTake || "-")}</td>
+          <td>${escapeHtml(concern.dateTaken ? formatDateString(concern.dateTaken) : "-")}</td>
+        </tr>`).join("")
+    : `<tr><td colspan="3">No safety concerns recorded</td></tr>`;
+  const attendeeRows = attendance.length
+    ? attendance.map((attendee, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(attendee.name || "-")}</td>
+        </tr>`).join("")
+    : `<tr><td colspan="2">No attendees recorded</td></tr>`;
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      :root { color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f4f7f6; color: #17211f; }
+      main { max-width: 920px; margin: 0 auto; padding: 28px; background: #fff; }
+      header { display: grid; gap: 8px; border-bottom: 2px solid #173b38; padding-bottom: 16px; margin-bottom: 18px; }
+      .brand { color: #173b38; font-size: 0.86rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+      h2 { margin: 0 0 10px; font-size: 1.15rem; }
+      p { margin: 0; }
+      section { break-inside: avoid; display: grid; gap: 10px; border: 1px solid #d9e3de; border-radius: 8px; padding: 14px; margin: 0 0 14px; }
+      dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+      dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+      dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      th, td { border: 1px solid #d9e3de; padding: 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+      th { background: #eef7f3; font-size: 0.78rem; text-transform: uppercase; }
+      .prewrap { white-space: pre-wrap; }
+      .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+      .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      @page { margin: 0.5in; }
+      @media (max-width: 640px) {
+        main { padding: 18px; }
+        dl { grid-template-columns: 1fr; }
+      }
+      @media print {
+        body { background: #fff; }
+        main { max-width: none; padding: 0; }
+        .print-actions { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="print-actions">
+        <button onclick="window.print()">Print</button>
+      </div>
+      <header>
+        <p class="brand">APPIA</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
+        ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
+      </header>
+
+      <section>
+        <h2>Meeting Info</h2>
+        <dl>
+          ${definitionHtml("Project", header.projectName)}
+          ${definitionHtml("Address", header.address)}
+          ${definitionHtml("Date", header.date ? formatDateString(header.date) : "")}
+          ${definitionHtml("Time", header.time)}
+          ${definitionHtml("Presenter", header.presenter)}
+          ${definitionHtml("Supervisor", header.supervisor)}
+        </dl>
+      </section>
+
+      <section>
+        <h2>Topics Discussed</h2>
+        <table>
+          <thead><tr><th>Category</th><th>Topic</th></tr></thead>
+          <tbody>${topicRows}</tbody>
+        </table>
+        ${data?.topics?.other ? `<p class="prewrap"><strong>Additional topics:</strong><br>${escapeHtml(data.topics.other)}</p>` : ""}
+      </section>
+
+      <section>
+        <h2>Review Notes</h2>
+        <dl>
+          ${definitionHtml("# of FA", displayOptionalNumber(incident.firstAidCount))}
+          ${definitionHtml("# of Medical Aids", displayOptionalNumber(incident.medicalAidCount))}
+          ${definitionHtml("Near Miss / Accident", nearMissLabel(incident.nearMissReviewed))}
+          ${definitionHtml("Description", incident.nearMissDescription)}
+          ${definitionHtml("Lessons", incident.lessonsLearned)}
+        </dl>
+      </section>
+
+      <section>
+        <h2>Safety Concerns</h2>
+        <table>
+          <thead><tr><th>Concern</th><th>Action to Take</th><th>Date Taken</th></tr></thead>
+          <tbody>${concernRows}</tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Attendance</h2>
+        <table>
+          <thead><tr><th>#</th><th>Name</th></tr></thead>
+          <tbody>${attendeeRows}</tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Final Check</h2>
+        <dl>
+          ${definitionHtml("Comments", data?.additionalComments)}
+          ${definitionHtml("Confirmed by", confirmation.name)}
+          ${definitionHtml("Confirmation date", confirmation.date ? formatDateString(confirmation.date) : "")}
+          ${definitionHtml("Participation confirmed", confirmation.confirmed ? "Yes" : "No")}
+        </dl>
+      </section>
+    </main>
+    ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
+  </body>
+</html>`;
+}
+
+function definitionHtml(label, value) {
+  const displayValue = value === null || value === undefined || value === "" ? "-" : String(value);
+  return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(displayValue)}</dd></div>`;
+}
+
+function slugifyFilePart(value) {
+  const slug = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "form";
 }
 
 function escapeHtml(value) {
