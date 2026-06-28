@@ -2745,12 +2745,14 @@ p {
   align-items: start;
   min-height: 100vh;
   padding: 18px;
+  overflow-x: hidden;
 }
 
 .form-platform-shell {
   display: grid;
   gap: 18px;
   width: min(100%, 900px);
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -2836,6 +2838,7 @@ p {
 }
 
 .form-submit-panel {
+  min-width: 0;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   padding: 18px;
@@ -2890,6 +2893,7 @@ p {
 .submission-form {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .submission-form textarea {
@@ -2904,6 +2908,8 @@ p {
 .toolbox-section {
   display: grid;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   padding: 14px;
@@ -2926,17 +2932,22 @@ p {
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .toolbox-section-heading h2 {
+  min-width: 0;
   margin: 0;
   font-size: 1.05rem;
+  overflow-wrap: anywhere;
 }
 
 .toolbox-section-heading span {
+  min-width: 0;
   color: #5f716d;
   font-size: 0.86rem;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .toolbox-section-invalid .toolbox-section-heading h2,
@@ -4290,6 +4301,12 @@ p {
     padding-top: 22px;
   }
 
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .trend-metric-grid,
   .ops-metric-grid {
     grid-template-columns: 1fr;
@@ -4333,6 +4350,72 @@ p {
 
   .worker-page {
     padding: 12px;
+  }
+
+  .form-platform-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .form-platform-shell {
+    width: 100%;
+    max-width: 100%;
+    gap: 12px;
+  }
+
+  .form-platform-header {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  .form-submit-panel {
+    width: 100%;
+    max-width: 100%;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    padding: 12px;
+  }
+
+  .toolbox-talk-form,
+  .toolbox-section,
+  .toolbox-field-grid,
+  .toolbox-field-grid.compact,
+  .toolbox-row-list,
+  .toolbox-topic-shortcuts,
+  .toolbox-topic-list,
+  .attendance-entry-field {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .toolbox-section {
+    padding: 12px;
+  }
+
+  .toolbox-section-heading {
+    align-items: flex-start;
+  }
+
+  .toolbox-section-heading h2,
+  .toolbox-section-heading span,
+  .toolbox-section-heading button,
+  .toolbox-fast-actions button,
+  .scanned-copy-picker button,
+  .topic-chip,
+  .toolbox-submit-actions button {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .toolbox-section-heading button {
+    flex: 1 1 160px;
   }
 
   .worker-card,
