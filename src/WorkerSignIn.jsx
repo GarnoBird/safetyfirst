@@ -2546,7 +2546,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     syncing,
     syncNow,
   } = useWorkerSubmissionQueue(worker);
-  const [mode, setMode] = useState(() => (isToolboxTalk ? "fill_form" : ""));
+  const [mode, setMode] = useState(() => (isToolboxTalk || isSiteInspection ? "fill_form" : ""));
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -2560,11 +2560,11 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   }, [form, navigateTo, worker]);
 
   useEffect(() => {
-    setMode(isToolboxTalk ? "fill_form" : "");
+    setMode(isToolboxTalk || isSiteInspection ? "fill_form" : "");
     setFile(null);
     setNotes("");
     setStatus({ type: "", message: "", date: "" });
-  }, [formType, isToolboxTalk]);
+  }, [formType, isSiteInspection, isToolboxTalk]);
 
   useEffect(() => {
     if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk" || formType === "site_inspection") return;
@@ -2813,8 +2813,11 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     />
                   </label>
                   <div className="form-platform-actions">
-                    <button type="button" onClick={() => setMode(isToolboxTalk ? "fill_form" : "")}>
-                      {isToolboxTalk ? "Back to digital form" : "Change option"}
+                    <button
+                      type="button"
+                      onClick={() => setMode(isToolboxTalk || isSiteInspection ? "fill_form" : "")}
+                    >
+                      {isToolboxTalk || isSiteInspection ? "Back to digital form" : "Change option"}
                     </button>
                     <button className="primary-button" disabled={submitting} type="submit">
                       {submitting ? "Submitting..." : "Submit"}
