@@ -4098,6 +4098,83 @@ p {
     font-size: 0.8rem;
   }
 
+  .worker-accounts-table,
+  .worker-accounts-table tbody,
+  .worker-accounts-table tr,
+  .worker-accounts-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .worker-accounts-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .worker-accounts-table thead {
+    display: none;
+  }
+
+  .worker-accounts-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .worker-accounts-table tr {
+    display: grid;
+    gap: 8px;
+    border: 1px solid #d9e3de;
+    border-radius: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.96);
+  }
+
+  .worker-accounts-table tbody tr:hover {
+    background: #fff;
+  }
+
+  .worker-accounts-table td {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 10px;
+    min-width: 0;
+    border-bottom: 0;
+    padding: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .worker-accounts-table td::before {
+    content: attr(data-label);
+    color: #5f716d;
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .worker-accounts-table td[data-label="Actions"] {
+    grid-template-columns: 1fr;
+    padding-top: 6px;
+  }
+
+  .worker-accounts-table td[data-label="Actions"]::before {
+    display: none;
+  }
+
+  .worker-accounts-table .table-action-row {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .worker-accounts-table .table-action-row button {
+    width: 100%;
+    min-height: 36px;
+    padding: 0 7px;
+    font-size: 0.82rem;
+  }
+
   .staff-form-admin-grid {
     grid-template-columns: 1fr;
   }

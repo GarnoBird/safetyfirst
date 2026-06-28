@@ -4661,7 +4661,7 @@ function WorkerAccountsTable({ canManage, loading, rows, onDelete, onEdit, onTog
 
   return (
     <div className="staff-table-scroll staff-form-table-scroll">
-      <table className="staff-table">
+      <table className="staff-table worker-accounts-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -4675,12 +4675,12 @@ function WorkerAccountsTable({ canManage, loading, rows, onDelete, onEdit, onTog
         <tbody>
           {rows.map((worker) => (
             <tr key={worker.id}>
-              <td>{worker.name}</td>
-              <td>{worker.company}</td>
-              <td><a href={`tel:${phoneHref(worker.phone)}`}>{worker.phone}</a></td>
-              <td>{worker.username}</td>
-              <td><StatusPill value={worker.active ? "Active" : "Inactive"} /></td>
-              <td>
+              <td data-label="Name">{worker.name}</td>
+              <td data-label="Company">{worker.company}</td>
+              <td data-label="Phone"><a href={`tel:${phoneHref(worker.phone)}`}>{worker.phone}</a></td>
+              <td data-label="Username">{worker.username}</td>
+              <td data-label="Status"><StatusPill value={worker.active ? "Active" : "Inactive"} /></td>
+              <td data-label="Actions">
                 <div className="table-action-row">
                   {canManage ? (
                     <>
