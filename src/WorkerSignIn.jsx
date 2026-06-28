@@ -7295,14 +7295,81 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
       .prewrap { white-space: pre-wrap; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
-      @page { margin: 0.5in; }
+      @page { size: letter portrait; margin: 0.22in; }
       @media (max-width: 640px) {
         main { padding: 18px; }
         dl { grid-template-columns: 1fr; }
       }
       @media print {
+        :root { font-size: 8pt; }
         body { background: #fff; }
-        main { max-width: none; padding: 0; }
+        main {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 5pt;
+          max-width: none;
+          padding: 0;
+        }
+        header {
+          grid-column: 1 / -1;
+          gap: 1pt;
+          border-bottom-width: 1px;
+          padding-bottom: 4pt;
+          margin-bottom: 0;
+        }
+        .brand {
+          font-size: 6pt;
+          line-height: 1;
+        }
+        h1 {
+          font-size: 14pt;
+          line-height: 1.05;
+        }
+        h2 {
+          margin-bottom: 3pt;
+          font-size: 8pt;
+          line-height: 1.1;
+        }
+        p {
+          font-size: 7pt;
+          line-height: 1.18;
+        }
+        section {
+          gap: 3pt;
+          border-radius: 3pt;
+          padding: 4pt;
+          margin: 0;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        dl {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 3pt 5pt;
+        }
+        dt {
+          font-size: 5.4pt;
+          line-height: 1.05;
+        }
+        dd {
+          margin-top: 1pt;
+          font-size: 7pt;
+          line-height: 1.14;
+        }
+        table {
+          font-size: 6.5pt;
+          line-height: 1.12;
+        }
+        th,
+        td {
+          padding: 2pt 3pt;
+        }
+        th {
+          font-size: 5.6pt;
+        }
+        .prewrap {
+          font-size: 6.5pt;
+          line-height: 1.14;
+        }
         .print-actions { display: none; }
       }
     </style>
