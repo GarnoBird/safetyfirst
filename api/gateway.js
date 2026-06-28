@@ -8,6 +8,19 @@ import {
   setStaffSessionCookie,
 } from "./_lib/auth.js";
 import { listAuditEvents, recordAuditEvent } from "./_lib/audit.js";
+import {
+  addActionItemComment,
+  attachActionItemFile,
+  bulkUpdateActionItems,
+  createActionItem,
+  createActionItemFileAccess,
+  createActionItemFileUploadTarget,
+  deleteActionItem,
+  getActionItemById,
+  getActionItemsForSubmission,
+  listActionItems,
+  updateActionItem,
+} from "./_lib/action-items.js";
 import { processStaffAutoReports } from "./_lib/auto-reports.js";
 import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
@@ -293,6 +306,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "health") return handleStaffHealth(req, res);
   if (parts[0] === "backups") return handleStaffBackups(req, res, staff, parts.slice(1));
   if (parts[0] === "submissions") return handleStaffSubmissions(req, res, staff, parts.slice(1));
+  if (parts[0] === "action-items") return handleStaffActionItems(req, res, staff, parts.slice(1));
   return sendJson(res, 404, { error: "Not found" });
 }
 
@@ -658,7 +672,8 @@ async function handleStaffSubmissions(req, res, staff, parts) {
   }
   if (parts.length === 1 && req.method === "GET") {
     const submission = await getSubmissionById(parts[0], { includeDeleted: true });
-    return sendJson(res, 200, { submission });
+    const actionItems = await getActionItemsForSubmission(parts[0]);
+    return sendJson(res, 200, { submission: { ...submission, action_items: actionItems } });
   }
   if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
     const access = await createStaffSubmissionFileAccess(parts[0], parts[2]);
@@ -724,6 +739,101 @@ async function handleStaffSubmissions(req, res, staff, parts) {
     return sendJson(res, 200, { submission });
   }
   return sendMethodNotAllowed(res, ["GET", "POST", "DELETE"]);
+}
+
+async function handleStaffActionItems(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, await listActionItems(parseQuery(req)));
+  }
+  if (!parts.length && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const item = await createActionItem(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_item_created",
+      targetType: "action_item",
+      targetId: item.id,
+      summary: `${staff.username} created action item ${item.title}.`,
+      metadata: { status: item.status, priority: item.priority },
+    });
+    return sendJson(res, 201, { item });
+  }
+  if (parts.length === 1 && parts[0] === "bulk" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const result = await bulkUpdateActionItems(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_items_bulk_updated",
+      targetType: "action_item",
+      summary: `${staff.username} bulk-updated ${result.succeeded} action item${result.succeeded === 1 ? "" : "s"}.`,
+      metadata: result,
+    });
+    return sendJson(res, 200, result);
+  }
+  if (parts.length === 1 && req.method === "GET") {
+    return sendJson(res, 200, { item: await getActionItemById(parts[0]) });
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const item = await updateActionItem(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_item_updated",
+      targetType: "action_item",
+      targetId: item.id,
+      summary: `${staff.username} updated action item ${item.title}.`,
+      metadata: { status: item.status, priority: item.priority },
+    });
+    return sendJson(res, 200, { item });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const result = await deleteActionItem(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_item_deleted",
+      targetType: "action_item",
+      targetId: result.id,
+      summary: `${staff.username} deleted an action item.`,
+    });
+    return sendJson(res, 200, result);
+  }
+  if (parts.length === 2 && parts[1] === "comments" && req.method === "POST") {
+    const item = await addActionItemComment(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_item_comment_added",
+      targetType: "action_item",
+      targetId: item.id,
+      summary: `${staff.username} commented on action item ${item.title}.`,
+    });
+    return sendJson(res, 201, { item });
+  }
+  if (parts.length === 3 && parts[1] === "files" && parts[2] === "upload-url" && req.method === "POST") {
+    const upload = await createActionItemFileUploadTarget(parts[0], await readJson(req), staff);
+    return sendJson(res, 200, { upload });
+  }
+  if (parts.length === 2 && parts[1] === "files" && req.method === "POST") {
+    const item = await attachActionItemFile(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "action_item_file_added",
+      targetType: "action_item",
+      targetId: item.id,
+      summary: `${staff.username} added evidence to action item ${item.title}.`,
+    });
+    return sendJson(res, 201, { item });
+  }
+  if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
+    const access = await createActionItemFileAccess(parts[0], parts[2]);
+    return sendJson(res, 200, access);
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
 async function handleWorker(req, res, parts) {

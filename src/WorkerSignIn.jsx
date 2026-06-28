@@ -19,6 +19,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
     path: "/staff/sign-ins/company",
   },
   { id: "forms", label: "FORMS", path: "/staff/forms" },
+  { id: "action-items", label: "ACTIONS", path: "/staff/action-items" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "USERS", path: "/staff/users" },
   { id: "backups", label: "BACKUPS", path: "/staff/backups" },
@@ -124,6 +125,7 @@ const SAFETY_FORM_TYPES = [
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
+const SITE_INSPECTION_DEFAULTS_KEY = "sf_site_inspection_defaults";
 const WORKER_SESSION_CACHE_KEY = "sf_worker_session_cache_v1";
 const WORKER_FORM_DRAFTS_KEY = "sf_worker_form_drafts_v1";
 const WORKER_SUBMISSION_QUEUE_KEY = "sf_worker_submission_queue_v1";
@@ -143,6 +145,53 @@ const TOOLBOX_TALK_QUICK_TOPIC_LABELS = [
 ];
 const EMPTY_SAFETY_CONCERN = { concern: "", actionToTake: "", dateTaken: "" };
 const EMPTY_ATTENDEE = { name: "" };
+const EMPTY_SITE_DEFICIENCY = {
+  category: "",
+  location: "",
+  description: "",
+  priority: "medium",
+  immediateControl: "",
+  recommendedAction: "",
+  suggestedAssignee: "",
+  dueDate: "",
+};
+const SITE_INSPECTION_CATEGORIES = [
+  "Access / egress",
+  "Fall protection",
+  "Housekeeping",
+  "PPE",
+  "Tools / equipment",
+  "Electrical",
+  "Scaffolds / ladders",
+  "Excavation",
+  "Traffic control",
+  "Material handling",
+  "High-risk work",
+  "Other",
+];
+const ACTION_ITEM_PRIORITY_OPTIONS = [
+  { id: "low", label: "Low" },
+  { id: "medium", label: "Medium" },
+  { id: "high", label: "High" },
+  { id: "critical", label: "Critical" },
+];
+const ACTION_ITEM_STATUS_OPTIONS = [
+  { id: "draft", label: "Draft" },
+  { id: "open", label: "Open" },
+  { id: "in_progress", label: "In progress" },
+  { id: "ready_for_review", label: "Ready for review" },
+  { id: "closed", label: "Closed" },
+  { id: "void", label: "Void" },
+];
+const ACTION_ITEM_SORT_LABELS = {
+  created_at: "Created",
+  updated_at: "Updated",
+  due_date: "Due date",
+  status: "Status",
+  priority: "Priority",
+  company: "Company",
+  project: "Project",
+};
 
 const TOOLBOX_TALK_TOPIC_GROUPS = [
   {
@@ -999,6 +1048,25 @@ export function StaffHomePage({ navigateTo }) {
             <div>
               <dt>Retention</dt>
               <dd>30 days after backup</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
+
+        <StaffActionCard
+          actionLabel="Open actions"
+          eyebrow="Deficiencies"
+          text="Review Site Inspection deficiencies, assign corrective actions, track due dates, and close out evidence."
+          title="Action Items"
+          onAction={() => navigateTo("/staff/action-items")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Source</dt>
+              <dd>Site inspections</dd>
+            </div>
+            <div>
+              <dt>Workflow</dt>
+              <dd>Draft to closeout</dd>
             </div>
           </dl>
         </StaffActionCard>
@@ -2469,6 +2537,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const { worker } = useWorkerSession(navigateTo);
   const formType = routePath.split("/").filter(Boolean).pop();
   const isToolboxTalk = formType === "toolbox_talk";
+  const isSiteInspection = formType === "site_inspection";
   const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
   const {
     queuedCount,
@@ -2498,13 +2567,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   }, [formType, isToolboxTalk]);
 
   useEffect(() => {
-    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk") return;
+    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk" || formType === "site_inspection") return;
     const draft = readWorkerFormDraft(worker, formType, "fill_form");
     if (typeof draft?.notes === "string") setNotes(draft.notes);
   }, [form, formType, mode, worker]);
 
   useEffect(() => {
-    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk") return undefined;
+    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk" || formType === "site_inspection") return undefined;
     const timeout = window.setTimeout(() => {
       if (notes.trim()) {
         writeWorkerFormDraft(worker, formType, "fill_form", { notes });
@@ -2525,6 +2594,14 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   };
 
   const submitToolboxTalkForm = async (formData) => {
+    await submitSubmission({
+      formType,
+      submissionMode: "fill_form",
+      formData,
+    });
+  };
+
+  const submitSiteInspectionForm = async (formData) => {
     await submitSubmission({
       formType,
       submissionMode: "fill_form",
@@ -2690,7 +2767,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   </button>
                   <button type="button" onClick={() => setMode("fill_form")}>
                     <strong>Fill Form</strong>
-                    <span>Use the simple placeholder form.</span>
+                    <span>{isSiteInspection ? "Use the fast digital inspection." : "Use the simple placeholder form."}</span>
                   </button>
                 </div>
               ) : null}
@@ -2762,6 +2839,23 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       submitting={submitting}
                       worker={worker}
                       onSubmit={submitToolboxTalkForm}
+                    />
+                  </>
+                ) : isSiteInspection ? (
+                  <>
+                    <div className="toolbox-fast-actions">
+                      <div>
+                        <strong>Digital inspection</strong>
+                        <span>Fast mobile version</span>
+                      </div>
+                      <button type="button" onClick={openScannedCopyPicker}>
+                        Submit scanned copy
+                      </button>
+                    </div>
+                    <SiteInspectionDigitalForm
+                      submitting={submitting}
+                      worker={worker}
+                      onSubmit={submitSiteInspectionForm}
                     />
                   </>
                 ) : (
@@ -3508,6 +3602,438 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
   );
 }
 
+function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
+  const restoredDraftRef = useRef(readWorkerFormDraft(worker, "site_inspection", "fill_form"));
+  const validationTargetsRef = useRef({});
+  const [form, setForm] = useState(
+    () => restoredDraftRef.current?.form || initialSiteInspectionForm(worker),
+  );
+  const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraftRef.current?.form));
+  const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
+  const [error, setError] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const savedDefaults = useMemo(readSiteInspectionDefaults, []);
+  const [optionalOpen, setOptionalOpen] = useState(() => {
+    const draftForm = restoredDraftRef.current?.form;
+    return {
+      observations: siteInspectionObservationsHaveValues(draftForm?.observations),
+      followUp: hasTextValue(draftForm?.observations?.followUpNotes),
+    };
+  });
+  const missingFieldKeys = useMemo(
+    () => (submitAttempted ? getSiteInspectionMissingFields(form) : []),
+    [form, submitAttempted],
+  );
+  const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
+  const hasSavedDefaults = Boolean(
+    savedDefaults.project ||
+      savedDefaults.address ||
+      savedDefaults.tradesPresent ||
+      savedDefaults.reviewer,
+  );
+
+  const registerValidationTarget = (field) => (element) => {
+    if (element) {
+      validationTargetsRef.current[field] = element;
+      return;
+    }
+    delete validationTargetsRef.current[field];
+  };
+  const isFieldInvalid = (field) => missingFieldSet.has(field);
+  const inspectionInfoInvalid = missingFieldKeys.some((field) => field.startsWith("header."));
+  const deficienciesInvalid = missingFieldKeys.some((field) => field.startsWith("deficiencies"));
+
+  useEffect(() => {
+    if (!submitAttempted) return;
+    const nextMissing = getSiteInspectionMissingFields(form);
+    setError(nextMissing.length ? siteInspectionValidationMessage(nextMissing[0]) : "");
+  }, [form, submitAttempted]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      if (isSiteInspectionDraftMeaningful(form)) {
+        const savedAt = writeWorkerFormDraft(worker, "site_inspection", "fill_form", { form });
+        setDraftSavedAt(savedAt);
+        return;
+      }
+      clearWorkerFormDraft(worker, "site_inspection", "fill_form");
+      setDraftSavedAt("");
+    }, DRAFT_SAVE_DELAY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [form, worker]);
+
+  const updateHeader = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      header: { ...current.header, [field]: value },
+    }));
+  };
+
+  const updateObservation = (field, value) => {
+    setForm((current) => ({
+      ...current,
+      observations: { ...current.observations, [field]: value },
+    }));
+  };
+
+  const updateDeficiency = (index, field, value) => {
+    setForm((current) => ({
+      ...current,
+      noDeficiencies: false,
+      deficiencies: current.deficiencies.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row,
+      ),
+    }));
+  };
+
+  const addDeficiency = () => {
+    setForm((current) => ({
+      ...current,
+      noDeficiencies: false,
+      deficiencies: [...current.deficiencies, { ...EMPTY_SITE_DEFICIENCY }],
+    }));
+  };
+
+  const removeDeficiency = (index) => {
+    setForm((current) => ({
+      ...current,
+      deficiencies: current.deficiencies.filter((_, rowIndex) => rowIndex !== index),
+    }));
+  };
+
+  const setNoDeficiencies = (checked) => {
+    setForm((current) => ({
+      ...current,
+      noDeficiencies: checked,
+      deficiencies: checked ? [] : current.deficiencies.length ? current.deficiencies : [{ ...EMPTY_SITE_DEFICIENCY }],
+    }));
+  };
+
+  const toggleOptional = (section) => {
+    setOptionalOpen((current) => ({ ...current, [section]: !current[section] }));
+  };
+
+  const applyLastInspectionSetup = () => {
+    setForm((current) => ({
+      ...current,
+      header: {
+        ...current.header,
+        project: savedDefaults.project || current.header.project,
+        address: savedDefaults.address || current.header.address,
+        tradesPresent: savedDefaults.tradesPresent || current.header.tradesPresent,
+        reviewer: savedDefaults.reviewer || current.header.reviewer,
+      },
+    }));
+  };
+
+  const startFresh = () => {
+    clearWorkerFormDraft(worker, "site_inspection", "fill_form");
+    setForm(initialSiteInspectionForm(worker));
+    setDraftRestored(false);
+    setDraftSavedAt("");
+    setError("");
+    setSubmitAttempted(false);
+  };
+
+  const submitForm = async (event) => {
+    event.preventDefault();
+    const nextMissingFields = getSiteInspectionMissingFields(form);
+    if (nextMissingFields.length) {
+      setSubmitAttempted(true);
+      setError(siteInspectionValidationMessage(nextMissingFields[0]));
+      scrollToToolboxValidationTarget(validationTargetsRef.current, nextMissingFields[0]);
+      return;
+    }
+    setError("");
+    setSubmitAttempted(false);
+    rememberSiteInspectionDefaults(form);
+    await onSubmit(cleanSiteInspectionClientForm(form));
+  };
+
+  return (
+    <form className="submission-form toolbox-talk-form site-inspection-form" noValidate onSubmit={submitForm}>
+      {draftRestored || draftSavedAt ? (
+        <div className="offline-draft-status">
+          <div>
+            <strong>{draftRestored ? "Draft restored" : "Draft saved"}</strong>
+            {draftSavedAt ? <span>Saved {formatCompactTime(draftSavedAt)}</span> : null}
+          </div>
+          {draftRestored ? (
+            <button type="button" onClick={startFresh}>
+              Start fresh
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      <section className={inspectionInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
+        <div className="toolbox-section-heading">
+          <h2>Inspection Info</h2>
+          {hasSavedDefaults ? (
+            <button type="button" onClick={applyLastInspectionSetup}>
+              Use last job
+            </button>
+          ) : (
+            <span>Required</span>
+          )}
+        </div>
+        <div className="toolbox-field-grid">
+          <label className={isFieldInvalid("header.project") ? "toolbox-field-invalid" : ""}>
+            <span>Project</span>
+            <input
+              aria-invalid={isFieldInvalid("header.project") ? "true" : undefined}
+              ref={registerValidationTarget("header.project")}
+              required
+              value={form.header.project}
+              onChange={(event) => updateHeader("project", event.target.value)}
+            />
+          </label>
+          <label className={isFieldInvalid("header.areaInspected") ? "toolbox-field-invalid" : ""}>
+            <span>Area inspected</span>
+            <input
+              aria-invalid={isFieldInvalid("header.areaInspected") ? "true" : undefined}
+              ref={registerValidationTarget("header.areaInspected")}
+              required
+              value={form.header.areaInspected}
+              onChange={(event) => updateHeader("areaInspected", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Address</span>
+            <input
+              value={form.header.address}
+              onChange={(event) => updateHeader("address", event.target.value)}
+            />
+          </label>
+          <label className={isFieldInvalid("header.date") ? "toolbox-field-invalid" : ""}>
+            <span>Date</span>
+            <input
+              aria-invalid={isFieldInvalid("header.date") ? "true" : undefined}
+              ref={registerValidationTarget("header.date")}
+              required
+              type="date"
+              value={form.header.date}
+              onChange={(event) => updateHeader("date", event.target.value)}
+            />
+          </label>
+          <label className={isFieldInvalid("header.time") ? "toolbox-field-invalid" : ""}>
+            <span>Time</span>
+            <input
+              aria-invalid={isFieldInvalid("header.time") ? "true" : undefined}
+              ref={registerValidationTarget("header.time")}
+              required
+              type="time"
+              value={form.header.time}
+              onChange={(event) => updateHeader("time", event.target.value)}
+            />
+          </label>
+          <label className={isFieldInvalid("header.inspector") ? "toolbox-field-invalid" : ""}>
+            <span>Inspector</span>
+            <input
+              aria-invalid={isFieldInvalid("header.inspector") ? "true" : undefined}
+              ref={registerValidationTarget("header.inspector")}
+              required
+              value={form.header.inspector}
+              onChange={(event) => updateHeader("inspector", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Trades present</span>
+            <input
+              value={form.header.tradesPresent}
+              onChange={(event) => updateHeader("tradesPresent", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Reviewer / Supervisor</span>
+            <input
+              value={form.header.reviewer}
+              onChange={(event) => updateHeader("reviewer", event.target.value)}
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className={optionalOpen.observations ? "toolbox-section" : "toolbox-section collapsed"}>
+        <div className="toolbox-section-heading">
+          <h2>Observations</h2>
+          <button type="button" onClick={() => toggleOptional("observations")}>
+            {optionalOpen.observations ? "Hide" : "Add observations"}
+          </button>
+        </div>
+        {optionalOpen.observations ? (
+          <>
+            <label>
+              <span>Positive observations</span>
+              <textarea
+                rows="3"
+                value={form.observations.positive}
+                onChange={(event) => updateObservation("positive", event.target.value)}
+              />
+            </label>
+            <label>
+              <span>High-risk work observed</span>
+              <textarea
+                rows="3"
+                value={form.observations.highRiskWork}
+                onChange={(event) => updateObservation("highRiskWork", event.target.value)}
+              />
+            </label>
+            <label>
+              <span>Immediate controls</span>
+              <textarea
+                rows="3"
+                value={form.observations.immediateControls}
+                onChange={(event) => updateObservation("immediateControls", event.target.value)}
+              />
+            </label>
+          </>
+        ) : null}
+      </section>
+
+      <section
+        className={deficienciesInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
+        ref={registerValidationTarget("deficiencies")}
+      >
+        <div className="toolbox-section-heading">
+          <h2>Deficiencies</h2>
+          <span>{form.noDeficiencies ? "None found" : `${form.deficiencies.length} listed`}</span>
+        </div>
+        <label
+          className={isFieldInvalid("deficiencies") ? "toolbox-confirmation toolbox-field-invalid" : "toolbox-confirmation"}
+        >
+          <input
+            checked={form.noDeficiencies}
+            type="checkbox"
+            onChange={(event) => setNoDeficiencies(event.target.checked)}
+          />
+          <span>No deficiencies found during this inspection.</span>
+        </label>
+        {!form.noDeficiencies ? (
+          <>
+            <div className="toolbox-row-list site-deficiency-list">
+              {form.deficiencies.map((row, index) => {
+                const descriptionField = `deficiencies.${index}.description`;
+                return (
+                  <div className="toolbox-repeat-row site-deficiency-card" key={`deficiency-${index}`}>
+                    <div className="toolbox-section-heading site-deficiency-heading">
+                      <h3>Deficiency {index + 1}</h3>
+                      <button type="button" onClick={() => removeDeficiency(index)}>
+                        Remove
+                      </button>
+                    </div>
+                    <div className="toolbox-field-grid">
+                      <label>
+                        <span>Category</span>
+                        <select
+                          value={row.category}
+                          onChange={(event) => updateDeficiency(index, "category", event.target.value)}
+                        >
+                          <option value="">Choose category</option>
+                          {SITE_INSPECTION_CATEGORIES.map((category) => (
+                            <option key={category} value={category}>{category}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        <span>Location / area</span>
+                        <input
+                          value={row.location}
+                          onChange={(event) => updateDeficiency(index, "location", event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        <span>Priority</span>
+                        <select
+                          value={row.priority}
+                          onChange={(event) => updateDeficiency(index, "priority", event.target.value)}
+                        >
+                          {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
+                            <option key={priority.id} value={priority.id}>{priority.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        <span>Suggested assignee</span>
+                        <input
+                          value={row.suggestedAssignee}
+                          onChange={(event) => updateDeficiency(index, "suggestedAssignee", event.target.value)}
+                        />
+                      </label>
+                    </div>
+                    <label className={isFieldInvalid(descriptionField) ? "toolbox-field-invalid" : ""}>
+                      <span>Deficiency / hazard</span>
+                      <textarea
+                        aria-invalid={isFieldInvalid(descriptionField) ? "true" : undefined}
+                        ref={registerValidationTarget(descriptionField)}
+                        rows="3"
+                        value={row.description}
+                        onChange={(event) => updateDeficiency(index, "description", event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>Immediate control taken</span>
+                      <textarea
+                        rows="3"
+                        value={row.immediateControl}
+                        onChange={(event) => updateDeficiency(index, "immediateControl", event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>Recommended corrective action</span>
+                      <textarea
+                        rows="3"
+                        value={row.recommendedAction}
+                        onChange={(event) => updateDeficiency(index, "recommendedAction", event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>Suggested due date</span>
+                      <input
+                        type="date"
+                        value={row.dueDate}
+                        onChange={(event) => updateDeficiency(index, "dueDate", event.target.value)}
+                      />
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" onClick={addDeficiency}>Add deficiency</button>
+          </>
+        ) : null}
+      </section>
+
+      <section className={optionalOpen.followUp ? "toolbox-section" : "toolbox-section collapsed"}>
+        <div className="toolbox-section-heading">
+          <h2>Follow-Up Notes</h2>
+          <button type="button" onClick={() => toggleOptional("followUp")}>
+            {optionalOpen.followUp ? "Hide" : "Add follow-up notes"}
+          </button>
+        </div>
+        {optionalOpen.followUp ? (
+          <label>
+            <span>Follow-up notes</span>
+            <textarea
+              rows="4"
+              value={form.observations.followUpNotes}
+              onChange={(event) => updateObservation("followUpNotes", event.target.value)}
+            />
+          </label>
+        ) : null}
+      </section>
+
+      {error ? <p className="form-message error">{error}</p> : null}
+
+      <div className="toolbox-submit-actions">
+        <button className="primary-button" disabled={submitting} type="submit">
+          {submitting ? "Submitting..." : "Submit Site Inspection"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function WorkerSubmissionHistoryPage({ navigateTo }) {
   const { worker } = useWorkerSession(navigateTo);
   const [rows, setRows] = useState([]);
@@ -3686,6 +4212,9 @@ function WorkerSubmissionReadOnlyView({ row }) {
       {isDigitalToolboxTalkSubmission(row) ? (
         <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
       ) : null}
+      {isDigitalSiteInspectionSubmission(row) ? (
+        <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
+      ) : null}
 
       {files.length ? (
         <div className="submission-file-list">
@@ -3702,7 +4231,7 @@ function WorkerSubmissionReadOnlyView({ row }) {
         </div>
       ) : null}
 
-      {!isDigitalToolboxTalkSubmission(row) && !files.length ? (
+      {!isDigitalToolboxTalkSubmission(row) && !isDigitalSiteInspectionSubmission(row) && !files.length ? (
         <p className="empty-state">No additional form details were saved for this submission.</p>
       ) : null}
     </section>
@@ -4655,6 +5184,894 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   );
 }
 
+export function StaffActionItemsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const canManage = ["owner", "admin"].includes(staff?.role);
+  const [filters, setFilters] = useState({
+    status: "",
+    priority: "",
+    company: "",
+    project: "",
+    assignedTo: "",
+    dueFrom: "",
+    dueTo: "",
+    sourceFormType: "",
+    search: "",
+    sort: "created_at",
+    dir: "desc",
+  });
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [records, setRecords] = useState({ rows: [], summary: {} });
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [sourceSubmission, setSourceSubmission] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState("");
+  const [retryingSubmissionId, setRetryingSubmissionId] = useState("");
+  const [message, setMessage] = useState("");
+  const [bulk, setBulk] = useState({ assignedTo: "", dueDate: "", priority: "" });
+  const visibleIds = useMemo(() => records.rows.map((row) => row.id), [records.rows]);
+  const allVisibleSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
+
+  const loadItems = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams(
+        Object.entries(filters).filter(([, value]) => value),
+      );
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items?${params}`, { credentials: "include" }),
+      );
+      setRecords(payload);
+      setSelectedIds([]);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadItems();
+  }, [staff]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateBulk = (field, value) => {
+    setBulk((current) => ({ ...current, [field]: value }));
+  };
+
+  const changeSort = (value) => {
+    const [sort, dir] = value.split(":");
+    setFilters((current) => ({ ...current, sort, dir }));
+  };
+
+  const toggleSelection = (id, checked) => {
+    setSelectedIds((current) => {
+      if (checked) return current.includes(id) ? current : [...current, id];
+      return current.filter((currentId) => currentId !== id);
+    });
+  };
+
+  const toggleAll = (checked) => {
+    setSelectedIds(checked ? visibleIds : []);
+  };
+
+  const replaceItem = (item) => {
+    setRecords((current) => ({
+      ...current,
+      rows: current.rows.map((row) => (row.id === item.id ? item : row)),
+      summary: summarizeActionItemsForClient(
+        current.rows.map((row) => (row.id === item.id ? item : row)),
+      ),
+    }));
+    setSelectedItem((current) => (current?.id === item.id ? item : current));
+  };
+
+  const openDetails = async (item) => {
+    setSelectedItem(item);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${item.id}`, { credentials: "include" }),
+      );
+      setSelectedItem(payload.item);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const openSourceSubmission = async (item) => {
+    if (!item?.source_submission_id) return;
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${item.source_submission_id}`, {
+          credentials: "include",
+        }),
+      );
+      setSourceSubmission(payload.submission);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const retrySourceSubmissionBackup = async (id) => {
+    setRetryingSubmissionId(id);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${id}/backup-retry`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      setSourceSubmission((current) => (current?.id === id ? payload.submission : current));
+      setMessage("Backup retry finished.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setRetryingSubmissionId("");
+    }
+  };
+
+  const saveItem = async (id, updates) => {
+    setSaving(id);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(updates),
+        }),
+      );
+      replaceItem(payload.item);
+      setMessage("Action item updated.");
+    } catch (error) {
+      setMessage(error.message);
+      throw error;
+    } finally {
+      setSaving("");
+    }
+  };
+
+  const addComment = async (id, body) => {
+    setSaving(id);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${id}/comments`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ body }),
+        }),
+      );
+      replaceItem(payload.item);
+    } catch (error) {
+      setMessage(error.message);
+      throw error;
+    } finally {
+      setSaving("");
+    }
+  };
+
+  const deleteItem = async (item) => {
+    if (!window.confirm(`Delete action item "${item.title}"?`)) return;
+    setSaving(item.id);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${item.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      setRecords((current) => {
+        const rows = current.rows.filter((row) => row.id !== payload.id);
+        return { ...current, rows, summary: summarizeActionItemsForClient(rows) };
+      });
+      setSelectedIds((current) => current.filter((id) => id !== payload.id));
+      if (selectedItem?.id === payload.id) setSelectedItem(null);
+      setMessage("Action item deleted.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving("");
+    }
+  };
+
+  const runBulkUpdate = async (updates, deleteSelected = false) => {
+    const ids = selectedIds.filter((id) => visibleIds.includes(id));
+    if (!ids.length) return;
+    if (deleteSelected && !window.confirm(`Delete ${ids.length} selected action item${ids.length === 1 ? "" : "s"}?`)) {
+      return;
+    }
+    setSaving("bulk");
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/action-items/bulk", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ids, updates, delete: deleteSelected }),
+        }),
+      );
+      setMessage(
+        payload.failed
+          ? `Updated ${payload.succeeded}; ${payload.failed} failed.`
+          : `Updated ${payload.succeeded} action item${payload.succeeded === 1 ? "" : "s"}.`,
+      );
+      await loadItems();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving("");
+    }
+  };
+
+  const applyBulkFields = () => {
+    const updates = {};
+    if (bulk.assignedTo.trim()) updates.assignedTo = bulk.assignedTo.trim();
+    if (bulk.dueDate) updates.dueDate = bulk.dueDate;
+    if (bulk.priority) updates.priority = bulk.priority;
+    if (!Object.keys(updates).length) {
+      setMessage("Choose at least one bulk field to update.");
+      return;
+    }
+    runBulkUpdate(updates);
+  };
+
+  const uploadEvidence = async (item, selectedFile) => {
+    if (!selectedFile) return;
+    setSaving(item.id);
+    setMessage("");
+    try {
+      const target = await readApiJson(
+        await fetch(`/api/staff/action-items/${item.id}/files/upload-url`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            file: {
+              originalFilename: selectedFile.name,
+              mimeType: selectedFile.type || "application/octet-stream",
+              sizeBytes: selectedFile.size,
+            },
+          }),
+        }),
+      );
+      const formData = new FormData();
+      formData.append("cacheControl", "3600");
+      formData.append("", selectedFile);
+      const uploadResponse = await fetch(target.upload.signedUrl, {
+        method: "PUT",
+        body: formData,
+      });
+      if (!uploadResponse.ok) throw new Error("Evidence upload failed.");
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${item.id}/files`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            storagePath: target.upload.storagePath,
+            file: {
+              originalFilename: selectedFile.name,
+              mimeType: selectedFile.type || "application/octet-stream",
+              sizeBytes: selectedFile.size,
+            },
+          }),
+        }),
+      );
+      replaceItem(payload.item);
+    } catch (error) {
+      setMessage(error.message);
+      throw error;
+    } finally {
+      setSaving("");
+    }
+  };
+
+  const openEvidencePreview = async (item, file) => {
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/action-items/${item.id}/files/${file.id}/url`, {
+          credentials: "include",
+        }),
+      );
+      setFilePreview(payload);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  const summary = records.summary || {};
+
+  return (
+    <StaffShell active="action-items" contentWide navigateTo={navigateTo}>
+      <div className="staff-filter-toggle-row">
+        <button
+          aria-controls="staff-action-filters"
+          aria-expanded={filtersOpen}
+          aria-label={filtersOpen ? "Hide filters" : "Show filters"}
+          className={filtersOpen ? "staff-filter-icon-button active" : "staff-filter-icon-button"}
+          type="button"
+          onClick={() => setFiltersOpen((current) => !current)}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M4 5h16l-6 7v5l-4 2v-7L4 5z" />
+          </svg>
+        </button>
+      </div>
+
+      {filtersOpen ? (
+        <section className="staff-toolbar staff-form-filter-toolbar" id="staff-action-filters">
+          <label className="field">
+            <span>Status</span>
+            <select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+              <option value="">All</option>
+              {ACTION_ITEM_STATUS_OPTIONS.map((status) => (
+                <option key={status.id} value={status.id}>{status.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Priority</span>
+            <select value={filters.priority} onChange={(event) => updateFilter("priority", event.target.value)}>
+              <option value="">All</option>
+              {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
+                <option key={priority.id} value={priority.id}>{priority.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Company</span>
+            <input value={filters.company} onChange={(event) => updateFilter("company", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Project</span>
+            <input value={filters.project} onChange={(event) => updateFilter("project", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Assigned to</span>
+            <input value={filters.assignedTo} onChange={(event) => updateFilter("assignedTo", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Due from</span>
+            <input type="date" value={filters.dueFrom} onChange={(event) => updateFilter("dueFrom", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Due to</span>
+            <input type="date" value={filters.dueTo} onChange={(event) => updateFilter("dueTo", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Source form</span>
+            <select value={filters.sourceFormType} onChange={(event) => updateFilter("sourceFormType", event.target.value)}>
+              <option value="">All</option>
+              {SAFETY_FORM_TYPES.map((form) => (
+                <option key={form.id} value={form.id}>{form.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Search</span>
+            <input value={filters.search} onChange={(event) => updateFilter("search", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Sort</span>
+            <select value={`${filters.sort}:${filters.dir}`} onChange={(event) => changeSort(event.target.value)}>
+              <option value="created_at:desc">Newest</option>
+              <option value="due_date:asc">Due soon</option>
+              <option value="priority:desc">Priority</option>
+              <option value="status:asc">Status</option>
+              <option value="company:asc">Company</option>
+              <option value="project:asc">Project</option>
+            </select>
+          </label>
+          <button className="primary-button" type="button" onClick={loadItems}>
+            Apply
+          </button>
+        </section>
+      ) : null}
+
+      {message ? <p className="staff-message">{message}</p> : null}
+
+      <section className="ops-metric-grid action-item-metric-grid">
+        <OpsMetric label="Drafts" value={summary.drafts} />
+        <OpsMetric label="Open" value={summary.open} />
+        <OpsMetric label="Overdue" value={summary.overdue} />
+        <OpsMetric label="Due soon" value={summary.dueSoon} />
+        <OpsMetric label="Ready" value={summary.readyForReview} />
+      </section>
+
+      <section className="staff-table-panel">
+        <div className="staff-table-heading">
+          <div className="staff-table-heading-main">
+            <strong>{records.rows.length} action items</strong>
+            <span>{describeActionItemSort(filters.sort, filters.dir)}</span>
+          </div>
+          {canManage ? (
+            <div className="staff-bulk-actions action-bulk-actions">
+              <span>{selectedIds.length} selected</span>
+              <div className="action-bulk-controls">
+                <input
+                  aria-label="Bulk assigned to"
+                  placeholder="Assign to"
+                  value={bulk.assignedTo}
+                  onChange={(event) => updateBulk("assignedTo", event.target.value)}
+                />
+                <input
+                  aria-label="Bulk due date"
+                  type="date"
+                  value={bulk.dueDate}
+                  onChange={(event) => updateBulk("dueDate", event.target.value)}
+                />
+                <select
+                  aria-label="Bulk priority"
+                  value={bulk.priority}
+                  onChange={(event) => updateBulk("priority", event.target.value)}
+                >
+                  <option value="">Priority</option>
+                  {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
+                    <option key={priority.id} value={priority.id}>{priority.label}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                disabled={!selectedIds.length || saving === "bulk"}
+                type="button"
+                onClick={() => runBulkUpdate({ status: "open" })}
+              >
+                Activate
+              </button>
+              <button
+                disabled={!selectedIds.length || saving === "bulk"}
+                type="button"
+                onClick={applyBulkFields}
+              >
+                Apply bulk
+              </button>
+              <button
+                disabled={!selectedIds.length || saving === "bulk"}
+                type="button"
+                onClick={() => runBulkUpdate({ status: "void" })}
+              >
+                Void
+              </button>
+              <button
+                className="danger-button"
+                disabled={!selectedIds.length || saving === "bulk"}
+                type="button"
+                onClick={() => runBulkUpdate({}, true)}
+              >
+                Delete
+              </button>
+            </div>
+          ) : null}
+        </div>
+        <ActionItemsTable
+          allVisibleSelected={allVisibleSelected}
+          canManage={canManage}
+          loading={loading}
+          rows={records.rows}
+          saving={saving}
+          selectedIds={selectedIds}
+          onDelete={deleteItem}
+          onDetails={openDetails}
+          onSelectAll={toggleAll}
+          onSelectRow={toggleSelection}
+          onUpdate={saveItem}
+        />
+      </section>
+
+      {selectedItem ? (
+        <ActionItemDetailsDialog
+          canManage={canManage}
+          item={selectedItem}
+          saving={saving === selectedItem.id}
+          onClose={() => setSelectedItem(null)}
+          onComment={addComment}
+          onDelete={deleteItem}
+          onFilePreview={openEvidencePreview}
+          onOpenSource={openSourceSubmission}
+          onSave={saveItem}
+          onUploadEvidence={uploadEvidence}
+        />
+      ) : null}
+      {sourceSubmission ? (
+        <SubmissionDetailsDialog
+          retryingId={retryingSubmissionId}
+          row={sourceSubmission}
+          onClose={() => setSourceSubmission(null)}
+          onRetry={retrySourceSubmissionBackup}
+        />
+      ) : null}
+      {filePreview ? (
+        <SubmissionFilePreviewDialog
+          preview={filePreview}
+          onClose={() => setFilePreview(null)}
+        />
+      ) : null}
+    </StaffShell>
+  );
+}
+
+function ActionItemsTable({
+  allVisibleSelected,
+  canManage,
+  loading,
+  rows,
+  saving,
+  selectedIds,
+  onDelete,
+  onDetails,
+  onSelectAll,
+  onSelectRow,
+  onUpdate,
+}) {
+  if (loading) return <p className="empty-state">Loading action items...</p>;
+  if (!rows.length) return <p className="empty-state">No action items found.</p>;
+
+  return (
+    <>
+      <div className="action-item-mobile-list">
+        {rows.map((item) => (
+          <article className="action-item-card" key={`mobile-${item.id}`}>
+            <div className="action-item-card-top">
+              {canManage ? (
+                <input
+                  aria-label={`Select action item ${item.title}`}
+                  checked={selectedIds.includes(item.id)}
+                  type="checkbox"
+                  onChange={(event) => onSelectRow(item.id, event.target.checked)}
+                />
+              ) : null}
+              <div>
+                <strong>{item.title || item.description || "Action item"}</strong>
+                <span>{[item.company, item.project].filter(Boolean).join(" / ") || "-"}</span>
+              </div>
+            </div>
+            <p>{item.description || item.recommended_action || "No deficiency description."}</p>
+            <div className="action-item-card-meta">
+              <StatusPill value={actionItemStatusLabel(item.status)} />
+              <StatusPill value={priorityLabel(item.priority)} />
+              <span>{item.due_date ? `Due ${formatDateString(item.due_date)}` : "No due date"}</span>
+            </div>
+            <div className="table-action-row">
+              <button type="button" onClick={() => onDetails(item)}>Details</button>
+              {item.status === "draft" && canManage ? (
+                <button disabled={saving === item.id} type="button" onClick={() => onUpdate(item.id, { status: "open" })}>
+                  Activate
+                </button>
+              ) : null}
+              {canManage ? (
+                <button className="danger-button" disabled={saving === item.id} type="button" onClick={() => onDelete(item)}>
+                  Delete
+                </button>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="staff-table-scroll action-item-table-scroll">
+        <table className="staff-table action-items-table">
+          <thead>
+            <tr>
+              {canManage ? (
+                <th className="select-column">
+                  <input
+                    aria-label="Select all visible action items"
+                    checked={allVisibleSelected}
+                    type="checkbox"
+                    onChange={(event) => onSelectAll(event.target.checked)}
+                  />
+                </th>
+              ) : null}
+              <th>Item</th>
+              <th>Company</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Assigned</th>
+              <th>Due</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((item) => (
+              <tr key={item.id}>
+                {canManage ? (
+                  <td className="select-column">
+                    <input
+                      aria-label={`Select action item ${item.title}`}
+                      checked={selectedIds.includes(item.id)}
+                      type="checkbox"
+                      onChange={(event) => onSelectRow(item.id, event.target.checked)}
+                    />
+                  </td>
+                ) : null}
+                <td>
+                  <strong>{item.title || item.description || "Action item"}</strong>
+                  <div className="table-subtext">{item.location || item.area || item.category || ""}</div>
+                </td>
+                <td>{[item.company, item.project].filter(Boolean).join(" / ") || "-"}</td>
+                <td><StatusPill value={priorityLabel(item.priority)} /></td>
+                <td><StatusPill value={actionItemStatusLabel(item.status)} /></td>
+                <td>{item.assigned_to || item.suggested_assignee || "-"}</td>
+                <td>{item.due_date ? formatDateString(item.due_date) : "-"}</td>
+                <td>
+                  <div className="table-action-row">
+                    <button type="button" onClick={() => onDetails(item)}>Details</button>
+                    {item.status === "draft" && canManage ? (
+                      <button disabled={saving === item.id} type="button" onClick={() => onUpdate(item.id, { status: "open" })}>
+                        Activate
+                      </button>
+                    ) : null}
+                    {canManage ? (
+                      <button className="danger-button" disabled={saving === item.id} type="button" onClick={() => onDelete(item)}>
+                        Delete
+                      </button>
+                    ) : null}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+function ActionItemDetailsDialog({
+  canManage,
+  item,
+  onClose,
+  onComment,
+  onDelete,
+  onFilePreview,
+  onOpenSource,
+  onSave,
+  onUploadEvidence,
+  saving,
+}) {
+  const [edit, setEdit] = useState(() => actionItemEditState(item));
+  const [comment, setComment] = useState("");
+  const [evidenceFile, setEvidenceFile] = useState(null);
+  const [localMessage, setLocalMessage] = useState("");
+
+  useEffect(() => {
+    setEdit(actionItemEditState(item));
+    setComment("");
+    setEvidenceFile(null);
+    setLocalMessage("");
+  }, [item]);
+
+  const updateEdit = (field, value) => {
+    setEdit((current) => ({ ...current, [field]: value }));
+  };
+
+  const submitSave = async (event) => {
+    event.preventDefault();
+    setLocalMessage("");
+    try {
+      const updates = canManage
+        ? edit
+        : {
+            closeoutNotes: edit.closeoutNotes,
+            ...(edit.status !== item.status ? { status: edit.status } : {}),
+          };
+      await onSave(item.id, updates);
+    } catch (error) {
+      setLocalMessage(error.message);
+    }
+  };
+
+  const submitComment = async () => {
+    if (!comment.trim()) return;
+    setLocalMessage("");
+    try {
+      await onComment(item.id, comment);
+      setComment("");
+    } catch (error) {
+      setLocalMessage(error.message);
+    }
+  };
+
+  const submitEvidence = async () => {
+    if (!evidenceFile) return;
+    setLocalMessage("");
+    try {
+      await onUploadEvidence(item, evidenceFile);
+      setEvidenceFile(null);
+    } catch (error) {
+      setLocalMessage(error.message);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Action item details"
+        className="staff-detail-dialog action-item-detail-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>{item.title || "Action item"}</h2>
+            <p>{[item.company, item.project].filter(Boolean).join(" / ") || "No company"}</p>
+          </div>
+          <button aria-label="Close" type="button" onClick={onClose}>X</button>
+        </div>
+
+        {localMessage ? <p className="form-message error">{localMessage}</p> : null}
+
+        <dl className="staff-detail-list">
+          <div>
+            <dt>Source</dt>
+            <dd>
+              {item.source_submission_id ? (
+                <button className="submission-file-name-button" type="button" onClick={() => onOpenSource(item)}>
+                  Site inspection #{Number(item.source_deficiency_index ?? 0) + 1}
+                </button>
+              ) : (
+                "Manual"
+              )}
+            </dd>
+          </div>
+          <div><dt>Status</dt><dd><StatusPill value={actionItemStatusLabel(item.status)} /></dd></div>
+          <div><dt>Priority</dt><dd><StatusPill value={priorityLabel(item.priority)} /></dd></div>
+          <div><dt>Due</dt><dd>{item.due_date ? formatDateString(item.due_date) : "-"}</dd></div>
+          <div><dt>Assigned</dt><dd>{item.assigned_to || item.suggested_assignee || "-"}</dd></div>
+          <div><dt>Location</dt><dd>{item.location || item.area || "-"}</dd></div>
+        </dl>
+
+        <form className="action-item-edit-form" onSubmit={submitSave}>
+          {canManage ? (
+            <>
+              <div className="toolbox-field-grid compact">
+                <label>
+                  <span>Status</span>
+                  <select value={edit.status} onChange={(event) => updateEdit("status", event.target.value)}>
+                    {ACTION_ITEM_STATUS_OPTIONS.map((status) => (
+                      <option key={status.id} value={status.id}>{status.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Priority</span>
+                  <select value={edit.priority} onChange={(event) => updateEdit("priority", event.target.value)}>
+                    {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
+                      <option key={priority.id} value={priority.id}>{priority.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Due date</span>
+                  <input type="date" value={edit.dueDate} onChange={(event) => updateEdit("dueDate", event.target.value)} />
+                </label>
+              </div>
+              <div className="toolbox-field-grid">
+                <label>
+                  <span>Assigned to</span>
+                  <input value={edit.assignedTo} onChange={(event) => updateEdit("assignedTo", event.target.value)} />
+                </label>
+                <label>
+                  <span>Title</span>
+                  <input value={edit.title} onChange={(event) => updateEdit("title", event.target.value)} />
+                </label>
+              </div>
+              <label>
+                <span>Deficiency / hazard</span>
+                <textarea rows="3" value={edit.description} onChange={(event) => updateEdit("description", event.target.value)} />
+              </label>
+              <label>
+                <span>Recommended corrective action</span>
+                <textarea rows="3" value={edit.recommendedAction} onChange={(event) => updateEdit("recommendedAction", event.target.value)} />
+              </label>
+            </>
+          ) : (
+            <div className="action-status-quick-row">
+              <button type="button" onClick={() => updateEdit("status", "in_progress")}>In progress</button>
+              <button type="button" onClick={() => updateEdit("status", "ready_for_review")}>Ready for review</button>
+            </div>
+          )}
+          <label>
+            <span>Closeout notes</span>
+            <textarea rows="3" value={edit.closeoutNotes} onChange={(event) => updateEdit("closeoutNotes", event.target.value)} />
+          </label>
+          <div className="staff-card-actions">
+            <button className="primary-button" disabled={saving} type="submit">
+              {saving ? "Saving..." : "Save action item"}
+            </button>
+            {canManage ? (
+              <button className="danger-button" disabled={saving} type="button" onClick={() => onDelete(item)}>
+                Delete
+              </button>
+            ) : null}
+          </div>
+        </form>
+
+        <section className="action-item-comment-box">
+          <h3>Comments</h3>
+          <textarea
+            rows="3"
+            placeholder="Add a note"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+          <button disabled={saving || !comment.trim()} type="button" onClick={submitComment}>
+            Add comment
+          </button>
+        </section>
+
+        <section className="action-item-comment-box">
+          <h3>Evidence</h3>
+          <label className="camera-fallback-button action-evidence-picker">
+            <input
+              accept={SCANNED_COPY_ACCEPT}
+              type="file"
+              onChange={(event) => setEvidenceFile(event.target.files?.[0] || null)}
+            />
+            Choose evidence file
+          </label>
+          {evidenceFile ? (
+            <p className="selected-file">{evidenceFile.name} / {formatFileSize(evidenceFile.size)}</p>
+          ) : null}
+          <button disabled={saving || !evidenceFile} type="button" onClick={submitEvidence}>
+            Upload evidence
+          </button>
+          {item.files?.length ? (
+            <div className="submission-file-list">
+              {item.files.map((file) => (
+                <div className="submission-file-row" key={file.id}>
+                  <button
+                    className="submission-file-name-button"
+                    type="button"
+                    onClick={() => onFilePreview(item, file)}
+                  >
+                    {file.original_filename}
+                  </button>
+                  <small>{formatFileSize(file.size_bytes)}</small>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No evidence files yet.</p>
+          )}
+        </section>
+
+        <section className="action-item-timeline">
+          <h3>History</h3>
+          {item.events?.length ? (
+            item.events.map((event) => (
+              <article key={event.id}>
+                <strong>{actionItemEventLabel(event.event_type)}</strong>
+                <span>{formatDateTime(event.created_at)}{event.actor_username ? ` / ${event.actor_username}` : ""}</span>
+                {event.body ? <p>{event.body}</p> : null}
+              </article>
+            ))
+          ) : (
+            <p className="empty-state">No history yet.</p>
+          )}
+        </section>
+      </section>
+    </div>
+  );
+}
+
 function WorkerAccountsTable({ canManage, loading, rows, onDelete, onEdit, onToggleActive }) {
   if (loading) return <p className="empty-state">Loading workers...</p>;
   if (!rows.length) return <p className="empty-state">No worker accounts found.</p>;
@@ -5025,7 +6442,7 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
             <h2>{formTypeLabel(row.form_type)}</h2>
             <p>{row.worker_name} / {row.company}</p>
           </div>
-          <button type="button" onClick={onClose}>Close</button>
+          <button aria-label="Close" type="button" onClick={onClose}>X</button>
         </div>
         <dl className="staff-detail-list">
           <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
@@ -5041,6 +6458,24 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
         </dl>
         {isDigitalToolboxTalkSubmission(row) ? (
           <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
+        ) : null}
+        {isDigitalSiteInspectionSubmission(row) ? (
+          <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
+        ) : null}
+        {row.action_items?.length ? (
+          <div className="submission-action-items">
+            <h3>Linked Action Items</h3>
+            {row.action_items.map((item) => (
+              <div className="submission-action-item-row" key={item.id}>
+                <div>
+                  <strong>{item.title || item.description || "Action item"}</strong>
+                  <span>{item.assigned_to || item.suggested_assignee || "Unassigned"}</span>
+                </div>
+                <StatusPill value={actionItemStatusLabel(item.status)} />
+                <StatusPill value={priorityLabel(item.priority)} />
+              </div>
+            ))}
+          </div>
         ) : null}
         {files.length ? (
           <div className="submission-file-list">
@@ -5174,7 +6609,7 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
     setSaving(true);
     setSaveStatus("");
     try {
-      const shared = await shareOrSaveDigitalToolboxTalk(row, data);
+      const shared = await shareOrSaveDigitalForm(row, data);
       if (!shared) setSaveStatus("Saved as an HTML file.");
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -5273,7 +6708,96 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
         <button disabled={saving} type="button" onClick={saveForm}>
           {saving ? "Opening..." : "Save"}
         </button>
-        <button type="button" onClick={() => printDigitalToolboxTalk(row, data)}>
+        <button type="button" onClick={() => printDigitalForm(row, data)}>
+          Print
+        </button>
+        {saveStatus ? <p>{saveStatus}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function SiteInspectionSubmissionDetails({ data, row }) {
+  const header = data.header || {};
+  const observations = data.observations || {};
+  const deficiencies = Array.isArray(data.deficiencies) ? data.deficiencies : [];
+  const [saveStatus, setSaveStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const saveForm = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const shared = await shareOrSaveDigitalForm(row, data);
+      if (!shared) setSaveStatus("Saved as an HTML file.");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSaveStatus(error.message || "This form could not be saved.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="toolbox-detail site-inspection-detail">
+      <section>
+        <h3>Inspection Info</h3>
+        <dl className="staff-detail-list">
+          <div><dt>Project</dt><dd>{header.project || "-"}</dd></div>
+          <div><dt>Address</dt><dd>{header.address || "-"}</dd></div>
+          <div><dt>Area</dt><dd>{header.areaInspected || "-"}</dd></div>
+          <div><dt>Date</dt><dd>{header.date ? formatDateString(header.date) : "-"}</dd></div>
+          <div><dt>Time</dt><dd>{header.time || "-"}</dd></div>
+          <div><dt>Inspector</dt><dd>{header.inspector || "-"}</dd></div>
+          <div><dt>Trades</dt><dd>{header.tradesPresent || "-"}</dd></div>
+          <div><dt>Reviewer</dt><dd>{header.reviewer || "-"}</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h3>Observations</h3>
+        <dl className="staff-detail-list">
+          <div><dt>Positive</dt><dd>{observations.positive || "-"}</dd></div>
+          <div><dt>High-risk work</dt><dd>{observations.highRiskWork || "-"}</dd></div>
+          <div><dt>Immediate controls</dt><dd>{observations.immediateControls || "-"}</dd></div>
+          <div><dt>Follow-up</dt><dd>{observations.followUpNotes || "-"}</dd></div>
+        </dl>
+      </section>
+
+      <section>
+        <h3>Deficiencies</h3>
+        {data.noDeficiencies ? (
+          <p className="toolbox-detail-text">No deficiencies found during this inspection.</p>
+        ) : deficiencies.length ? (
+          <div className="site-deficiency-detail-list">
+            {deficiencies.map((deficiency, index) => (
+              <article key={`site-deficiency-detail-${index}`}>
+                <div className="toolbox-section-heading">
+                  <h4>{deficiency.description || `Deficiency ${index + 1}`}</h4>
+                  <StatusPill value={priorityLabel(deficiency.priority)} />
+                </div>
+                <dl className="staff-detail-list">
+                  <div><dt>Category</dt><dd>{deficiency.category || "-"}</dd></div>
+                  <div><dt>Location</dt><dd>{deficiency.location || "-"}</dd></div>
+                  <div><dt>Immediate control</dt><dd>{deficiency.immediateControl || "-"}</dd></div>
+                  <div><dt>Corrective action</dt><dd>{deficiency.recommendedAction || "-"}</dd></div>
+                  <div><dt>Assignee</dt><dd>{deficiency.suggestedAssignee || "-"}</dd></div>
+                  <div><dt>Due</dt><dd>{deficiency.dueDate ? formatDateString(deficiency.dueDate) : "-"}</dd></div>
+                </dl>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="empty-state">No deficiencies recorded.</p>
+        )}
+      </section>
+
+      <div className="digital-form-actions">
+        <button disabled={saving} type="button" onClick={saveForm}>
+          {saving ? "Opening..." : "Save"}
+        </button>
+        <button type="button" onClick={() => printDigitalForm(row, data)}>
           Print
         </button>
         {saveStatus ? <p>{saveStatus}</p> : null}
@@ -6803,6 +8327,134 @@ function rememberToolboxTalkRecents(form) {
   });
 }
 
+function initialSiteInspectionForm(worker) {
+  const defaults = readSiteInspectionDefaults();
+  return {
+    header: {
+      project: defaults.project || "",
+      address: defaults.address || "",
+      areaInspected: "",
+      date: todayInVancouver(),
+      time: timeInVancouver(),
+      inspector: worker?.name || "",
+      tradesPresent: defaults.tradesPresent || "",
+      reviewer: defaults.reviewer || "",
+    },
+    observations: {
+      positive: "",
+      highRiskWork: "",
+      immediateControls: "",
+      followUpNotes: "",
+    },
+    noDeficiencies: false,
+    deficiencies: [{ ...EMPTY_SITE_DEFICIENCY }],
+  };
+}
+
+function readSiteInspectionDefaults() {
+  return readStorageJson(SITE_INSPECTION_DEFAULTS_KEY, {});
+}
+
+function rememberSiteInspectionDefaults(form) {
+  writeStorageJson(SITE_INSPECTION_DEFAULTS_KEY, {
+    project: String(form?.header?.project || "").trim(),
+    address: String(form?.header?.address || "").trim(),
+    tradesPresent: String(form?.header?.tradesPresent || "").trim(),
+    reviewer: String(form?.header?.reviewer || "").trim(),
+  });
+}
+
+function isSiteInspectionDraftMeaningful(form) {
+  return Boolean(
+    hasTextValue(form?.header?.project) ||
+      hasTextValue(form?.header?.address) ||
+      hasTextValue(form?.header?.areaInspected) ||
+      hasTextValue(form?.header?.tradesPresent) ||
+      hasTextValue(form?.header?.reviewer) ||
+      siteInspectionObservationsHaveValues(form?.observations) ||
+      Boolean(form?.noDeficiencies) ||
+      (form?.deficiencies || []).some((row) => Object.values(row).some(hasTextValue)),
+  );
+}
+
+function siteInspectionObservationsHaveValues(observations) {
+  return Object.values(observations || {}).some(hasTextValue);
+}
+
+function getSiteInspectionMissingFields(form) {
+  const header = form?.header || {};
+  const deficiencies = Array.isArray(form?.deficiencies) ? form.deficiencies : [];
+  const meaningfulDeficiencies = deficiencies.filter((row) =>
+    Object.values(row || {}).some((value) => {
+      if (value === "medium") return false;
+      return hasTextValue(value);
+    }),
+  );
+  const missing = [];
+
+  [
+    ["header.project", header.project],
+    ["header.areaInspected", header.areaInspected],
+    ["header.date", header.date],
+    ["header.time", header.time],
+    ["header.inspector", header.inspector],
+  ].forEach(([field, value]) => {
+    if (!String(value || "").trim()) missing.push(field);
+  });
+
+  if (!form?.noDeficiencies && !meaningfulDeficiencies.length) {
+    missing.push("deficiencies");
+  }
+
+  if (!form?.noDeficiencies) {
+    deficiencies.forEach((row, index) => {
+      const hasRowValue = Object.values(row || {}).some((value) => {
+        if (value === "medium") return false;
+        return hasTextValue(value);
+      });
+      if (hasRowValue && !String(row?.description || "").trim()) {
+        missing.push(`deficiencies.${index}.description`);
+      }
+    });
+  }
+
+  return missing;
+}
+
+function siteInspectionValidationMessage(field) {
+  if (field === "header.project") return "Project is required.";
+  if (field === "header.areaInspected") return "Area inspected is required.";
+  if (field === "header.date") return "Date is required.";
+  if (field === "header.time") return "Time is required.";
+  if (field === "header.inspector") return "Inspector is required.";
+  if (field === "deficiencies") return "Add a deficiency or mark no deficiencies found.";
+  if (field?.startsWith("deficiencies.")) return "Deficiency / hazard description is required.";
+  return "Complete the required fields.";
+}
+
+function cleanSiteInspectionClientForm(form) {
+  return {
+    kind: "site_inspection_v1",
+    version: 1,
+    header: cleanObjectStrings(form.header),
+    observations: cleanObjectStrings(form.observations),
+    noDeficiencies: Boolean(form.noDeficiencies),
+    deficiencies: form.noDeficiencies
+      ? []
+      : form.deficiencies
+          .map(cleanObjectStrings)
+          .filter((row) =>
+            row.category ||
+            row.location ||
+            row.description ||
+            row.immediateControl ||
+            row.recommendedAction ||
+            row.suggestedAssignee ||
+            row.dueDate,
+          ),
+  };
+}
+
 function mergeRecentValues(nextValues, currentValues, limit) {
   const seen = new Set();
   return [...nextValues, ...currentValues]
@@ -7058,6 +8710,11 @@ function describeStaffFormSort(sort, dir) {
   return `Sort: ${label} ${dir}`;
 }
 
+function describeActionItemSort(sort, dir) {
+  const label = ACTION_ITEM_SORT_LABELS[sort] || sort;
+  return `Sort: ${label} ${dir}`;
+}
+
 function formTypeLabel(value) {
   return SAFETY_FORM_TYPES.find((form) => form.id === value)?.label || value;
 }
@@ -7083,6 +8740,48 @@ function roleLabel(value) {
 
 function isDigitalToolboxTalkSubmission(row) {
   return row?.form_type === "toolbox_talk" && row?.form_data?.kind === "toolbox_talk_v1";
+}
+
+function isDigitalSiteInspectionSubmission(row) {
+  return row?.form_type === "site_inspection" && row?.form_data?.kind === "site_inspection_v1";
+}
+
+function actionItemStatusLabel(value) {
+  return ACTION_ITEM_STATUS_OPTIONS.find((status) => status.id === value)?.label || value || "Unknown";
+}
+
+function priorityLabel(value) {
+  return ACTION_ITEM_PRIORITY_OPTIONS.find((priority) => priority.id === value)?.label || value || "Unknown";
+}
+
+function actionItemEventLabel(value) {
+  return String(value || "event").replace(/_/g, " ");
+}
+
+function actionItemEditState(item) {
+  return {
+    title: item?.title || "",
+    description: item?.description || "",
+    status: item?.status || "draft",
+    priority: item?.priority || "medium",
+    dueDate: item?.due_date || "",
+    assignedTo: item?.assigned_to || "",
+    recommendedAction: item?.recommended_action || "",
+    closeoutNotes: item?.closeout_notes || "",
+  };
+}
+
+function summarizeActionItemsForClient(rows) {
+  const today = todayInVancouver();
+  const dueSoonDate = addDaysToISODate(today, 7);
+  const activeRows = rows.filter((row) => !["closed", "void"].includes(row.status));
+  return {
+    drafts: rows.filter((row) => row.status === "draft").length,
+    open: rows.filter((row) => ["open", "in_progress"].includes(row.status)).length,
+    readyForReview: rows.filter((row) => row.status === "ready_for_review").length,
+    overdue: activeRows.filter((row) => row.due_date && row.due_date < today).length,
+    dueSoon: activeRows.filter((row) => row.due_date && row.due_date >= today && row.due_date <= dueSoonDate).length,
+  };
 }
 
 function displayOptionalNumber(value) {
@@ -7180,9 +8879,9 @@ function printSubmissionAttachment(preview) {
   printWindow.focus();
 }
 
-async function shareOrSaveDigitalToolboxTalk(row, data) {
-  const fileName = digitalToolboxTalkFileName(row, data);
-  const html = buildDigitalToolboxTalkHtml(row, data);
+async function shareOrSaveDigitalForm(row, data) {
+  const fileName = digitalFormFileName(row, data);
+  const html = buildDigitalFormHtml(row, data);
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
 
   if (navigator.share && typeof File !== "undefined") {
@@ -7190,7 +8889,7 @@ async function shareOrSaveDigitalToolboxTalk(row, data) {
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({
         files: [file],
-        title: digitalToolboxTalkTitle(row, data),
+        title: digitalFormTitle(row, data),
       });
       return true;
     }
@@ -7200,16 +8899,31 @@ async function shareOrSaveDigitalToolboxTalk(row, data) {
   return false;
 }
 
-function printDigitalToolboxTalk(row, data) {
+function printDigitalForm(row, data) {
   const printWindow = window.open("", "_blank", "width=900,height=1100");
-  const html = buildDigitalToolboxTalkHtml(row, data, { autoPrint: true });
+  const html = buildDigitalFormHtml(row, data, { autoPrint: true });
   if (!printWindow) {
-    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), digitalToolboxTalkFileName(row, data));
+    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), digitalFormFileName(row, data));
     return;
   }
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
+}
+
+function digitalFormTitle(row, data) {
+  if (data?.kind === "site_inspection_v1") return digitalSiteInspectionTitle(row, data);
+  return digitalToolboxTalkTitle(row, data);
+}
+
+function digitalFormFileName(row, data) {
+  if (data?.kind === "site_inspection_v1") return digitalSiteInspectionFileName(row, data);
+  return digitalToolboxTalkFileName(row, data);
+}
+
+function buildDigitalFormHtml(row, data, options = {}) {
+  if (data?.kind === "site_inspection_v1") return buildDigitalSiteInspectionHtml(row, data, options);
+  return buildDigitalToolboxTalkHtml(row, data, options);
 }
 
 function downloadBlob(blob, fileName) {
@@ -7295,6 +9009,7 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
       .prewrap { white-space: pre-wrap; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
       @page { size: letter portrait; margin: 0.22in; }
       @media (max-width: 640px) {
         main { padding: 18px; }
@@ -7371,6 +9086,7 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
           line-height: 1.14;
         }
         .print-actions { display: none; }
+        footer { font-size: 5.6pt; padding-top: 3pt; }
       }
     </style>
   </head>
@@ -7443,6 +9159,174 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
           ${definitionHtml("Participation confirmed", confirmation.confirmed ? "Yes" : "No")}
         </dl>
       </section>
+      <footer>Submission ${escapeHtml(row?.id || "-")} / ${submitted ? escapeHtml(submitted) : "Not submitted"}</footer>
+    </main>
+    ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
+  </body>
+</html>`;
+}
+
+function digitalSiteInspectionTitle(row, data) {
+  const header = data?.header || {};
+  const project = header.project || row?.company || "Site Inspection";
+  const date = header.date ? formatDateString(header.date) : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
+  return `Site Inspection - ${project} - ${date}`;
+}
+
+function digitalSiteInspectionFileName(row, data) {
+  const header = data?.header || {};
+  const rawDate = header.date || row?.submitted_date_vancouver || todayInVancouver();
+  const project = header.project || row?.company || "site-inspection";
+  return `${slugifyFilePart(row?.company || "company")}-${slugifyFilePart(project)}-site-inspection-${slugifyFilePart(rawDate)}.html`;
+}
+
+function buildDigitalSiteInspectionHtml(row, data, options = {}) {
+  const header = data?.header || {};
+  const observations = data?.observations || {};
+  const deficiencies = Array.isArray(data?.deficiencies) ? data.deficiencies : [];
+  const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
+  const title = digitalSiteInspectionTitle(row, data);
+  const deficiencyRows = data?.noDeficiencies
+    ? `<tr><td colspan="7">No deficiencies found during this inspection.</td></tr>`
+    : deficiencies.length
+      ? deficiencies.map((deficiency, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(deficiency.category || "-")}</td>
+            <td>${escapeHtml(deficiency.location || "-")}</td>
+            <td>${escapeHtml(priorityLabel(deficiency.priority))}</td>
+            <td>${escapeHtml(deficiency.description || "-")}</td>
+            <td>${escapeHtml(deficiency.immediateControl || "-")}</td>
+            <td>${escapeHtml(deficiency.recommendedAction || "-")}</td>
+          </tr>`).join("")
+      : `<tr><td colspan="7">No deficiencies recorded.</td></tr>`;
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      :root { color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f4f7f6; color: #17211f; }
+      main { max-width: 980px; margin: 0 auto; padding: 28px; background: #fff; }
+      header { display: grid; gap: 8px; border-bottom: 2px solid #173b38; padding-bottom: 16px; margin-bottom: 18px; }
+      .brand { color: #173b38; font-size: 0.86rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+      h2 { margin: 0 0 10px; font-size: 1.15rem; }
+      p { margin: 0; }
+      section { break-inside: avoid; display: grid; gap: 10px; border: 1px solid #d9e3de; border-radius: 8px; padding: 14px; margin: 0 0 14px; }
+      dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+      dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+      dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      th, td { border: 1px solid #d9e3de; padding: 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+      th { background: #eef7f3; font-size: 0.76rem; text-transform: uppercase; }
+      .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+      .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
+      @page { size: letter portrait; margin: 0.22in; }
+      @media (max-width: 640px) {
+        main { padding: 18px; }
+        dl { grid-template-columns: 1fr; }
+      }
+      @media print {
+        :root { font-size: 7.6pt; }
+        body { background: #fff; }
+        main {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 5pt;
+          max-width: none;
+          padding: 0;
+        }
+        header {
+          grid-column: 1 / -1;
+          gap: 1pt;
+          border-bottom-width: 1px;
+          padding-bottom: 4pt;
+          margin-bottom: 0;
+        }
+        .wide { grid-column: 1 / -1; }
+        h1 { font-size: 13pt; line-height: 1.05; }
+        h2 { margin-bottom: 3pt; font-size: 8pt; line-height: 1.1; }
+        p { font-size: 7pt; line-height: 1.15; }
+        section {
+          gap: 3pt;
+          border-radius: 3pt;
+          padding: 4pt;
+          margin: 0;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3pt 5pt; }
+        dt { font-size: 5.3pt; line-height: 1.05; }
+        dd { margin-top: 1pt; font-size: 6.6pt; line-height: 1.12; }
+        table { font-size: 5.8pt; line-height: 1.1; }
+        th, td { padding: 2pt; }
+        th { font-size: 5.2pt; }
+        .print-actions { display: none; }
+        footer { font-size: 5.6pt; padding-top: 3pt; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="print-actions">
+        <button onclick="window.print()">Print</button>
+      </div>
+      <header>
+        <p class="brand">APPIA</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
+        ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
+      </header>
+
+      <section>
+        <h2>Inspection Info</h2>
+        <dl>
+          ${definitionHtml("Project", header.project)}
+          ${definitionHtml("Address", header.address)}
+          ${definitionHtml("Area inspected", header.areaInspected)}
+          ${definitionHtml("Date", header.date ? formatDateString(header.date) : "")}
+          ${definitionHtml("Time", header.time)}
+          ${definitionHtml("Inspector", header.inspector)}
+          ${definitionHtml("Trades present", header.tradesPresent)}
+          ${definitionHtml("Reviewer", header.reviewer)}
+        </dl>
+      </section>
+
+      <section>
+        <h2>Observations</h2>
+        <dl>
+          ${definitionHtml("Positive", observations.positive)}
+          ${definitionHtml("High-risk work", observations.highRiskWork)}
+          ${definitionHtml("Immediate controls", observations.immediateControls)}
+          ${definitionHtml("Follow-up", observations.followUpNotes)}
+        </dl>
+      </section>
+
+      <section class="wide">
+        <h2>Deficiencies</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Priority</th>
+              <th>Description</th>
+              <th>Immediate Control</th>
+              <th>Corrective Action</th>
+            </tr>
+          </thead>
+          <tbody>${deficiencyRows}</tbody>
+        </table>
+      </section>
+
+      <footer>Submission ${escapeHtml(row?.id || "-")} / ${submitted ? escapeHtml(submitted) : "Not submitted"}</footer>
     </main>
     ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
   </body>

@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { createDraftActionItemsFromSiteInspection } from "./action-items.js";
 import { assertDateString, getVancouverDate } from "./date.js";
 import {
   deleteFallbackRecord,
@@ -27,6 +28,7 @@ const MAX_FORM_TEXT_LENGTH = 600;
 const MAX_FORM_LONG_TEXT_LENGTH = 4000;
 const MAX_TOOLBOX_TOPICS = 80;
 const MAX_TOOLBOX_ROWS = 80;
+const MAX_SITE_INSPECTION_DEFICIENCIES = 80;
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -225,6 +227,10 @@ export async function createWorkerSubmission(worker, body) {
       "Submission file could not be saved.",
     );
     await markUploadAttached(file.storagePath, inserted.id);
+  }
+
+  if (submissionMode === "fill_form" && formType === "site_inspection") {
+    await createDraftActionItemsFromSiteInspection(inserted, formData);
   }
 
   await backupSubmissionBestEffort(inserted.id);
@@ -1383,8 +1389,10 @@ function cleanSubmittedFile(file, workerId) {
 }
 
 function cleanSubmissionFormData(formType, submissionMode, value, worker) {
-  if (submissionMode !== "fill_form" || formType !== "toolbox_talk") return {};
-  return cleanToolboxTalkFormData(value, worker);
+  if (submissionMode !== "fill_form") return {};
+  if (formType === "toolbox_talk") return cleanToolboxTalkFormData(value, worker);
+  if (formType === "site_inspection") return cleanSiteInspectionFormData(value, worker);
+  return {};
 }
 
 function buildSubmissionNotes(formType, submissionMode, value, formData) {
@@ -1402,6 +1410,21 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
       `Project: ${header.projectName}`,
       topicSummary ? `Topics: ${topicSummary}` : "",
       `${attendeeCount} attendee${attendeeCount === 1 ? "" : "s"}`,
+    ]
+      .filter(Boolean)
+      .join(" / ")
+      .slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+  }
+
+  if (submissionMode === "fill_form" && formType === "site_inspection") {
+    const header = formData.header || {};
+    const deficiencyCount = (formData.deficiencies || []).length;
+    return [
+      `Project: ${header.project}`,
+      header.areaInspected ? `Area: ${header.areaInspected}` : "",
+      deficiencyCount
+        ? `${deficiencyCount} deficienc${deficiencyCount === 1 ? "y" : "ies"}`
+        : "No deficiencies found",
     ]
       .filter(Boolean)
       .join(" / ")
@@ -1497,6 +1520,76 @@ function cleanSelectedToolboxTopics(value) {
       label: cleanText(topic?.label, MAX_FORM_TEXT_LENGTH),
     }))
     .filter((topic) => topic.categoryId && topic.topicId && topic.label);
+}
+
+function cleanSiteInspectionFormData(value, worker) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throwBadRequest("Site inspection form data is required.");
+  }
+
+  const headerInput = value.header || {};
+  const header = {
+    project: requireText(headerInput.project || headerInput.projectName, "Project"),
+    address: cleanText(headerInput.address, MAX_FORM_TEXT_LENGTH),
+    areaInspected: requireText(headerInput.areaInspected || headerInput.area, "Area inspected"),
+    date: cleanDate(headerInput.date, "Date"),
+    time: cleanTime(headerInput.time, "Time"),
+    inspector: requireText(headerInput.inspector || worker?.name, "Inspector"),
+    tradesPresent: cleanText(headerInput.tradesPresent, MAX_FORM_TEXT_LENGTH),
+    reviewer: cleanText(headerInput.reviewer || headerInput.supervisor, MAX_FORM_TEXT_LENGTH),
+  };
+
+  const noDeficiencies = value.noDeficiencies === true;
+  const deficiencies = cleanRows(value.deficiencies, cleanSiteInspectionDeficiency)
+    .filter((row) =>
+      row.category ||
+      row.location ||
+      row.description ||
+      row.immediateControl ||
+      row.recommendedAction ||
+      row.suggestedAssignee ||
+      row.dueDate,
+    )
+    .slice(0, MAX_SITE_INSPECTION_DEFICIENCIES);
+
+  if (!noDeficiencies && !deficiencies.length) {
+    throwBadRequest("Add at least one deficiency or mark no deficiencies found.");
+  }
+
+  if (deficiencies.length) {
+    deficiencies.forEach((row, index) => {
+      if (!row.description) {
+        throwBadRequest(`Deficiency ${index + 1} needs a description.`);
+      }
+    });
+  }
+
+  return {
+    kind: "site_inspection_v1",
+    version: 1,
+    header,
+    observations: {
+      positive: cleanText(value.observations?.positive || value.positiveObservations, MAX_FORM_LONG_TEXT_LENGTH),
+      highRiskWork: cleanText(value.observations?.highRiskWork || value.highRiskWorkObserved, MAX_FORM_LONG_TEXT_LENGTH),
+      immediateControls: cleanText(value.observations?.immediateControls || value.immediateControls, MAX_FORM_LONG_TEXT_LENGTH),
+      followUpNotes: cleanText(value.observations?.followUpNotes || value.followUpNotes, MAX_FORM_LONG_TEXT_LENGTH),
+    },
+    noDeficiencies,
+    deficiencies,
+  };
+}
+
+function cleanSiteInspectionDeficiency(row) {
+  return {
+    category: cleanText(row?.category, MAX_FORM_TEXT_LENGTH),
+    location: cleanText(row?.location, MAX_FORM_TEXT_LENGTH),
+    description: cleanText(row?.description || row?.deficiency, MAX_FORM_LONG_TEXT_LENGTH),
+    priority: cleanChoice(row?.priority || "medium", ["low", "medium", "high", "critical"], "Priority"),
+    immediateControl: cleanText(row?.immediateControl, MAX_FORM_LONG_TEXT_LENGTH),
+    recommendedAction: cleanText(row?.recommendedAction, MAX_FORM_LONG_TEXT_LENGTH),
+    suggestedAssignee: cleanText(row?.suggestedAssignee, MAX_FORM_TEXT_LENGTH),
+    dueDate: cleanOptionalDate(row?.dueDate),
+  };
 }
 
 function cleanRows(value, cleaner) {

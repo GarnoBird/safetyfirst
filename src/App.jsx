@@ -19,6 +19,7 @@ import {
   StaffBackupsPage,
   StaffFormSubmissionsPage,
   StaffHealthPage,
+  StaffActionItemsPage,
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
@@ -121,6 +122,10 @@ export default function App() {
 
   if (routePath === "/staff/forms") {
     return <StaffFormSubmissionsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/action-items") {
+    return <StaffActionItemsPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/workers") {

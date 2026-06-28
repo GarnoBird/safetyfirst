@@ -68,6 +68,7 @@ configured and the checkbox is turned on.
 - `/staff/home`: staff landing page with roster counts, QR links, reports, and settings access.
 - `/staff/sign-ins`: staff "Who's Here" records, grouping, export, and manual email report.
 - `/staff/forms`: staff form submission filtering, detail view, and OneDrive backup retry.
+- `/staff/action-items`: staff action items created from Site Inspection deficiencies.
 - `/staff/workers`: staff worker account creation, editing, deactivation, and password reset.
 - `/staff/settings`: staff-only site settings, editable email report settings, reminder placeholder, and privacy notes.
 
