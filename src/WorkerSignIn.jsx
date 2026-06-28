@@ -2815,12 +2815,14 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
 
 function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
+  const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
     () => restoredDraftRef.current?.form || initialToolboxTalkForm(worker),
   );
   const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraftRef.current?.form));
   const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
   const [error, setError] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const selectedTopicKeys = useMemo(
     () => new Set(form.topics.selected.map((topic) => topicKey(topic))),
@@ -2864,13 +2866,36 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         .filter(Boolean),
     [form.attendance],
   );
+  const missingFieldKeys = useMemo(
+    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput) : []),
+    [attendeeNameInput, form, submitAttempted],
+  );
+  const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
   const hasSavedDefaults = Boolean(
     savedDefaults.projectName || savedDefaults.address || savedDefaults.supervisor,
   );
+  const registerValidationTarget = (field) => (element) => {
+    if (element) {
+      validationTargetsRef.current[field] = element;
+      return;
+    }
+    delete validationTargetsRef.current[field];
+  };
+  const isFieldInvalid = (field) => missingFieldSet.has(field);
+  const meetingInfoInvalid = missingFieldKeys.some((field) => field.startsWith("header."));
+  const topicsInvalid = isFieldInvalid("topics");
+  const attendanceInvalid = isFieldInvalid("attendance");
+  const finalCheckInvalid = missingFieldKeys.some((field) => field.startsWith("confirmation."));
   const topicLabelIsSelected = (label) => {
     const match = findToolboxTopic(label);
     return match ? selectedTopicKeys.has(topicKey(createToolboxTopic(match.group, match.label))) : false;
   };
+
+  useEffect(() => {
+    if (!submitAttempted) return;
+    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput);
+    setError(nextMissing.length ? toolboxValidationMessage(nextMissing[0]) : "");
+  }, [attendeeNameInput, form, submitAttempted]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -3037,6 +3062,7 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
     setDraftRestored(false);
     setDraftSavedAt("");
     setError("");
+    setSubmitAttempted(false);
   };
 
   const submitForm = async (event) => {
@@ -3048,19 +3074,22 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
       setForm(formForSubmit);
       setAttendeeNameInput("");
     }
-    const validationError = validateToolboxTalkForm(formForSubmit);
-    if (validationError) {
-      setError(validationError);
+    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit);
+    if (nextMissingFields.length) {
+      setSubmitAttempted(true);
+      setError(toolboxValidationMessage(nextMissingFields[0]));
+      scrollToToolboxValidationTarget(validationTargetsRef.current, nextMissingFields[0]);
       return;
     }
     setError("");
+    setSubmitAttempted(false);
     rememberToolboxTalkDefaults(formForSubmit);
     rememberToolboxTalkRecents(formForSubmit);
     await onSubmit(cleanToolboxTalkClientForm(formForSubmit));
   };
 
   return (
-    <form className="submission-form toolbox-talk-form" onSubmit={submitForm}>
+    <form className="submission-form toolbox-talk-form" noValidate onSubmit={submitForm}>
       {draftRestored || draftSavedAt ? (
         <div className="offline-draft-status">
           <div>
@@ -3075,7 +3104,7 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         </div>
       ) : null}
 
-      <section className="toolbox-section">
+      <section className={meetingInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
           <h2>Meeting Info</h2>
           {hasSavedDefaults ? (
@@ -3087,51 +3116,63 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           )}
         </div>
         <div className="toolbox-field-grid">
-          <label>
+          <label className={isFieldInvalid("header.projectName") ? "toolbox-field-invalid" : ""}>
             <span>Project Name</span>
             <input
+              aria-invalid={isFieldInvalid("header.projectName") ? "true" : undefined}
+              ref={registerValidationTarget("header.projectName")}
               required
               value={form.header.projectName}
               onChange={(event) => updateHeader("projectName", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("header.address") ? "toolbox-field-invalid" : ""}>
             <span>Address</span>
             <input
+              aria-invalid={isFieldInvalid("header.address") ? "true" : undefined}
+              ref={registerValidationTarget("header.address")}
               required
               value={form.header.address}
               onChange={(event) => updateHeader("address", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("header.date") ? "toolbox-field-invalid" : ""}>
             <span>Date</span>
             <input
+              aria-invalid={isFieldInvalid("header.date") ? "true" : undefined}
+              ref={registerValidationTarget("header.date")}
               required
               type="date"
               value={form.header.date}
               onChange={(event) => updateHeader("date", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("header.time") ? "toolbox-field-invalid" : ""}>
             <span>Time</span>
             <input
+              aria-invalid={isFieldInvalid("header.time") ? "true" : undefined}
+              ref={registerValidationTarget("header.time")}
               required
               type="time"
               value={form.header.time}
               onChange={(event) => updateHeader("time", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("header.presenter") ? "toolbox-field-invalid" : ""}>
             <span>Presenter</span>
             <input
+              aria-invalid={isFieldInvalid("header.presenter") ? "true" : undefined}
+              ref={registerValidationTarget("header.presenter")}
               required
               value={form.header.presenter}
               onChange={(event) => updateHeader("presenter", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("header.supervisor") ? "toolbox-field-invalid" : ""}>
             <span>Supervisor</span>
             <input
+              aria-invalid={isFieldInvalid("header.supervisor") ? "true" : undefined}
+              ref={registerValidationTarget("header.supervisor")}
               required
               value={form.header.supervisor}
               onChange={(event) => updateHeader("supervisor", event.target.value)}
@@ -3140,7 +3181,10 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         </div>
       </section>
 
-      <section className="toolbox-section">
+      <section
+        className={topicsInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
+        ref={registerValidationTarget("topics")}
+      >
         <div className="toolbox-section-heading">
           <h2>Topics Discussed</h2>
           <span>{form.topics.selected.length} selected</span>
@@ -3227,9 +3271,10 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         {!filteredTopicGroups.length ? (
           <p className="empty-state">No topics match that search.</p>
         ) : null}
-        <label>
+        <label className={topicsInvalid ? "toolbox-field-invalid" : ""}>
           <span>Additional topics / procedures reviewed</span>
           <textarea
+            aria-invalid={topicsInvalid ? "true" : undefined}
             rows="4"
             placeholder="Procedure name, revision/date, or other topic details"
             value={form.topics.other}
@@ -3355,14 +3400,18 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         ) : null}
       </section>
 
-      <section className="toolbox-section">
+      <section
+        className={attendanceInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
+        ref={registerValidationTarget("attendance")}
+      >
         <div className="toolbox-section-heading">
           <h2>Attendance</h2>
           <span>{attendeeNames.length ? `${attendeeNames.length} listed` : "Required"}</span>
         </div>
-        <label className="attendance-entry-field">
+        <label className={attendanceInvalid ? "attendance-entry-field toolbox-field-invalid" : "attendance-entry-field"}>
           <span>Name</span>
           <input
+            aria-invalid={attendanceInvalid ? "true" : undefined}
             autoCapitalize="words"
             enterKeyHint="done"
             placeholder="Worker name"
@@ -3387,7 +3436,7 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         </div>
       </section>
 
-      <section className="toolbox-section">
+      <section className={finalCheckInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
           <h2>Final Check</h2>
           <span>Completed by presenter</span>
@@ -3411,17 +3460,21 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           </label>
         ) : null}
         <div className="toolbox-field-grid compact">
-          <label>
+          <label className={isFieldInvalid("confirmation.name") ? "toolbox-field-invalid" : ""}>
             <span>Presenter / Supervisor name</span>
             <input
+              aria-invalid={isFieldInvalid("confirmation.name") ? "true" : undefined}
+              ref={registerValidationTarget("confirmation.name")}
               required
               value={form.confirmation.name}
               onChange={(event) => updateConfirmation("name", event.target.value)}
             />
           </label>
-          <label>
+          <label className={isFieldInvalid("confirmation.date") ? "toolbox-field-invalid" : ""}>
             <span>Date</span>
             <input
+              aria-invalid={isFieldInvalid("confirmation.date") ? "true" : undefined}
+              ref={registerValidationTarget("confirmation.date")}
               required
               type="date"
               value={form.confirmation.date}
@@ -3429,8 +3482,12 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
             />
           </label>
         </div>
-        <label className="toolbox-confirmation">
+        <label
+          className={isFieldInvalid("confirmation.confirmed") ? "toolbox-confirmation toolbox-field-invalid" : "toolbox-confirmation"}
+        >
           <input
+            aria-invalid={isFieldInvalid("confirmation.confirmed") ? "true" : undefined}
+            ref={registerValidationTarget("confirmation.confirmed")}
             required
             checked={form.confirmation.confirmed}
             type="checkbox"
@@ -6775,28 +6832,77 @@ function addAttendeeNameToToolboxForm(form, name) {
 }
 
 function validateToolboxTalkForm(form) {
-  const required = [
-    [form.header.projectName, "Project Name is required."],
-    [form.header.address, "Address is required."],
-    [form.header.date, "Date is required."],
-    [form.header.time, "Time is required."],
-    [form.header.presenter, "Presenter is required."],
-    [form.header.supervisor, "Supervisor is required."],
-    [form.confirmation.name, "Presenter / Supervisor name is required."],
-    [form.confirmation.date, "Confirmation date is required."],
-  ];
-  const missing = required.find(([value]) => !String(value || "").trim());
-  if (missing) return missing[1];
-  if (!form.topics.selected.length && !form.topics.other.trim()) {
-    return "Select at least one topic or enter an additional topic.";
+  const missingFields = getToolboxTalkMissingFields(form);
+  return missingFields.length ? toolboxValidationMessage(missingFields[0]) : "";
+}
+
+function getToolboxTalkMissingFields(form, pendingAttendeeName = "") {
+  const header = form?.header || {};
+  const confirmation = form?.confirmation || {};
+  const topics = form?.topics || {};
+  const attendance = Array.isArray(form?.attendance) ? form.attendance : [];
+  const missing = [];
+
+  [
+    ["header.projectName", header.projectName],
+    ["header.address", header.address],
+    ["header.date", header.date],
+    ["header.time", header.time],
+    ["header.presenter", header.presenter],
+    ["header.supervisor", header.supervisor],
+  ].forEach(([field, value]) => {
+    if (!String(value || "").trim()) missing.push(field);
+  });
+
+  if (!topics.selected?.length && !String(topics.other || "").trim()) {
+    missing.push("topics");
   }
-  if (!form.attendance.some((row) => row.name.trim())) {
-    return "Add at least one attendee.";
+
+  const hasAttendance = attendance.some((row) => String(row?.name || "").trim())
+    || Boolean(String(pendingAttendeeName || "").trim());
+  if (!hasAttendance) {
+    missing.push("attendance");
   }
-  if (!form.confirmation.confirmed) {
-    return "Confirm that the listed workers participated.";
+
+  if (!String(confirmation.name || "").trim()) {
+    missing.push("confirmation.name");
   }
-  return "";
+  if (!String(confirmation.date || "").trim()) {
+    missing.push("confirmation.date");
+  }
+  if (!confirmation.confirmed) {
+    missing.push("confirmation.confirmed");
+  }
+
+  return missing;
+}
+
+function toolboxValidationMessage(field) {
+  const messages = {
+    "header.projectName": "Project Name is required.",
+    "header.address": "Address is required.",
+    "header.date": "Date is required.",
+    "header.time": "Time is required.",
+    "header.presenter": "Presenter is required.",
+    "header.supervisor": "Supervisor is required.",
+    topics: "Select at least one topic or enter an additional topic.",
+    attendance: "Add at least one attendee.",
+    "confirmation.name": "Presenter / Supervisor name is required.",
+    "confirmation.date": "Confirmation date is required.",
+    "confirmation.confirmed": "Confirm that the listed workers participated.",
+  };
+  return messages[field] || "Complete the required fields.";
+}
+
+function scrollToToolboxValidationTarget(targets, field) {
+  const target = targets?.[field];
+  if (!target) return;
+  window.requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (typeof target.focus === "function" && target.matches?.("input, textarea, button")) {
+      target.focus({ preventScroll: true });
+    }
+  });
 }
 
 function cleanToolboxTalkClientForm(form) {
