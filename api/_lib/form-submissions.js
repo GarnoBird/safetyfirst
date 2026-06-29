@@ -7,6 +7,10 @@ import {
   listFallbackRecords,
   upsertFallbackRecord,
 } from "./fallback-store.js";
+import {
+  buildTemplateSubmissionNotes,
+  validateTemplateSubmissionFormData,
+} from "./form-templates.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
 import { isOneDriveBackupEnabled } from "./settings.js";
 import {
@@ -68,7 +72,7 @@ const STAFF_SORT_FIELDS = [
 const FILE_SELECT =
   "id, submission_id, bucket, storage_path, original_filename, mime_type, size_bytes, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_status, backup_attempted_at, backup_error, app_deleted_at, created_at";
 const SUBMISSION_SELECT =
-  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
+  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, form_template_version_id, form_schema_snapshot, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
 const SUBMISSION_WITH_FILES_SELECT = `${SUBMISSION_SELECT}, submission_files(${FILE_SELECT})`;
 
 export function publicSubmission(row) {
@@ -167,12 +171,13 @@ export async function createFileUploadTarget(worker, body) {
 export async function createWorkerSubmission(worker, body) {
   const formType = cleanFormType(body?.formType || body?.form_type);
   const submissionMode = cleanSubmissionMode(body?.submissionMode || body?.submission_mode);
-  const formData = cleanSubmissionFormData(
+  const cleanedForm = await cleanSubmissionFormData(
     formType,
     submissionMode,
     body?.formData ?? body?.form_data,
     worker,
   );
+  const formData = cleanedForm.formData;
   const notes = buildSubmissionNotes(formType, submissionMode, body?.notes, formData);
   const now = new Date();
 
@@ -191,6 +196,8 @@ export async function createWorkerSubmission(worker, body) {
           submission_mode: submissionMode,
           notes,
           form_data: formData,
+          form_template_version_id: cleanedForm.formTemplateVersionId,
+          form_schema_snapshot: cleanedForm.formSchemaSnapshot || {},
           submitted_at: now.toISOString(),
           submitted_date_vancouver: getVancouverDate(now),
           one_drive_backup_status: "pending",
@@ -206,6 +213,7 @@ export async function createWorkerSubmission(worker, body) {
       formType,
       submissionMode,
       notes,
+      cleanedForm,
       now,
     });
   }
@@ -677,6 +685,8 @@ async function backupFilledSubmission(submission) {
           },
           notes: submission.notes,
           formData: submission.form_data || {},
+          formTemplateVersionId: submission.form_template_version_id || null,
+          formSchemaSnapshot: submission.form_schema_snapshot || {},
           submittedAt: submission.submitted_at,
           submittedDate: submission.submitted_date_vancouver,
         },
@@ -882,13 +892,14 @@ async function updateFileBackupStatus(id, status, attemptedAt, errorMessage = ""
   );
 }
 
-async function createFallbackWorkerSubmission(worker, { body, formType, submissionMode, notes, now }) {
-  const formData = cleanSubmissionFormData(
+async function createFallbackWorkerSubmission(worker, { body, formType, submissionMode, notes, cleanedForm, now }) {
+  const nextCleanedForm = cleanedForm || await cleanSubmissionFormData(
     formType,
     submissionMode,
     body?.formData ?? body?.form_data,
     worker,
   );
+  const formData = nextCleanedForm.formData || {};
   const submission = {
     id: crypto.randomUUID(),
     worker_id: worker.id,
@@ -900,6 +911,8 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
     submission_mode: submissionMode,
     notes,
     form_data: formData,
+    form_template_version_id: nextCleanedForm.formTemplateVersionId || null,
+    form_schema_snapshot: nextCleanedForm.formSchemaSnapshot || {},
     submitted_at: now.toISOString(),
     submitted_date_vancouver: getVancouverDate(now),
     deleted_by_worker_at: null,
@@ -1083,6 +1096,8 @@ async function backupFallbackSubmission(id) {
             },
             notes: submission.notes,
             formData: submission.form_data || {},
+            formTemplateVersionId: submission.form_template_version_id || null,
+            formSchemaSnapshot: submission.form_schema_snapshot || {},
             submittedAt: submission.submitted_at,
             submittedDate: submission.submitted_date_vancouver,
           },
@@ -1285,6 +1300,8 @@ function normalizeFallbackSubmission(row) {
   return {
     ...row,
     form_data: row.form_data && typeof row.form_data === "object" ? row.form_data : {},
+    form_template_version_id: row.form_template_version_id || null,
+    form_schema_snapshot: row.form_schema_snapshot && typeof row.form_schema_snapshot === "object" ? row.form_schema_snapshot : {},
     deleted_by_staff_at: row.deleted_by_staff_at || null,
     deleted_by_staff_id: row.deleted_by_staff_id || null,
     files,
@@ -1388,11 +1405,39 @@ function cleanSubmittedFile(file, workerId) {
   return { ...metadata, storagePath };
 }
 
-function cleanSubmissionFormData(formType, submissionMode, value, worker) {
-  if (submissionMode !== "fill_form") return {};
-  if (formType === "toolbox_talk") return cleanToolboxTalkFormData(value, worker);
-  if (formType === "site_inspection") return cleanSiteInspectionFormData(value, worker);
-  return {};
+async function cleanSubmissionFormData(formType, submissionMode, value, worker) {
+  if (submissionMode !== "fill_form") {
+    return {
+      formData: {},
+      formTemplateVersionId: null,
+      formSchemaSnapshot: {},
+    };
+  }
+  if (formType === "toolbox_talk") {
+    return {
+      formData: cleanToolboxTalkFormData(value, worker),
+      formTemplateVersionId: null,
+      formSchemaSnapshot: {},
+    };
+  }
+  if (formType === "site_inspection") {
+    return {
+      formData: cleanSiteInspectionFormData(value, worker),
+      formTemplateVersionId: null,
+      formSchemaSnapshot: {},
+    };
+  }
+  const templateSubmission = await validateTemplateSubmissionFormData({
+    formType,
+    rawFormData: value,
+    worker,
+  });
+  if (templateSubmission) return templateSubmission;
+  return {
+    formData: {},
+    formTemplateVersionId: null,
+    formSchemaSnapshot: {},
+  };
 }
 
 function buildSubmissionNotes(formType, submissionMode, value, formData) {
@@ -1429,6 +1474,10 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
       .filter(Boolean)
       .join(" / ")
       .slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+  }
+
+  if (submissionMode === "fill_form" && formData?.kind === "template_submission_v1") {
+    return buildTemplateSubmissionNotes(formType, formData);
   }
 
   return String(value || "").trim().slice(0, MAX_FORM_LONG_TEXT_LENGTH);

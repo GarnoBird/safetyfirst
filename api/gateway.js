@@ -39,6 +39,14 @@ import {
   runSubmissionMaintenance,
 } from "./_lib/form-submissions.js";
 import {
+  getFormTemplate,
+  getPublishedFormTemplate,
+  listFormTemplates,
+  publishFormTemplateDraft,
+  restoreFormTemplateVersion,
+  saveFormTemplateDraft,
+} from "./_lib/form-templates.js";
+import {
   handleApiError,
   parseQuery,
   readJson,
@@ -308,6 +316,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "health") return handleStaffHealth(req, res);
   if (parts[0] === "backups") return handleStaffBackups(req, res, staff, parts.slice(1));
   if (parts[0] === "submissions") return handleStaffSubmissions(req, res, staff, parts.slice(1));
+  if (parts[0] === "form-templates") return handleStaffFormTemplates(req, res, staff, parts.slice(1));
   if (parts[0] === "action-items") return handleStaffActionItems(req, res, staff, parts.slice(1));
   return sendJson(res, 404, { error: "Not found" });
 }
@@ -863,8 +872,61 @@ async function handleStaffActionItems(req, res, staff, parts) {
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
+async function handleStaffFormTemplates(req, res, staff, parts) {
+  requireStaffRole(staff, ["owner", "admin"]);
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listFormTemplates() });
+  }
+  if (parts.length === 1 && req.method === "GET") {
+    return sendJson(res, 200, { template: await getFormTemplate(parts[0]) });
+  }
+  if (parts.length === 2 && parts[1] === "draft" && req.method === "PATCH") {
+    const draft = await saveFormTemplateDraft(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_draft_saved",
+      targetType: "form_template",
+      targetId: parts[0],
+      summary: `${staff.username} saved a form template draft.`,
+      metadata: { formType: parts[0], versionNumber: draft.version_number },
+    });
+    return sendJson(res, 200, { draft });
+  }
+  if (parts.length === 2 && parts[1] === "publish" && req.method === "POST") {
+    const published = await publishFormTemplateDraft(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_published",
+      targetType: "form_template",
+      targetId: parts[0],
+      summary: `${staff.username} published a form template.`,
+      metadata: { formType: parts[0], versionNumber: published.version_number },
+    });
+    return sendJson(res, 200, { published });
+  }
+  if (parts.length === 2 && parts[1] === "restore" && req.method === "POST") {
+    const draft = await restoreFormTemplateVersion(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_restored",
+      targetType: "form_template",
+      targetId: parts[0],
+      summary: `${staff.username} restored a form template draft.`,
+      metadata: { formType: parts[0], versionNumber: draft.version_number },
+    });
+    return sendJson(res, 200, { draft });
+  }
+  return sendMethodNotAllowed(res, ["GET", "PATCH", "POST"]);
+}
+
 async function handleWorker(req, res, parts) {
   const worker = await requireWorker(req);
+  if (parts[0] === "form-templates" && parts.length === 3 && parts[2] === "published" && req.method === "GET") {
+    return sendJson(res, 200, { template: await getPublishedFormTemplate(parts[1]) });
+  }
   if (parts[0] !== "submissions") return sendJson(res, 404, { error: "Not found" });
   const tail = parts.slice(1);
 

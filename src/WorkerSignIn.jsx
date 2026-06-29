@@ -19,6 +19,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
     path: "/staff/sign-ins/company",
   },
   { id: "forms", label: "FORMS", path: "/staff/forms" },
+  { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates", adminOnly: true },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "USERS", path: "/staff/users", adminOnly: true },
@@ -122,6 +123,20 @@ const SAFETY_FORM_TYPES = [
   { id: "site_inspection", label: "Site Inspection" },
   { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
 ];
+const TEMPLATE_FIELD_TYPES = [
+  { id: "short_text", label: "Short answer" },
+  { id: "long_text", label: "Long answer" },
+  { id: "number", label: "Number" },
+  { id: "date", label: "Date" },
+  { id: "time", label: "Time" },
+  { id: "yes_no", label: "Yes / No" },
+  { id: "dropdown", label: "Dropdown" },
+  { id: "multi_select", label: "Multi-select chips" },
+  { id: "checkbox", label: "Checkbox confirmation" },
+  { id: "instructions", label: "Instructions" },
+];
+const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const TEMPLATE_DRIVEN_FORM_TYPES = new Set(["daily_hazard_assessment"]);
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
@@ -2612,6 +2627,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const formType = routePath.split("/").filter(Boolean).pop();
   const isToolboxTalk = formType === "toolbox_talk";
   const isSiteInspection = formType === "site_inspection";
+  const isTemplateDriven = TEMPLATE_DRIVEN_FORM_TYPES.has(formType);
   const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
   const {
     queuedCount,
@@ -2620,7 +2636,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     syncing,
     syncNow,
   } = useWorkerSubmissionQueue(worker);
-  const [mode, setMode] = useState(() => (isToolboxTalk || isSiteInspection ? "fill_form" : ""));
+  const [mode, setMode] = useState(() =>
+    isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "",
+  );
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -2634,20 +2652,38 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   }, [form, navigateTo, worker]);
 
   useEffect(() => {
-    setMode(isToolboxTalk || isSiteInspection ? "fill_form" : "");
+    setMode(isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "");
     setFile(null);
     setNotes("");
     setStatus({ type: "", message: "", date: "" });
-  }, [formType, isSiteInspection, isToolboxTalk]);
+  }, [formType, isSiteInspection, isTemplateDriven, isToolboxTalk]);
 
   useEffect(() => {
-    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk" || formType === "site_inspection") return;
+    if (
+      !worker ||
+      !form ||
+      mode !== "fill_form" ||
+      formType === "toolbox_talk" ||
+      formType === "site_inspection" ||
+      isTemplateDriven
+    ) {
+      return;
+    }
     const draft = readWorkerFormDraft(worker, formType, "fill_form");
     if (typeof draft?.notes === "string") setNotes(draft.notes);
-  }, [form, formType, mode, worker]);
+  }, [form, formType, isTemplateDriven, mode, worker]);
 
   useEffect(() => {
-    if (!worker || !form || mode !== "fill_form" || formType === "toolbox_talk" || formType === "site_inspection") return undefined;
+    if (
+      !worker ||
+      !form ||
+      mode !== "fill_form" ||
+      formType === "toolbox_talk" ||
+      formType === "site_inspection" ||
+      isTemplateDriven
+    ) {
+      return undefined;
+    }
     const timeout = window.setTimeout(() => {
       if (notes.trim()) {
         writeWorkerFormDraft(worker, formType, "fill_form", { notes });
@@ -2656,7 +2692,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
       }
     }, DRAFT_SAVE_DELAY_MS);
     return () => window.clearTimeout(timeout);
-  }, [form, formType, mode, notes, worker]);
+  }, [form, formType, isTemplateDriven, mode, notes, worker]);
 
   const submitFilledForm = async (event) => {
     event.preventDefault();
@@ -2676,6 +2712,14 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   };
 
   const submitSiteInspectionForm = async (formData) => {
+    await submitSubmission({
+      formType,
+      submissionMode: "fill_form",
+      formData,
+    });
+  };
+
+  const submitTemplateForm = async (formData) => {
     await submitSubmission({
       formType,
       submissionMode: "fill_form",
@@ -2833,7 +2877,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
             </div>
           ) : (
             <>
-              {!mode && !isToolboxTalk ? (
+              {!mode && !isToolboxTalk && !isTemplateDriven ? (
                 <div className="submission-mode-grid">
                   <button type="button" onClick={() => setMode("submit_file")}>
                     <strong>Submit File</strong>
@@ -2889,9 +2933,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   <div className="form-platform-actions">
                     <button
                       type="button"
-                      onClick={() => setMode(isToolboxTalk || isSiteInspection ? "fill_form" : "")}
+                      onClick={() => setMode(isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "")}
                     >
-                      {isToolboxTalk || isSiteInspection ? "Back to digital form" : "Change option"}
+                      {isToolboxTalk || isSiteInspection || isTemplateDriven ? "Back to digital form" : "Change option"}
                     </button>
                     <button className="primary-button" disabled={submitting} type="submit">
                       {submitting ? "Submitting..." : "Submit"}
@@ -2935,6 +2979,15 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       onSubmit={submitSiteInspectionForm}
                     />
                   </>
+                ) : isTemplateDriven ? (
+                  <TemplateDrivenWorkerForm
+                    formType={formType}
+                    formLabel={form.label}
+                    openScannedCopyPicker={openScannedCopyPicker}
+                    submitting={submitting}
+                    worker={worker}
+                    onSubmit={submitTemplateForm}
+                  />
                 ) : (
                   <form className="submission-form" onSubmit={submitFilledForm}>
                     <label>
@@ -4111,6 +4164,166 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
   );
 }
 
+function TemplateDrivenWorkerForm({
+  formLabel,
+  formType,
+  onSubmit,
+  openScannedCopyPicker,
+  submitting,
+  worker,
+}) {
+  const validationTargetsRef = useRef({});
+  const restoredDraftRef = useRef(readWorkerFormDraft(worker, formType, "fill_form"));
+  const [template, setTemplate] = useState(null);
+  const [answers, setAnswers] = useState(() => restoredDraftRef.current?.answers || {});
+  const [loading, setLoading] = useState(true);
+  const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraftRef.current?.answers));
+  const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
+  const [error, setError] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const schema = useMemo(
+    () => ({
+      ...normalizeClientTemplateSchema(template?.publishedVersion?.schema || template?.schema),
+      formType,
+    }),
+    [formType, template],
+  );
+  const invalidFields = useMemo(
+    () => new Set(submitAttempted ? getTemplateMissingFields(schema, answers, worker) : []),
+    [answers, schema, submitAttempted, worker],
+  );
+
+  const registerValidationTarget = (field) => (element) => {
+    if (element) {
+      validationTargetsRef.current[field] = element;
+      return;
+    }
+    delete validationTargetsRef.current[field];
+  };
+
+  useEffect(() => {
+    let active = true;
+    const loadTemplate = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const payload = await readApiJson(
+          await fetch(`/api/worker/form-templates/${formType}/published`, {
+            credentials: "include",
+          }),
+        );
+        if (active) setTemplate(payload.template || null);
+      } catch (loadError) {
+        if (active) setError(loadError.message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadTemplate();
+    return () => {
+      active = false;
+    };
+  }, [formType]);
+
+  useEffect(() => {
+    if (!submitAttempted) return;
+    const nextMissing = getTemplateMissingFields(schema, answers, worker);
+    setError(nextMissing.length ? templateValidationMessage(schema, nextMissing[0]) : "");
+  }, [answers, schema, submitAttempted, worker]);
+
+  useEffect(() => {
+    if (loading) return undefined;
+    const timeout = window.setTimeout(() => {
+      if (isTemplateDraftMeaningful(schema, answers, worker)) {
+        const savedAt = writeWorkerFormDraft(worker, formType, "fill_form", { answers });
+        setDraftSavedAt(savedAt);
+        return;
+      }
+      clearWorkerFormDraft(worker, formType, "fill_form");
+      setDraftSavedAt("");
+    }, DRAFT_SAVE_DELAY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [answers, formType, loading, schema, worker]);
+
+  const startFresh = () => {
+    clearWorkerFormDraft(worker, formType, "fill_form");
+    setAnswers({});
+    setDraftRestored(false);
+    setDraftSavedAt("");
+    setError("");
+    setSubmitAttempted(false);
+  };
+
+  const submitForm = async (event) => {
+    event.preventDefault();
+    const nextMissing = getTemplateMissingFields(schema, answers, worker);
+    if (nextMissing.length) {
+      setSubmitAttempted(true);
+      setError(templateValidationMessage(schema, nextMissing[0]));
+      scrollToToolboxValidationTarget(validationTargetsRef.current, nextMissing[0]);
+      return;
+    }
+    setError("");
+    setSubmitAttempted(false);
+    rememberTemplateFieldDefaults(formType, schema, answers, worker);
+    await onSubmit({
+      kind: "template_submission_v1",
+      templateVersionId: template?.publishedVersion?.id || "",
+      answers: cleanTemplateAnswersForSubmit(schema, answers, worker),
+    });
+  };
+
+  if (loading) return <p className="empty-state">Loading {formLabel}...</p>;
+  if (error && !template) return <p className="form-message error">{error}</p>;
+
+  return (
+    <>
+      <div className="toolbox-fast-actions">
+        <div>
+          <strong>{schema.title || formLabel}</strong>
+          <span>Fast mobile version</span>
+        </div>
+        <button type="button" onClick={openScannedCopyPicker}>
+          Submit scanned copy
+        </button>
+      </div>
+      <form className="submission-form toolbox-talk-form template-worker-form" noValidate onSubmit={submitForm}>
+        {draftRestored || draftSavedAt ? (
+          <div className="offline-draft-status">
+            <div>
+              <strong>{draftRestored ? "Draft restored" : "Draft saved"}</strong>
+              {draftSavedAt ? <span>Saved {formatCompactTime(draftSavedAt)}</span> : null}
+            </div>
+            {draftRestored ? (
+              <button type="button" onClick={startFresh}>
+                Start fresh
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        <TemplateFormFields
+          answers={answers}
+          invalidFields={invalidFields}
+          schema={schema}
+          worker={worker}
+          registerValidationTarget={registerValidationTarget}
+          onChange={setAnswers}
+        />
+
+        {error ? <p className="form-message error">{error}</p> : null}
+
+        <div className="toolbox-submit-actions">
+          <button className="primary-button" disabled={submitting} type="submit">
+            {submitting ? "Submitting..." : `Submit ${schema.title || formLabel}`}
+          </button>
+        </div>
+      </form>
+    </>
+  );
+}
+
 export function WorkerSubmissionHistoryPage({ navigateTo }) {
   const { worker } = useWorkerSession(navigateTo);
   const [rows, setRows] = useState([]);
@@ -4292,6 +4505,9 @@ function WorkerSubmissionReadOnlyView({ row }) {
       {isDigitalSiteInspectionSubmission(row) ? (
         <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
       ) : null}
+      {isTemplateDigitalSubmission(row) ? (
+        <TemplateSubmissionDetails data={row.form_data} row={row} />
+      ) : null}
 
       {files.length ? (
         <div className="submission-file-list">
@@ -4308,7 +4524,10 @@ function WorkerSubmissionReadOnlyView({ row }) {
         </div>
       ) : null}
 
-      {!isDigitalToolboxTalkSubmission(row) && !isDigitalSiteInspectionSubmission(row) && !files.length ? (
+      {!isDigitalToolboxTalkSubmission(row) &&
+      !isDigitalSiteInspectionSubmission(row) &&
+      !isTemplateDigitalSubmission(row) &&
+      !files.length ? (
         <p className="empty-state">No additional form details were saved for this submission.</p>
       ) : null}
     </section>
@@ -5379,6 +5598,233 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   );
 }
 
+export function StaffFormTemplatesPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const canManageTemplates = isAdminOrOwner(staff);
+  const [rows, setRows] = useState([]);
+  const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
+  const [draftSchema, setDraftSchema] = useState(null);
+  const [previewAnswers, setPreviewAnswers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const selectedTemplate = useMemo(
+    () => rows.find((row) => row.form_type === selectedFormType) || rows[0] || null,
+    [rows, selectedFormType],
+  );
+  const selectedSchema = selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
+  const previousVersions = useMemo(
+    () => (selectedTemplate?.versions || []).filter((version) => version.status === "archived"),
+    [selectedTemplate],
+  );
+
+  const loadTemplates = async ({ preserveDraft = false } = {}) => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/form-templates", { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+      if (!preserveDraft) {
+        const selected = (payload.rows || []).find((row) => row.form_type === selectedFormType) || payload.rows?.[0];
+        setDraftSchema(cloneTemplateSchema(selected?.draftVersion?.schema || selected?.publishedVersion?.schema));
+      }
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!staff) return;
+    if (!canManageTemplates) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadTemplates();
+  }, [staff, canManageTemplates, navigateTo]);
+
+  useEffect(() => {
+    setDraftSchema(cloneTemplateSchema(selectedSchema));
+    setPreviewAnswers({});
+  }, [selectedFormType, selectedSchema]);
+
+  const saveDraft = async () => {
+    if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/draft`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ schema: draftSchema }),
+        }),
+      );
+      setRows((current) =>
+        current.map((row) =>
+          row.form_type === selectedTemplate.form_type
+            ? { ...row, draftVersion: payload.draft, versions: mergeTemplateVersions(row.versions, payload.draft) }
+            : row,
+        ),
+      );
+      setMessage("Draft saved.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishDraft = async () => {
+    if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    setPublishing(true);
+    setMessage("");
+    try {
+      if (draftSchema) {
+        await readApiJson(
+          await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/draft`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ schema: draftSchema }),
+          }),
+        );
+      }
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/publish`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      setMessage(`Published version ${payload.published.version_number}.`);
+      await loadTemplates();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const restoreVersion = async (version) => {
+    if (!selectedTemplate || !version) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/restore`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ versionId: version.id }),
+        }),
+      );
+      setDraftSchema(cloneTemplateSchema(payload.draft.schema));
+      setRows((current) =>
+        current.map((row) =>
+          row.form_type === selectedTemplate.form_type
+            ? { ...row, draftVersion: payload.draft, versions: mergeTemplateVersions(row.versions, payload.draft) }
+            : row,
+        ),
+      );
+      setMessage(`Restored version ${version.version_number} into draft.`);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!staff || loading) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="form-templates" contentWide navigateTo={navigateTo} staff={staff}>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="template-manager-grid">
+        <aside className="template-card-list" aria-label="Form templates">
+          {rows.map((template) => (
+            <button
+              className={selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card"}
+              key={template.form_type}
+              type="button"
+              onClick={() => setSelectedFormType(template.form_type)}
+            >
+              <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
+              <strong>{template.label}</strong>
+              <small>
+                Published v{template.publishedVersion?.version_number || "-"}
+                {template.draftVersion ? " / Draft ready" : ""}
+              </small>
+            </button>
+          ))}
+        </aside>
+
+        <section className="template-editor-panel">
+          {!selectedTemplate ? (
+            <p className="empty-state">No form templates found.</p>
+          ) : selectedTemplate.renderer_type !== "template" ? (
+            <div className="settings-section">
+              <div className="settings-section-heading">
+                <div>
+                  <h2>{selectedTemplate.label}</h2>
+                  <p>Special mobile form</p>
+                </div>
+              </div>
+              <p className="muted">
+                This form uses a polished custom mobile flow. Editable labels and options for this special form will be added in a later phase.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="template-editor-heading">
+                <div>
+                  <p>Daily Hazard template</p>
+                  <h1>{draftSchema?.title || selectedTemplate.label}</h1>
+                  <span>
+                    Published v{selectedTemplate.publishedVersion?.version_number || "-"}
+                    {selectedTemplate.draftVersion ? " / Draft exists" : ""}
+                  </span>
+                </div>
+                <div className="staff-card-actions">
+                  {previousVersions.length ? (
+                    <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
+                      Restore previous version
+                    </button>
+                  ) : null}
+                  <button disabled={saving} type="button" onClick={saveDraft}>
+                    {saving ? "Saving..." : "Save draft"}
+                  </button>
+                  <button className="primary-button" disabled={publishing} type="button" onClick={publishDraft}>
+                    {publishing ? "Publishing..." : "Publish"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="template-editor-layout">
+                <TemplateSchemaEditor schema={draftSchema} onChange={setDraftSchema} />
+                <div className="template-preview-panel">
+                  <h2>Worker preview</h2>
+                  <TemplateFormFields
+                    answers={previewAnswers}
+                    schema={draftSchema}
+                    worker={staffToPreviewWorker(staff)}
+                    onChange={setPreviewAnswers}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+      </section>
+    </StaffShell>
+  );
+}
+
 export function StaffActionItemsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const canManage = ["owner", "admin"].includes(staff?.role);
@@ -5901,6 +6347,372 @@ export function StaffActionItemsPage({ navigateTo }) {
         />
       ) : null}
     </StaffShell>
+  );
+}
+
+function TemplateSchemaEditor({ onChange, schema }) {
+  const current = schema || createDefaultTemplateSchema();
+  const updateSchema = (patch) => onChange({ ...current, ...patch });
+  const updateSection = (sectionIndex, patch) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex ? { ...section, ...patch } : section,
+      ),
+    });
+  };
+  const updateField = (sectionIndex, fieldIndex, patch) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
+              fields: section.fields.map((field, nextIndex) =>
+                nextIndex === fieldIndex ? normalizeTemplateField({ ...field, ...patch }) : field,
+              ),
+            }
+          : section,
+      ),
+    });
+  };
+  const addSection = () => {
+    onChange({
+      ...current,
+      sections: [...current.sections, createTemplateSection(current.sections.length + 1)],
+    });
+  };
+  const removeSection = (sectionIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.filter((_, index) => index !== sectionIndex),
+    });
+  };
+  const moveSection = (sectionIndex, direction) => {
+    onChange({ ...current, sections: moveArrayItem(current.sections, sectionIndex, direction) });
+  };
+  const addField = (sectionIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: [...section.fields, createTemplateField(section.fields.length + 1)] }
+          : section,
+      ),
+    });
+  };
+  const removeField = (sectionIndex, fieldIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: section.fields.filter((_, nextIndex) => nextIndex !== fieldIndex) }
+          : section,
+      ),
+    });
+  };
+  const moveField = (sectionIndex, fieldIndex, direction) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: moveArrayItem(section.fields, fieldIndex, direction) }
+          : section,
+      ),
+    });
+  };
+
+  return (
+    <div className="template-schema-editor">
+      <section className="settings-section">
+        <h2>Form Details</h2>
+        <label>
+          <span>Form title</span>
+          <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
+        </label>
+        <label>
+          <span>Description</span>
+          <textarea rows="3" value={current.description || ""} onChange={(event) => updateSchema({ description: event.target.value })} />
+        </label>
+      </section>
+
+      {current.sections.map((section, sectionIndex) => (
+        <section className="settings-section template-section-editor" key={section.id || sectionIndex}>
+          <div className="template-section-toolbar">
+            <h2>Section {sectionIndex + 1}</h2>
+            <div className="staff-card-actions">
+              <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
+              <button disabled={sectionIndex === current.sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+              <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Remove</button>
+            </div>
+          </div>
+          <label>
+            <span>Section title</span>
+            <input value={section.title} onChange={(event) => updateSection(sectionIndex, { title: event.target.value })} />
+          </label>
+          <label>
+            <span>Section description</span>
+            <textarea rows="2" value={section.description || ""} onChange={(event) => updateSection(sectionIndex, { description: event.target.value })} />
+          </label>
+
+          <div className="template-field-list">
+            {(section.fields || []).map((field, fieldIndex) => (
+              <article className="template-field-editor" key={field.id || fieldIndex}>
+                <div className="template-section-toolbar">
+                  <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                  <div className="staff-card-actions">
+                    <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
+                    <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                    <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Remove</button>
+                  </div>
+                </div>
+                <div className="template-field-grid">
+                  <label>
+                    <span>Type</span>
+                    <select
+                      value={field.type}
+                      onChange={(event) => {
+                        const nextType = event.target.value;
+                        updateField(sectionIndex, fieldIndex, {
+                          type: nextType,
+                          options: TEMPLATE_OPTION_FIELD_TYPES.has(nextType) && !(field.options || []).length
+                            ? ["Yes", "No"]
+                            : field.options,
+                        });
+                      }}
+                    >
+                      {TEMPLATE_FIELD_TYPES.map((type) => (
+                        <option key={type.id} value={type.id}>{type.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Label</span>
+                    <input value={field.label} onChange={(event) => updateField(sectionIndex, fieldIndex, { label: event.target.value, id: slugifyTemplateId(event.target.value || field.id) })} />
+                  </label>
+                </div>
+                <label>
+                  <span>Helper text</span>
+                  <input value={field.helperText || ""} onChange={(event) => updateField(sectionIndex, fieldIndex, { helperText: event.target.value })} />
+                </label>
+                {field.type !== "instructions" ? (
+                  <div className="template-field-toggles">
+                    <label className="remember-worker-field">
+                      <input checked={Boolean(field.required)} type="checkbox" onChange={(event) => updateField(sectionIndex, fieldIndex, { required: event.target.checked })} />
+                      <span>Required</span>
+                    </label>
+                    <label className="remember-worker-field">
+                      <input checked={Boolean(field.remember)} type="checkbox" onChange={(event) => updateField(sectionIndex, fieldIndex, { remember: event.target.checked })} />
+                      <span>Remember last value on this device</span>
+                    </label>
+                  </div>
+                ) : null}
+                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(field.type) ? (
+                  <label>
+                    <span>Default value</span>
+                    <select value={field.default || ""} onChange={(event) => updateField(sectionIndex, fieldIndex, { default: event.target.value })}>
+                      <option value="">Blank</option>
+                      <option value="worker_name">Worker name</option>
+                      {field.type === "date" ? <option value="today">Today</option> : null}
+                      {field.type === "time" ? <option value="now">Current time</option> : null}
+                    </select>
+                  </label>
+                ) : null}
+                {TEMPLATE_OPTION_FIELD_TYPES.has(field.type) ? (
+                  <label>
+                    <span>Options</span>
+                    <textarea
+                      rows="4"
+                      value={(field.options || []).join("\n")}
+                      onChange={(event) =>
+                        updateField(sectionIndex, fieldIndex, {
+                          options: event.target.value.split(/\n|,/).map((item) => item.trim()).filter(Boolean),
+                        })
+                      }
+                    />
+                  </label>
+                ) : null}
+              </article>
+            ))}
+          </div>
+          <button type="button" onClick={() => addField(sectionIndex)}>Add field</button>
+        </section>
+      ))}
+      <button className="primary-button" type="button" onClick={addSection}>Add section</button>
+    </div>
+  );
+}
+
+function TemplateFormFields({
+  answers,
+  invalidFields = new Set(),
+  onChange,
+  registerValidationTarget,
+  schema,
+  worker,
+}) {
+  const current = normalizeClientTemplateSchema(schema);
+  const updateAnswer = (fieldId, value) => {
+    onChange({ ...answers, [fieldId]: value });
+  };
+  return (
+    <div className="template-runtime-form">
+      {current.description ? <p className="muted">{current.description}</p> : null}
+      {current.sections.map((section) => (
+        <section className="toolbox-section" key={section.id}>
+          <div className="toolbox-section-heading">
+            <h2>{section.title}</h2>
+            {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
+          </div>
+          {section.description ? <p className="muted">{section.description}</p> : null}
+          <div className="toolbox-field-grid">
+            {section.fields.map((field) => (
+              <TemplateRuntimeField
+                answers={answers}
+                field={field}
+                invalid={invalidFields.has(field.id)}
+                key={field.id}
+                targetRef={registerValidationTarget?.(field.id)}
+                value={answers[field.id] ?? templateFieldDefaultValue(field, worker, current)}
+                onChange={(value) => updateAnswer(field.id, value)}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function TemplateRuntimeField({ field, invalid, targetRef, value, onChange }) {
+  if (field.type === "instructions") {
+    return <p className="template-instructions">{field.label}</p>;
+  }
+  const labelClass = invalid ? "toolbox-field-invalid" : "";
+  if (field.type === "long_text") {
+    return (
+      <label className={labelClass} ref={targetRef}>
+        <span>{field.label}</span>
+        <textarea
+          aria-invalid={invalid ? "true" : undefined}
+          placeholder={field.helperText || ""}
+          rows="4"
+          value={value || ""}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    );
+  }
+  if (field.type === "number") {
+    return (
+      <label className={labelClass} ref={targetRef}>
+        <span>{field.label}</span>
+        <input
+          aria-invalid={invalid ? "true" : undefined}
+          inputMode="decimal"
+          placeholder={field.helperText || ""}
+          type="number"
+          value={value ?? ""}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    );
+  }
+  if (field.type === "date" || field.type === "time") {
+    return (
+      <label className={labelClass} ref={targetRef}>
+        <span>{field.label}</span>
+        <input
+          aria-invalid={invalid ? "true" : undefined}
+          type={field.type === "date" ? "date" : "time"}
+          value={value || ""}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    );
+  }
+  if (field.type === "yes_no") {
+    return (
+      <div className={`toolbox-segment-field ${labelClass}`} ref={targetRef}>
+        <span>{field.label}</span>
+        <div className="toolbox-segmented" role="group" aria-label={field.label}>
+          {["yes", "no"].map((option) => (
+            <button
+              className={value === option ? "active" : ""}
+              key={option}
+              type="button"
+              onClick={() => onChange(option)}
+            >
+              {option === "yes" ? "Yes" : "No"}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (field.type === "dropdown") {
+    return (
+      <label className={labelClass} ref={targetRef}>
+        <span>{field.label}</span>
+        <select
+          aria-invalid={invalid ? "true" : undefined}
+          value={value || ""}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">Choose</option>
+          {(field.options || []).map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+  if (field.type === "multi_select") {
+    const values = Array.isArray(value) ? value : [];
+    return (
+      <div className={`template-multi-select ${labelClass}`} ref={targetRef}>
+        <span>{field.label}</span>
+        <div className="toolbox-chip-row">
+          {(field.options || []).map((option) => (
+            <button
+              className={values.includes(option) ? "topic-chip active" : "topic-chip"}
+              key={option}
+              type="button"
+              onClick={() =>
+                onChange(values.includes(option)
+                  ? values.filter((item) => item !== option)
+                  : [...values, option])
+              }
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        {field.helperText ? <small>{field.helperText}</small> : null}
+      </div>
+    );
+  }
+  if (field.type === "checkbox") {
+    return (
+      <label
+        className={invalid ? "toolbox-confirmation toolbox-field-invalid" : "toolbox-confirmation"}
+        ref={targetRef}
+      >
+        <input checked={value === true} type="checkbox" onChange={(event) => onChange(event.target.checked)} />
+        <span>{field.label}</span>
+      </label>
+    );
+  }
+  return (
+    <label className={labelClass} ref={targetRef}>
+      <span>{field.label}</span>
+      <input
+        aria-invalid={invalid ? "true" : undefined}
+        placeholder={field.helperText || ""}
+        value={value || ""}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
   );
 }
 
@@ -6659,6 +7471,9 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
         {isDigitalSiteInspectionSubmission(row) ? (
           <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
         ) : null}
+        {isTemplateDigitalSubmission(row) ? (
+          <TemplateSubmissionDetails data={row.form_data} row={row} />
+        ) : null}
         {row.action_items?.length ? (
           <div className="submission-action-items">
             <h3>Linked Action Items</h3>
@@ -6989,6 +7804,59 @@ function SiteInspectionSubmissionDetails({ data, row }) {
           <p className="empty-state">No deficiencies recorded.</p>
         )}
       </section>
+
+      <div className="digital-form-actions">
+        <button disabled={saving} type="button" onClick={saveForm}>
+          {saving ? "Opening..." : "Save"}
+        </button>
+        <button type="button" onClick={() => printDigitalForm(row, data)}>
+          Print
+        </button>
+        {saveStatus ? <p>{saveStatus}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function TemplateSubmissionDetails({ data, row }) {
+  const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const answers = data?.answers || {};
+  const [saveStatus, setSaveStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const saveForm = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const shared = await shareOrSaveDigitalForm(row, data);
+      if (!shared) setSaveStatus("Saved as an HTML file.");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSaveStatus(error.message || "This form could not be saved.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="toolbox-detail template-submission-detail">
+      {schema.sections.map((section) => (
+        <section key={section.id}>
+          <h3>{section.title}</h3>
+          {section.description ? <p className="toolbox-detail-text">{section.description}</p> : null}
+          <dl className="staff-detail-list template-detail-answer-list">
+            {section.fields
+              .filter((field) => field.type !== "instructions")
+              .map((field) => (
+                <div key={field.id}>
+                  <dt>{field.label}</dt>
+                  <dd>{renderTemplateAnswerDisplay(field, answers[field.id])}</dd>
+                </div>
+              ))}
+          </dl>
+        </section>
+      ))}
 
       <div className="digital-form-actions">
         <button disabled={saving} type="button" onClick={saveForm}>
@@ -8893,6 +9761,208 @@ function topicKey(topic) {
   return `${topic.categoryId}:${topic.topicId}`;
 }
 
+function cloneTemplateSchema(schema) {
+  return normalizeClientTemplateSchema(schema ? JSON.parse(JSON.stringify(schema)) : null);
+}
+
+function createDefaultTemplateSchema() {
+  return {
+    schemaVersion: 1,
+    title: "Daily Hazard Assessment",
+    description: "Fast mobile hazard review.",
+    sections: [
+      {
+        id: "job_info",
+        title: "Job Info",
+        description: "Basic job details.",
+        fields: [
+          { id: "project", type: "short_text", label: "Project", required: true, remember: true },
+          { id: "area", type: "short_text", label: "Work area", required: true },
+          { id: "date", type: "date", label: "Date", required: true, default: "today" },
+          { id: "time", type: "time", label: "Time", required: true, default: "now" },
+          { id: "assessed_by", type: "short_text", label: "Completed by", required: true, default: "worker_name" },
+        ],
+      },
+    ],
+  };
+}
+
+function createTemplateSection(index) {
+  return {
+    id: `section_${index}`,
+    title: `Section ${index}`,
+    description: "",
+    fields: [createTemplateField(1)],
+  };
+}
+
+function createTemplateField(index, type = "short_text") {
+  return normalizeTemplateField({
+    id: `field_${Date.now()}_${index}`,
+    type,
+    label: `Field ${index}`,
+    required: false,
+  });
+}
+
+function normalizeClientTemplateSchema(schema) {
+  const source = schema && typeof schema === "object" && !Array.isArray(schema)
+    ? schema
+    : createDefaultTemplateSchema();
+  const sections = Array.isArray(source.sections) ? source.sections : [];
+  const normalizedSections = sections.map((section, sectionIndex) => ({
+    id: slugifyTemplateId(section?.id) || `section_${sectionIndex + 1}`,
+    title: String(section?.title || `Section ${sectionIndex + 1}`).trim(),
+    description: String(section?.description || "").trim(),
+    fields: (Array.isArray(section?.fields) ? section.fields : [])
+      .map((field, fieldIndex) => normalizeTemplateField(field, sectionIndex, fieldIndex))
+      .filter(Boolean),
+  }));
+  return {
+    schemaVersion: 1,
+    formType: String(source.formType || source.form_type || "").trim(),
+    title: String(source.title || "Form").trim(),
+    description: String(source.description || "").trim(),
+    sections: normalizedSections.length ? normalizedSections : createDefaultTemplateSchema().sections,
+  };
+}
+
+function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
+  const type = TEMPLATE_FIELD_TYPES.some((item) => item.id === field?.type)
+    ? field.type
+    : "short_text";
+  const label = String(field?.label || `Field ${fieldIndex + 1}`).trim();
+  const id = slugifyTemplateId(field?.id || label) || `section_${sectionIndex + 1}_field_${fieldIndex + 1}`;
+  const options = TEMPLATE_OPTION_FIELD_TYPES.has(type)
+    ? (Array.isArray(field?.options) ? field.options : [])
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .filter((item, index, items) => items.indexOf(item) === index)
+    : [];
+  return {
+    id,
+    type,
+    label,
+    helperText: String(field?.helperText || field?.helper_text || "").trim(),
+    required: Boolean(field?.required),
+    default: ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
+    remember: Boolean(field?.remember),
+    options,
+  };
+}
+
+function moveArrayItem(items, index, direction) {
+  const next = [...(Array.isArray(items) ? items : [])];
+  const targetIndex = index + direction;
+  if (index < 0 || targetIndex < 0 || index >= next.length || targetIndex >= next.length) return next;
+  const [item] = next.splice(index, 1);
+  next.splice(targetIndex, 0, item);
+  return next;
+}
+
+function mergeTemplateVersions(versions = [], version) {
+  if (!version?.id) return versions;
+  const next = versions.filter((item) => item.id !== version.id);
+  return [version, ...next].sort((a, b) => (b.version_number || 0) - (a.version_number || 0));
+}
+
+function staffToPreviewWorker(staff) {
+  return {
+    id: staff?.id || "preview",
+    name: staff?.name || staff?.username || "Worker Name",
+    company: "Preview Company",
+  };
+}
+
+function slugifyTemplateId(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 80);
+}
+
+function templateDefaultsKey(worker, formType) {
+  return `sf_template_defaults:${worker?.id || "unknown"}:${formType}`;
+}
+
+function readTemplateFieldDefaults(worker, formType) {
+  return readStorageJson(templateDefaultsKey(worker, formType), {});
+}
+
+function rememberTemplateFieldDefaults(formType, schema, answers, worker) {
+  const current = readTemplateFieldDefaults(worker, formType);
+  const next = { ...current };
+  collectClientTemplateFields(schema).forEach((field) => {
+    if (!field.remember) return;
+    const value = answers[field.id];
+    if (typeof value === "string" && value.trim()) next[field.id] = value.trim();
+  });
+  writeStorageJson(templateDefaultsKey(worker, formType), next);
+}
+
+function templateFieldDefaultValue(field, worker, schema) {
+  const remembered = readTemplateFieldDefaults(worker, schema?.formType || "daily_hazard_assessment");
+  if (field.remember && remembered[field.id]) return remembered[field.id];
+  if (field.default === "today") return todayInVancouver();
+  if (field.default === "now") return timeInVancouver();
+  if (field.default === "worker_name") return worker?.name || "";
+  if (field.type === "multi_select") return [];
+  if (field.type === "checkbox") return false;
+  return "";
+}
+
+function collectClientTemplateFields(schema) {
+  return (schema?.sections || []).flatMap((section) => section.fields || []);
+}
+
+function getTemplateMissingFields(schema, answers, worker) {
+  return collectClientTemplateFields(schema)
+    .filter((field) => field.type !== "instructions" && field.required)
+    .filter((field) => isTemplateAnswerEmpty(field, answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)))
+    .map((field) => field.id);
+}
+
+function templateValidationMessage(schema, fieldId) {
+  const field = collectClientTemplateFields(schema).find((item) => item.id === fieldId);
+  return field ? `${field.label} is required.` : "Complete the required field.";
+}
+
+function cleanTemplateAnswersForSubmit(schema, answers, worker) {
+  const cleaned = {};
+  collectClientTemplateFields(schema).forEach((field) => {
+    if (field.type === "instructions") return;
+    cleaned[field.id] = cleanTemplateAnswerForSubmit(
+      field,
+      answers[field.id] ?? templateFieldDefaultValue(field, worker, schema),
+    );
+  });
+  return cleaned;
+}
+
+function cleanTemplateAnswerForSubmit(field, value) {
+  if (field.type === "checkbox") return value === true;
+  if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
+  if (field.type === "number") return value === "" || value === null || value === undefined ? "" : value;
+  return typeof value === "string" ? value.trim() : value || "";
+}
+
+function isTemplateAnswerEmpty(field, value) {
+  if (field.type === "checkbox") return value !== true;
+  if (field.type === "multi_select") return !Array.isArray(value) || value.length === 0;
+  return value === "" || value === null || value === undefined;
+}
+
+function isTemplateDraftMeaningful(schema, answers, worker) {
+  return collectClientTemplateFields(schema).some((field) => {
+    const value = answers[field.id];
+    const defaultValue = templateFieldDefaultValue(field, worker, schema);
+    if (value === undefined || value === defaultValue) return false;
+    return !isTemplateAnswerEmpty(field, value);
+  });
+}
+
 function slugifyTopic(value) {
   return String(value || "")
     .toLowerCase()
@@ -9007,6 +10077,40 @@ function isDigitalToolboxTalkSubmission(row) {
 
 function isDigitalSiteInspectionSubmission(row) {
   return row?.form_type === "site_inspection" && row?.form_data?.kind === "site_inspection_v1";
+}
+
+function isTemplateDigitalSubmission(row) {
+  return row?.submission_mode === "fill_form" && row?.form_data?.kind === "template_submission_v1";
+}
+
+function renderTemplateAnswerDisplay(field, value) {
+  const display = formatTemplateAnswerDisplay(field, value);
+  if (Array.isArray(display)) {
+    if (!display.length) return "-";
+    return (
+      <span className="toolbox-detail-chip-list inline">
+        {display.map((item) => (
+          <span key={item}>{item}</span>
+        ))}
+      </span>
+    );
+  }
+  return display || "-";
+}
+
+function formatTemplateAnswerDisplay(field, value) {
+  if (field.type === "checkbox") return value ? "Yes" : "No";
+  if (field.type === "yes_no") {
+    if (value === "yes") return "Yes";
+    if (value === "no") return "No";
+    return "";
+  }
+  if (field.type === "multi_select") {
+    return Array.isArray(value) ? value.filter(Boolean) : [];
+  }
+  if (field.type === "date" && value) return formatDateString(String(value));
+  if (value === null || value === undefined || value === "") return "";
+  return String(value);
 }
 
 function actionItemStatusLabel(value) {
@@ -9175,16 +10279,19 @@ function printDigitalForm(row, data) {
 }
 
 function digitalFormTitle(row, data) {
+  if (data?.kind === "template_submission_v1") return digitalTemplateFormTitle(row, data);
   if (data?.kind === "site_inspection_v1") return digitalSiteInspectionTitle(row, data);
   return digitalToolboxTalkTitle(row, data);
 }
 
 function digitalFormFileName(row, data) {
+  if (data?.kind === "template_submission_v1") return digitalTemplateFormFileName(row, data);
   if (data?.kind === "site_inspection_v1") return digitalSiteInspectionFileName(row, data);
   return digitalToolboxTalkFileName(row, data);
 }
 
 function buildDigitalFormHtml(row, data, options = {}) {
+  if (data?.kind === "template_submission_v1") return buildDigitalTemplateFormHtml(row, data, options);
   if (data?.kind === "site_inspection_v1") return buildDigitalSiteInspectionHtml(row, data, options);
   return buildDigitalToolboxTalkHtml(row, data, options);
 }
@@ -9198,6 +10305,123 @@ function downloadBlob(blob, fileName) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function digitalTemplateFormTitle(row, data) {
+  const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const date = row?.submitted_date_vancouver
+    ? formatDateString(row.submitted_date_vancouver)
+    : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
+  return `${schema.title || formTypeLabel(row?.form_type)} - ${row?.company || "Company"} - ${date}`;
+}
+
+function digitalTemplateFormFileName(row, data) {
+  const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const rawDate = row?.submitted_date_vancouver || todayInVancouver();
+  return `${slugifyFilePart(row?.company || "company")}-${slugifyFilePart(schema.title || row?.form_type || "form")}-${slugifyFilePart(rawDate)}.html`;
+}
+
+function buildDigitalTemplateFormHtml(row, data, options = {}) {
+  const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const answers = data?.answers || {};
+  const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
+  const title = digitalTemplateFormTitle(row, data);
+  const sectionHtml = schema.sections.map((section) => {
+    const fields = (section.fields || []).filter((field) => field.type !== "instructions");
+    const rows = fields.map((field) => {
+      const display = formatTemplateAnswerDisplay(field, answers[field.id]);
+      const value = Array.isArray(display) ? display.join(", ") : display;
+      return definitionHtml(field.label, value);
+    }).join("");
+    return `
+      <section>
+        <h2>${escapeHtml(section.title)}</h2>
+        ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
+        <dl>${rows || definitionHtml("Details", "-")}</dl>
+      </section>`;
+  }).join("");
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      :root { color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f4f7f6; color: #17211f; }
+      main { max-width: 920px; margin: 0 auto; padding: 28px; background: #fff; }
+      header { display: grid; gap: 8px; border-bottom: 2px solid #173b38; padding-bottom: 16px; margin-bottom: 18px; }
+      .brand { color: #173b38; font-size: 0.86rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+      h2 { margin: 0 0 10px; font-size: 1.15rem; }
+      p { margin: 0; white-space: pre-wrap; }
+      section { break-inside: avoid; display: grid; gap: 10px; border: 1px solid #d9e3de; border-radius: 8px; padding: 14px; margin: 0 0 14px; }
+      dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+      dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+      dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; white-space: pre-wrap; }
+      .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+      .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
+      @page { size: letter portrait; margin: 0.22in; }
+      @media (max-width: 640px) {
+        main { padding: 18px; }
+        dl { grid-template-columns: 1fr; }
+      }
+      @media print {
+        :root { font-size: 8pt; }
+        body { background: #fff; }
+        main {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 5pt;
+          max-width: none;
+          padding: 0;
+        }
+        header {
+          grid-column: 1 / -1;
+          gap: 1pt;
+          border-bottom-width: 1px;
+          padding-bottom: 4pt;
+          margin-bottom: 0;
+        }
+        h1 { font-size: 13pt; line-height: 1.05; }
+        h2 { margin-bottom: 3pt; font-size: 8pt; line-height: 1.1; }
+        p { font-size: 7pt; line-height: 1.15; }
+        section {
+          gap: 3pt;
+          border-radius: 3pt;
+          padding: 4pt;
+          margin: 0;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3pt 5pt; }
+        dt { font-size: 5.3pt; line-height: 1.05; }
+        dd { margin-top: 1pt; font-size: 6.6pt; line-height: 1.12; }
+        .print-actions { display: none; }
+        footer { font-size: 5.6pt; padding-top: 3pt; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="print-actions">
+        <button onclick="window.print()">Print</button>
+      </div>
+      <header>
+        <p class="brand">APPIA</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
+        ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
+      </header>
+      ${sectionHtml}
+      <footer>Submission ${escapeHtml(row?.id || "-")} / ${submitted ? escapeHtml(submitted) : "Not submitted"}</footer>
+    </main>
+    ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
+  </body>
+</html>`;
 }
 
 function digitalToolboxTalkTitle(row, data) {
