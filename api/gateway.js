@@ -64,6 +64,7 @@ import {
 import {
   createStaffUser,
   listStaffUsers,
+  updateOwnStaffProfile,
   updateStaffUser,
 } from "./_lib/staff-users.js";
 import {
@@ -296,6 +297,7 @@ async function handleCron(req, res, parts) {
 async function handleStaff(req, res, parts) {
   const staff = await requireStaff(req);
   if (parts[0] === "settings") return handleSettings(req, res, staff);
+  if (parts[0] === "profile") return handleStaffProfile(req, res, staff);
   if (parts[0] === "trends") return handleTrends(req, res);
   if (parts[0] === "company-profiles") return handleCompanyProfiles(req, res, staff);
   if (parts[0] === "signins") return handleStaffSignIns(req, res, staff, parts.slice(1));
@@ -534,6 +536,31 @@ async function handleStaffUsers(req, res, staff) {
     return sendJson(res, 200, { user });
   }
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH"]);
+}
+
+async function handleStaffProfile(req, res, staff) {
+  if (req.method === "GET") {
+    return sendJson(res, 200, { staff: publicStaff(staff) });
+  }
+  if (req.method === "PATCH") {
+    const body = await readJson(req);
+    const updated = await updateOwnStaffProfile(body, staff);
+    await recordAuditEvent({
+      req,
+      staff: { ...staff, username: updated.username, role: staff.role },
+      action: body.password ? "staff_profile_password_updated" : "staff_profile_updated",
+      targetType: "staff",
+      targetId: staff.id,
+      summary: `${staff.username} updated their staff profile.`,
+      metadata: {
+        username: updated.username,
+        role: updated.role,
+        passwordUpdated: Boolean(body.password),
+      },
+    });
+    return sendJson(res, 200, { staff: updated });
+  }
+  return sendMethodNotAllowed(res, ["GET", "PATCH"]);
 }
 
 async function handleStaffAudit(req, res, staff) {

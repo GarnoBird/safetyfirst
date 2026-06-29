@@ -159,6 +159,102 @@ export async function updateStaffUser(body, actor) {
   return publicStaffUser(row);
 }
 
+export async function updateOwnStaffProfile(body, actor) {
+  const existing = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("staff_profiles")
+      .select(STAFF_USER_SELECT)
+      .eq("id", actor.id)
+      .maybeSingle(),
+    "Staff profile could not be loaded.",
+  );
+  if (!existing) {
+    const error = new Error("Staff profile was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const update = {};
+  if (body?.username !== undefined) update.username = cleanUsername(body.username);
+  if (body?.email !== undefined) update.email = cleanEmail(body.email);
+  if (body?.display_name !== undefined) {
+    update.display_name = cleanDisplayName(body.display_name, update.username || existing.username);
+  }
+
+  if (update.username && update.username !== existing.username) {
+    const duplicate = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("staff_profiles")
+        .select("id")
+        .eq("username", update.username)
+        .neq("id", existing.id)
+        .maybeSingle(),
+      "Staff username could not be checked.",
+    );
+    if (duplicate) throwConflict("That username is already in use.");
+  }
+
+  if (update.email && update.email !== existing.email) {
+    const duplicate = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("staff_profiles")
+        .select("id")
+        .eq("email", update.email)
+        .neq("id", existing.id)
+        .maybeSingle(),
+      "Staff email could not be checked.",
+    );
+    if (duplicate) throwConflict("That email is already in use.");
+  }
+
+  if (body?.password) {
+    const password = String(body.password);
+    if (password.length < 3) throwBadRequest("Password must be at least 3 characters.");
+    const { error } = await getSupabaseServiceClient().auth.admin.updateUserById(
+      existing.auth_user_id,
+      { password },
+    );
+    if (error) throwAuthError(error, "Staff password could not be updated.");
+  }
+
+  const authUpdate = {};
+  if (update.email && update.email !== existing.email) {
+    authUpdate.email = update.email;
+    authUpdate.email_confirm = true;
+  }
+  if (update.username || update.display_name) {
+    authUpdate.user_metadata = {
+      username: update.username || existing.username,
+      display_name: update.display_name || existing.display_name || existing.username,
+    };
+  }
+  if (Object.keys(authUpdate).length) {
+    const { error } = await getSupabaseServiceClient().auth.admin.updateUserById(
+      existing.auth_user_id,
+      authUpdate,
+    );
+    if (error) throwAuthError(error, "Staff auth profile could not be updated.");
+  }
+
+  let row = existing;
+  if (Object.keys(update).length) {
+    row = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("staff_profiles")
+        .update({
+          ...update,
+          updated_at: new Date().toISOString(),
+          updated_by_staff_id: actor.id,
+        })
+        .eq("id", existing.id)
+        .select(STAFF_USER_SELECT)
+        .single(),
+      "Staff profile could not be updated.",
+    );
+  }
+  return publicStaffUser(row);
+}
+
 function publicStaffUser(row) {
   return {
     id: row.id,
@@ -265,6 +361,13 @@ function throwBadRequest(message) {
 function throwForbidden(message) {
   const error = new Error(message);
   error.statusCode = 403;
+  error.exposeMessage = true;
+  throw error;
+}
+
+function throwConflict(message) {
+  const error = new Error(message);
+  error.statusCode = 409;
   error.exposeMessage = true;
   throw error;
 }

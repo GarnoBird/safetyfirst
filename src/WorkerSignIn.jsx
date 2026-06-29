@@ -346,6 +346,13 @@ const EMPTY_STAFF_USER_FORM = {
   active: true,
 };
 
+const EMPTY_STAFF_PROFILE_FORM = {
+  display_name: "",
+  email: "",
+  username: "",
+  password: "",
+};
+
 export function WorkerSignInQr({ navigateTo }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const formUrl = useMemo(() => {
@@ -1237,12 +1244,14 @@ export function StaffHomePage({ navigateTo }) {
 }
 
 export function StaffSettingsPage({ navigateTo }) {
-  const { staff } = useStaffSession(navigateTo);
+  const { staff, setStaff } = useStaffSession(navigateTo);
   const canManageSettings = isAdminOrOwner(staff);
   const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
   const [system, setSystem] = useState(DEFAULT_SYSTEM_STATUS);
+  const [profileForm, setProfileForm] = useState(EMPTY_STAFF_PROFILE_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
   const [emailing, setEmailing] = useState(false);
   const [message, setMessage] = useState("");
   const [recipientDraft, setRecipientDraft] = useState("");
@@ -1251,6 +1260,16 @@ export function StaffSettingsPage({ navigateTo }) {
     () => parseReportRecipients(settings.report_recipient_email),
     [settings.report_recipient_email],
   );
+
+  useEffect(() => {
+    if (!staff) return;
+    setProfileForm({
+      display_name: staff.display_name || "",
+      email: staff.email || "",
+      username: staff.username || "",
+      password: "",
+    });
+  }, [staff?.id]);
 
   useEffect(() => {
     if (!staff) return;
@@ -1279,6 +1298,40 @@ export function StaffSettingsPage({ navigateTo }) {
 
   const updateSetting = (field, value) => {
     setSettings((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateProfileForm = (field, value) => {
+    setProfileForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const saveProfile = async (event) => {
+    event.preventDefault();
+    setProfileSaving(true);
+    setMessage("");
+    try {
+      const body = { ...profileForm };
+      if (!body.password) delete body.password;
+      const payload = await readApiJson(
+        await fetch("/api/staff/profile", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      );
+      setStaff(payload.staff);
+      setProfileForm({
+        display_name: payload.staff.display_name || "",
+        email: payload.staff.email || "",
+        username: payload.staff.username || "",
+        password: "",
+      });
+      setMessage("Personal info saved.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   const addReportRecipient = (value) => {
@@ -1392,6 +1445,13 @@ export function StaffSettingsPage({ navigateTo }) {
       <StaffShell active="settings" navigateTo={navigateTo} staff={staff}>
         {message ? <p className="staff-message">{message}</p> : null}
         <div className="staff-settings-grid">
+          <StaffProfileSettingsCard
+            form={profileForm}
+            saving={profileSaving}
+            onChange={updateProfileForm}
+            onSubmit={saveProfile}
+          />
+
           <SettingsSection
             description="Public worker links and the notice workers should understand."
             title="Worker Sign-In"
@@ -1436,6 +1496,12 @@ export function StaffSettingsPage({ navigateTo }) {
   return (
     <StaffShell active="settings" navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
+      <StaffProfileSettingsCard
+        form={profileForm}
+        saving={profileSaving}
+        onChange={updateProfileForm}
+        onSubmit={saveProfile}
+      />
       <form className="staff-settings-grid" onSubmit={saveSettings}>
         {canManageSettings ? (
           <SettingsSection
@@ -7203,6 +7269,62 @@ function getStaffNavItemsForRole(staff) {
   return STAFF_MOBILE_NAV_ITEMS.filter((item) => !item.adminOnly || isAdminOrOwner(staff));
 }
 
+function StaffProfileSettingsCard({ form, saving, onChange, onSubmit }) {
+  return (
+    <SettingsSection
+      description="Your staff account details."
+      title="Personal Info"
+    >
+      <form className="staff-profile-settings-form" onSubmit={onSubmit}>
+        <label>
+          <span>Name</span>
+          <input
+            required
+            autoComplete="name"
+            value={form.display_name}
+            onChange={(event) => onChange("display_name", event.target.value)}
+          />
+        </label>
+        <label>
+          <span>Email</span>
+          <input
+            required
+            autoComplete="email"
+            inputMode="email"
+            type="email"
+            value={form.email}
+            onChange={(event) => onChange("email", event.target.value)}
+          />
+        </label>
+        <label>
+          <span>Username</span>
+          <input
+            required
+            autoComplete="username"
+            value={form.username}
+            onChange={(event) => onChange("username", event.target.value)}
+          />
+        </label>
+        <label>
+          <span>New password</span>
+          <input
+            autoComplete="new-password"
+            placeholder="Leave blank to keep current password"
+            type="password"
+            value={form.password}
+            onChange={(event) => onChange("password", event.target.value)}
+          />
+        </label>
+        <div className="staff-card-actions">
+          <button className="primary-button" disabled={saving} type="submit">
+            {saving ? "Saving..." : "Save personal info"}
+          </button>
+        </div>
+      </form>
+    </SettingsSection>
+  );
+}
+
 function SettingsSection({ children, description, title }) {
   return (
     <section className="settings-section">
@@ -7828,7 +7950,7 @@ function useStaffSession(navigateTo) {
     };
   }, [navigateTo]);
 
-  return { staff };
+  return { staff, setStaff };
 }
 
 function useStaffPageDate() {

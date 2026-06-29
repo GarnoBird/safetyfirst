@@ -1718,12 +1718,21 @@ p {
   gap: 14px;
 }
 
+.settings-section + .staff-settings-grid {
+  margin-top: 14px;
+}
+
 .settings-section {
   grid-template-columns: minmax(180px, 0.46fr) minmax(0, 1fr);
   align-items: start;
 }
 
 .settings-section-body {
+  display: grid;
+  gap: 12px;
+}
+
+.staff-profile-settings-form {
   display: grid;
   gap: 12px;
 }
