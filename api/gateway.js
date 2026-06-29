@@ -39,12 +39,15 @@ import {
   runSubmissionMaintenance,
 } from "./_lib/form-submissions.js";
 import {
+  createFormTemplate,
   getFormTemplate,
-  getPublishedFormTemplate,
+  getPublishedWorkerFormTemplate,
   listFormTemplates,
+  listWorkerVisibleFormTemplates,
   publishFormTemplateDraft,
   restoreFormTemplateVersion,
   saveFormTemplateDraft,
+  updateFormTemplate,
 } from "./_lib/form-templates.js";
 import {
   handleApiError,
@@ -873,14 +876,46 @@ async function handleStaffActionItems(req, res, staff, parts) {
 }
 
 async function handleStaffFormTemplates(req, res, staff, parts) {
-  requireStaffRole(staff, ["owner", "admin"]);
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, { rows: await listFormTemplates() });
+  }
+  if (!parts.length && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const template = await createFormTemplate(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_created",
+      targetType: "form_template",
+      targetId: template.form_type,
+      summary: `${staff.username} created a form template.`,
+      metadata: { formType: template.form_type, label: template.label },
+    });
+    return sendJson(res, 201, { template });
   }
   if (parts.length === 1 && req.method === "GET") {
     return sendJson(res, 200, { template: await getFormTemplate(parts[0]) });
   }
+  if (parts.length === 1 && req.method === "PATCH") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const template = await updateFormTemplate(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_updated",
+      targetType: "form_template",
+      targetId: parts[0],
+      summary: `${staff.username} updated a form template.`,
+      metadata: {
+        formType: parts[0],
+        workerVisible: template.worker_visible,
+        active: template.active,
+      },
+    });
+    return sendJson(res, 200, { template });
+  }
   if (parts.length === 2 && parts[1] === "draft" && req.method === "PATCH") {
+    requireStaffRole(staff, ["owner", "admin"]);
     const draft = await saveFormTemplateDraft(parts[0], await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -894,6 +929,7 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { draft });
   }
   if (parts.length === 2 && parts[1] === "publish" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
     const published = await publishFormTemplateDraft(parts[0], staff);
     await recordAuditEvent({
       req,
@@ -907,6 +943,7 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { published });
   }
   if (parts.length === 2 && parts[1] === "restore" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
     const draft = await restoreFormTemplateVersion(parts[0], await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -924,8 +961,11 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
 
 async function handleWorker(req, res, parts) {
   const worker = await requireWorker(req);
+  if (parts[0] === "form-templates" && parts.length === 1 && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listWorkerVisibleFormTemplates() });
+  }
   if (parts[0] === "form-templates" && parts.length === 3 && parts[2] === "published" && req.method === "GET") {
-    return sendJson(res, 200, { template: await getPublishedFormTemplate(parts[1]) });
+    return sendJson(res, 200, { template: await getPublishedWorkerFormTemplate(parts[1]) });
   }
   if (parts[0] !== "submissions") return sendJson(res, 404, { error: "Not found" });
   const tail = parts.slice(1);

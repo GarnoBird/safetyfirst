@@ -3,11 +3,12 @@ import {
   throwIfSupabaseError,
 } from "./supabase.js";
 
-export const TEMPLATE_FORM_TYPES = [
+export const CUSTOM_FORM_TYPES = [
   "toolbox_talk",
   "site_inspection",
-  "daily_hazard_assessment",
 ];
+
+export const SEEDED_FORM_TYPES = [...CUSTOM_FORM_TYPES, "daily_hazard_assessment"];
 
 export const TEMPLATE_FIELD_TYPES = [
   "short_text",
@@ -22,7 +23,8 @@ export const TEMPLATE_FIELD_TYPES = [
   "instructions",
 ];
 
-const TEMPLATE_SELECT = "id, form_type, label, renderer_type, active, created_at, updated_at";
+const TEMPLATE_SELECT =
+  "id, form_type, label, description, renderer_type, active, worker_visible, display_order, archived_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
 const VERSION_SELECT =
   "id, template_id, form_type, version_number, status, schema, notes, created_by_staff_id, updated_by_staff_id, published_by_staff_id, created_at, updated_at, published_at";
 const MAX_SECTIONS = 20;
@@ -37,7 +39,8 @@ export async function listFormTemplates() {
     await getSupabaseServiceClient()
       .from("form_templates")
       .select(TEMPLATE_SELECT)
-      .order("form_type", { ascending: true }),
+      .order("display_order", { ascending: true })
+      .order("label", { ascending: true }),
     "Form templates could not be loaded.",
   );
   const versions = throwIfSupabaseError(
@@ -48,6 +51,32 @@ export async function listFormTemplates() {
     "Form template versions could not be loaded.",
   );
   return templates.map((template) => attachTemplateVersions(template, versions));
+}
+
+export async function listWorkerVisibleFormTemplates() {
+  await ensureSeedTemplates();
+  const templates = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .select(TEMPLATE_SELECT)
+      .eq("active", true)
+      .eq("worker_visible", true)
+      .is("archived_at", null)
+      .order("display_order", { ascending: true })
+      .order("label", { ascending: true }),
+    "Form templates could not be loaded.",
+  );
+  if (!templates.length) return [];
+  const versions = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_template_versions")
+      .select(VERSION_SELECT)
+      .eq("status", "published"),
+    "Form template versions could not be loaded.",
+  );
+  return templates
+    .map((template) => attachTemplateVersions(template, versions))
+    .filter((template) => template.publishedVersion || CUSTOM_FORM_TYPES.includes(template.form_type));
 }
 
 export async function getFormTemplate(formType) {
@@ -70,6 +99,118 @@ export async function getPublishedFormTemplate(formType) {
     ...template,
     publishedVersion: version,
   };
+}
+
+export async function getPublishedWorkerFormTemplate(formType) {
+  const template = await getPublishedFormTemplate(formType);
+  if (!template.active || template.archived_at || !template.worker_visible) {
+    throwNotFound("Form was not found.");
+  }
+  if (template.renderer_type === "template" && !template.publishedVersion) {
+    throwNotFound("Form was not found.");
+  }
+  return template;
+}
+
+export async function createFormTemplate(body, staff) {
+  const label = cleanString(body?.label || body?.name || body?.title, MAX_TEXT);
+  if (!label) throwBadRequest("Form name is required.");
+  const description = cleanString(body?.description, MAX_TEXT);
+  const formType = await uniqueFormTypeSlug(label);
+  const displayOrder = await nextDisplayOrder();
+  const template = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .insert({
+        form_type: formType,
+        label,
+        description,
+        renderer_type: "template",
+        active: true,
+        worker_visible: false,
+        display_order: displayOrder,
+        created_by_staff_id: staff.id,
+        updated_by_staff_id: staff.id,
+      })
+      .select(TEMPLATE_SELECT)
+      .single(),
+    "Form template could not be created.",
+  );
+  const schema = createDefaultSchemaForTemplate(template);
+  const draft = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_template_versions")
+      .insert({
+        template_id: template.id,
+        form_type: template.form_type,
+        version_number: 1,
+        status: "draft",
+        schema,
+        notes: "Initial draft.",
+        created_by_staff_id: staff.id,
+        updated_by_staff_id: staff.id,
+      })
+      .select(VERSION_SELECT)
+      .single(),
+    "Form template draft could not be created.",
+  );
+  return attachTemplateVersions(template, [draft]);
+}
+
+export async function updateFormTemplate(formType, body, staff) {
+  const template = await getTemplateByType(cleanFormType(formType));
+  assertTemplateEditable(template);
+  const patch = {
+    updated_by_staff_id: staff.id,
+    updated_at: new Date().toISOString(),
+  };
+  if (body?.label !== undefined || body?.name !== undefined || body?.title !== undefined) {
+    const label = cleanString(body?.label || body?.name || body?.title, MAX_TEXT);
+    if (!label) throwBadRequest("Form name is required.");
+    patch.label = label;
+  }
+  if (body?.description !== undefined) {
+    patch.description = cleanString(body.description, MAX_TEXT);
+  }
+  if (body?.active !== undefined) {
+    patch.active = Boolean(body.active);
+    if (!patch.active) patch.worker_visible = false;
+  }
+  if (body?.displayOrder !== undefined || body?.display_order !== undefined) {
+    const displayOrder = Number(body.displayOrder ?? body.display_order);
+    if (!Number.isInteger(displayOrder) || displayOrder < 0 || displayOrder > 100000) {
+      throwBadRequest("Display order is not valid.");
+    }
+    patch.display_order = displayOrder;
+  }
+  if (body?.workerVisible !== undefined || body?.worker_visible !== undefined) {
+    const visible = Boolean(body.workerVisible ?? body.worker_visible);
+    if (visible && (patch.active === false || !template.active)) {
+      throwBadRequest("Activate this form before showing it to workers.");
+    }
+    if (visible && !(await getPublishedVersion(template.id))) {
+      throwBadRequest("Publish this form before showing it to workers.");
+    }
+    patch.worker_visible = visible;
+  }
+  if (body?.archived !== undefined) {
+    patch.archived_at = body.archived ? new Date().toISOString() : null;
+    if (body.archived) {
+      patch.active = false;
+      patch.worker_visible = false;
+    }
+  }
+
+  const updated = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .update(patch)
+      .eq("id", template.id)
+      .select(TEMPLATE_SELECT)
+      .single(),
+    "Form template could not be updated.",
+  );
+  return getFormTemplate(updated.form_type);
 }
 
 export async function saveFormTemplateDraft(formType, body, staff) {
@@ -147,6 +288,14 @@ export async function publishFormTemplateDraft(formType, staff) {
       .single(),
     "Form template draft could not be published.",
   );
+  await getSupabaseServiceClient()
+    .from("form_templates")
+    .update({
+      active: true,
+      updated_by_staff_id: staff.id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", template.id);
   return published;
 }
 
@@ -206,7 +355,7 @@ export async function restoreFormTemplateVersion(formType, body, staff) {
 }
 
 export async function validateTemplateSubmissionFormData({ formType, rawFormData, worker }) {
-  const template = await getPublishedFormTemplate(formType);
+  const template = await getPublishedWorkerFormTemplate(formType);
   if (template.renderer_type !== "template") {
     return null;
   }
@@ -419,6 +568,36 @@ async function getTemplateByType(formType) {
   return template;
 }
 
+async function uniqueFormTypeSlug(label) {
+  const base = slugifyFormType(label) || "new-form";
+  for (let index = 0; index < 100; index += 1) {
+    const candidate = index ? `${base}-${index + 1}` : base;
+    const existing = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("id")
+        .eq("form_type", candidate)
+        .maybeSingle(),
+      "Form template could not be checked.",
+    );
+    if (!existing) return candidate;
+  }
+  throwBadRequest("Could not create a unique form URL.");
+}
+
+async function nextDisplayOrder() {
+  const row = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .select("display_order")
+      .order("display_order", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    "Form templates could not be checked.",
+  );
+  return Number(row?.display_order || 1000) + 10;
+}
+
 async function getPublishedVersion(templateId) {
   return throwIfSupabaseError(
     await getSupabaseServiceClient()
@@ -459,6 +638,71 @@ function assertTemplateEditable(template) {
   }
 }
 
+function createDefaultSchemaForTemplate(template) {
+  return {
+    schemaVersion: 1,
+    formType: template.form_type,
+    title: template.label,
+    description: template.description || "",
+    sections: [
+      {
+        id: "job_info",
+        title: "Job Info",
+        description: "",
+        fields: [
+          {
+            id: "project",
+            type: "short_text",
+            label: "Project",
+            helperText: "",
+            required: true,
+            default: "",
+            remember: true,
+            options: [],
+          },
+          {
+            id: "date",
+            type: "date",
+            label: "Date",
+            helperText: "",
+            required: true,
+            default: "today",
+            remember: false,
+            options: [],
+          },
+          {
+            id: "completed_by",
+            type: "short_text",
+            label: "Completed by",
+            helperText: "",
+            required: true,
+            default: "worker_name",
+            remember: false,
+            options: [],
+          },
+        ],
+      },
+      {
+        id: "details",
+        title: "Details",
+        description: "",
+        fields: [
+          {
+            id: "notes",
+            type: "long_text",
+            label: "Notes",
+            helperText: "",
+            required: false,
+            default: "",
+            remember: false,
+            options: [],
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function formatAnswerForNotes(field, value) {
   if (field.type === "checkbox") return value ? "Yes" : "";
   if (field.type === "multi_select") return Array.isArray(value) ? value.slice(0, 3).join(", ") : "";
@@ -482,8 +726,18 @@ function cleanDefaultValue(value) {
 
 function cleanFormType(value) {
   const formType = cleanString(value, 80);
-  if (!TEMPLATE_FORM_TYPES.includes(formType)) throwBadRequest("Form type is not valid.");
+  if (!/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(formType)) throwBadRequest("Form type is not valid.");
   return formType;
+}
+
+function slugifyFormType(value) {
+  return cleanString(value, 80)
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64)
+    .replace(/-+$/g, "");
 }
 
 function cleanString(value, maxLength) {

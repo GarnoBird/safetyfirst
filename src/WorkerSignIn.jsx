@@ -123,6 +123,7 @@ const SAFETY_FORM_TYPES = [
   { id: "site_inspection", label: "Site Inspection" },
   { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
 ];
+const CUSTOM_FORM_TYPES = new Set(["toolbox_talk", "site_inspection"]);
 const TEMPLATE_FIELD_TYPES = [
   { id: "short_text", label: "Short answer" },
   { id: "long_text", label: "Long answer" },
@@ -136,7 +137,6 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "instructions", label: "Instructions" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
-const TEMPLATE_DRIVEN_FORM_TYPES = new Set(["daily_hazard_assessment"]);
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
@@ -2562,7 +2562,42 @@ export function WorkerFormsHomePage({ navigateTo }) {
     syncing,
     syncNow,
   } = useWorkerSubmissionQueue(worker);
+  const [forms, setForms] = useState(SAFETY_FORM_TYPES);
+  const [formsLoading, setFormsLoading] = useState(true);
+  const [formsMessage, setFormsMessage] = useState("");
   const [signingOut, setSigningOut] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const loadForms = async () => {
+      if (!worker) return;
+      setFormsLoading(true);
+      setFormsMessage("");
+      try {
+        const payload = await readApiJson(
+          await fetch("/api/worker/form-templates", { credentials: "include" }),
+        );
+        const rows = (payload.rows || []).map((row) => ({
+          id: row.form_type,
+          label: row.label,
+          description: row.description || "",
+          rendererType: row.renderer_type,
+        }));
+        if (active) setForms(rows.length ? rows : SAFETY_FORM_TYPES);
+      } catch (error) {
+        if (active) {
+          setForms(SAFETY_FORM_TYPES);
+          setFormsMessage(error.message);
+        }
+      } finally {
+        if (active) setFormsLoading(false);
+      }
+    };
+    loadForms();
+    return () => {
+      active = false;
+    };
+  }, [worker]);
 
   const signOut = async () => {
     setSigningOut(true);
@@ -2604,8 +2639,10 @@ export function WorkerFormsHomePage({ navigateTo }) {
           />
         ) : null}
 
+        {formsMessage ? <p className="form-message error">{formsMessage}</p> : null}
         <div className="safety-form-grid">
-          {SAFETY_FORM_TYPES.map((form) => (
+          {formsLoading ? <p className="empty-state">Loading forms...</p> : null}
+          {!formsLoading && forms.map((form) => (
             <button
               className="safety-form-card"
               key={form.id}
@@ -2627,8 +2664,6 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const formType = routePath.split("/").filter(Boolean).pop();
   const isToolboxTalk = formType === "toolbox_talk";
   const isSiteInspection = formType === "site_inspection";
-  const isTemplateDriven = TEMPLATE_DRIVEN_FORM_TYPES.has(formType);
-  const form = SAFETY_FORM_TYPES.find((item) => item.id === formType);
   const {
     queuedCount,
     queueMessage,
@@ -2636,8 +2671,15 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     syncing,
     syncNow,
   } = useWorkerSubmissionQueue(worker);
+  const [formTemplate, setFormTemplate] = useState(null);
+  const [formLoading, setFormLoading] = useState(true);
+  const [formError, setFormError] = useState("");
+  const isTemplateDriven = formTemplate?.renderer_type === "template";
+  const form = formTemplate
+    ? { id: formTemplate.form_type, label: formTemplate.label, description: formTemplate.description || "" }
+    : SAFETY_FORM_TYPES.find((item) => item.id === formType);
   const [mode, setMode] = useState(() =>
-    isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "",
+    isToolboxTalk || isSiteInspection ? "fill_form" : "",
   );
   const [file, setFile] = useState(null);
   const [notes, setNotes] = useState("");
@@ -2648,8 +2690,39 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const submitted = status.type === "success" || status.type === "queued";
 
   useEffect(() => {
-    if (worker && !form) navigateTo("/forms");
-  }, [form, navigateTo, worker]);
+    let active = true;
+    const loadFormTemplate = async () => {
+      if (!worker || !formType) return;
+      setFormLoading(true);
+      setFormError("");
+      try {
+        const payload = await readApiJson(
+          await fetch(`/api/worker/form-templates/${formType}/published`, {
+            credentials: "include",
+          }),
+        );
+        if (active) setFormTemplate(payload.template || null);
+      } catch (error) {
+        if (active) {
+          setFormTemplate(null);
+          setFormError(error.message);
+        }
+      } finally {
+        if (active) setFormLoading(false);
+      }
+    };
+    loadFormTemplate();
+    return () => {
+      active = false;
+    };
+  }, [formType, worker]);
+
+  useEffect(() => {
+    if (!worker || formLoading) return;
+    if (!formTemplate && !SAFETY_FORM_TYPES.some((item) => item.id === formType)) {
+      navigateTo("/forms");
+    }
+  }, [formLoading, formTemplate, formType, navigateTo, worker]);
 
   useEffect(() => {
     setMode(isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "");
@@ -2834,7 +2907,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     }
   };
 
-  if (!worker || !form) return <WorkerFormLoadingScreen />;
+  if (!worker || formLoading || !form) return <WorkerFormLoadingScreen />;
 
   return (
     <main className="public-page form-platform-page">
@@ -2862,6 +2935,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
           />
         ) : null}
 
+        {formError ? <p className="form-message error">{formError}</p> : null}
         <div className={submitted ? "worker-form submitted form-submit-panel" : "worker-form form-submit-panel"}>
           {submitted ? (
             <div className="worker-thank-you" role="status">
@@ -5305,6 +5379,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [records, setRecords] = useState({ rows: [] });
+  const [formOptions, setFormOptions] = useState(SAFETY_FORM_TYPES);
   const [selected, setSelected] = useState(null);
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -5342,6 +5417,29 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
   useEffect(() => {
     if (staff) loadSubmissions();
+  }, [staff]);
+
+  useEffect(() => {
+    let active = true;
+    const loadFormOptions = async () => {
+      if (!staff) return;
+      try {
+        const payload = await readApiJson(
+          await fetch("/api/staff/form-templates", { credentials: "include" }),
+        );
+        const options = (payload.rows || []).map((row) => ({
+          id: row.form_type,
+          label: row.label,
+        }));
+        if (active && options.length) setFormOptions(options);
+      } catch {
+        if (active) setFormOptions(SAFETY_FORM_TYPES);
+      }
+    };
+    loadFormOptions();
+    return () => {
+      active = false;
+    };
   }, [staff]);
 
   const updateFilter = (field, value) => {
@@ -5514,7 +5612,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
             <span>Form</span>
             <select value={filters.formType} onChange={(event) => updateFilter("formType", event.target.value)}>
               <option value="">All</option>
-              {SAFETY_FORM_TYPES.map((form) => (
+              {formOptions.map((form) => (
                 <option key={form.id} value={form.id}>{form.label}</option>
               ))}
             </select>
@@ -5605,6 +5703,9 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
   const [draftSchema, setDraftSchema] = useState(null);
   const [previewAnswers, setPreviewAnswers] = useState({});
+  const [newFormName, setNewFormName] = useState("");
+  const [newFormOpen, setNewFormOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -5636,6 +5737,61 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       setMessage(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createTemplate = async (event) => {
+    event.preventDefault();
+    if (!newFormName.trim()) {
+      setMessage("Enter a form name.");
+      return;
+    }
+    setCreating(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/form-templates", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ label: newFormName.trim() }),
+        }),
+      );
+      setRows((current) => [payload.template, ...current]);
+      setSelectedFormType(payload.template.form_type);
+      setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
+      setPreviewAnswers({});
+      setNewFormName("");
+      setNewFormOpen(false);
+      setMessage("New form draft created.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const updateTemplateMeta = async (patch) => {
+    if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(patch),
+        }),
+      );
+      setRows((current) =>
+        current.map((row) => (row.form_type === payload.template.form_type ? payload.template : row)),
+      );
+      setMessage("Template settings saved.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -5747,6 +5903,28 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="template-manager-grid">
         <aside className="template-card-list" aria-label="Form templates">
+          <button className="primary-button template-new-button" type="button" onClick={() => setNewFormOpen((current) => !current)}>
+            New Form
+          </button>
+          {newFormOpen ? (
+            <form className="template-new-form" onSubmit={createTemplate}>
+              <label>
+                <span>Form name</span>
+                <input
+                  autoFocus
+                  placeholder="Pre-task plan"
+                  value={newFormName}
+                  onChange={(event) => setNewFormName(event.target.value)}
+                />
+              </label>
+              <div className="staff-card-actions">
+                <button type="button" onClick={() => setNewFormOpen(false)}>Cancel</button>
+                <button className="primary-button" disabled={creating} type="submit">
+                  {creating ? "Creating..." : "Create"}
+                </button>
+              </div>
+            </form>
+          ) : null}
           {rows.map((template) => (
             <button
               className={selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card"}
@@ -5759,6 +5937,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               <small>
                 Published v{template.publishedVersion?.version_number || "-"}
                 {template.draftVersion ? " / Draft ready" : ""}
+              </small>
+              <small>
+                {template.archived_at
+                  ? "Archived"
+                  : template.active
+                    ? template.worker_visible ? "Shown to workers" : "Hidden from workers"
+                    : "Inactive"}
               </small>
             </button>
           ))}
@@ -5783,7 +5968,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
             <>
               <div className="template-editor-heading">
                 <div>
-                  <p>Daily Hazard template</p>
+                  <p>Form template</p>
                   <h1>{draftSchema?.title || selectedTemplate.label}</h1>
                   <span>
                     Published v{selectedTemplate.publishedVersion?.version_number || "-"}
@@ -5806,7 +5991,119 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               </div>
 
               <div className="template-editor-layout">
-                <TemplateSchemaEditor schema={draftSchema} onChange={setDraftSchema} />
+                <div className="template-builder-stack">
+                  <section className="settings-section template-settings-card">
+                    <div className="settings-section-heading">
+                      <div>
+                        <h2>Template Settings</h2>
+                        <p>Worker URL: /forms/{selectedTemplate.form_type}</p>
+                      </div>
+                    </div>
+                    <label>
+                      <span>Form name</span>
+                      <input
+                        key={`label-${selectedTemplate.form_type}-${selectedTemplate.label}`}
+                        defaultValue={selectedTemplate.label}
+                        onBlur={(event) => {
+                          const label = event.target.value.trim();
+                          if (label && label !== selectedTemplate.label) {
+                            updateTemplateMeta({ label });
+                            setDraftSchema((current) => ({ ...current, title: label }));
+                          }
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span>Description</span>
+                      <textarea
+                        key={`description-${selectedTemplate.form_type}-${selectedTemplate.description || ""}`}
+                        rows="2"
+                        defaultValue={selectedTemplate.description || ""}
+                        onBlur={(event) => {
+                          if (event.target.value.trim() !== (selectedTemplate.description || "")) {
+                            updateTemplateMeta({ description: event.target.value });
+                          }
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span>Display order</span>
+                      <input
+                        key={`display-order-${selectedTemplate.form_type}-${selectedTemplate.display_order}`}
+                        defaultValue={selectedTemplate.display_order ?? 1000}
+                        inputMode="numeric"
+                        onBlur={(event) => {
+                          const displayOrder = Number(event.target.value);
+                          if (
+                            Number.isInteger(displayOrder) &&
+                            displayOrder !== Number(selectedTemplate.display_order ?? 1000)
+                          ) {
+                            updateTemplateMeta({ displayOrder });
+                          }
+                        }}
+                      />
+                    </label>
+                    <label className="settings-checkbox">
+                      <input
+                        checked={Boolean(selectedTemplate.active)}
+                        disabled={saving || Boolean(selectedTemplate.archived_at)}
+                        type="checkbox"
+                        onChange={(event) => updateTemplateMeta({ active: event.target.checked })}
+                      />
+                      <span>
+                        Active template
+                        <small>Inactive forms are hidden from workers.</small>
+                      </span>
+                    </label>
+                    <label
+                      className={
+                        selectedTemplate.publishedVersion && selectedTemplate.active && !selectedTemplate.archived_at
+                          ? "settings-checkbox"
+                          : "settings-checkbox disabled"
+                      }
+                    >
+                      <input
+                        checked={Boolean(selectedTemplate.worker_visible)}
+                        disabled={
+                          !selectedTemplate.publishedVersion ||
+                          !selectedTemplate.active ||
+                          saving ||
+                          Boolean(selectedTemplate.archived_at)
+                        }
+                        type="checkbox"
+                        onChange={(event) => updateTemplateMeta({ workerVisible: event.target.checked })}
+                      />
+                      <span>
+                        Show to workers
+                        <small>
+                          {selectedTemplate.publishedVersion
+                            ? "Published workers will see this form on their form screen."
+                            : "Publish this form before showing it to workers."}
+                        </small>
+                      </span>
+                    </label>
+                    <div className="staff-card-actions">
+                      {selectedTemplate.archived_at ? (
+                        <button type="button" onClick={() => updateTemplateMeta({ archived: false, active: true })}>
+                          Restore archived form
+                        </button>
+                      ) : (
+                        <button
+                          className="danger-button"
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
+                              updateTemplateMeta({ archived: true });
+                            }
+                          }}
+                        >
+                          Archive form
+                        </button>
+                      )}
+                    </div>
+                  </section>
+                  <TemplateSchemaEditor schema={draftSchema} onChange={setDraftSchema} />
+                </div>
                 <div className="template-preview-panel">
                   <h2>Worker preview</h2>
                   <TemplateFormFields
@@ -6401,6 +6698,33 @@ function TemplateSchemaEditor({ onChange, schema }) {
       ),
     });
   };
+  const addFieldType = (sectionIndex, type) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: [...section.fields, createTemplateField(section.fields.length + 1, type)] }
+          : section,
+      ),
+    });
+  };
+  const duplicateField = (sectionIndex, fieldIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) => {
+        if (index !== sectionIndex) return section;
+        const source = section.fields[fieldIndex];
+        const duplicate = normalizeTemplateField({
+          ...source,
+          id: `${source.id || "field"}_${Date.now()}`,
+          label: `${source.label || "Field"} copy`,
+        });
+        const fields = [...section.fields];
+        fields.splice(fieldIndex + 1, 0, duplicate);
+        return { ...section, fields };
+      }),
+    });
+  };
   const removeField = (sectionIndex, fieldIndex) => {
     onChange({
       ...current,
@@ -6423,9 +6747,14 @@ function TemplateSchemaEditor({ onChange, schema }) {
   };
 
   return (
-    <div className="template-schema-editor">
-      <section className="settings-section">
-        <h2>Form Details</h2>
+    <div className="template-schema-editor template-builder-canvas">
+      <section className="settings-section template-builder-card">
+        <div className="settings-section-heading">
+          <div>
+            <h2>Form Header</h2>
+            <p>Shown at the top of the worker form.</p>
+          </div>
+        </div>
         <label>
           <span>Form title</span>
           <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
@@ -6437,9 +6766,12 @@ function TemplateSchemaEditor({ onChange, schema }) {
       </section>
 
       {current.sections.map((section, sectionIndex) => (
-        <section className="settings-section template-section-editor" key={section.id || sectionIndex}>
+        <section className="settings-section template-section-editor template-builder-card" key={section.id || sectionIndex}>
           <div className="template-section-toolbar">
-            <h2>Section {sectionIndex + 1}</h2>
+            <div>
+              <span className="template-block-eyebrow">Section block</span>
+              <h2>Section {sectionIndex + 1}</h2>
+            </div>
             <div className="staff-card-actions">
               <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
               <button disabled={sectionIndex === current.sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
@@ -6457,12 +6789,16 @@ function TemplateSchemaEditor({ onChange, schema }) {
 
           <div className="template-field-list">
             {(section.fields || []).map((field, fieldIndex) => (
-              <article className="template-field-editor" key={field.id || fieldIndex}>
+              <article className="template-field-editor template-block-card" key={field.id || fieldIndex}>
                 <div className="template-section-toolbar">
-                  <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                  <div>
+                    <span className="template-block-eyebrow">{templateFieldTypeLabel(field.type)} block</span>
+                    <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                  </div>
                   <div className="staff-card-actions">
                     <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
                     <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                    <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
                     <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Remove</button>
                   </div>
                 </div>
@@ -6535,10 +6871,20 @@ function TemplateSchemaEditor({ onChange, schema }) {
               </article>
             ))}
           </div>
-          <button type="button" onClick={() => addField(sectionIndex)}>Add field</button>
+          <details className="template-block-palette">
+            <summary>Add block</summary>
+            <div>
+              {TEMPLATE_FIELD_TYPES.map((type) => (
+                <button key={type.id} type="button" onClick={() => addFieldType(sectionIndex, type.id)}>
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </details>
+          <button type="button" onClick={() => addField(sectionIndex)}>Add default field</button>
         </section>
       ))}
-      <button className="primary-button" type="button" onClick={addSection}>Add section</button>
+      <button className="primary-button" type="button" onClick={addSection}>Add section block</button>
     </div>
   );
 }
@@ -9874,6 +10220,10 @@ function staffToPreviewWorker(staff) {
   };
 }
 
+function templateFieldTypeLabel(type) {
+  return TEMPLATE_FIELD_TYPES.find((item) => item.id === type)?.label || "Field";
+}
+
 function slugifyTemplateId(value) {
   return String(value || "")
     .toLowerCase()
@@ -10045,7 +10395,13 @@ function describeActionItemSort(sort, dir) {
 }
 
 function formTypeLabel(value) {
-  return SAFETY_FORM_TYPES.find((form) => form.id === value)?.label || value;
+  return SAFETY_FORM_TYPES.find((form) => form.id === value)?.label || humanizeFormType(value);
+}
+
+function humanizeFormType(value) {
+  return String(value || "Form")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function submissionModeLabel(value) {

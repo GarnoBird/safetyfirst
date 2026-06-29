@@ -9,6 +9,7 @@ import {
 } from "./fallback-store.js";
 import {
   buildTemplateSubmissionNotes,
+  getPublishedWorkerFormTemplate,
   validateTemplateSubmissionFormData,
 } from "./form-templates.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
@@ -25,6 +26,7 @@ export const FORM_TYPES = [
   "site_inspection",
   "daily_hazard_assessment",
 ];
+const CUSTOM_FORM_TYPES = ["toolbox_talk", "site_inspection"];
 export const SUBMISSION_MODES = ["submit_file", "fill_form"];
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
@@ -135,7 +137,7 @@ async function markUploadAttached(storagePath, submissionId) {
 }
 
 export async function createFileUploadTarget(worker, body) {
-  const formType = cleanFormType(body?.formType || body?.form_type);
+  const formType = await cleanWorkerFormType(body?.formType || body?.form_type);
   const file = cleanFileMetadata(body?.file || body);
   const storagePath = `${worker.id}/${Date.now()}-${crypto
     .randomBytes(8)
@@ -169,7 +171,7 @@ export async function createFileUploadTarget(worker, body) {
 }
 
 export async function createWorkerSubmission(worker, body) {
-  const formType = cleanFormType(body?.formType || body?.form_type);
+  const formType = await cleanWorkerFormType(body?.formType || body?.form_type);
   const submissionMode = cleanSubmissionMode(body?.submissionMode || body?.submission_mode);
   const cleanedForm = await cleanSubmissionFormData(
     formType,
@@ -432,7 +434,7 @@ export async function listStaffSubmissions(query) {
   if (company) dbQuery = dbQuery.ilike("company", `%${escapeLike(company)}%`);
   if (phone) dbQuery = dbQuery.ilike("worker_phone", `%${escapeLike(phone)}%`);
   if (name) dbQuery = dbQuery.ilike("worker_name", `%${escapeLike(name)}%`);
-  if (FORM_TYPES.includes(formType)) dbQuery = dbQuery.eq("form_type", formType);
+  if (isValidFormTypeSlug(formType)) dbQuery = dbQuery.eq("form_type", formType);
   if (["pending", "backed_up", "failed"].includes(backupStatus)) {
     dbQuery = dbQuery.eq("one_drive_backup_status", backupStatus);
   }
@@ -1029,7 +1031,7 @@ async function listFallbackStaffSubmissions(filters) {
     .filter((row) => textIncludes(row.company, company))
     .filter((row) => textIncludes(row.worker_phone, phone))
     .filter((row) => textIncludes(row.worker_name, name))
-    .filter((row) => !FORM_TYPES.includes(formType) || row.form_type === formType)
+    .filter((row) => !formType || row.form_type === formType)
     .filter((row) =>
       !["pending", "backed_up", "failed"].includes(backupStatus) ||
       row.one_drive_backup_status === backupStatus
@@ -1333,12 +1335,23 @@ function isStorageBucketAlreadyExists(error) {
 
 function cleanFormType(value) {
   const formType = String(value || "").trim();
-  if (!FORM_TYPES.includes(formType)) {
+  if (!isValidFormTypeSlug(formType)) {
     const error = new Error("Form type is not valid.");
     error.statusCode = 400;
     throw error;
   }
   return formType;
+}
+
+async function cleanWorkerFormType(value) {
+  const formType = cleanFormType(value);
+  if (CUSTOM_FORM_TYPES.includes(formType)) return formType;
+  await getPublishedWorkerFormTemplate(formType);
+  return formType;
+}
+
+function isValidFormTypeSlug(value) {
+  return /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(String(value || "").trim());
 }
 
 function cleanSubmissionMode(value) {
