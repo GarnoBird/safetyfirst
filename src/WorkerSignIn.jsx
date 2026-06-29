@@ -6648,7 +6648,28 @@ export function StaffActionItemsPage({ navigateTo }) {
 }
 
 function TemplateSchemaEditor({ onChange, schema }) {
-  const current = schema || createDefaultTemplateSchema();
+  const current = normalizeClientTemplateSchema(schema);
+  const [selected, setSelected] = useState({ kind: "header" });
+  const sections = Array.isArray(current.sections) ? current.sections : [];
+  const selectedSection =
+    selected.kind === "section" || selected.kind === "field"
+      ? sections[selected.sectionIndex]
+      : null;
+  const selectedField =
+    selected.kind === "field"
+      ? selectedSection?.fields?.[selected.fieldIndex]
+      : null;
+  const activeSelection =
+    selected.kind === "field" && selectedField
+      ? selected
+      : selected.kind === "section" && selectedSection
+        ? selected
+        : { kind: "header" };
+  const addTargetSectionIndex =
+    activeSelection.kind === "field" || activeSelection.kind === "section"
+      ? activeSelection.sectionIndex
+      : Math.max(sections.length - 1, 0);
+
   const updateSchema = (patch) => onChange({ ...current, ...patch });
   const updateSection = (sectionIndex, patch) => {
     onChange({
@@ -6674,39 +6695,44 @@ function TemplateSchemaEditor({ onChange, schema }) {
     });
   };
   const addSection = () => {
+    const nextIndex = current.sections.length;
     onChange({
       ...current,
-      sections: [...current.sections, createTemplateSection(current.sections.length + 1)],
+      sections: [...current.sections, createTemplateSection(nextIndex + 1)],
     });
+    setSelected({ kind: "section", sectionIndex: nextIndex });
   };
   const removeSection = (sectionIndex) => {
     onChange({
       ...current,
       sections: current.sections.filter((_, index) => index !== sectionIndex),
     });
+    setSelected({ kind: "header" });
   };
   const moveSection = (sectionIndex, direction) => {
     onChange({ ...current, sections: moveArrayItem(current.sections, sectionIndex, direction) });
+    setSelected({ kind: "section", sectionIndex: sectionIndex + direction });
   };
-  const addField = (sectionIndex) => {
+  const addFieldType = (sectionIndex, type = "short_text") => {
+    if (!current.sections.length) {
+      const section = createTemplateSection(1);
+      section.fields = [createTemplateField(1, type)];
+      onChange({ ...current, sections: [section] });
+      setSelected({ kind: "field", sectionIndex: 0, fieldIndex: 0 });
+      return;
+    }
+    const section = current.sections[sectionIndex] || current.sections[current.sections.length - 1];
+    const targetIndex = current.sections.indexOf(section);
+    const fieldIndex = section.fields.length;
     onChange({
       ...current,
       sections: current.sections.map((section, index) =>
-        index === sectionIndex
-          ? { ...section, fields: [...section.fields, createTemplateField(section.fields.length + 1)] }
-          : section,
-      ),
-    });
-  };
-  const addFieldType = (sectionIndex, type) => {
-    onChange({
-      ...current,
-      sections: current.sections.map((section, index) =>
-        index === sectionIndex
+        index === targetIndex
           ? { ...section, fields: [...section.fields, createTemplateField(section.fields.length + 1, type)] }
           : section,
       ),
     });
+    setSelected({ kind: "field", sectionIndex: targetIndex, fieldIndex });
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
     onChange({
@@ -6724,6 +6750,7 @@ function TemplateSchemaEditor({ onChange, schema }) {
         return { ...section, fields };
       }),
     });
+    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
   };
   const removeField = (sectionIndex, fieldIndex) => {
     onChange({
@@ -6734,6 +6761,7 @@ function TemplateSchemaEditor({ onChange, schema }) {
           : section,
       ),
     });
+    setSelected({ kind: "section", sectionIndex });
   };
   const moveField = (sectionIndex, fieldIndex, direction) => {
     onChange({
@@ -6744,147 +6772,291 @@ function TemplateSchemaEditor({ onChange, schema }) {
           : section,
       ),
     });
+    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
   };
 
   return (
-    <div className="template-schema-editor template-builder-canvas">
-      <section className="settings-section template-builder-card">
-        <div className="settings-section-heading">
-          <div>
-            <h2>Form Header</h2>
-            <p>Shown at the top of the worker form.</p>
-          </div>
+    <div className="template-schema-editor template-block-builder">
+      <aside className="template-block-library" aria-label="Template blocks">
+        <div className="template-builder-pane-heading">
+          <span>Blocks</span>
+          <h2>Add to form</h2>
         </div>
-        <label>
-          <span>Form title</span>
-          <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
-        </label>
-        <label>
-          <span>Description</span>
-          <textarea rows="3" value={current.description || ""} onChange={(event) => updateSchema({ description: event.target.value })} />
-        </label>
-      </section>
+        <button className="template-library-button section" type="button" onClick={addSection}>
+          <strong>Section</strong>
+          <small>Group related questions</small>
+        </button>
+        {TEMPLATE_FIELD_TYPES.map((type) => (
+          <button
+            className="template-library-button"
+            key={type.id}
+            type="button"
+            onClick={() => addFieldType(addTargetSectionIndex, type.id)}
+          >
+            <strong>{type.label}</strong>
+            <small>{templateFieldBuilderHint(type.id)}</small>
+          </button>
+        ))}
+      </aside>
 
-      {current.sections.map((section, sectionIndex) => (
-        <section className="settings-section template-section-editor template-builder-card" key={section.id || sectionIndex}>
-          <div className="template-section-toolbar">
-            <div>
-              <span className="template-block-eyebrow">Section block</span>
-              <h2>Section {sectionIndex + 1}</h2>
-            </div>
-            <div className="staff-card-actions">
-              <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
-              <button disabled={sectionIndex === current.sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
-              <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Remove</button>
-            </div>
-          </div>
-          <label>
-            <span>Section title</span>
-            <input value={section.title} onChange={(event) => updateSection(sectionIndex, { title: event.target.value })} />
-          </label>
-          <label>
-            <span>Section description</span>
-            <textarea rows="2" value={section.description || ""} onChange={(event) => updateSection(sectionIndex, { description: event.target.value })} />
-          </label>
+      <section className="template-canvas-shell" aria-label="Form canvas">
+        <div className="template-builder-pane-heading">
+          <span>Canvas</span>
+          <h2>Worker form layout</h2>
+        </div>
+        <button
+          className={activeSelection.kind === "header" ? "template-canvas-header selected" : "template-canvas-header"}
+          type="button"
+          onClick={() => setSelected({ kind: "header" })}
+        >
+          <span>Form header</span>
+          <strong>{current.title || "Untitled form"}</strong>
+          <small>{current.description || "Tap to edit the form title and description."}</small>
+        </button>
 
-          <div className="template-field-list">
-            {(section.fields || []).map((field, fieldIndex) => (
-              <article className="template-field-editor template-block-card" key={field.id || fieldIndex}>
-                <div className="template-section-toolbar">
-                  <div>
-                    <span className="template-block-eyebrow">{templateFieldTypeLabel(field.type)} block</span>
-                    <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
-                  </div>
-                  <div className="staff-card-actions">
-                    <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
-                    <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
-                    <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
-                    <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Remove</button>
-                  </div>
-                </div>
-                <div className="template-field-grid">
-                  <label>
-                    <span>Type</span>
-                    <select
-                      value={field.type}
-                      onChange={(event) => {
-                        const nextType = event.target.value;
-                        updateField(sectionIndex, fieldIndex, {
-                          type: nextType,
-                          options: TEMPLATE_OPTION_FIELD_TYPES.has(nextType) && !(field.options || []).length
-                            ? ["Yes", "No"]
-                            : field.options,
-                        });
-                      }}
-                    >
-                      {TEMPLATE_FIELD_TYPES.map((type) => (
-                        <option key={type.id} value={type.id}>{type.label}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    <span>Label</span>
-                    <input value={field.label} onChange={(event) => updateField(sectionIndex, fieldIndex, { label: event.target.value, id: slugifyTemplateId(event.target.value || field.id) })} />
-                  </label>
-                </div>
-                <label>
-                  <span>Helper text</span>
-                  <input value={field.helperText || ""} onChange={(event) => updateField(sectionIndex, fieldIndex, { helperText: event.target.value })} />
-                </label>
-                {field.type !== "instructions" ? (
-                  <div className="template-field-toggles">
-                    <label className="remember-worker-field">
-                      <input checked={Boolean(field.required)} type="checkbox" onChange={(event) => updateField(sectionIndex, fieldIndex, { required: event.target.checked })} />
-                      <span>Required</span>
-                    </label>
-                    <label className="remember-worker-field">
-                      <input checked={Boolean(field.remember)} type="checkbox" onChange={(event) => updateField(sectionIndex, fieldIndex, { remember: event.target.checked })} />
-                      <span>Remember last value on this device</span>
-                    </label>
-                  </div>
-                ) : null}
-                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(field.type) ? (
-                  <label>
-                    <span>Default value</span>
-                    <select value={field.default || ""} onChange={(event) => updateField(sectionIndex, fieldIndex, { default: event.target.value })}>
-                      <option value="">Blank</option>
-                      <option value="worker_name">Worker name</option>
-                      {field.type === "date" ? <option value="today">Today</option> : null}
-                      {field.type === "time" ? <option value="now">Current time</option> : null}
-                    </select>
-                  </label>
-                ) : null}
-                {TEMPLATE_OPTION_FIELD_TYPES.has(field.type) ? (
-                  <label>
-                    <span>Options</span>
-                    <textarea
-                      rows="4"
-                      value={(field.options || []).join("\n")}
-                      onChange={(event) =>
-                        updateField(sectionIndex, fieldIndex, {
-                          options: event.target.value.split(/\n|,/).map((item) => item.trim()).filter(Boolean),
-                        })
-                      }
-                    />
-                  </label>
-                ) : null}
-              </article>
-            ))}
-          </div>
-          <details className="template-block-palette">
-            <summary>Add block</summary>
-            <div>
-              {TEMPLATE_FIELD_TYPES.map((type) => (
-                <button key={type.id} type="button" onClick={() => addFieldType(sectionIndex, type.id)}>
-                  {type.label}
+        {sections.map((section, sectionIndex) => (
+          <article
+            className={
+              activeSelection.kind === "section" && activeSelection.sectionIndex === sectionIndex
+                ? "template-canvas-section selected"
+                : "template-canvas-section"
+            }
+            key={section.id || sectionIndex}
+          >
+            <div className="template-canvas-section-heading">
+              <button type="button" onClick={() => setSelected({ kind: "section", sectionIndex })}>
+                <span>Section block</span>
+                <strong>{section.title || `Section ${sectionIndex + 1}`}</strong>
+                {section.description ? <small>{section.description}</small> : null}
+              </button>
+              <div className="template-canvas-actions">
+                <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
+                <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+              </div>
+            </div>
+            <div className="template-canvas-fields">
+              {(section.fields || []).map((field, fieldIndex) => (
+                <button
+                  className={
+                    activeSelection.kind === "field" &&
+                    activeSelection.sectionIndex === sectionIndex &&
+                    activeSelection.fieldIndex === fieldIndex
+                      ? "template-canvas-field selected"
+                      : "template-canvas-field"
+                  }
+                  key={field.id || fieldIndex}
+                  type="button"
+                  onClick={() => setSelected({ kind: "field", sectionIndex, fieldIndex })}
+                >
+                  <span>{templateFieldTypeLabel(field.type)}</span>
+                  <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                  <small>
+                    {field.required ? "Required" : "Optional"}
+                    {field.remember ? " / remembered" : ""}
+                  </small>
                 </button>
               ))}
             </div>
-          </details>
-          <button type="button" onClick={() => addField(sectionIndex)}>Add default field</button>
-        </section>
-      ))}
-      <button className="primary-button" type="button" onClick={addSection}>Add section block</button>
+            <button className="template-inline-add" type="button" onClick={() => addFieldType(sectionIndex, "short_text")}>
+              Add field to this section
+            </button>
+          </article>
+        ))}
+      </section>
+
+      <aside className="template-builder-inspector" aria-label="Selected block settings">
+        <div className="template-builder-pane-heading">
+          <span>Settings</span>
+          <h2>
+            {activeSelection.kind === "field"
+              ? "Question block"
+              : activeSelection.kind === "section"
+                ? "Section block"
+                : "Form header"}
+          </h2>
+        </div>
+
+        {activeSelection.kind === "header" ? (
+          <div className="template-inspector-body">
+            <label>
+              <span>Form title</span>
+              <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
+            </label>
+            <label>
+              <span>Description</span>
+              <textarea
+                rows="4"
+                value={current.description || ""}
+                onChange={(event) => updateSchema({ description: event.target.value })}
+              />
+            </label>
+          </div>
+        ) : null}
+
+        {activeSelection.kind === "section" && selectedSection ? (
+          <div className="template-inspector-body">
+            <label>
+              <span>Section title</span>
+              <input
+                value={selectedSection.title}
+                onChange={(event) => updateSection(activeSelection.sectionIndex, { title: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>Section description</span>
+              <textarea
+                rows="4"
+                value={selectedSection.description || ""}
+                onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
+              />
+            </label>
+            <div className="template-inspector-actions">
+              <button
+                disabled={activeSelection.sectionIndex === 0}
+                type="button"
+                onClick={() => moveSection(activeSelection.sectionIndex, -1)}
+              >
+                Move up
+              </button>
+              <button
+                disabled={activeSelection.sectionIndex === sections.length - 1}
+                type="button"
+                onClick={() => moveSection(activeSelection.sectionIndex, 1)}
+              >
+                Move down
+              </button>
+              <button className="danger-button" type="button" onClick={() => removeSection(activeSelection.sectionIndex)}>
+                Delete section
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {activeSelection.kind === "field" && selectedField ? (
+          <div className="template-inspector-body">
+            <label>
+              <span>Block type</span>
+              <select
+                value={selectedField.type}
+                onChange={(event) => {
+                  const nextType = event.target.value;
+                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                    type: nextType,
+                    options: TEMPLATE_OPTION_FIELD_TYPES.has(nextType) && !(selectedField.options || []).length
+                      ? ["Yes", "No"]
+                      : selectedField.options,
+                  });
+                }}
+              >
+                {TEMPLATE_FIELD_TYPES.map((type) => (
+                  <option key={type.id} value={type.id}>{type.label}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Label</span>
+              <input
+                value={selectedField.label}
+                onChange={(event) =>
+                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                    label: event.target.value,
+                    id: slugifyTemplateId(event.target.value || selectedField.id),
+                  })
+                }
+              />
+            </label>
+            <label>
+              <span>Helper text</span>
+              <input
+                value={selectedField.helperText || ""}
+                onChange={(event) =>
+                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { helperText: event.target.value })
+                }
+              />
+            </label>
+            {selectedField.type !== "instructions" ? (
+              <div className="template-field-toggles">
+                <label className="remember-worker-field">
+                  <input
+                    checked={Boolean(selectedField.required)}
+                    type="checkbox"
+                    onChange={(event) =>
+                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { required: event.target.checked })
+                    }
+                  />
+                  <span>Required</span>
+                </label>
+                <label className="remember-worker-field">
+                  <input
+                    checked={Boolean(selectedField.remember)}
+                    type="checkbox"
+                    onChange={(event) =>
+                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { remember: event.target.checked })
+                    }
+                  />
+                  <span>Remember last value on this device</span>
+                </label>
+              </div>
+            ) : null}
+            {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+              <label>
+                <span>Default value</span>
+                <select
+                  value={selectedField.default || ""}
+                  onChange={(event) =>
+                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
+                  }
+                >
+                  <option value="">Blank</option>
+                  <option value="worker_name">Worker name</option>
+                  {selectedField.type === "date" ? <option value="today">Today</option> : null}
+                  {selectedField.type === "time" ? <option value="now">Current time</option> : null}
+                </select>
+              </label>
+            ) : null}
+            {TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type) ? (
+              <label>
+                <span>Options</span>
+                <textarea
+                  rows="5"
+                  value={(selectedField.options || []).join("\n")}
+                  onChange={(event) =>
+                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                      options: event.target.value.split(/\n|,/).map((item) => item.trim()).filter(Boolean),
+                    })
+                  }
+                />
+              </label>
+            ) : null}
+            <div className="template-inspector-actions">
+              <button
+                disabled={activeSelection.fieldIndex === 0}
+                type="button"
+                onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, -1)}
+              >
+                Move up
+              </button>
+              <button
+                disabled={activeSelection.fieldIndex === selectedSection.fields.length - 1}
+                type="button"
+                onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, 1)}
+              >
+                Move down
+              </button>
+              <button type="button" onClick={() => duplicateField(activeSelection.sectionIndex, activeSelection.fieldIndex)}>
+                Duplicate
+              </button>
+              <button
+                className="danger-button"
+                type="button"
+                onClick={() => removeField(activeSelection.sectionIndex, activeSelection.fieldIndex)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </aside>
     </div>
   );
 }
@@ -10222,6 +10394,22 @@ function staffToPreviewWorker(staff) {
 
 function templateFieldTypeLabel(type) {
   return TEMPLATE_FIELD_TYPES.find((item) => item.id === type)?.label || "Field";
+}
+
+function templateFieldBuilderHint(type) {
+  const hints = {
+    short_text: "One line text",
+    long_text: "Notes or details",
+    number: "Numeric entry",
+    date: "Calendar field",
+    time: "Time picker",
+    yes_no: "Two-tap choice",
+    dropdown: "One option",
+    multi_select: "Many chips",
+    checkbox: "Final confirmation",
+    instructions: "Read-only text",
+  };
+  return hints[type] || "Question block";
 }
 
 function slugifyTemplateId(value) {
