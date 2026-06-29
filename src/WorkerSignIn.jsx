@@ -137,6 +137,193 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "instructions", label: "Instructions" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const TEMPLATE_BLOCK_GROUPS = [
+  {
+    title: "Common",
+    fields: ["instructions", "short_text", "long_text"],
+  },
+  {
+    title: "Fast inputs",
+    fields: ["date", "time", "number", "yes_no"],
+  },
+  {
+    title: "Choices",
+    fields: ["dropdown", "multi_select", "checkbox"],
+  },
+];
+const TEMPLATE_STARTER_TEMPLATES = [
+  {
+    id: "blank",
+    title: "Blank form",
+    description: "Start with an empty canvas.",
+    schema: null,
+  },
+  {
+    id: "daily_hazard",
+    title: "Daily Hazard Assessment",
+    description: "Project, work area, hazards, controls, and confirmation.",
+    schema: {
+      title: "Daily Hazard Assessment",
+      description: "Fast mobile hazard review.",
+      sections: [
+        {
+          id: "job_info",
+          title: "Job Info",
+          description: "",
+          fields: [
+            { id: "project", type: "short_text", label: "Project", required: true, remember: true },
+            { id: "area", type: "short_text", label: "Work area", required: true },
+            { id: "date", type: "date", label: "Date", required: true, default: "today" },
+            { id: "time", type: "time", label: "Time", required: true, default: "now" },
+            { id: "completed_by", type: "short_text", label: "Completed by", required: true, default: "worker_name" },
+          ],
+        },
+        {
+          id: "hazards_controls",
+          title: "Hazards and Controls",
+          description: "",
+          fields: [
+            {
+              id: "hazards",
+              type: "multi_select",
+              label: "Hazards observed",
+              required: true,
+              options: ["Fall protection", "Tools / equipment", "Traffic", "Electrical", "Housekeeping"],
+            },
+            { id: "controls", type: "long_text", label: "Controls in place", required: true },
+            { id: "safe_to_start", type: "yes_no", label: "Safe to start work?", required: true },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: "pre_task",
+    title: "Pre-Task Plan",
+    description: "Plan the work, crew, risks, and controls before starting.",
+    schema: {
+      title: "Pre-Task Plan",
+      description: "Quick pre-task planning record.",
+      sections: [
+        {
+          id: "work_plan",
+          title: "Work Plan",
+          description: "",
+          fields: [
+            { id: "project", type: "short_text", label: "Project", required: true, remember: true },
+            { id: "task", type: "long_text", label: "Task / scope of work", required: true },
+            { id: "crew", type: "short_text", label: "Crew lead", required: true, default: "worker_name" },
+            { id: "date", type: "date", label: "Date", required: true, default: "today" },
+          ],
+        },
+        {
+          id: "risk_review",
+          title: "Risk Review",
+          description: "",
+          fields: [
+            { id: "critical_risks", type: "long_text", label: "Main risks", required: true },
+            { id: "controls", type: "long_text", label: "Controls / permits", required: true },
+            { id: "ready", type: "checkbox", label: "I confirm the crew reviewed this plan.", required: true },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: "near_miss",
+    title: "Incident / Near Miss Report",
+    description: "Capture what happened, where, and what was done.",
+    schema: {
+      title: "Incident / Near Miss Report",
+      description: "Initial incident or near miss details.",
+      sections: [
+        {
+          id: "event_details",
+          title: "Event Details",
+          description: "",
+          fields: [
+            { id: "project", type: "short_text", label: "Project", required: true, remember: true },
+            { id: "location", type: "short_text", label: "Location", required: true },
+            { id: "date", type: "date", label: "Date", required: true, default: "today" },
+            { id: "time", type: "time", label: "Time", required: true, default: "now" },
+            {
+              id: "event_type",
+              type: "dropdown",
+              label: "Type",
+              required: true,
+              options: ["Near miss", "Incident", "Property damage", "First aid"],
+            },
+          ],
+        },
+        {
+          id: "response",
+          title: "Response",
+          description: "",
+          fields: [
+            { id: "description", type: "long_text", label: "What happened?", required: true },
+            { id: "immediate_action", type: "long_text", label: "Immediate action taken", required: false },
+            { id: "reported_by", type: "short_text", label: "Reported by", required: true, default: "worker_name" },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: "equipment",
+    title: "Equipment Inspection",
+    description: "Check equipment condition and readiness.",
+    schema: {
+      title: "Equipment Inspection",
+      description: "Fast equipment inspection checklist.",
+      sections: [
+        {
+          id: "equipment",
+          title: "Equipment",
+          description: "",
+          fields: [
+            { id: "equipment_name", type: "short_text", label: "Equipment name / number", required: true },
+            { id: "project", type: "short_text", label: "Project", required: true, remember: true },
+            { id: "inspected_by", type: "short_text", label: "Inspected by", required: true, default: "worker_name" },
+            { id: "date", type: "date", label: "Date", required: true, default: "today" },
+          ],
+        },
+        {
+          id: "condition",
+          title: "Condition",
+          description: "",
+          fields: [
+            { id: "pre_use_complete", type: "yes_no", label: "Pre-use check complete?", required: true },
+            { id: "defects", type: "long_text", label: "Defects or concerns", required: false },
+            { id: "safe_to_use", type: "yes_no", label: "Safe to use?", required: true },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: "training_attendance",
+    title: "Training Attendance",
+    description: "Topic, trainer, attendee names, and acknowledgement.",
+    schema: {
+      title: "Training Attendance",
+      description: "Simple training attendance record.",
+      sections: [
+        {
+          id: "training",
+          title: "Training",
+          description: "",
+          fields: [
+            { id: "topic", type: "short_text", label: "Training topic", required: true },
+            { id: "trainer", type: "short_text", label: "Trainer", required: true, default: "worker_name" },
+            { id: "date", type: "date", label: "Date", required: true, default: "today" },
+            { id: "attendees", type: "long_text", label: "Attendees", required: true, helperText: "Type one name per line." },
+            { id: "confirmed", type: "checkbox", label: "I confirm these workers attended.", required: true },
+          ],
+        },
+      ],
+    },
+  },
+];
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
@@ -6147,15 +6334,12 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       )}
                     </div>
                   </section>
-                  <TemplateSchemaEditor schema={draftSchema} onChange={setDraftSchema} />
-                </div>
-                <div className="template-preview-panel">
-                  <h2>Worker preview</h2>
-                  <TemplateFormFields
-                    answers={previewAnswers}
+                  <TemplateSchemaEditor
+                    previewAnswers={previewAnswers}
+                    previewWorker={staffToPreviewWorker(staff)}
                     schema={draftSchema}
-                    worker={staffToPreviewWorker(staff)}
-                    onChange={setPreviewAnswers}
+                    onChange={setDraftSchema}
+                    onPreviewAnswersChange={setPreviewAnswers}
                   />
                 </div>
               </div>
@@ -6692,10 +6876,19 @@ export function StaffActionItemsPage({ navigateTo }) {
   );
 }
 
-function TemplateSchemaEditor({ onChange, schema }) {
+function TemplateSchemaEditor({
+  onChange,
+  onPreviewAnswersChange,
+  previewAnswers = {},
+  previewWorker,
+  schema,
+}) {
   const current = normalizeClientTemplateSchema(schema);
   const [selected, setSelected] = useState({ kind: "header" });
+  const [mobilePane, setMobilePane] = useState("build");
+  const [optionDraft, setOptionDraft] = useState("");
   const sections = Array.isArray(current.sections) ? current.sections : [];
+  const fieldCount = collectClientTemplateFields(current).length;
   const selectedSection =
     selected.kind === "section" || selected.kind === "field"
       ? sections[selected.sectionIndex]
@@ -6715,6 +6908,14 @@ function TemplateSchemaEditor({ onChange, schema }) {
       ? activeSelection.sectionIndex
       : Math.max(sections.length - 1, 0);
 
+  useEffect(() => {
+    setOptionDraft("");
+  }, [selectedField?.id]);
+
+  const selectBlock = (nextSelection, pane = "settings") => {
+    setSelected(nextSelection);
+    setMobilePane(pane);
+  };
   const updateSchema = (patch) => onChange({ ...current, ...patch });
   const updateSection = (sectionIndex, patch) => {
     onChange({
@@ -6739,13 +6940,29 @@ function TemplateSchemaEditor({ onChange, schema }) {
       ),
     });
   };
+  const applyStarterTemplate = (starter) => {
+    const nextSchema = starter.schema
+      ? normalizeClientTemplateSchema({
+          ...starter.schema,
+          formType: current.formType,
+        })
+      : normalizeClientTemplateSchema({
+          ...createDefaultTemplateSchema(),
+          formType: current.formType,
+          title: current.title,
+          description: current.description,
+        });
+    onChange(nextSchema);
+    setSelected({ kind: "header" });
+    setMobilePane("build");
+  };
   const addSection = () => {
     const nextIndex = current.sections.length;
     onChange({
       ...current,
       sections: [...current.sections, createTemplateSection(nextIndex + 1)],
     });
-    setSelected({ kind: "section", sectionIndex: nextIndex });
+    selectBlock({ kind: "section", sectionIndex: nextIndex });
   };
   const removeSection = (sectionIndex) => {
     onChange({
@@ -6763,7 +6980,7 @@ function TemplateSchemaEditor({ onChange, schema }) {
       const section = createTemplateSection(1);
       section.fields = [createTemplateField(1, type)];
       onChange({ ...current, sections: [section] });
-      setSelected({ kind: "field", sectionIndex: 0, fieldIndex: 0 });
+      selectBlock({ kind: "field", sectionIndex: 0, fieldIndex: 0 });
       return;
     }
     const section = current.sections[sectionIndex] || current.sections[current.sections.length - 1];
@@ -6777,7 +6994,7 @@ function TemplateSchemaEditor({ onChange, schema }) {
           : section,
       ),
     });
-    setSelected({ kind: "field", sectionIndex: targetIndex, fieldIndex });
+    selectBlock({ kind: "field", sectionIndex: targetIndex, fieldIndex });
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
     onChange({
@@ -6795,7 +7012,7 @@ function TemplateSchemaEditor({ onChange, schema }) {
         return { ...section, fields };
       }),
     });
-    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
+    selectBlock({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
   };
   const removeField = (sectionIndex, fieldIndex) => {
     onChange({
@@ -6819,45 +7036,119 @@ function TemplateSchemaEditor({ onChange, schema }) {
     });
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
   };
+  const addOptionToSelectedField = () => {
+    if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
+    const option = optionDraft.trim();
+    if (!option || (selectedField.options || []).includes(option)) {
+      setOptionDraft("");
+      return;
+    }
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      options: [...(selectedField.options || []), option],
+    });
+    setOptionDraft("");
+  };
+  const removeSelectedFieldOption = (option) => {
+    if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      options: (selectedField.options || []).filter((item) => item !== option),
+    });
+  };
+  const previewHasFields = fieldCount > 0;
 
   return (
     <div className="template-schema-editor template-block-builder">
-      <aside className="template-block-library" aria-label="Template blocks">
-        <div className="template-builder-pane-heading">
-          <span>Blocks</span>
-          <h2>Add to form</h2>
-        </div>
-        <button className="template-library-button section" type="button" onClick={addSection}>
-          <strong>Section</strong>
-          <small>Group related questions</small>
-        </button>
-        {TEMPLATE_FIELD_TYPES.map((type) => (
+      <div className="template-builder-tabs" role="tablist" aria-label="Form builder views">
+        {[
+          ["build", "Build"],
+          ["settings", "Settings"],
+          ["preview", "Preview"],
+        ].map(([id, label]) => (
           <button
-            className="template-library-button"
-            key={type.id}
+            className={mobilePane === id ? "active" : ""}
+            key={id}
             type="button"
-            onClick={() => addFieldType(addTargetSectionIndex, type.id)}
+            onClick={() => setMobilePane(id)}
           >
-            <strong>{type.label}</strong>
-            <small>{templateFieldBuilderHint(type.id)}</small>
+            {label}
           </button>
         ))}
+      </div>
+
+      <aside className={mobilePane === "build" ? "template-block-library active-pane" : "template-block-library"} aria-label="Template blocks">
+        <div className="template-builder-pane-heading">
+          <span>Blocks</span>
+          <h2>Add visually</h2>
+        </div>
+        <button className="template-library-button section" type="button" onClick={addSection}>
+          <span className="template-block-icon">S</span>
+          <strong>Section</strong>
+          <small>Group related questions together.</small>
+        </button>
+        {TEMPLATE_BLOCK_GROUPS.map((group) => (
+          <div className="template-block-group" key={group.title}>
+            <h3>{group.title}</h3>
+            {group.fields.map((fieldType) => (
+              <button
+                className="template-library-button"
+                key={fieldType}
+                type="button"
+                onClick={() => addFieldType(addTargetSectionIndex, fieldType)}
+              >
+                <span className="template-block-icon">{templateFieldBuilderIcon(fieldType)}</span>
+                <strong>{templateFieldTypeLabel(fieldType)}</strong>
+                <small>{templateFieldBuilderHint(fieldType)}</small>
+              </button>
+            ))}
+          </div>
+        ))}
+        <details className="template-starter-drawer">
+          <summary>Use starter template</summary>
+          <div>
+            {TEMPLATE_STARTER_TEMPLATES.map((starter) => (
+              <button key={starter.id} type="button" onClick={() => applyStarterTemplate(starter)}>
+                <strong>{starter.title}</strong>
+                <small>{starter.description}</small>
+              </button>
+            ))}
+          </div>
+        </details>
       </aside>
 
-      <section className="template-canvas-shell" aria-label="Form canvas">
+      <section className={mobilePane === "build" ? "template-canvas-shell active-pane" : "template-canvas-shell"} aria-label="Form canvas">
         <div className="template-builder-pane-heading">
           <span>Canvas</span>
-          <h2>Worker form layout</h2>
+          <h2>Form page</h2>
         </div>
         <button
           className={activeSelection.kind === "header" ? "template-canvas-header selected" : "template-canvas-header"}
           type="button"
-          onClick={() => setSelected({ kind: "header" })}
+          onClick={() => selectBlock({ kind: "header" })}
         >
           <span>Form header</span>
           <strong>{current.title || "Untitled form"}</strong>
           <small>{current.description || "Tap to edit the form title and description."}</small>
         </button>
+
+        {!sections.length ? (
+          <div className="template-canvas-empty-state">
+            <span>Blank canvas</span>
+            <h2>Start building this form</h2>
+            <p>Add a section, add a question, or choose a starter template and customize it.</p>
+            <div className="template-empty-actions">
+              <button className="primary-button" type="button" onClick={addSection}>Add Section</button>
+              <button type="button" onClick={() => addFieldType(0, "short_text")}>Add Question</button>
+            </div>
+            <div className="template-starter-grid">
+              {TEMPLATE_STARTER_TEMPLATES.map((starter) => (
+                <button key={starter.id} type="button" onClick={() => applyStarterTemplate(starter)}>
+                  <strong>{starter.title}</strong>
+                  <small>{starter.description}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {sections.map((section, sectionIndex) => (
           <article
@@ -6869,19 +7160,32 @@ function TemplateSchemaEditor({ onChange, schema }) {
             key={section.id || sectionIndex}
           >
             <div className="template-canvas-section-heading">
-              <button type="button" onClick={() => setSelected({ kind: "section", sectionIndex })}>
+              <button type="button" onClick={() => selectBlock({ kind: "section", sectionIndex })}>
                 <span>Section block</span>
                 <strong>{section.title || `Section ${sectionIndex + 1}`}</strong>
-                {section.description ? <small>{section.description}</small> : null}
+                <small>{section.description || `${section.fields.length} question${section.fields.length === 1 ? "" : "s"}`}</small>
               </button>
               <div className="template-canvas-actions">
+                <button type="button" onClick={() => selectBlock({ kind: "section", sectionIndex })}>Edit</button>
                 <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
                 <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+                <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Delete</button>
               </div>
             </div>
             <div className="template-canvas-fields">
+              {!section.fields.length ? (
+                <div className="template-section-empty">
+                  <strong>No questions yet</strong>
+                  <span>Add the first question to this section.</span>
+                  <div>
+                    <button type="button" onClick={() => addFieldType(sectionIndex, "short_text")}>Short answer</button>
+                    <button type="button" onClick={() => addFieldType(sectionIndex, "long_text")}>Long answer</button>
+                    <button type="button" onClick={() => addFieldType(sectionIndex, "yes_no")}>Yes / No</button>
+                  </div>
+                </div>
+              ) : null}
               {(section.fields || []).map((field, fieldIndex) => (
-                <button
+                <div
                   className={
                     activeSelection.kind === "field" &&
                     activeSelection.sectionIndex === sectionIndex &&
@@ -6890,138 +7194,118 @@ function TemplateSchemaEditor({ onChange, schema }) {
                       : "template-canvas-field"
                   }
                   key={field.id || fieldIndex}
-                  type="button"
-                  onClick={() => setSelected({ kind: "field", sectionIndex, fieldIndex })}
                 >
-                  <span>{templateFieldTypeLabel(field.type)}</span>
-                  <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
-                  <small>
-                    {field.required ? "Required" : "Optional"}
-                    {field.remember ? " / remembered" : ""}
-                  </small>
-                </button>
+                  <button type="button" onClick={() => selectBlock({ kind: "field", sectionIndex, fieldIndex })}>
+                    <span>{templateFieldTypeLabel(field.type)}</span>
+                    <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                    <small>
+                      {field.required ? "Required" : "Optional"}
+                      {field.remember ? " / remembered" : ""}
+                    </small>
+                  </button>
+                  <div className="template-canvas-actions">
+                    <button type="button" onClick={() => selectBlock({ kind: "field", sectionIndex, fieldIndex })}>Edit</button>
+                    <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
+                    <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                    <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Copy</button>
+                    <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Delete</button>
+                  </div>
+                </div>
               ))}
             </div>
             <button className="template-inline-add" type="button" onClick={() => addFieldType(sectionIndex, "short_text")}>
-              Add field to this section
+              Add question to this section
             </button>
           </article>
         ))}
       </section>
 
-      <aside className="template-builder-inspector" aria-label="Selected block settings">
-        <div className="template-builder-pane-heading">
-          <span>Settings</span>
-          <h2>
-            {activeSelection.kind === "field"
-              ? "Question block"
-              : activeSelection.kind === "section"
-                ? "Section block"
-                : "Form header"}
-          </h2>
-        </div>
-
-        {activeSelection.kind === "header" ? (
-          <div className="template-inspector-body">
-            <label>
-              <span>Form title</span>
-              <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
-            </label>
-            <label>
-              <span>Description</span>
-              <textarea
-                rows="4"
-                value={current.description || ""}
-                onChange={(event) => updateSchema({ description: event.target.value })}
-              />
-            </label>
+      <aside className="template-builder-side">
+        <section className={mobilePane === "settings" ? "template-builder-inspector active-pane" : "template-builder-inspector"} aria-label="Selected block settings">
+          <div className="template-builder-pane-heading">
+            <span>Settings</span>
+            <h2>
+              {activeSelection.kind === "field"
+                ? "Question"
+                : activeSelection.kind === "section"
+                  ? "Section"
+                  : "Form header"}
+            </h2>
           </div>
-        ) : null}
 
-        {activeSelection.kind === "section" && selectedSection ? (
-          <div className="template-inspector-body">
-            <label>
-              <span>Section title</span>
-              <input
-                value={selectedSection.title}
-                onChange={(event) => updateSection(activeSelection.sectionIndex, { title: event.target.value })}
-              />
-            </label>
-            <label>
-              <span>Section description</span>
-              <textarea
-                rows="4"
-                value={selectedSection.description || ""}
-                onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
-              />
-            </label>
-            <div className="template-inspector-actions">
-              <button
-                disabled={activeSelection.sectionIndex === 0}
-                type="button"
-                onClick={() => moveSection(activeSelection.sectionIndex, -1)}
-              >
-                Move up
-              </button>
-              <button
-                disabled={activeSelection.sectionIndex === sections.length - 1}
-                type="button"
-                onClick={() => moveSection(activeSelection.sectionIndex, 1)}
-              >
-                Move down
-              </button>
-              <button className="danger-button" type="button" onClick={() => removeSection(activeSelection.sectionIndex)}>
-                Delete section
-              </button>
+          {activeSelection.kind === "header" ? (
+            <div className="template-inspector-body">
+              <label>
+                <span>Form title</span>
+                <input value={current.title} onChange={(event) => updateSchema({ title: event.target.value })} />
+              </label>
+              <label>
+                <span>Description</span>
+                <textarea
+                  rows="4"
+                  value={current.description || ""}
+                  onChange={(event) => updateSchema({ description: event.target.value })}
+                />
+              </label>
+              <p className="template-builder-tip">This is what workers see at the top of the form.</p>
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        {activeSelection.kind === "field" && selectedField ? (
-          <div className="template-inspector-body">
-            <label>
-              <span>Block type</span>
-              <select
-                value={selectedField.type}
-                onChange={(event) => {
-                  const nextType = event.target.value;
-                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
-                    type: nextType,
-                    options: TEMPLATE_OPTION_FIELD_TYPES.has(nextType) && !(selectedField.options || []).length
-                      ? ["Yes", "No"]
-                      : selectedField.options,
-                  });
-                }}
-              >
-                {TEMPLATE_FIELD_TYPES.map((type) => (
-                  <option key={type.id} value={type.id}>{type.label}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>Label</span>
-              <input
-                value={selectedField.label}
-                onChange={(event) =>
-                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
-                    label: event.target.value,
-                    id: slugifyTemplateId(event.target.value || selectedField.id),
-                  })
-                }
-              />
-            </label>
-            <label>
-              <span>Helper text</span>
-              <input
-                value={selectedField.helperText || ""}
-                onChange={(event) =>
-                  updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { helperText: event.target.value })
-                }
-              />
-            </label>
-            {selectedField.type !== "instructions" ? (
-              <div className="template-field-toggles">
-                <label className="remember-worker-field">
+          {activeSelection.kind === "section" && selectedSection ? (
+            <div className="template-inspector-body">
+              <label>
+                <span>Section title</span>
+                <input
+                  value={selectedSection.title}
+                  onChange={(event) => updateSection(activeSelection.sectionIndex, { title: event.target.value })}
+                />
+              </label>
+              <label>
+                <span>Section description</span>
+                <textarea
+                  rows="4"
+                  value={selectedSection.description || ""}
+                  onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
+                />
+              </label>
+              <div className="template-inspector-actions">
+                <button
+                  disabled={activeSelection.sectionIndex === 0}
+                  type="button"
+                  onClick={() => moveSection(activeSelection.sectionIndex, -1)}
+                >
+                  Move up
+                </button>
+                <button
+                  disabled={activeSelection.sectionIndex === sections.length - 1}
+                  type="button"
+                  onClick={() => moveSection(activeSelection.sectionIndex, 1)}
+                >
+                  Move down
+                </button>
+                <button className="danger-button" type="button" onClick={() => removeSection(activeSelection.sectionIndex)}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {activeSelection.kind === "field" && selectedField ? (
+            <div className="template-inspector-body">
+              <label>
+                <span>{selectedField.type === "instructions" ? "Instruction text" : "Question label"}</span>
+                <input
+                  value={selectedField.label}
+                  onChange={(event) =>
+                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                      label: event.target.value,
+                      id: slugifyTemplateId(event.target.value || selectedField.id),
+                    })
+                  }
+                />
+              </label>
+              {selectedField.type !== "instructions" ? (
+                <label className="settings-checkbox compact">
                   <input
                     checked={Boolean(selectedField.required)}
                     type="checkbox"
@@ -7031,76 +7315,142 @@ function TemplateSchemaEditor({ onChange, schema }) {
                   />
                   <span>Required</span>
                 </label>
-                <label className="remember-worker-field">
-                  <input
-                    checked={Boolean(selectedField.remember)}
-                    type="checkbox"
-                    onChange={(event) =>
-                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { remember: event.target.checked })
-                    }
-                  />
-                  <span>Remember last value on this device</span>
-                </label>
-              </div>
-            ) : null}
-            {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+              ) : null}
               <label>
-                <span>Default value</span>
-                <select
-                  value={selectedField.default || ""}
+                <span>Helper text</span>
+                <input
+                  value={selectedField.helperText || ""}
                   onChange={(event) =>
-                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
-                  }
-                >
-                  <option value="">Blank</option>
-                  <option value="worker_name">Worker name</option>
-                  {selectedField.type === "date" ? <option value="today">Today</option> : null}
-                  {selectedField.type === "time" ? <option value="now">Current time</option> : null}
-                </select>
-              </label>
-            ) : null}
-            {TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type) ? (
-              <label>
-                <span>Options</span>
-                <textarea
-                  rows="5"
-                  value={(selectedField.options || []).join("\n")}
-                  onChange={(event) =>
-                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
-                      options: event.target.value.split(/\n|,/).map((item) => item.trim()).filter(Boolean),
-                    })
+                    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { helperText: event.target.value })
                   }
                 />
               </label>
-            ) : null}
-            <div className="template-inspector-actions">
-              <button
-                disabled={activeSelection.fieldIndex === 0}
-                type="button"
-                onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, -1)}
-              >
-                Move up
-              </button>
-              <button
-                disabled={activeSelection.fieldIndex === selectedSection.fields.length - 1}
-                type="button"
-                onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, 1)}
-              >
-                Move down
-              </button>
-              <button type="button" onClick={() => duplicateField(activeSelection.sectionIndex, activeSelection.fieldIndex)}>
-                Duplicate
-              </button>
-              <button
-                className="danger-button"
-                type="button"
-                onClick={() => removeField(activeSelection.sectionIndex, activeSelection.fieldIndex)}
-              >
-                Delete
-              </button>
+              {TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type) ? (
+                <div className="template-options-builder">
+                  <span>Options</span>
+                  <div className="template-option-chip-row">
+                    {(selectedField.options || []).map((option) => (
+                      <button key={option} type="button" onClick={() => removeSelectedFieldOption(option)}>
+                        <span>{option}</span>
+                        <strong aria-hidden="true">x</strong>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="template-option-entry">
+                    <input
+                      placeholder="Add option"
+                      value={optionDraft}
+                      onChange={(event) => setOptionDraft(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          addOptionToSelectedField();
+                        }
+                      }}
+                    />
+                    <button type="button" onClick={addOptionToSelectedField}>Add</button>
+                  </div>
+                </div>
+              ) : null}
+              <details className="template-advanced-options">
+                <summary>More options</summary>
+                <label>
+                  <span>Block type</span>
+                  <select
+                    value={selectedField.type}
+                    onChange={(event) => {
+                      const nextType = event.target.value;
+                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                        type: nextType,
+                        options: TEMPLATE_OPTION_FIELD_TYPES.has(nextType) && !(selectedField.options || []).length
+                          ? ["Option 1", "Option 2"]
+                          : selectedField.options,
+                      });
+                    }}
+                  >
+                    {TEMPLATE_FIELD_TYPES.map((type) => (
+                      <option key={type.id} value={type.id}>{type.label}</option>
+                    ))}
+                  </select>
+                </label>
+                {selectedField.type !== "instructions" ? (
+                  <label className="settings-checkbox compact">
+                    <input
+                      checked={Boolean(selectedField.remember)}
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { remember: event.target.checked })
+                      }
+                    />
+                    <span>Remember last value on this device</span>
+                  </label>
+                ) : null}
+                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+                  <label>
+                    <span>Default value</span>
+                    <select
+                      value={selectedField.default || ""}
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
+                      }
+                    >
+                      <option value="">Blank</option>
+                      <option value="worker_name">Worker name</option>
+                      {selectedField.type === "date" ? <option value="today">Today</option> : null}
+                      {selectedField.type === "time" ? <option value="now">Current time</option> : null}
+                    </select>
+                  </label>
+                ) : null}
+              </details>
+              <div className="template-inspector-actions">
+                <button
+                  disabled={activeSelection.fieldIndex === 0}
+                  type="button"
+                  onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, -1)}
+                >
+                  Move up
+                </button>
+                <button
+                  disabled={activeSelection.fieldIndex === selectedSection.fields.length - 1}
+                  type="button"
+                  onClick={() => moveField(activeSelection.sectionIndex, activeSelection.fieldIndex, 1)}
+                >
+                  Move down
+                </button>
+                <button type="button" onClick={() => duplicateField(activeSelection.sectionIndex, activeSelection.fieldIndex)}>
+                  Duplicate
+                </button>
+                <button
+                  className="danger-button"
+                  type="button"
+                  onClick={() => removeField(activeSelection.sectionIndex, activeSelection.fieldIndex)}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
+          ) : null}
+        </section>
+
+        <section className={mobilePane === "preview" ? "template-preview-panel active-pane" : "template-preview-panel"}>
+          <div className="template-builder-pane-heading">
+            <span>Preview</span>
+            <h2>Worker view</h2>
           </div>
-        ) : null}
+          {previewHasFields ? (
+            <TemplateFormFields
+              answers={previewAnswers}
+              schema={current}
+              worker={previewWorker}
+              onChange={onPreviewAnswersChange}
+            />
+          ) : (
+            <div className="template-preview-empty">
+              <strong>No questions yet</strong>
+              <span>Add blocks to see the worker form preview.</span>
+            </div>
+          )}
+        </section>
       </aside>
     </div>
   );
@@ -10331,40 +10681,40 @@ function cloneTemplateSchema(schema) {
 function createDefaultTemplateSchema() {
   return {
     schemaVersion: 1,
-    title: "Daily Hazard Assessment",
-    description: "Fast mobile hazard review.",
-    sections: [
-      {
-        id: "job_info",
-        title: "Job Info",
-        description: "Basic job details.",
-        fields: [
-          { id: "project", type: "short_text", label: "Project", required: true, remember: true },
-          { id: "area", type: "short_text", label: "Work area", required: true },
-          { id: "date", type: "date", label: "Date", required: true, default: "today" },
-          { id: "time", type: "time", label: "Time", required: true, default: "now" },
-          { id: "assessed_by", type: "short_text", label: "Completed by", required: true, default: "worker_name" },
-        ],
-      },
-    ],
+    title: "Untitled form",
+    description: "",
+    sections: [],
   };
 }
 
-function createTemplateSection(index) {
+function createTemplateSection(index, { withField = false } = {}) {
   return {
     id: `section_${index}`,
     title: `Section ${index}`,
     description: "",
-    fields: [createTemplateField(1)],
+    fields: withField ? [createTemplateField(1)] : [],
   };
 }
 
 function createTemplateField(index, type = "short_text") {
+  const labels = {
+    instructions: "Instructions",
+    short_text: "Short answer question",
+    long_text: "Long answer question",
+    number: "Number question",
+    date: "Date",
+    time: "Time",
+    yes_no: "Yes / No question",
+    dropdown: "Dropdown question",
+    multi_select: "Multi-select question",
+    checkbox: "Confirmation statement",
+  };
   return normalizeTemplateField({
     id: `field_${Date.now()}_${index}`,
     type,
-    label: `Field ${index}`,
+    label: labels[type] || `Question ${index}`,
     required: false,
+    options: TEMPLATE_OPTION_FIELD_TYPES.has(type) ? ["Option 1", "Option 2"] : [],
   });
 }
 
@@ -10386,7 +10736,7 @@ function normalizeClientTemplateSchema(schema) {
     formType: String(source.formType || source.form_type || "").trim(),
     title: String(source.title || "Form").trim(),
     description: String(source.description || "").trim(),
-    sections: normalizedSections.length ? normalizedSections : createDefaultTemplateSchema().sections,
+    sections: normalizedSections,
   };
 }
 
@@ -10455,6 +10805,22 @@ function templateFieldBuilderHint(type) {
     instructions: "Read-only text",
   };
   return hints[type] || "Question block";
+}
+
+function templateFieldBuilderIcon(type) {
+  const icons = {
+    short_text: "Ab",
+    long_text: "T",
+    number: "#",
+    date: "D",
+    time: "T",
+    yes_no: "Y/N",
+    dropdown: "V",
+    multi_select: "+",
+    checkbox: "OK",
+    instructions: "i",
+  };
+  return icons[type] || "+";
 }
 
 function slugifyTemplateId(value) {

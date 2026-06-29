@@ -219,6 +219,7 @@ export async function saveFormTemplateDraft(formType, body, staff) {
   const cleanedSchema = cleanTemplateSchema(body?.schema, {
     fallbackTitle: template.label,
     formType: template.form_type,
+    allowEmpty: true,
   });
   const notes = cleanString(body?.notes, MAX_TEXT);
   const existingDraft = await getDraftVersion(template.id);
@@ -266,6 +267,10 @@ export async function publishFormTemplateDraft(formType, staff) {
   assertTemplateEditable(template);
   const draft = await getDraftVersion(template.id);
   if (!draft) throwNotFound("No draft exists for this form.");
+  const cleanedSchema = cleanTemplateSchema(draft.schema, {
+    fallbackTitle: template.label,
+    formType: template.form_type,
+  });
 
   await getSupabaseServiceClient()
     .from("form_template_versions")
@@ -278,6 +283,7 @@ export async function publishFormTemplateDraft(formType, staff) {
       .from("form_template_versions")
       .update({
         status: "published",
+        schema: cleanedSchema,
         published_by_staff_id: staff.id,
         published_at: new Date().toISOString(),
         updated_by_staff_id: staff.id,
@@ -400,7 +406,7 @@ export function buildTemplateSubmissionNotes(formType, formData) {
   return parts.join(" / ").slice(0, MAX_LONG_TEXT);
 }
 
-export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = "" } = {}) {
+export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = "", allowEmpty = false } = {}) {
   const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const sections = Array.isArray(source.sections) ? source.sections : [];
   let fieldCount = 0;
@@ -419,9 +425,9 @@ export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = 
         fields,
       };
     })
-    .filter((section) => section.fields.length || section.description);
+    .filter((section) => allowEmpty || section.fields.length);
 
-  if (!cleanedSections.length) {
+  if (!cleanedSections.length && !allowEmpty) {
     throwBadRequest("Add at least one section with one field.");
   }
 
@@ -644,62 +650,7 @@ function createDefaultSchemaForTemplate(template) {
     formType: template.form_type,
     title: template.label,
     description: template.description || "",
-    sections: [
-      {
-        id: "job_info",
-        title: "Job Info",
-        description: "",
-        fields: [
-          {
-            id: "project",
-            type: "short_text",
-            label: "Project",
-            helperText: "",
-            required: true,
-            default: "",
-            remember: true,
-            options: [],
-          },
-          {
-            id: "date",
-            type: "date",
-            label: "Date",
-            helperText: "",
-            required: true,
-            default: "today",
-            remember: false,
-            options: [],
-          },
-          {
-            id: "completed_by",
-            type: "short_text",
-            label: "Completed by",
-            helperText: "",
-            required: true,
-            default: "worker_name",
-            remember: false,
-            options: [],
-          },
-        ],
-      },
-      {
-        id: "details",
-        title: "Details",
-        description: "",
-        fields: [
-          {
-            id: "notes",
-            type: "long_text",
-            label: "Notes",
-            helperText: "",
-            required: false,
-            default: "",
-            remember: false,
-            options: [],
-          },
-        ],
-      },
-    ],
+    sections: [],
   };
 }
 
