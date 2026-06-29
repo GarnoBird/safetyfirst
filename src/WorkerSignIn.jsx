@@ -21,10 +21,10 @@ const STAFF_MOBILE_NAV_ITEMS = [
   { id: "forms", label: "FORMS", path: "/staff/forms" },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
-  { id: "users", label: "USERS", path: "/staff/users" },
-  { id: "backups", label: "BACKUPS", path: "/staff/backups" },
-  { id: "health", label: "HEALTH", path: "/staff/health" },
-  { id: "audit", label: "AUDIT", path: "/staff/audit" },
+  { id: "users", label: "USERS", path: "/staff/users", adminOnly: true },
+  { id: "backups", label: "BACKUPS", path: "/staff/backups", adminOnly: true },
+  { id: "health", label: "HEALTH", path: "/staff/health", adminOnly: true },
+  { id: "audit", label: "AUDIT", path: "/staff/audit", adminOnly: true },
   { id: "trends", label: "TRENDS", path: "/staff/trends" },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
@@ -997,7 +997,7 @@ export function StaffHomePage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="home" navigateTo={navigateTo}>
+    <StaffShell active="home" navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="staff-home-grid" aria-label="Staff home actions">
         <StaffActionCard
@@ -1090,62 +1090,68 @@ export function StaffHomePage({ navigateTo }) {
           </dl>
         </StaffActionCard>
 
-        <StaffActionCard
-          actionLabel="Manage users"
-          eyebrow="Staff security"
-          text="Create named staff accounts, assign owner/admin/staff roles, deactivate accounts, and reset passwords."
-          title="Staff Users"
-          onAction={() => navigateTo("/staff/users")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Roles</dt>
-              <dd>Owner / Admin / Staff</dd>
-            </div>
-            <div>
-              <dt>Legacy</dt>
-              <dd>lbird stays admin</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        {isAdminOrOwner(staff) ? (
+          <StaffActionCard
+            actionLabel="Manage users"
+            eyebrow="Staff security"
+            text="Create named staff accounts, assign owner/admin/staff roles, deactivate accounts, and reset passwords."
+            title="Staff Users"
+            onAction={() => navigateTo("/staff/users")}
+          >
+            <dl className="staff-card-listing">
+              <div>
+                <dt>Roles</dt>
+                <dd>Owner / Admin / Staff</dd>
+              </div>
+              <div>
+                <dt>Legacy</dt>
+                <dd>lbird stays admin</dd>
+              </div>
+            </dl>
+          </StaffActionCard>
+        ) : null}
 
-        <StaffActionCard
-          actionLabel="Open backups"
-          eyebrow="OneDrive readiness"
-          text="Review pending and failed form backups, retry failed items, and run retention maintenance."
-          title="Backup Queue"
-          onAction={() => navigateTo("/staff/backups")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>OneDrive</dt>
-              <dd>{settings.one_drive_backup_enabled ? "Enabled" : "Off"}</dd>
-            </div>
-            <div>
-              <dt>Cleanup</dt>
-              <dd>After backup</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        {isAdminOrOwner(staff) ? (
+          <StaffActionCard
+            actionLabel="Open backups"
+            eyebrow="OneDrive readiness"
+            text="Review pending and failed form backups, retry failed items, and run retention maintenance."
+            title="Backup Queue"
+            onAction={() => navigateTo("/staff/backups")}
+          >
+            <dl className="staff-card-listing">
+              <div>
+                <dt>OneDrive</dt>
+                <dd>{settings.one_drive_backup_enabled ? "Enabled" : "Off"}</dd>
+              </div>
+              <div>
+                <dt>Cleanup</dt>
+                <dd>After backup</dd>
+              </div>
+            </dl>
+          </StaffActionCard>
+        ) : null}
 
-        <StaffActionCard
-          actionLabel="Open health"
-          eyebrow="Operations"
-          text="Check database, storage, email, OneDrive readiness, active alerts, and recent job runs."
-          title="System Health"
-          onAction={() => navigateTo("/staff/health")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Alerts</dt>
-              <dd>Critical emails only</dd>
-            </div>
-            <div>
-              <dt>Audit</dt>
-              <dd>Permanent log</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        {isAdminOrOwner(staff) ? (
+          <StaffActionCard
+            actionLabel="Open health"
+            eyebrow="Operations"
+            text="Check database, storage, email, OneDrive readiness, active alerts, and recent job runs."
+            title="System Health"
+            onAction={() => navigateTo("/staff/health")}
+          >
+            <dl className="staff-card-listing">
+              <div>
+                <dt>Alerts</dt>
+                <dd>Critical emails only</dd>
+              </div>
+              <div>
+                <dt>Audit</dt>
+                <dd>Permanent log</dd>
+              </div>
+            </dl>
+          </StaffActionCard>
+        ) : null}
 
         <StaffActionCard
           eyebrow="Today"
@@ -1185,7 +1191,11 @@ export function StaffHomePage({ navigateTo }) {
         <StaffActionCard
           actionLabel="Open settings"
           eyebrow="Setup"
-          text="Review site identity, QR links, report delivery, reminder copy, and privacy notes."
+          text={
+            isAdminOrOwner(staff)
+              ? "Review site identity, QR links, report delivery, reminder copy, and privacy notes."
+              : "Open worker QR links and review privacy notes."
+          }
           title="Settings"
           onAction={() => navigateTo("/staff/settings")}
         >
@@ -1195,30 +1205,32 @@ export function StaffHomePage({ navigateTo }) {
               <dd>{settings.site_location}</dd>
             </div>
             <div>
-              <dt>Reminder SMS</dt>
-              <dd>Not connected</dd>
+              <dt>Access</dt>
+              <dd>{isAdminOrOwner(staff) ? "Admin controls" : "Read only"}</dd>
             </div>
           </dl>
         </StaffActionCard>
 
-        <StaffActionCard
-          actionLabel="Open audit"
-          eyebrow="Accountability"
-          text="Search staff actions, login failures, settings updates, worker changes, and backup operations."
-          title="Audit Log"
-          onAction={() => navigateTo("/staff/audit")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Retention</dt>
-              <dd>Indefinite</dd>
-            </div>
-            <div>
-              <dt>Access</dt>
-              <dd>Owner / Admin</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        {isAdminOrOwner(staff) ? (
+          <StaffActionCard
+            actionLabel="Open audit"
+            eyebrow="Accountability"
+            text="Search staff actions, login failures, settings updates, worker changes, and backup operations."
+            title="Audit Log"
+            onAction={() => navigateTo("/staff/audit")}
+          >
+            <dl className="staff-card-listing">
+              <div>
+                <dt>Retention</dt>
+                <dd>Indefinite</dd>
+              </div>
+              <div>
+                <dt>Access</dt>
+                <dd>Owner / Admin</dd>
+              </div>
+            </dl>
+          </StaffActionCard>
+        ) : null}
       </section>
     </StaffShell>
   );
@@ -1226,6 +1238,7 @@ export function StaffHomePage({ navigateTo }) {
 
 export function StaffSettingsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canManageSettings = isAdminOrOwner(staff);
   const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
   const [system, setSystem] = useState(DEFAULT_SYSTEM_STATUS);
   const [loading, setLoading] = useState(true);
@@ -1374,39 +1387,87 @@ export function StaffSettingsPage({ navigateTo }) {
 
   if (!staff) return <StaffLoadingScreen />;
 
+  if (!canManageSettings) {
+    return (
+      <StaffShell active="settings" navigateTo={navigateTo} staff={staff}>
+        {message ? <p className="staff-message">{message}</p> : null}
+        <div className="staff-settings-grid">
+          <SettingsSection
+            description="Public worker links and the notice workers should understand."
+            title="Worker Sign-In"
+          >
+            <div className="settings-link-row">
+              <span>Sign-in link</span>
+              <a href="/worker-sign-in">{publicUrl("/worker-sign-in")}</a>
+            </div>
+            <div className="settings-link-row">
+              <span>Sign-out link</span>
+              <a href="/worker-sign-out">{publicUrl("/worker-sign-out")}</a>
+            </div>
+            <div className="staff-card-actions">
+              <button type="button" onClick={() => navigateTo("/worker-sign-in-qr")}>
+                Sign-In QR
+              </button>
+              <button type="button" onClick={() => navigateTo("/worker-sign-out-qr")}>
+                Sign-Out QR
+              </button>
+            </div>
+            <p className="settings-note">
+              Phone numbers are used for site sign-in records and sign-out reminders only.
+            </p>
+          </SettingsSection>
+
+          <SettingsSection
+            description="Current guardrails for worker records."
+            title="Data & Privacy"
+          >
+            <ul className="settings-list">
+              <li>No medical information or private first aid details.</li>
+              <li>Worker phone numbers are personal information and stay staff-only.</li>
+              <li>App-side form copies purge after backup and retention rules allow it.</li>
+              <li>CSV and XML export are available to staff users.</li>
+            </ul>
+          </SettingsSection>
+        </div>
+      </StaffShell>
+    );
+  }
+
   return (
-    <StaffShell active="settings" navigateTo={navigateTo}>
+    <StaffShell active="settings" navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
       <form className="staff-settings-grid" onSubmit={saveSettings}>
-        <SettingsSection
-          description="Basic jobsite identity shown around the staff area."
-          title="Site"
-        >
-          <label>
-            <span>Site display name</span>
-            <input
-              required
-              value={settings.site_name}
-              onChange={(event) => updateSetting("site_name", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Location label</span>
-            <input
-              required
-              value={settings.site_location}
-              onChange={(event) => updateSetting("site_location", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Timezone</span>
-            <input
-              required
-              value={settings.timezone}
-              onChange={(event) => updateSetting("timezone", event.target.value)}
-            />
-          </label>
-        </SettingsSection>
+        {canManageSettings ? (
+          <SettingsSection
+            description="Basic jobsite identity shown around the staff area."
+            title="Site"
+          >
+            <label>
+              <span>Site display name</span>
+              <input
+                required
+                value={settings.site_name}
+                onChange={(event) => updateSetting("site_name", event.target.value)}
+              />
+            </label>
+            <label>
+              <span>Location label</span>
+              <input
+                required
+                value={settings.site_location}
+                onChange={(event) => updateSetting("site_location", event.target.value)}
+              />
+            </label>
+            <label>
+              <span>Timezone</span>
+              <input
+                required
+                value={settings.timezone}
+                onChange={(event) => updateSetting("timezone", event.target.value)}
+              />
+            </label>
+          </SettingsSection>
+        ) : null}
 
         <SettingsSection
           description="Public worker links and the notice workers should understand."
@@ -1433,155 +1494,161 @@ export function StaffSettingsPage({ navigateTo }) {
           </p>
         </SettingsSection>
 
-        <SettingsSection
-          description="Choose where roster emails go, whether Auto Report is on, and which attachments are included."
-          title="Email Reports"
-        >
-          <label>
-            <span>Send reports to</span>
-            <div className="email-recipient-entry">
-              {reportRecipients.map((email) => (
-                <button
-                  aria-label={`Remove ${email}`}
-                  className="email-recipient-chip"
-                  key={email}
-                  type="button"
-                  onClick={() => removeReportRecipient(email)}
-                >
-                  <span>{email}</span>
-                  <strong aria-hidden="true">x</strong>
-                </button>
-              ))}
+        {canManageSettings ? (
+          <SettingsSection
+            description="Choose where roster emails go, whether Auto Report is on, and which attachments are included."
+            title="Email Reports"
+          >
+            <label>
+              <span>Send reports to</span>
+              <div className="email-recipient-entry">
+                {reportRecipients.map((email) => (
+                  <button
+                    aria-label={`Remove ${email}`}
+                    className="email-recipient-chip"
+                    key={email}
+                    type="button"
+                    onClick={() => removeReportRecipient(email)}
+                  >
+                    <span>{email}</span>
+                    <strong aria-hidden="true">x</strong>
+                  </button>
+                ))}
+                <input
+                  required={reportRecipients.length === 0}
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder="Type email, press enter"
+                  value={recipientDraft}
+                  onChange={(event) => setRecipientDraft(event.target.value)}
+                  onKeyDown={handleReportRecipientKeyDown}
+                />
+              </div>
+            </label>
+            <label className="settings-checkbox">
               <input
-                required={reportRecipients.length === 0}
-                autoComplete="email"
-                inputMode="email"
-                placeholder="Type email, press enter"
-                value={recipientDraft}
-                onChange={(event) => setRecipientDraft(event.target.value)}
-                onKeyDown={handleReportRecipientKeyDown}
+                checked={Boolean(settings.report_auto_enabled)}
+                type="checkbox"
+                onChange={(event) =>
+                  updateSetting("report_auto_enabled", event.target.checked)
+                }
               />
+              <span>
+                <strong>Auto Report</strong>
+                <small>
+                  {settings.report_auto_enabled
+                    ? `On - sends daily after ${formatReportAutoTime(
+                        settings.report_auto_time,
+                      )} when sign-ins exist.`
+                    : "Off - no daily automatic report."}
+                </small>
+              </span>
+            </label>
+            <label>
+              <span>Auto Report time</span>
+              <input
+                required
+                type="time"
+                value={settings.report_auto_time}
+                onChange={(event) =>
+                  updateSetting("report_auto_time", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>Email attachment format</span>
+              <select
+                value={settings.report_format}
+                onChange={(event) => updateSetting("report_format", event.target.value)}
+              >
+                <option value="both">CSV and XML</option>
+                <option value="csv">CSV only</option>
+                <option value="xml">XML only</option>
+              </select>
+            </label>
+            <div className="settings-report-actions">
+              <button
+                className="primary-button"
+                disabled={loading || saving || emailing}
+                type="button"
+                onClick={emailReportNow}
+              >
+                {emailing ? "Emailing..." : "Email Report Now"}
+              </button>
             </div>
-          </label>
-          <label className="settings-checkbox">
-            <input
-              checked={Boolean(settings.report_auto_enabled)}
-              type="checkbox"
-              onChange={(event) =>
-                updateSetting("report_auto_enabled", event.target.checked)
-              }
-            />
-            <span>
-              <strong>Auto Report</strong>
-              <small>
-                {settings.report_auto_enabled
-                  ? `On - sends daily after ${formatReportAutoTime(
-                      settings.report_auto_time,
-                    )} when sign-ins exist.`
-                  : "Off - no daily automatic report."}
-              </small>
-            </span>
-          </label>
-          <label>
-            <span>Auto Report time</span>
-            <input
-              required
-              type="time"
-              value={settings.report_auto_time}
-              onChange={(event) =>
-                updateSetting("report_auto_time", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>Email attachment format</span>
-            <select
-              value={settings.report_format}
-              onChange={(event) => updateSetting("report_format", event.target.value)}
-            >
-              <option value="both">CSV and XML</option>
-              <option value="csv">CSV only</option>
-              <option value="xml">XML only</option>
-            </select>
-          </label>
-          <div className="settings-report-actions">
-            <button
-              className="primary-button"
-              disabled={loading || saving || emailing}
-              type="button"
-              onClick={emailReportNow}
-            >
-              {emailing ? "Emailing..." : "Email Report Now"}
-            </button>
-          </div>
-        </SettingsSection>
+          </SettingsSection>
+        ) : null}
 
-        <SettingsSection
-          description="Controls whether completed safety forms are copied to the staff OneDrive backup folder."
-          title="OneDrive Backup"
-        >
-          <label className="settings-checkbox">
-            <input
-              checked={Boolean(settings.one_drive_backup_enabled)}
-              type="checkbox"
-              onChange={(event) =>
-                updateSetting("one_drive_backup_enabled", event.target.checked)
-              }
-            />
-            <span>
-              <strong>OneDrive Backup</strong>
-              <small>
-                {settings.one_drive_backup_enabled
-                  ? "On - submissions will attempt OneDrive backup when Microsoft settings are configured."
-                  : "Off - submissions stay in app storage with backup marked Pending."}
-              </small>
-            </span>
-          </label>
-          <div className="settings-status-line">
-            <span>Microsoft Graph</span>
-            <strong>{system.oneDrive}</strong>
-          </div>
-          <p className="settings-note">
-            Leave this off until the Microsoft tenant, app, drive, and folder values are added.
-            Pending backups can be retried later.
-          </p>
-        </SettingsSection>
+        {canManageSettings ? (
+          <SettingsSection
+            description="Controls whether completed safety forms are copied to the staff OneDrive backup folder."
+            title="OneDrive Backup"
+          >
+            <label className="settings-checkbox">
+              <input
+                checked={Boolean(settings.one_drive_backup_enabled)}
+                type="checkbox"
+                onChange={(event) =>
+                  updateSetting("one_drive_backup_enabled", event.target.checked)
+                }
+              />
+              <span>
+                <strong>OneDrive Backup</strong>
+                <small>
+                  {settings.one_drive_backup_enabled
+                    ? "On - submissions will attempt OneDrive backup when Microsoft settings are configured."
+                    : "Off - submissions stay in app storage with backup marked Pending."}
+                </small>
+              </span>
+            </label>
+            <div className="settings-status-line">
+              <span>Microsoft Graph</span>
+              <strong>{system.oneDrive}</strong>
+            </div>
+            <p className="settings-note">
+              Leave this off until the Microsoft tenant, app, drive, and folder values are added.
+              Pending backups can be retried later.
+            </p>
+          </SettingsSection>
+        ) : null}
 
-        <SettingsSection
-          description="SMS is planned, but not connected in this build."
-          title="Sign-Out Reminders"
-        >
-          <div className="settings-status-line">
-            <span>SMS provider</span>
-            <strong>Not connected</strong>
-          </div>
-          <label>
-            <span>Cutoff time</span>
-            <input
-              required
-              type="time"
-              value={settings.signout_cutoff_time}
-              onChange={(event) =>
-                updateSetting("signout_cutoff_time", event.target.value)
-              }
-            />
-          </label>
-          <label>
-            <span>Reminder message</span>
-            <textarea
-              required
-              rows="5"
-              value={settings.signout_reminder_message}
-              onChange={(event) =>
-                updateSetting("signout_reminder_message", event.target.value)
-              }
-            />
-          </label>
-          <div className="settings-preview">
-            <span>Preview</span>
-            <p>{previewReminderMessage(settings.signout_reminder_message)}</p>
-          </div>
-        </SettingsSection>
+        {canManageSettings ? (
+          <SettingsSection
+            description="SMS is planned, but not connected in this build."
+            title="Sign-Out Reminders"
+          >
+            <div className="settings-status-line">
+              <span>SMS provider</span>
+              <strong>Not connected</strong>
+            </div>
+            <label>
+              <span>Cutoff time</span>
+              <input
+                required
+                type="time"
+                value={settings.signout_cutoff_time}
+                onChange={(event) =>
+                  updateSetting("signout_cutoff_time", event.target.value)
+                }
+              />
+            </label>
+            <label>
+              <span>Reminder message</span>
+              <textarea
+                required
+                rows="5"
+                value={settings.signout_reminder_message}
+                onChange={(event) =>
+                  updateSetting("signout_reminder_message", event.target.value)
+                }
+              />
+            </label>
+            <div className="settings-preview">
+              <span>Preview</span>
+              <p>{previewReminderMessage(settings.signout_reminder_message)}</p>
+            </div>
+          </SettingsSection>
+        ) : null}
 
         <SettingsSection
           description="Current guardrails for worker records."
@@ -1595,24 +1662,28 @@ export function StaffSettingsPage({ navigateTo }) {
           </ul>
         </SettingsSection>
 
-        <SettingsSection description="Current service connection status." title="System">
-          <div className="system-status-grid">
-            <SystemStatus label="Database" value={system.database} />
-            <SystemStatus label="Email" value={system.email} />
-            <SystemStatus label="SMS" value={system.sms} />
-            <SystemStatus label="OneDrive" value={system.oneDrive} />
-          </div>
-        </SettingsSection>
+        {canManageSettings ? (
+          <SettingsSection description="Current service connection status." title="System">
+            <div className="system-status-grid">
+              <SystemStatus label="Database" value={system.database} />
+              <SystemStatus label="Email" value={system.email} />
+              <SystemStatus label="SMS" value={system.sms} />
+              <SystemStatus label="OneDrive" value={system.oneDrive} />
+            </div>
+          </SettingsSection>
+        ) : null}
 
-        <div className="staff-settings-save">
-          <button
-            className="primary-button"
-            disabled={loading || saving || emailing}
-            type="submit"
-          >
-            {saving ? "Saving..." : "Save settings"}
-          </button>
-        </div>
+        {canManageSettings ? (
+          <div className="staff-settings-save">
+            <button
+              className="primary-button"
+              disabled={loading || saving || emailing}
+              type="submit"
+            >
+              {saving ? "Saving..." : "Save settings"}
+            </button>
+          </div>
+        ) : null}
       </form>
     </StaffShell>
   );
@@ -1703,7 +1774,7 @@ export function StaffSignInsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="sign-ins-people" contentWide navigateTo={navigateTo}>
+    <StaffShell active="sign-ins-people" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="staff-toolbar staff-toolbar-desktop">
         <label className="field">
           <span>Date</span>
@@ -1968,7 +2039,7 @@ export function StaffCompanySummaryPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="sign-ins-company" contentWide navigateTo={navigateTo}>
+    <StaffShell active="sign-ins-company" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="staff-toolbar staff-summary-toolbar staff-toolbar-desktop">
         <label className="field">
           <span>Date</span>
@@ -2174,7 +2245,7 @@ export function StaffTrendsPage({ navigateTo }) {
   const unmappedCompanies = dataQuality.unmappedCompanies || [];
 
   return (
-    <StaffShell active="trends" contentWide navigateTo={navigateTo}>
+    <StaffShell active="trends" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="trends-page-heading">
         <div>
           <p>Workforce planning</p>
@@ -4360,11 +4431,8 @@ export function StaffWorkersPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="workers" contentWide navigateTo={navigateTo}>
+    <StaffShell active="workers" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      {!canManageWorkers ? (
-        <p className="staff-message">Regular staff can view workers. Admin or owner access is required to create, edit, deactivate, or delete worker accounts.</p>
-      ) : null}
       <section className="staff-form-admin-grid">
         {canManageWorkers ? (
           <form className="staff-admin-form" onSubmit={saveWorker}>
@@ -4443,6 +4511,7 @@ export function StaffWorkersPage({ navigateTo }) {
 
 export function StaffUsersPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canManageStaffUsers = isAdminOrOwner(staff);
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(EMPTY_STAFF_USER_FORM);
   const [editingId, setEditingId] = useState("");
@@ -4473,8 +4542,13 @@ export function StaffUsersPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadUsers();
-  }, [staff]);
+    if (!staff) return;
+    if (!canManageStaffUsers) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadUsers();
+  }, [staff, canManageStaffUsers, navigateTo]);
 
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -4540,10 +4614,10 @@ export function StaffUsersPage({ navigateTo }) {
     }
   };
 
-  if (!staff) return <StaffLoadingScreen />;
+  if (!staff || !canManageStaffUsers) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="users" contentWide navigateTo={navigateTo}>
+    <StaffShell active="users" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="staff-form-admin-grid">
         <form className="staff-admin-form" onSubmit={saveUser}>
@@ -4633,6 +4707,7 @@ export function StaffUsersPage({ navigateTo }) {
 
 export function StaffBackupsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canManageBackups = isAdminOrOwner(staff);
   const [queue, setQueue] = useState({ summary: {}, rows: [] });
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState("");
@@ -4654,8 +4729,13 @@ export function StaffBackupsPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadQueue();
-  }, [staff]);
+    if (!staff) return;
+    if (!canManageBackups) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadQueue();
+  }, [staff, canManageBackups, navigateTo]);
 
   const runAction = async (action, label) => {
     setRunning(action);
@@ -4676,26 +4756,28 @@ export function StaffBackupsPage({ navigateTo }) {
     }
   };
 
-  if (!staff) return <StaffLoadingScreen />;
+  if (!staff || !canManageBackups) return <StaffLoadingScreen />;
 
   const summary = queue.summary || {};
 
   return (
-    <StaffShell active="backups" contentWide navigateTo={navigateTo}>
+    <StaffShell active="backups" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="ops-page-heading">
         <div>
           <p>OneDrive readiness</p>
           <h1>Backups</h1>
           <span>Review pending, failed, backed-up, and retention-blocked form submissions.</span>
         </div>
-        <div className="staff-card-actions">
-          <button disabled={running === "retry-all"} type="button" onClick={() => runAction("retry-all", "Retry all failed backups")}>
-            {running === "retry-all" ? "Retrying..." : "Retry failed"}
-          </button>
-          <button className="primary-button" disabled={running === "maintenance"} type="button" onClick={() => runAction("maintenance", "Maintenance")}>
-            {running === "maintenance" ? "Running..." : "Run maintenance"}
-          </button>
-        </div>
+        {canManageBackups ? (
+          <div className="staff-card-actions">
+            <button disabled={running === "retry-all"} type="button" onClick={() => runAction("retry-all", "Retry all failed backups")}>
+              {running === "retry-all" ? "Retrying..." : "Retry failed"}
+            </button>
+            <button className="primary-button" disabled={running === "maintenance"} type="button" onClick={() => runAction("maintenance", "Maintenance")}>
+              {running === "maintenance" ? "Running..." : "Run maintenance"}
+            </button>
+          </div>
+        ) : null}
       </section>
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="ops-metric-grid">
@@ -4717,6 +4799,7 @@ export function StaffBackupsPage({ navigateTo }) {
 
 export function StaffHealthPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canViewHealth = isAdminOrOwner(staff);
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -4737,8 +4820,13 @@ export function StaffHealthPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadHealth();
-  }, [staff]);
+    if (!staff) return;
+    if (!canViewHealth) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadHealth();
+  }, [staff, canViewHealth, navigateTo]);
 
   const updateAlert = async (alert, status) => {
     setMessage("");
@@ -4757,7 +4845,7 @@ export function StaffHealthPage({ navigateTo }) {
     }
   };
 
-  if (!staff) return <StaffLoadingScreen />;
+  if (!staff || !canViewHealth) return <StaffLoadingScreen />;
 
   const services = health?.services || {};
   const backups = health?.backups || {};
@@ -4765,7 +4853,7 @@ export function StaffHealthPage({ navigateTo }) {
   const alerts = health?.alerts?.rows || [];
 
   return (
-    <StaffShell active="health" contentWide navigateTo={navigateTo}>
+    <StaffShell active="health" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="ops-page-heading">
         <div>
           <p>Operations</p>
@@ -4807,6 +4895,7 @@ export function StaffHealthPage({ navigateTo }) {
 
 export function StaffAuditPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
+  const canViewAudit = isAdminOrOwner(staff);
   const today = useMemo(todayInVancouver, []);
   const [filters, setFilters] = useState({
     from: addDaysToISODate(today, -29),
@@ -4837,17 +4926,22 @@ export function StaffAuditPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadAudit();
-  }, [staff]);
+    if (!staff) return;
+    if (!canViewAudit) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadAudit();
+  }, [staff, canViewAudit, navigateTo]);
 
   const updateFilter = (field, value) => {
     setFilters((current) => ({ ...current, [field]: value }));
   };
 
-  if (!staff) return <StaffLoadingScreen />;
+  if (!staff || !canViewAudit) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="audit" contentWide navigateTo={navigateTo}>
+    <StaffShell active="audit" contentWide navigateTo={navigateTo} staff={staff}>
       <section className="staff-toolbar staff-form-filter-toolbar">
         <label className="field">
           <span>From</span>
@@ -5063,7 +5157,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="forms" contentWide navigateTo={navigateTo}>
+    <StaffShell active="forms" contentWide navigateTo={navigateTo} staff={staff}>
       <div className="staff-filter-toggle-row">
         <button
           aria-controls="staff-form-filters"
@@ -5162,6 +5256,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         <FormSubmissionsTable
           allVisibleSelected={allVisibleSelected}
           canDelete={canDeleteSubmissions}
+          canRetry={canDeleteSubmissions}
           deleting={deleting}
           loading={loading}
           retryingId={retryingId}
@@ -5177,6 +5272,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
       {selected ? (
         <SubmissionDetailsDialog
+          canRetry={canDeleteSubmissions}
           row={selected}
           onClose={() => setSelected(null)}
           onRetry={retryBackup}
@@ -5503,7 +5599,7 @@ export function StaffActionItemsPage({ navigateTo }) {
   const summary = records.summary || {};
 
   return (
-    <StaffShell active="action-items" contentWide navigateTo={navigateTo}>
+    <StaffShell active="action-items" contentWide navigateTo={navigateTo} staff={staff}>
       <div className="staff-filter-toggle-row">
         <button
           aria-controls="staff-action-filters"
@@ -5695,6 +5791,7 @@ export function StaffActionItemsPage({ navigateTo }) {
       ) : null}
       {sourceSubmission ? (
         <SubmissionDetailsDialog
+          canRetry={canManage}
           retryingId={retryingSubmissionId}
           row={sourceSubmission}
           onClose={() => setSourceSubmission(null)}
@@ -6322,6 +6419,7 @@ function OpsMetric({ label, value }) {
 function FormSubmissionsTable({
   allVisibleSelected,
   canDelete,
+  canRetry,
   deleting,
   loading,
   retryingId,
@@ -6384,7 +6482,7 @@ function FormSubmissionsTable({
               <td className="actions-column">
                 <div className="table-action-row">
                   <button type="button" onClick={() => onDetails(row)}>Details</button>
-                  {canRetryBackup(row.one_drive_backup_status) ? (
+                  {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
                     <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
                       {retryingId === row.id ? "Retrying" : "Retry"}
                     </button>
@@ -6409,7 +6507,7 @@ function FormSubmissionsTable({
   );
 }
 
-function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
+function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingId, row }) {
   const files = row.files || [];
   const [filePreview, setFilePreview] = useState(null);
   const [previewLoadingId, setPreviewLoadingId] = useState("");
@@ -6502,7 +6600,7 @@ function SubmissionDetailsDialog({ onClose, onRetry, retryingId, row }) {
             ))}
           </div>
         ) : null}
-        {canRetryBackup(row.one_drive_backup_status) ? (
+        {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
           <button
             className="primary-button"
             disabled={retryingId === row.id}
@@ -7012,10 +7110,12 @@ function WorkerFormLoadingScreen() {
   );
 }
 
-function StaffShell({ active, children, contentWide = false, navigateTo }) {
+function StaffShell({ active, children, contentWide = false, navigateTo, staff = null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileNavItems = getStaffNavItemsForRole(staff);
   const activeMobileItem =
-    STAFF_MOBILE_NAV_ITEMS.find((item) => item.id === active) ||
+    mobileNavItems.find((item) => item.id === active) ||
+    mobileNavItems[0] ||
     STAFF_MOBILE_NAV_ITEMS[0];
 
   const logout = async () => {
@@ -7047,7 +7147,7 @@ function StaffShell({ active, children, contentWide = false, navigateTo }) {
         </button>
         {mobileMenuOpen ? (
           <div className="staff-mobile-menu-panel" role="menu">
-            {STAFF_MOBILE_NAV_ITEMS.map((item) => (
+            {mobileNavItems.map((item) => (
               <button
                 className={active === item.id ? "active" : ""}
                 key={item.id}
@@ -7097,6 +7197,10 @@ function StaffActionCard({ actionLabel, children, eyebrow, onAction, text, title
       ) : null}
     </article>
   );
+}
+
+function getStaffNavItemsForRole(staff) {
+  return STAFF_MOBILE_NAV_ITEMS.filter((item) => !item.adminOnly || isAdminOrOwner(staff));
 }
 
 function SettingsSection({ children, description, title }) {
@@ -8739,6 +8843,10 @@ function roleLabel(value) {
   if (value === "owner") return "Owner";
   if (value === "admin") return "Admin";
   return "Staff";
+}
+
+function isAdminOrOwner(staff) {
+  return ["owner", "admin"].includes(staff?.role);
 }
 
 function isDigitalToolboxTalkSubmission(row) {
