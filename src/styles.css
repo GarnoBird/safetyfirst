@@ -3278,6 +3278,21 @@ p {
   background: #f8fcfa;
 }
 
+.template-focus-note {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #cfe0d8;
+  border-radius: 8px;
+  padding: 12px;
+  color: #4b5e5a;
+  font-weight: 800;
+  background: #f8fcfa;
+}
+
+.template-focus-note button {
+  width: 100%;
+}
+
 .template-card {
   display: grid;
   gap: 5px;

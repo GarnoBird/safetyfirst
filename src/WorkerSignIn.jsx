@@ -5893,6 +5893,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [newFormName, setNewFormName] = useState("");
   const [newFormOpen, setNewFormOpen] = useState(false);
   const [archivedOpen, setArchivedOpen] = useState(false);
+  const [focusedTemplateType, setFocusedTemplateType] = useState("");
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -5910,6 +5911,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     () => (selectedTemplate?.versions || []).filter((version) => version.status === "archived"),
     [selectedTemplate],
   );
+  const isTemplateListFocused = Boolean(focusedTemplateType && rows.some((row) => row.form_type === focusedTemplateType));
+  const visibleCurrentTemplates = newFormOpen
+    ? []
+    : isTemplateListFocused
+      ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
+      : currentTemplates;
+  const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
 
   const loadTemplates = async ({ preserveDraft = false } = {}) => {
     setLoading(true);
@@ -5949,11 +5957,12 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       );
       setRows((current) => [payload.template, ...current]);
       setSelectedFormType(payload.template.form_type);
+      setFocusedTemplateType(payload.template.form_type);
       setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
       setPreviewAnswers({});
       setNewFormName("");
       setNewFormOpen(false);
-      setMessage("New form draft created.");
+      setMessage("New form draft created. Add blocks, then save and publish.");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -5980,6 +5989,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
         return nextRows;
       });
       if (patch.archived) {
+        setFocusedTemplateType("");
         const nextTemplate = nextRows.find((row) => !row.archived_at && row.form_type !== payload.template.form_type);
         if (nextTemplate) setSelectedFormType(nextTemplate.form_type);
       } else if (patch.archived === false) {
@@ -6102,7 +6112,14 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="template-manager-grid">
         <aside className="template-card-list" aria-label="Form templates">
-          <button className="primary-button template-new-button" type="button" onClick={() => setNewFormOpen((current) => !current)}>
+          <button
+            className="primary-button template-new-button"
+            type="button"
+            onClick={() => {
+              setFocusedTemplateType("");
+              setNewFormOpen((current) => !current);
+            }}
+          >
             New Form
           </button>
           {newFormOpen ? (
@@ -6117,19 +6134,38 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 />
               </label>
               <div className="staff-card-actions">
-                <button type="button" onClick={() => setNewFormOpen(false)}>Cancel</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewFormName("");
+                    setNewFormOpen(false);
+                  }}
+                >
+                  Cancel
+                </button>
                 <button className="primary-button" disabled={creating} type="submit">
                   {creating ? "Creating..." : "Create"}
                 </button>
               </div>
             </form>
           ) : null}
-          {currentTemplates.map((template) => (
+          {isTemplateListFocused && !newFormOpen ? (
+            <div className="template-focus-note">
+              <span>Focused on the new form.</span>
+              <button type="button" onClick={() => setFocusedTemplateType("")}>
+                Show all forms
+              </button>
+            </div>
+          ) : null}
+          {visibleCurrentTemplates.map((template) => (
             <button
               className={selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card"}
               key={template.form_type}
               type="button"
-              onClick={() => setSelectedFormType(template.form_type)}
+              onClick={() => {
+                setSelectedFormType(template.form_type);
+                if (!isTemplateListFocused) setFocusedTemplateType("");
+              }}
             >
               <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
               <strong>{template.label}</strong>
@@ -6146,7 +6182,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               </small>
             </button>
           ))}
-          {archivedTemplates.length ? (
+          {showArchivedTemplates ? (
             <section className="template-archive-list">
               <button
                 aria-expanded={archivedOpen}
