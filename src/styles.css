@@ -2333,6 +2333,11 @@ p {
   gap: 10px;
 }
 
+.staff-worker-list-controls {
+  grid-template-columns: minmax(0, 1fr) 118px 46px;
+  align-items: end;
+}
+
 .staff-search-field,
 .staff-sort-select {
   display: grid;
@@ -3475,6 +3480,16 @@ p {
 .staff-form-filter-toolbar {
   grid-template-columns: repeat(4, minmax(150px, 1fr));
   max-width: none;
+}
+
+.staff-worker-filter-toolbar {
+  align-items: end;
+}
+
+.staff-filter-summary {
+  margin: 0;
+  color: #5f716b;
+  font-weight: 800;
 }
 
 .staff-filter-toggle-row {
@@ -4820,6 +4835,10 @@ p {
   .staff-list-controls {
     grid-template-columns: minmax(0, 1fr) 112px;
     gap: 6px;
+  }
+
+  .staff-worker-list-controls {
+    grid-template-columns: minmax(0, 1fr) 92px 46px;
   }
 
   .staff-form-filter-toolbar {

@@ -337,6 +337,12 @@ const EMPTY_STAFF_WORKER_FORM = {
   active: true,
 };
 
+const EMPTY_STAFF_WORKER_FILTERS = {
+  company: "",
+  active: "all",
+  sort: "company_name",
+};
+
 const EMPTY_STAFF_USER_FORM = {
   display_name: "",
   email: "",
@@ -1059,44 +1065,6 @@ export function StaffHomePage({ navigateTo }) {
           </dl>
         </StaffActionCard>
 
-        <StaffActionCard
-          actionLabel="Open actions"
-          eyebrow="Deficiencies"
-          text="Review Site Inspection deficiencies, assign corrective actions, track due dates, and close out evidence."
-          title="Action Items"
-          onAction={() => navigateTo("/staff/action-items")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Source</dt>
-              <dd>Site inspections</dd>
-            </div>
-            <div>
-              <dt>Workflow</dt>
-              <dd>Draft to closeout</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
-
-        <StaffActionCard
-          actionLabel="Manage workers"
-          eyebrow="Accounts"
-          text="Create worker usernames, phone mappings, company ties, passwords, and active status."
-          title="Worker Accounts"
-          onAction={() => navigateTo("/staff/workers")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Login</dt>
-              <dd>Phone or username</dd>
-            </div>
-            <div>
-              <dt>Remember me</dt>
-              <dd>Long-lived session</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
-
         {isAdminOrOwner(staff) ? (
           <StaffActionCard
             actionLabel="Manage users"
@@ -1174,25 +1142,6 @@ export function StaffHomePage({ navigateTo }) {
               {emailing ? "Emailing..." : "Email"}
             </button>
           </div>
-        </StaffActionCard>
-
-        <StaffActionCard
-          actionLabel="Open trends"
-          eyebrow="Workforce planning"
-          text="Track worker counts, company activity, trade mix, and site-service planning signals over time."
-          title="Trends"
-          onAction={() => navigateTo("/staff/trends")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Default</dt>
-              <dd>Last 90 days</dd>
-            </div>
-            <div>
-              <dt>Data</dt>
-              <dd>Aggregate only</dd>
-            </div>
-          </dl>
         </StaffActionCard>
 
         <StaffActionCard
@@ -4385,6 +4334,8 @@ export function StaffWorkersPage({ navigateTo }) {
   const [form, setForm] = useState(EMPTY_STAFF_WORKER_FORM);
   const [editingId, setEditingId] = useState("");
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState(EMPTY_STAFF_WORKER_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -4409,6 +4360,47 @@ export function StaffWorkersPage({ navigateTo }) {
   useEffect(() => {
     if (staff) loadWorkers();
   }, [staff]);
+
+  const companyOptions = useMemo(() => {
+    return Array.from(new Set(rows.map((worker) => worker.company).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b),
+    );
+  }, [rows]);
+
+  const activeFilterCount = [
+    filters.company,
+    filters.active !== "all" ? filters.active : "",
+    filters.sort !== EMPTY_STAFF_WORKER_FILTERS.sort ? filters.sort : "",
+  ].filter(Boolean).length;
+
+  const filteredRows = useMemo(() => {
+    const visible = rows.filter((worker) => {
+      if (filters.company && worker.company !== filters.company) return false;
+      if (filters.active === "active" && !worker.active) return false;
+      if (filters.active === "inactive" && worker.active) return false;
+      return true;
+    });
+
+    return [...visible].sort((a, b) => {
+      if (filters.sort === "name") {
+        return String(a.name || "").localeCompare(String(b.name || ""));
+      }
+      if (filters.sort === "newest") {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      if (filters.sort === "oldest") {
+        return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+      }
+      return (
+        String(a.company || "").localeCompare(String(b.company || "")) ||
+        String(a.name || "").localeCompare(String(b.name || ""))
+      );
+    });
+  }, [filters, rows]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
 
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -4546,7 +4538,7 @@ export function StaffWorkersPage({ navigateTo }) {
         ) : null}
 
         <section className="staff-table-panel">
-          <div className="staff-list-controls">
+          <div className="staff-list-controls staff-worker-list-controls">
             <label className="staff-search-field">
               <span>Search workers</span>
               <input
@@ -4560,11 +4552,61 @@ export function StaffWorkersPage({ navigateTo }) {
               />
             </label>
             <button type="button" onClick={loadWorkers}>Search</button>
+            <button
+              aria-controls="staff-worker-filters"
+              aria-expanded={filtersOpen}
+              aria-label={filtersOpen ? "Hide filters" : "Show filters"}
+              className={filtersOpen ? "staff-filter-icon-button active" : "staff-filter-icon-button"}
+              type="button"
+              onClick={() => setFiltersOpen((current) => !current)}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 5h16l-6 7v5l-4 2v-7L4 5z" />
+              </svg>
+            </button>
           </div>
+          {filtersOpen ? (
+            <section className="staff-toolbar staff-form-filter-toolbar staff-worker-filter-toolbar" id="staff-worker-filters">
+              <label className="field">
+                <span>Company</span>
+                <select value={filters.company} onChange={(event) => updateFilter("company", event.target.value)}>
+                  <option value="">All companies</option>
+                  {companyOptions.map((company) => (
+                    <option key={company} value={company}>{company}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Status</span>
+                <select value={filters.active} onChange={(event) => updateFilter("active", event.target.value)}>
+                  <option value="all">All workers</option>
+                  <option value="active">Active only</option>
+                  <option value="inactive">Inactive only</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Sort</span>
+                <select value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}>
+                  <option value="company_name">Company, then name</option>
+                  <option value="name">Name</option>
+                  <option value="newest">Newest created</option>
+                  <option value="oldest">Oldest created</option>
+                </select>
+              </label>
+              <button type="button" onClick={() => setFilters(EMPTY_STAFF_WORKER_FILTERS)}>
+                Clear filters
+              </button>
+            </section>
+          ) : null}
+          {activeFilterCount ? (
+            <p className="staff-filter-summary">
+              {filteredRows.length} of {rows.length} workers shown.
+            </p>
+          ) : null}
           <WorkerAccountsTable
             canManage={canManageWorkers}
             loading={loading}
-            rows={rows}
+            rows={filteredRows}
             onDelete={deleteWorker}
             onEdit={startEdit}
             onToggleActive={toggleActive}
