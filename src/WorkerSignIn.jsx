@@ -10886,8 +10886,10 @@ function normalizeClientTemplateSchema(schema) {
   const sections = Array.isArray(source.sections) ? source.sections : [];
   const normalizedSections = sections.map((section, sectionIndex) => ({
     id: slugifyTemplateId(section?.id) || `section_${sectionIndex + 1}`,
-    title: String(section?.title || `Section ${sectionIndex + 1}`).trim(),
-    description: String(section?.description || "").trim(),
+    title: section && Object.prototype.hasOwnProperty.call(section, "title")
+      ? String(section.title || "")
+      : `Section ${sectionIndex + 1}`,
+    description: String(section?.description || ""),
     fields: (Array.isArray(section?.fields) ? section.fields : [])
       .map((field, fieldIndex) => normalizeTemplateField(field, sectionIndex, fieldIndex))
       .filter(Boolean),
@@ -10895,8 +10897,10 @@ function normalizeClientTemplateSchema(schema) {
   return {
     schemaVersion: 1,
     formType: String(source.formType || source.form_type || "").trim(),
-    title: String(source.title || "Form").trim(),
-    description: String(source.description || "").trim(),
+    title: source && Object.prototype.hasOwnProperty.call(source, "title")
+      ? String(source.title || "")
+      : "Form",
+    description: String(source.description || ""),
     sections: normalizedSections,
   };
 }
@@ -10907,7 +10911,7 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     : "short_text";
   const hasLabel = field && Object.prototype.hasOwnProperty.call(field, "label");
   const label = hasLabel
-    ? String(field.label || "").trim()
+    ? String(field.label || "")
     : `Field ${fieldIndex + 1}`;
   const id = slugifyTemplateId(field?.id || label) || `section_${sectionIndex + 1}_field_${fieldIndex + 1}`;
   const options = TEMPLATE_OPTION_FIELD_TYPES.has(type)
@@ -10920,7 +10924,7 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     id,
     type,
     label,
-    helperText: String(field?.helperText || field?.helper_text || "").trim(),
+    helperText: String(field?.helperText || field?.helper_text || ""),
     required: Boolean(field?.required),
     default: ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
     remember: Boolean(field?.remember),
