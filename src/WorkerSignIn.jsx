@@ -5705,15 +5705,18 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [previewAnswers, setPreviewAnswers] = useState({});
   const [newFormName, setNewFormName] = useState("");
   const [newFormOpen, setNewFormOpen] = useState(false);
+  const [archivedOpen, setArchivedOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState("");
 
+  const currentTemplates = useMemo(() => rows.filter((row) => !row.archived_at), [rows]);
+  const archivedTemplates = useMemo(() => rows.filter((row) => row.archived_at), [rows]);
   const selectedTemplate = useMemo(
-    () => rows.find((row) => row.form_type === selectedFormType) || rows[0] || null,
-    [rows, selectedFormType],
+    () => rows.find((row) => row.form_type === selectedFormType) || currentTemplates[0] || archivedTemplates[0] || null,
+    [archivedTemplates, currentTemplates, rows, selectedFormType],
   );
   const selectedSchema = selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
   const previousVersions = useMemo(
@@ -5784,10 +5787,19 @@ export function StaffFormTemplatesPage({ navigateTo }) {
           body: JSON.stringify(patch),
         }),
       );
-      setRows((current) =>
-        current.map((row) => (row.form_type === payload.template.form_type ? payload.template : row)),
-      );
-      setMessage("Template settings saved.");
+      let nextRows = [];
+      setRows((current) => {
+        nextRows = current.map((row) => (row.form_type === payload.template.form_type ? payload.template : row));
+        return nextRows;
+      });
+      if (patch.archived) {
+        const nextTemplate = nextRows.find((row) => !row.archived_at && row.form_type !== payload.template.form_type);
+        if (nextTemplate) setSelectedFormType(nextTemplate.form_type);
+      } else if (patch.archived === false) {
+        setArchivedOpen(false);
+        setSelectedFormType(payload.template.form_type);
+      }
+      setMessage(patch.archived ? "Template archived." : "Template settings saved.");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -5925,7 +5937,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               </div>
             </form>
           ) : null}
-          {rows.map((template) => (
+          {currentTemplates.map((template) => (
             <button
               className={selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card"}
               key={template.form_type}
@@ -5947,6 +5959,39 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               </small>
             </button>
           ))}
+          {archivedTemplates.length ? (
+            <section className="template-archive-list">
+              <button
+                aria-expanded={archivedOpen}
+                className="template-archive-toggle"
+                type="button"
+                onClick={() => setArchivedOpen((current) => !current)}
+              >
+                <span>Archived</span>
+                <strong>{archivedTemplates.length}</strong>
+              </button>
+              {archivedOpen ? (
+                <div className="template-archive-items">
+                  {archivedTemplates.map((template) => (
+                    <button
+                      className={selectedTemplate?.form_type === template.form_type ? "template-card archived active" : "template-card archived"}
+                      key={template.form_type}
+                      type="button"
+                      onClick={() => setSelectedFormType(template.form_type)}
+                    >
+                      <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
+                      <strong>{template.label}</strong>
+                      <small>
+                        Published v{template.publishedVersion?.version_number || "-"}
+                        {template.draftVersion ? " / Draft ready" : ""}
+                      </small>
+                      <small>Archived</small>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
         </aside>
 
         <section className="template-editor-panel">

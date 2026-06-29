@@ -3295,6 +3295,13 @@ p {
   background: #eef8f5;
 }
 
+.template-card.archived {
+  min-height: 92px;
+  border-style: dashed;
+  opacity: 0.86;
+  background: #fafcfb;
+}
+
 .template-card span,
 .template-card small,
 .template-editor-heading p,
@@ -3305,6 +3312,47 @@ p {
 
 .template-card strong {
   font-size: 1.05rem;
+}
+
+.template-archive-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  border-top: 1px solid #e2ece8;
+  padding-top: 10px;
+}
+
+.template-archive-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #4b5e5a;
+  background: #f8fbfa;
+}
+
+.template-archive-toggle span {
+  font-weight: 900;
+}
+
+.template-archive-toggle strong {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  min-height: 26px;
+  border-radius: 999px;
+  color: #245f5b;
+  font-size: 0.86rem;
+  background: #e6f4ef;
+}
+
+.template-archive-items {
+  display: grid;
+  gap: 8px;
 }
 
 .template-editor-panel,
