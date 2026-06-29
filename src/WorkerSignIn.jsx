@@ -1413,7 +1413,7 @@ export function StaffSettingsPage({ navigateTo }) {
               </button>
             </div>
             <p className="settings-note">
-              Phone numbers are used for site sign-in records and sign-out reminders only.
+              Phone numbers are used for site sign-in records and stay staff-only.
             </p>
           </SettingsSection>
 
