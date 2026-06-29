@@ -1425,18 +1425,6 @@ export function StaffSettingsPage({ navigateTo }) {
               Phone numbers are used for site sign-in records and stay staff-only.
             </p>
           </SettingsSection>
-
-          <SettingsSection
-            description="Current guardrails for worker records."
-            title="Data & Privacy"
-          >
-            <ul className="settings-list">
-              <li>No medical information or private first aid details.</li>
-              <li>Worker phone numbers are personal information and stay staff-only.</li>
-              <li>App-side form copies purge after backup and retention rules allow it.</li>
-              <li>CSV and XML export are available to staff users.</li>
-            </ul>
-          </SettingsSection>
         </div>
       </StaffShell>
     );
