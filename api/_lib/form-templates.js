@@ -159,7 +159,11 @@ export async function createFormTemplate(body, staff) {
 
 export async function updateFormTemplate(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateEditable(template);
+  const bodyKeys = Object.keys(body || {});
+  const updatesDisplayOrderOnly =
+    bodyKeys.length > 0 &&
+    bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
+  if (!updatesDisplayOrderOnly) assertTemplateEditable(template);
   const patch = {
     updated_by_staff_id: staff.id,
     updated_at: new Date().toISOString(),

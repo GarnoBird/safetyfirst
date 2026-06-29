@@ -5894,11 +5894,16 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [newFormOpen, setNewFormOpen] = useState(false);
   const [archivedOpen, setArchivedOpen] = useState(false);
   const [focusedTemplateType, setFocusedTemplateType] = useState("");
+  const [draggedTemplateType, setDraggedTemplateType] = useState("");
+  const [dragOverTemplateType, setDragOverTemplateType] = useState("");
+  const [reordering, setReordering] = useState(false);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState("");
+  const templateCardRefs = useRef(new Map());
+  const dragStateRef = useRef({ formType: "", moved: false, latestOrder: null });
 
   const currentTemplates = useMemo(() => rows.filter((row) => !row.archived_at), [rows]);
   const archivedTemplates = useMemo(() => rows.filter((row) => row.archived_at), [rows]);
@@ -5918,6 +5923,15 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
+  const canDragTemplateOrder = !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+
+  const registerTemplateCard = (formType) => (node) => {
+    if (node) {
+      templateCardRefs.current.set(formType, node);
+    } else {
+      templateCardRefs.current.delete(formType);
+    }
+  };
 
   const loadTemplates = async ({ preserveDraft = false } = {}) => {
     setLoading(true);
@@ -6002,6 +6016,111 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const saveTemplateOrder = async (order) => {
+    if (!order?.length) return;
+    setReordering(true);
+    setMessage("");
+    try {
+      await Promise.all(
+        order.map(async (item) =>
+          readApiJson(
+            await fetch(`/api/staff/form-templates/${item.formType}`, {
+              method: "PATCH",
+              credentials: "include",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ displayOrder: item.displayOrder }),
+            }),
+          ),
+        ),
+      );
+      await loadTemplates({ preserveDraft: true });
+      setMessage("Form order saved.");
+    } catch (error) {
+      setMessage(error.message);
+      await loadTemplates({ preserveDraft: true });
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const moveTemplateBeforeOrAfter = (draggedType, targetType, placement) => {
+    setRows((current) => {
+      const activeRows = current.filter((row) => !row.archived_at);
+      const archivedRows = current.filter((row) => row.archived_at);
+      const draggedIndex = activeRows.findIndex((row) => row.form_type === draggedType);
+      const targetIndex = activeRows.findIndex((row) => row.form_type === targetType);
+      if (draggedIndex < 0 || targetIndex < 0 || draggedIndex === targetIndex) return current;
+
+      const nextActiveRows = [...activeRows];
+      const [draggedRow] = nextActiveRows.splice(draggedIndex, 1);
+      const remainingTargetIndex = nextActiveRows.findIndex((row) => row.form_type === targetType);
+      const insertIndex = placement === "after" ? remainingTargetIndex + 1 : remainingTargetIndex;
+      nextActiveRows.splice(insertIndex, 0, draggedRow);
+
+      const orderedRows = nextActiveRows.map((row, index) => ({
+        ...row,
+        display_order: (index + 1) * 10,
+      }));
+      dragStateRef.current = {
+        ...dragStateRef.current,
+        moved: true,
+        latestOrder: orderedRows.map((row) => ({
+          formType: row.form_type,
+          displayOrder: row.display_order,
+        })),
+      };
+      return [...orderedRows, ...archivedRows];
+    });
+  };
+
+  const startTemplateOrderDrag = (event, formType) => {
+    if (!canDragTemplateOrder || reordering) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    dragStateRef.current = { formType, moved: false, latestOrder: null };
+    setDraggedTemplateType(formType);
+    setDragOverTemplateType(formType);
+
+    const handleMove = (moveEvent) => {
+      moveEvent.preventDefault();
+      const pointerY = moveEvent.clientY;
+      let closest = null;
+      let closestDistance = Number.POSITIVE_INFINITY;
+
+      templateCardRefs.current.forEach((node, targetType) => {
+        if (targetType === formType) return;
+        const rect = node.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        const distance = Math.abs(pointerY - midpoint);
+        if (distance < closestDistance) {
+          closest = { rect, targetType };
+          closestDistance = distance;
+        }
+      });
+
+      if (!closest) return;
+      const placement = pointerY > closest.rect.top + closest.rect.height / 2 ? "after" : "before";
+      setDragOverTemplateType(closest.targetType);
+      moveTemplateBeforeOrAfter(formType, closest.targetType, placement);
+    };
+
+    const handleEnd = () => {
+      const { moved, latestOrder } = dragStateRef.current;
+      setDraggedTemplateType("");
+      setDragOverTemplateType("");
+      dragStateRef.current = { formType: "", moved: false, latestOrder: null };
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleEnd);
+      window.removeEventListener("pointercancel", handleEnd);
+      if (moved) saveTemplateOrder(latestOrder);
+    };
+
+    window.addEventListener("pointermove", handleMove, { passive: false });
+    window.addEventListener("pointerup", handleEnd);
+    window.addEventListener("pointercancel", handleEnd);
   };
 
   useEffect(() => {
@@ -6158,29 +6277,52 @@ export function StaffFormTemplatesPage({ navigateTo }) {
             </div>
           ) : null}
           {visibleCurrentTemplates.map((template) => (
-            <button
-              className={selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card"}
+            <article
+              className={[
+                selectedTemplate?.form_type === template.form_type ? "template-card active" : "template-card",
+                canDragTemplateOrder ? "has-drag-handle" : "",
+                draggedTemplateType === template.form_type ? "dragging" : "",
+                dragOverTemplateType === template.form_type ? "drag-over" : "",
+              ].filter(Boolean).join(" ")}
               key={template.form_type}
-              type="button"
-              onClick={() => {
-                setSelectedFormType(template.form_type);
-                if (!isTemplateListFocused) setFocusedTemplateType("");
-              }}
+              ref={registerTemplateCard(template.form_type)}
             >
-              <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
-              <strong>{template.label}</strong>
-              <small>
-                Published v{template.publishedVersion?.version_number || "-"}
-                {template.draftVersion ? " / Draft ready" : ""}
-              </small>
-              <small>
-                {template.archived_at
-                  ? "Archived"
-                  : template.active
-                    ? template.worker_visible ? "Shown to workers" : "Hidden from workers"
-                    : "Inactive"}
-              </small>
-            </button>
+              <button
+                className="template-card-main"
+                type="button"
+                onClick={() => {
+                  setSelectedFormType(template.form_type);
+                  if (!isTemplateListFocused) setFocusedTemplateType("");
+                }}
+              >
+                <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
+                <strong>{template.label}</strong>
+                <small>
+                  Published v{template.publishedVersion?.version_number || "-"}
+                  {template.draftVersion ? " / Draft ready" : ""}
+                </small>
+                <small>
+                  {template.archived_at
+                    ? "Archived"
+                    : template.active
+                      ? template.worker_visible ? "Shown to workers" : "Hidden from workers"
+                      : "Inactive"}
+                </small>
+              </button>
+              {canDragTemplateOrder ? (
+                <button
+                  aria-label={`Drag ${template.label} to reorder forms`}
+                  className="template-drag-handle"
+                  disabled={reordering}
+                  type="button"
+                  onPointerDown={(event) => startTemplateOrderDrag(event, template.form_type)}
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M8 6h8M8 12h8M8 18h8" />
+                  </svg>
+                </button>
+              ) : null}
+            </article>
           ))}
           {showArchivedTemplates ? (
             <section className="template-archive-list">
@@ -6290,23 +6432,6 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                         onBlur={(event) => {
                           if (event.target.value.trim() !== (selectedTemplate.description || "")) {
                             updateTemplateMeta({ description: event.target.value });
-                          }
-                        }}
-                      />
-                    </label>
-                    <label>
-                      <span>Display order</span>
-                      <input
-                        key={`display-order-${selectedTemplate.form_type}-${selectedTemplate.display_order}`}
-                        defaultValue={selectedTemplate.display_order ?? 1000}
-                        inputMode="numeric"
-                        onBlur={(event) => {
-                          const displayOrder = Number(event.target.value);
-                          if (
-                            Number.isInteger(displayOrder) &&
-                            displayOrder !== Number(selectedTemplate.display_order ?? 1000)
-                          ) {
-                            updateTemplateMeta({ displayOrder });
                           }
                         }}
                       />
@@ -10780,7 +10905,10 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
   const type = TEMPLATE_FIELD_TYPES.some((item) => item.id === field?.type)
     ? field.type
     : "short_text";
-  const label = String(field?.label || `Field ${fieldIndex + 1}`).trim();
+  const hasLabel = field && Object.prototype.hasOwnProperty.call(field, "label");
+  const label = hasLabel
+    ? String(field.label || "").trim()
+    : `Field ${fieldIndex + 1}`;
   const id = slugifyTemplateId(field?.id || label) || `section_${sectionIndex + 1}_field_${fieldIndex + 1}`;
   const options = TEMPLATE_OPTION_FIELD_TYPES.has(type)
     ? (Array.isArray(field?.options) ? field.options : [])

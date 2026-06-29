@@ -3294,6 +3294,7 @@ p {
 }
 
 .template-card {
+  position: relative;
   display: grid;
   gap: 5px;
   min-height: 108px;
@@ -3305,9 +3306,22 @@ p {
   background: #fff;
 }
 
+.template-card.has-drag-handle {
+  padding-right: 58px;
+}
+
 .template-card.active {
   border-color: #245f5b;
   background: #eef8f5;
+}
+
+.template-card.dragging {
+  opacity: 0.72;
+  transform: scale(0.99);
+}
+
+.template-card.drag-over {
+  box-shadow: 0 0 0 2px rgba(36, 95, 91, 0.18);
 }
 
 .template-card.archived {
@@ -3315,6 +3329,53 @@ p {
   border-style: dashed;
   opacity: 0.86;
   background: #fafcfb;
+}
+
+.template-card-main {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+}
+
+.template-card-main:focus-visible {
+  outline: 2px solid #245f5b;
+  outline-offset: 4px;
+}
+
+.template-drag-handle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  min-height: 38px;
+  border: 1px solid #cfe0d8;
+  border-radius: 8px;
+  padding: 0;
+  color: #245f5b;
+  background: #f8fcfa;
+  cursor: grab;
+  touch-action: none;
+}
+
+.template-drag-handle:active {
+  cursor: grabbing;
+}
+
+.template-drag-handle svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
 }
 
 .template-card span,
