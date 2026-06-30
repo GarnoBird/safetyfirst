@@ -2008,7 +2008,7 @@ export function StaffSignInsPage({ navigateTo }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    const nextGroup = group === "company" || group === "trade" ? group : "";
+    const nextGroup = group === "company" ? group : "";
     const nextCompany = group === "company" && companyFilter ? companyFilter : "";
 
     if (nextGroup) {
@@ -2078,7 +2078,6 @@ export function StaffSignInsPage({ navigateTo }) {
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
             <option value="none">Grouping</option>
-            <option value="trade">Trade</option>
             <option value="company">Company</option>
           </select>
         </label>
@@ -2139,7 +2138,6 @@ export function StaffSignInsPage({ navigateTo }) {
           <span>Group</span>
           <select value={group} onChange={(event) => setGroup(event.target.value)}>
             <option value="none">Grouping</option>
-            <option value="trade">Trade</option>
             <option value="company">Company</option>
           </select>
         </label>
@@ -11362,7 +11360,7 @@ function readStaffDateFromUrl() {
 function readStaffRosterGroupFromUrl() {
   if (typeof window === "undefined") return "none";
   const group = new URLSearchParams(window.location.search).get("group");
-  return group === "company" || group === "trade" ? group : "none";
+  return group === "company" ? group : "none";
 }
 
 function readStaffRosterCompanyFromUrl() {
