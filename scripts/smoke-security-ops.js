@@ -59,20 +59,34 @@ async function checkStaffLoginAndHealth() {
     }),
   });
   const cookie = loginResponse.headers.get("set-cookie") || "";
+  const loginPayload = await loginResponse.clone().json().catch(() => ({}));
+  const role = loginPayload.staff?.role || "";
   checks.push({
     name: "Staff login",
     ok: loginResponse.ok && cookie.includes("sf_staff_session="),
-    detail: `${loginResponse.status}`,
+    detail: role ? `${loginResponse.status}, ${role}` : `${loginResponse.status}`,
   });
   if (!loginResponse.ok || !cookie) return;
 
-  const healthResponse = await fetchUrl("/api/staff/health", {
+  if (["owner", "admin"].includes(role)) {
+    const healthResponse = await fetchUrl("/api/staff/health", {
+      headers: { cookie },
+    });
+    checks.push({
+      name: "Staff health API",
+      ok: healthResponse.ok,
+      detail: `${healthResponse.status}`,
+    });
+    return;
+  }
+
+  const templatesResponse = await fetchUrl("/api/staff/form-templates", {
     headers: { cookie },
   });
   checks.push({
-    name: "Staff health API",
-    ok: healthResponse.ok,
-    detail: `${healthResponse.status}`,
+    name: "Staff form templates API",
+    ok: templatesResponse.ok,
+    detail: `${templatesResponse.status}`,
   });
 }
 

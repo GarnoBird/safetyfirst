@@ -19,7 +19,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
     path: "/staff/sign-ins/company",
   },
   { id: "forms", label: "FORMS", path: "/staff/forms" },
-  { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates", adminOnly: true },
+  { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "USERS", path: "/staff/users", adminOnly: true },
@@ -5968,7 +5968,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
-  const canDragTemplateOrder = !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const canDragTemplateOrder = canManageTemplates && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -5999,6 +5999,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
   const createTemplate = async (event) => {
     event.preventDefault();
+    if (!canManageTemplates) return;
     if (!newFormName.trim()) {
       setMessage("Enter a form name.");
       return;
@@ -6031,6 +6032,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const duplicateTemplate = async (template) => {
+    if (!canManageTemplates) return;
     if (!template || template.renderer_type !== "template") return;
     setSaving(true);
     setMessage("");
@@ -6056,6 +6058,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const updateTemplateMeta = async (patch) => {
+    if (!canManageTemplates) return;
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
     setSaving(true);
     setMessage("");
@@ -6090,6 +6093,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const saveTemplateOrder = async (order) => {
+    if (!canManageTemplates) return;
     if (!order?.length) return;
     setReordering(true);
     setMessage("");
@@ -6196,12 +6200,8 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
   useEffect(() => {
     if (!staff) return;
-    if (!canManageTemplates) {
-      navigateTo("/staff/home");
-      return;
-    }
     loadTemplates();
-  }, [staff, canManageTemplates, navigateTo]);
+  }, [staff]);
 
   useEffect(() => {
     setDraftSchema(cloneTemplateSchema(selectedSchema));
@@ -6302,16 +6302,18 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="template-manager-grid">
         <aside className="template-card-list" aria-label="Form templates">
-          <button
-            className="primary-button template-new-button"
-            type="button"
-            onClick={() => {
-              setFocusedTemplateType("");
-              setNewFormOpen((current) => !current);
-            }}
-          >
-            New Form
-          </button>
+          {canManageTemplates ? (
+            <button
+              className="primary-button template-new-button"
+              type="button"
+              onClick={() => {
+                setFocusedTemplateType("");
+                setNewFormOpen((current) => !current);
+              }}
+            >
+              New Form
+            </button>
+          ) : null}
           {newFormOpen ? (
             <form className="template-new-form" onSubmit={createTemplate}>
               <label>
@@ -6380,7 +6382,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       : "Inactive"}
                 </small>
               </button>
-              {template.renderer_type === "template" ? (
+              {template.renderer_type === "template" && canManageTemplates ? (
                 <div className="template-card-actions">
                   <button disabled={saving} type="button" onClick={() => duplicateTemplate(template)}>
                     Duplicate
@@ -6464,78 +6466,94 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                   </span>
                 </div>
                 <div className="staff-card-actions">
-                  {previousVersions.length ? (
-                    <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
-                      Restore previous version
-                    </button>
-                  ) : null}
-                  <button disabled={saving} type="button" onClick={saveDraft}>
-                    {saving ? "Saving..." : "Save draft"}
-                  </button>
-                  <button className="primary-button" disabled={publishing} type="button" onClick={publishDraft}>
-                    {publishing ? "Publishing..." : "Publish"}
-                  </button>
+                  {canManageTemplates ? (
+                    <>
+                      {previousVersions.length ? (
+                        <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
+                          Restore previous version
+                        </button>
+                      ) : null}
+                      <button disabled={saving} type="button" onClick={saveDraft}>
+                        {saving ? "Saving..." : "Save draft"}
+                      </button>
+                      <button className="primary-button" disabled={publishing} type="button" onClick={publishDraft}>
+                        {publishing ? "Publishing..." : "Publish"}
+                      </button>
+                    </>
+                  ) : (
+                    <span className="muted">View only</span>
+                  )}
                 </div>
               </div>
 
-              <div className="template-editor-mode-switch" aria-label="Form builder mode">
-                <button
-                  className={builderMode === "v3" ? "active" : ""}
-                  type="button"
-                  onClick={() => setBuilderMode("v3")}
-                >
-                  Builder V3
-                  <small>Laptop block editor</small>
-                </button>
-                <button
-                  className={builderMode === "v2" ? "active" : ""}
-                  type="button"
-                  onClick={() => setBuilderMode("v2")}
-                >
-                  Builder V2
-                  <small>Google Forms style</small>
-                </button>
-                <button
-                  className={builderMode === "classic" ? "active" : ""}
-                  type="button"
-                  onClick={() => setBuilderMode("classic")}
-                >
-                  Classic Builder
-                  <small>Blocks, canvas, settings</small>
-                </button>
-              </div>
+              {!canManageTemplates ? (
+                <StaffTemplateReadOnlyView
+                  previewAnswers={previewAnswers}
+                  previewWorker={staffToPreviewWorker(staff)}
+                  schema={selectedTemplate.publishedVersion?.schema || selectedTemplate.draftVersion?.schema}
+                  selectedTemplate={selectedTemplate}
+                  onPreviewAnswersChange={setPreviewAnswers}
+                />
+              ) : (
+                <>
+                  <div className="template-editor-mode-switch" aria-label="Form builder mode">
+                    <button
+                      className={builderMode === "v3" ? "active" : ""}
+                      type="button"
+                      onClick={() => setBuilderMode("v3")}
+                    >
+                      Builder V3
+                      <small>Laptop block editor</small>
+                    </button>
+                    <button
+                      className={builderMode === "v2" ? "active" : ""}
+                      type="button"
+                      onClick={() => setBuilderMode("v2")}
+                    >
+                      Builder V2
+                      <small>Google Forms style</small>
+                    </button>
+                    <button
+                      className={builderMode === "classic" ? "active" : ""}
+                      type="button"
+                      onClick={() => setBuilderMode("classic")}
+                    >
+                      Classic Builder
+                      <small>Blocks, canvas, settings</small>
+                    </button>
+                  </div>
 
-              <div className="template-editor-layout">
-                <div className="template-builder-stack">
-                  {builderMode === "v3" ? (
-                    <TemplateSchemaEditorV3
-                      active={Boolean(selectedTemplate.active)}
-                      archived={Boolean(selectedTemplate.archived_at)}
-                      hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
-                      onArchiveToggle={(archived) =>
-                        updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
-                      }
-                      onChange={setDraftSchema}
-                      onDuplicate={() => duplicateTemplate(selectedTemplate)}
-                      onPreviewAnswersChange={setPreviewAnswers}
-                      onPublish={publishDraft}
-                      onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
-                      onSave={saveDraft}
-                      onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
-                      onToggleWorkerVisible={() =>
-                        updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
-                      }
-                      previewAnswers={previewAnswers}
-                      previewWorker={staffToPreviewWorker(staff)}
-                      publishing={publishing}
-                      saving={saving}
-                      schema={draftSchema}
-                      selectedTemplate={selectedTemplate}
-                      workerVisible={Boolean(selectedTemplate.worker_visible)}
-                    />
-                  ) : (
-                    <>
-                      <section className="settings-section template-settings-card">
+                  <div className="template-editor-layout">
+                    <div className="template-builder-stack">
+                      {builderMode === "v3" ? (
+                        <TemplateSchemaEditorV3
+                          active={Boolean(selectedTemplate.active)}
+                          archived={Boolean(selectedTemplate.archived_at)}
+                          hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
+                          onArchiveToggle={(archived) =>
+                            updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
+                          }
+                          onChange={setDraftSchema}
+                          onDuplicate={() => duplicateTemplate(selectedTemplate)}
+                          onPreviewAnswersChange={setPreviewAnswers}
+                          onPublish={publishDraft}
+                          onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
+                          onSave={saveDraft}
+                          onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
+                          onToggleWorkerVisible={() =>
+                            updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
+                          }
+                          previewAnswers={previewAnswers}
+                          previewWorker={staffToPreviewWorker(staff)}
+                          publishing={publishing}
+                          saving={saving}
+                          schema={draftSchema}
+                          selectedTemplate={selectedTemplate}
+                          workerVisible={Boolean(selectedTemplate.worker_visible)}
+                        />
+                      ) : (
+                        <>
+                          <section className="settings-section template-settings-card">
                         <div className="settings-section-heading">
                           <div>
                             <h2>Template Settings</h2>
@@ -6659,15 +6677,80 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       onPreviewAnswersChange={setPreviewAnswers}
                     />
                       )}
-                    </>
-                  )}
-                </div>
-              </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </section>
       </section>
     </StaffShell>
+  );
+}
+
+function StaffTemplateReadOnlyView({
+  onPreviewAnswersChange,
+  previewAnswers,
+  previewWorker,
+  schema,
+  selectedTemplate,
+}) {
+  const current = normalizeClientTemplateSchema(schema || {
+    formType: selectedTemplate?.form_type || "",
+    title: selectedTemplate?.label || "Form template",
+    description: selectedTemplate?.description || "",
+    sections: [],
+  });
+  const fieldCount = collectClientTemplateFields(current).length;
+  return (
+    <section className="settings-section template-settings-card">
+      <div className="settings-section-heading">
+        <div>
+          <h2>Template Preview</h2>
+          <p>Regular Staff can review templates, but Admin or Owner access is required to edit, publish, archive, duplicate, or reorder forms.</p>
+        </div>
+      </div>
+      <dl className="staff-detail-grid">
+        <div>
+          <dt>Worker URL</dt>
+          <dd>/forms/{selectedTemplate.form_type}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>
+            {selectedTemplate.archived_at
+              ? "Archived"
+              : selectedTemplate.active
+                ? selectedTemplate.worker_visible ? "Shown to workers" : "Hidden from workers"
+                : "Inactive"}
+          </dd>
+        </div>
+        <div>
+          <dt>Published</dt>
+          <dd>v{selectedTemplate.publishedVersion?.version_number || "-"}</dd>
+        </div>
+        <div>
+          <dt>Draft</dt>
+          <dd>{selectedTemplate.draftVersion ? "Draft exists" : "No draft"}</dd>
+        </div>
+      </dl>
+      {fieldCount ? (
+        <TemplateFormFields
+          answers={previewAnswers}
+          schema={current}
+          worker={previewWorker}
+          onChange={onPreviewAnswersChange}
+        />
+      ) : (
+        <div className="template-preview-empty">
+          <strong>No fields to preview</strong>
+          <span>This template does not have saved fields yet.</span>
+        </div>
+      )}
+    </section>
   );
 }
 
