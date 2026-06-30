@@ -1281,6 +1281,18 @@ p {
   grid-template-columns: minmax(230px, 286px) minmax(0, 1fr);
 }
 
+.staff-roster-toolbar {
+  grid-template-columns:
+    minmax(230px, 286px)
+    minmax(230px, 286px)
+    minmax(230px, 286px)
+    minmax(0, 1fr);
+}
+
+.staff-roster-toolbar .staff-report-buttons {
+  grid-column: 4;
+}
+
 .staff-toolbar-mobile {
   display: none;
 }

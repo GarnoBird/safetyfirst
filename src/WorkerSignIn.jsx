@@ -2065,7 +2065,7 @@ export function StaffSignInsPage({ navigateTo }) {
 
   return (
     <StaffShell active="sign-ins-people" contentWide navigateTo={navigateTo} staff={staff}>
-      <section className="staff-toolbar staff-toolbar-desktop">
+      <section className="staff-toolbar staff-roster-toolbar staff-toolbar-desktop">
         <label className="field">
           <span>Date</span>
           <input
