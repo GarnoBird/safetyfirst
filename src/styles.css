@@ -3465,6 +3465,42 @@ p {
   align-items: start;
 }
 
+.template-editor-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.template-editor-mode-switch button {
+  display: grid;
+  gap: 2px;
+  min-height: 58px;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px;
+  font-weight: 950;
+  background: transparent;
+}
+
+.template-editor-mode-switch button small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.template-editor-mode-switch button.active {
+  color: #fff;
+  background: #245f5b;
+}
+
+.template-editor-mode-switch button.active small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .template-section-editor {
   gap: 12px;
 }
@@ -4014,6 +4050,222 @@ p {
 
 .template-preview-empty span {
   color: var(--muted);
+}
+
+.template-v2-builder {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.template-v2-main,
+.template-v2-test-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(238, 248, 245, 0.62), rgba(255, 255, 255, 0) 300px),
+    #fff;
+}
+
+.template-v2-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+  border-bottom: 1px solid #e6efeb;
+  padding-bottom: 10px;
+}
+
+.template-v2-heading.compact {
+  align-items: center;
+}
+
+.template-v2-heading span,
+.template-v2-question-topline span,
+.template-v2-form-card label > span,
+.template-v2-section-header label > span,
+.template-v2-section-description > span,
+.template-v2-question-card label > span {
+  color: #286f68;
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.template-v2-heading h2,
+.template-v2-heading p {
+  margin: 0;
+}
+
+.template-v2-heading p {
+  max-width: 420px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.template-v2-form-card,
+.template-v2-section,
+.template-v2-question-card,
+.template-v2-empty,
+.template-v2-add-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.template-v2-form-card {
+  border-color: #b9d2ca;
+  background: #f8fcfa;
+}
+
+.template-v2-form-card label,
+.template-v2-section-header label,
+.template-v2-section-description,
+.template-v2-question-card label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.template-v2-section {
+  background: #fbfdfc;
+}
+
+.template-v2-section-header,
+.template-v2-question-topline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.template-v2-question-list {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.template-v2-question-card {
+  border-color: #cfe0d8;
+  box-shadow: 0 8px 18px rgba(14, 31, 28, 0.05);
+}
+
+.template-v2-question-topline select {
+  min-width: 150px;
+}
+
+.template-v2-question-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-v2-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.template-v2-card-actions button {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 0.82rem;
+}
+
+.template-v2-inline-add {
+  width: 100%;
+  min-height: 42px;
+  color: #245f5b;
+  font-weight: 900;
+  background: #fff;
+}
+
+.template-v2-empty {
+  border-style: dashed;
+  background: #f8fcfa;
+}
+
+.template-v2-empty h3,
+.template-v2-empty p {
+  margin: 0;
+}
+
+.template-v2-empty p {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.template-v2-add-panel {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.template-v2-type-picker {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.template-v2-type-picker button {
+  display: grid;
+  gap: 3px;
+  min-height: 58px;
+  padding: 10px;
+  text-align: left;
+}
+
+.template-v2-type-picker small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.template-v2-action-bar {
+  position: sticky;
+  bottom: 10px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) repeat(4, auto);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #cfe0d8;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 14px 32px rgba(14, 31, 28, 0.14);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.template-v2-action-bar > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.template-v2-action-bar strong,
+.template-v2-action-bar span {
+  overflow-wrap: anywhere;
+}
+
+.template-v2-action-bar span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.template-v2-action-bar button {
+  min-height: 42px;
+  padding: 0 12px;
 }
 
 .template-submission-detail .staff-detail-list {
@@ -5269,6 +5521,10 @@ p {
   .template-editor-layout,
   .template-field-grid,
   .template-block-builder,
+  .template-editor-mode-switch,
+  .template-v2-section-header,
+  .template-v2-question-topline,
+  .template-v2-add-panel,
   .template-canvas-section-heading {
     grid-template-columns: 1fr;
   }
@@ -5375,6 +5631,50 @@ p {
 
   .template-starter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .template-v2-main,
+  .template-v2-test-panel,
+  .template-v2-form-card,
+  .template-v2-section,
+  .template-v2-question-card,
+  .template-v2-empty,
+  .template-v2-add-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .template-v2-card-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .template-v2-card-actions button {
+    min-height: 34px;
+    padding: 0 5px;
+    font-size: 0.74rem;
+  }
+
+  .template-v2-type-picker {
+    grid-template-columns: 1fr;
+  }
+
+  .template-v2-action-bar {
+    bottom: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 8px 8px 0 0;
+  }
+
+  .template-v2-action-bar > div {
+    grid-column: 1 / -1;
+  }
+
+  .template-v2-action-bar button {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 8px;
+    font-size: 0.82rem;
   }
 
   .staff-form-filter-toolbar {
