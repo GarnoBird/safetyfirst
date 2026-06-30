@@ -157,6 +157,66 @@ export async function createFormTemplate(body, staff) {
   return attachTemplateVersions(template, [draft]);
 }
 
+export async function duplicateFormTemplate(formType, staff) {
+  const source = await getTemplateByType(cleanFormType(formType));
+  assertTemplateEditable(source);
+  const sourceDraft = await getDraftVersion(source.id);
+  const sourcePublished = await getPublishedVersion(source.id);
+  const sourceSchema = sourceDraft?.schema || sourcePublished?.schema || createDefaultSchemaForTemplate(source);
+  const label = await uniqueDuplicateLabel(source.label);
+  const nextFormType = await uniqueFormTypeSlug(label);
+  const displayOrder = await nextDisplayOrder();
+  const template = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .insert({
+        form_type: nextFormType,
+        label,
+        description: source.description || "",
+        renderer_type: "template",
+        active: true,
+        worker_visible: false,
+        display_order: displayOrder,
+        created_by_staff_id: staff.id,
+        updated_by_staff_id: staff.id,
+      })
+      .select(TEMPLATE_SELECT)
+      .single(),
+    "Form template could not be duplicated.",
+  );
+  const schema = cleanTemplateSchema(
+    {
+      ...sourceSchema,
+      formType: template.form_type,
+      title: label,
+      description: sourceSchema?.description ?? source.description ?? "",
+    },
+    {
+      fallbackTitle: label,
+      formType: template.form_type,
+      allowEmpty: true,
+    },
+  );
+  const draft = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_template_versions")
+      .insert({
+        template_id: template.id,
+        form_type: template.form_type,
+        version_number: 1,
+        status: "draft",
+        schema,
+        notes: `Duplicated from ${source.form_type}.`,
+        created_by_staff_id: staff.id,
+        updated_by_staff_id: staff.id,
+      })
+      .select(VERSION_SELECT)
+      .single(),
+    "Duplicated form template draft could not be created.",
+  );
+  return attachTemplateVersions(template, [draft]);
+}
+
 export async function updateFormTemplate(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
   const bodyKeys = Object.keys(body || {});
@@ -593,6 +653,23 @@ async function uniqueFormTypeSlug(label) {
     if (!existing) return candidate;
   }
   throwBadRequest("Could not create a unique form URL.");
+}
+
+async function uniqueDuplicateLabel(label) {
+  const base = cleanString(`${label || "Form"} copy`, MAX_TEXT);
+  for (let index = 0; index < 100; index += 1) {
+    const candidate = index ? cleanString(`${base} ${index + 1}`, MAX_TEXT) : base;
+    const existing = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("id")
+        .eq("label", candidate)
+        .maybeSingle(),
+      "Form template could not be checked.",
+    );
+    if (!existing) return candidate;
+  }
+  throwBadRequest("Could not create a unique duplicate name.");
 }
 
 async function nextDisplayOrder() {

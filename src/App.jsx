@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import QRCode from "qrcode";
 import {
   DEFICIENCY_STATUSES,
   HAZARD_CATEGORIES,
@@ -68,6 +69,10 @@ const WikiApp = lazy(() => import("./WikiApp.jsx"));
 
 export default function App() {
   const routePath = useRoutePath();
+
+  if (routePath === "/") {
+    return <PublicLandingPage navigateTo={navigateTo} />;
+  }
 
   if (routePath === "/worker-sign-in-qr") {
     return <WorkerSignInQr navigateTo={navigateTo} />;
@@ -194,6 +199,70 @@ export default function App() {
   }
 
   return <SafetyFirstApp navigateTo={navigateTo} />;
+}
+
+function PublicLandingPage({ navigateTo }) {
+  return (
+    <main className="public-landing-page">
+      <nav className="public-landing-nav" aria-label="Public links">
+        <button type="button" onClick={() => navigateTo("/worker-login")}>
+          Company Login
+        </button>
+        <button type="button" onClick={() => navigateTo("/staff-login")}>
+          Staff
+        </button>
+      </nav>
+      <section className="public-landing-grid" aria-label="Worker QR links">
+        <LandingQrCard
+          label="Worker Sign-In"
+          path="/worker-sign-in"
+          navigateTo={navigateTo}
+        />
+        <LandingQrCard
+          label="Worker Sign-Out"
+          path="/worker-sign-out"
+          navigateTo={navigateTo}
+        />
+      </section>
+    </main>
+  );
+}
+
+function LandingQrCard({ label, navigateTo, path }) {
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const formUrl = useMemo(() => {
+    if (typeof window === "undefined") return path;
+    return new URL(path, window.location.origin).href;
+  }, [path]);
+
+  useEffect(() => {
+    let cancelled = false;
+    QRCode.toDataURL(formUrl, {
+      errorCorrectionLevel: "M",
+      margin: 2,
+      scale: 8,
+      width: 300,
+      color: {
+        dark: "#111111",
+        light: "#ffffff",
+      },
+    }).then((dataUrl) => {
+      if (!cancelled) setQrDataUrl(dataUrl);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [formUrl]);
+
+  return (
+    <article className="public-landing-card">
+      <h1>{label}</h1>
+      {qrDataUrl ? <img alt={`${label} QR code`} src={qrDataUrl} /> : <div className="public-qr-placeholder" />}
+      <button type="button" onClick={() => navigateTo(path)}>
+        Open form
+      </button>
+    </article>
+  );
 }
 
 function SafetyFirstApp({ navigateTo }) {

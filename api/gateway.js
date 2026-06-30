@@ -40,6 +40,7 @@ import {
 } from "./_lib/form-submissions.js";
 import {
   createFormTemplate,
+  duplicateFormTemplate,
   getFormTemplate,
   getPublishedWorkerFormTemplate,
   listFormTemplates,
@@ -927,6 +928,20 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
       metadata: { formType: parts[0], versionNumber: draft.version_number },
     });
     return sendJson(res, 200, { draft });
+  }
+  if (parts.length === 2 && parts[1] === "duplicate" && req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const template = await duplicateFormTemplate(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_duplicated",
+      targetType: "form_template",
+      targetId: template.form_type,
+      summary: `${staff.username} duplicated a form template.`,
+      metadata: { sourceFormType: parts[0], formType: template.form_type, label: template.label },
+    });
+    return sendJson(res, 201, { template });
   }
   if (parts.length === 2 && parts[1] === "publish" && req.method === "POST") {
     requireStaffRole(staff, ["owner", "admin"]);

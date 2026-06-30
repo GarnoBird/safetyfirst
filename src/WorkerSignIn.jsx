@@ -151,6 +151,50 @@ const TEMPLATE_BLOCK_GROUPS = [
     fields: ["dropdown", "multi_select", "checkbox"],
   },
 ];
+const TEMPLATE_V3_FIELD_GROUPS = [
+  {
+    id: "basics",
+    label: "Basics",
+    fields: [
+      { type: "instructions", title: "Instructions", hint: "Read-only text", icon: "i", label: "Instructions" },
+      { type: "short_text", title: "Short answer", hint: "One-line text", icon: "Ab", label: "" },
+      { type: "long_text", title: "Long answer", hint: "Multi-line notes", icon: "T", label: "" },
+      { type: "number", title: "Number", hint: "Numeric entry", icon: "#", label: "" },
+      { type: "date", title: "Date", hint: "Date picker", icon: "D", label: "Date", default: "today" },
+      { type: "time", title: "Time", hint: "Time picker", icon: "T", label: "Time", default: "now" },
+      { type: "yes_no", title: "Yes / No", hint: "Two-choice answer", icon: "Y/N", label: "" },
+      { type: "checkbox", title: "Confirmation", hint: "Required acknowledgement", icon: "OK", label: "I confirm this information is correct." },
+    ],
+  },
+  {
+    id: "choices",
+    label: "Choices",
+    fields: [
+      { type: "dropdown", title: "Dropdown", hint: "Choose one option", icon: "V", label: "", options: ["Option 1", "Option 2"] },
+      { type: "multi_select", title: "Multi-select chips", hint: "Choose multiple options", icon: "+", label: "", options: ["Option 1", "Option 2"] },
+    ],
+  },
+  {
+    id: "helpers",
+    label: "Safety Helpers",
+    fields: [
+      { type: "short_text", title: "Worker name", hint: "Prefill signed-in worker", icon: "W", label: "Worker name", default: "worker_name", required: true },
+      { type: "short_text", title: "Company", hint: "Company or subcontractor", icon: "Co", label: "Company" },
+      { type: "short_text", title: "Project", hint: "Project or site name", icon: "P", label: "Project" },
+      { type: "checkbox", title: "Final confirmation", hint: "Worker must check it", icon: "OK", label: "I confirm this form is complete.", required: true },
+    ],
+  },
+  {
+    id: "later",
+    label: "Coming Later",
+    fields: [
+      { title: "Media upload", hint: "Photo/PDF fields need backend support", icon: "M", disabled: true },
+      { title: "Editable table", hint: "Planned for a later schema version", icon: "Tbl", disabled: true },
+      { title: "Calculation", hint: "Planned for a later schema version", icon: "Calc", disabled: true },
+      { title: "Drawn signature", hint: "Typed confirmations are supported now", icon: "Sig", disabled: true },
+    ],
+  },
+];
 const TEMPLATE_STARTER_TEMPLATES = [
   {
     id: "blank",
@@ -5894,7 +5938,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [newFormOpen, setNewFormOpen] = useState(false);
   const [archivedOpen, setArchivedOpen] = useState(false);
   const [focusedTemplateType, setFocusedTemplateType] = useState("");
-  const [builderMode, setBuilderMode] = useState("v2");
+  const [builderMode, setBuilderMode] = useState("v3");
   const [draggedTemplateType, setDraggedTemplateType] = useState("");
   const [dragOverTemplateType, setDragOverTemplateType] = useState("");
   const [reordering, setReordering] = useState(false);
@@ -5973,16 +6017,41 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       setRows((current) => [payload.template, ...current]);
       setSelectedFormType(payload.template.form_type);
       setFocusedTemplateType(payload.template.form_type);
-      setBuilderMode("v2");
-      setDraftSchema(ensureTemplateSchemaHasStarterQuestion(payload.template.draftVersion?.schema));
+      setBuilderMode("v3");
+      setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
       setPreviewAnswers({});
       setNewFormName("");
       setNewFormOpen(false);
-      setMessage("New form draft created. Type the first question, then save and publish.");
+      setMessage("New blank form draft created. Add fields, then save and publish.");
     } catch (error) {
       setMessage(error.message);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const duplicateTemplate = async (template) => {
+    if (!template || template.renderer_type !== "template") return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${template.form_type}/duplicate`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      setRows((current) => [payload.template, ...current]);
+      setSelectedFormType(payload.template.form_type);
+      setFocusedTemplateType(payload.template.form_type);
+      setBuilderMode("v3");
+      setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
+      setPreviewAnswers({});
+      setMessage(`Duplicated ${template.label}. The copy is hidden from workers until published and shown.`);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -6311,6 +6380,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       : "Inactive"}
                 </small>
               </button>
+              {template.renderer_type === "template" ? (
+                <div className="template-card-actions">
+                  <button disabled={saving} type="button" onClick={() => duplicateTemplate(template)}>
+                    Duplicate
+                  </button>
+                </div>
+              ) : null}
               {canDragTemplateOrder ? (
                 <button
                   aria-label={`Drag ${template.label} to reorder forms`}
@@ -6404,6 +6480,14 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
               <div className="template-editor-mode-switch" aria-label="Form builder mode">
                 <button
+                  className={builderMode === "v3" ? "active" : ""}
+                  type="button"
+                  onClick={() => setBuilderMode("v3")}
+                >
+                  Builder V3
+                  <small>Laptop block editor</small>
+                </button>
+                <button
                   className={builderMode === "v2" ? "active" : ""}
                   type="button"
                   onClick={() => setBuilderMode("v2")}
@@ -6423,100 +6507,131 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
               <div className="template-editor-layout">
                 <div className="template-builder-stack">
-                  <section className="settings-section template-settings-card">
-                    <div className="settings-section-heading">
-                      <div>
-                        <h2>Template Settings</h2>
-                        <p>Worker URL: /forms/{selectedTemplate.form_type}</p>
-                      </div>
-                    </div>
-                    <label>
-                      <span>Form name</span>
-                      <input
-                        key={`label-${selectedTemplate.form_type}-${selectedTemplate.label}`}
-                        defaultValue={selectedTemplate.label}
-                        onBlur={(event) => {
-                          const label = event.target.value.trim();
-                          if (label && label !== selectedTemplate.label) {
-                            updateTemplateMeta({ label });
-                            setDraftSchema((current) => ({ ...current, title: label }));
-                          }
-                        }}
-                      />
-                    </label>
-                    <label>
-                      <span>Description</span>
-                      <textarea
-                        key={`description-${selectedTemplate.form_type}-${selectedTemplate.description || ""}`}
-                        rows="2"
-                        defaultValue={selectedTemplate.description || ""}
-                        onBlur={(event) => {
-                          if (event.target.value.trim() !== (selectedTemplate.description || "")) {
-                            updateTemplateMeta({ description: event.target.value });
-                          }
-                        }}
-                      />
-                    </label>
-                    <label className="settings-checkbox">
-                      <input
-                        checked={Boolean(selectedTemplate.active)}
-                        disabled={saving || Boolean(selectedTemplate.archived_at)}
-                        type="checkbox"
-                        onChange={(event) => updateTemplateMeta({ active: event.target.checked })}
-                      />
-                      <span>
-                        Active template
-                        <small>Inactive forms are hidden from workers.</small>
-                      </span>
-                    </label>
-                    <label
-                      className={
-                        selectedTemplate.publishedVersion && selectedTemplate.active && !selectedTemplate.archived_at
-                          ? "settings-checkbox"
-                          : "settings-checkbox disabled"
+                  {builderMode === "v3" ? (
+                    <TemplateSchemaEditorV3
+                      active={Boolean(selectedTemplate.active)}
+                      archived={Boolean(selectedTemplate.archived_at)}
+                      hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
+                      onArchiveToggle={(archived) =>
+                        updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
                       }
-                    >
-                      <input
-                        checked={Boolean(selectedTemplate.worker_visible)}
-                        disabled={
-                          !selectedTemplate.publishedVersion ||
-                          !selectedTemplate.active ||
-                          saving ||
-                          Boolean(selectedTemplate.archived_at)
-                        }
-                        type="checkbox"
-                        onChange={(event) => updateTemplateMeta({ workerVisible: event.target.checked })}
-                      />
-                      <span>
-                        Show to workers
-                        <small>
-                          {selectedTemplate.publishedVersion
-                            ? "Published workers will see this form on their form screen."
-                            : "Publish this form before showing it to workers."}
-                        </small>
-                      </span>
-                    </label>
-                    <div className="staff-card-actions">
-                      {selectedTemplate.archived_at ? (
-                        <button type="button" onClick={() => updateTemplateMeta({ archived: false, active: true })}>
-                          Restore archived form
-                        </button>
-                      ) : (
-                        <button
-                          className="danger-button"
-                          type="button"
-                          onClick={() => {
-                            if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
-                              updateTemplateMeta({ archived: true });
-                            }
-                          }}
+                      onChange={setDraftSchema}
+                      onDuplicate={() => duplicateTemplate(selectedTemplate)}
+                      onPreviewAnswersChange={setPreviewAnswers}
+                      onPublish={publishDraft}
+                      onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
+                      onSave={saveDraft}
+                      onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
+                      onToggleWorkerVisible={() =>
+                        updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
+                      }
+                      previewAnswers={previewAnswers}
+                      previewWorker={staffToPreviewWorker(staff)}
+                      publishing={publishing}
+                      saving={saving}
+                      schema={draftSchema}
+                      selectedTemplate={selectedTemplate}
+                      workerVisible={Boolean(selectedTemplate.worker_visible)}
+                    />
+                  ) : (
+                    <>
+                      <section className="settings-section template-settings-card">
+                        <div className="settings-section-heading">
+                          <div>
+                            <h2>Template Settings</h2>
+                            <p>Worker URL: /forms/{selectedTemplate.form_type}</p>
+                          </div>
+                        </div>
+                        <label>
+                          <span>Form name</span>
+                          <input
+                            key={`label-${selectedTemplate.form_type}-${selectedTemplate.label}`}
+                            defaultValue={selectedTemplate.label}
+                            onBlur={(event) => {
+                              const label = event.target.value.trim();
+                              if (label && label !== selectedTemplate.label) {
+                                updateTemplateMeta({ label });
+                                setDraftSchema((current) => ({ ...current, title: label }));
+                              }
+                            }}
+                          />
+                        </label>
+                        <label>
+                          <span>Description</span>
+                          <textarea
+                            key={`description-${selectedTemplate.form_type}-${selectedTemplate.description || ""}`}
+                            rows="2"
+                            defaultValue={selectedTemplate.description || ""}
+                            onBlur={(event) => {
+                              if (event.target.value.trim() !== (selectedTemplate.description || "")) {
+                                updateTemplateMeta({ description: event.target.value });
+                              }
+                            }}
+                          />
+                        </label>
+                        <label className="settings-checkbox">
+                          <input
+                            checked={Boolean(selectedTemplate.active)}
+                            disabled={saving || Boolean(selectedTemplate.archived_at)}
+                            type="checkbox"
+                            onChange={(event) => updateTemplateMeta({ active: event.target.checked })}
+                          />
+                          <span>
+                            Active template
+                            <small>Inactive forms are hidden from workers.</small>
+                          </span>
+                        </label>
+                        <label
+                          className={
+                            selectedTemplate.publishedVersion && selectedTemplate.active && !selectedTemplate.archived_at
+                              ? "settings-checkbox"
+                              : "settings-checkbox disabled"
+                          }
                         >
-                          Archive form
-                        </button>
-                      )}
-                    </div>
-                  </section>
-                  {builderMode === "v2" ? (
+                          <input
+                            checked={Boolean(selectedTemplate.worker_visible)}
+                            disabled={
+                              !selectedTemplate.publishedVersion ||
+                              !selectedTemplate.active ||
+                              saving ||
+                              Boolean(selectedTemplate.archived_at)
+                            }
+                            type="checkbox"
+                            onChange={(event) => updateTemplateMeta({ workerVisible: event.target.checked })}
+                          />
+                          <span>
+                            Show to workers
+                            <small>
+                              {selectedTemplate.publishedVersion
+                                ? "Published workers will see this form on their form screen."
+                                : "Publish this form before showing it to workers."}
+                            </small>
+                          </span>
+                        </label>
+                        <div className="staff-card-actions">
+                          <button disabled={saving} type="button" onClick={() => duplicateTemplate(selectedTemplate)}>
+                            Duplicate form
+                          </button>
+                          {selectedTemplate.archived_at ? (
+                            <button type="button" onClick={() => updateTemplateMeta({ archived: false, active: true })}>
+                              Restore archived form
+                            </button>
+                          ) : (
+                            <button
+                              className="danger-button"
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
+                                  updateTemplateMeta({ archived: true });
+                                }
+                              }}
+                            >
+                              Archive form
+                            </button>
+                          )}
+                        </div>
+                      </section>
+                      {builderMode === "v2" ? (
                     <TemplateSchemaEditorV2
                       active={Boolean(selectedTemplate.active)}
                       archived={Boolean(selectedTemplate.archived_at)}
@@ -6535,7 +6650,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                         updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
                       }
                     />
-                  ) : (
+                      ) : (
                     <TemplateSchemaEditor
                       previewAnswers={previewAnswers}
                       previewWorker={staffToPreviewWorker(staff)}
@@ -6543,6 +6658,8 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       onChange={setDraftSchema}
                       onPreviewAnswersChange={setPreviewAnswers}
                     />
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -7076,6 +7193,629 @@ export function StaffActionItemsPage({ navigateTo }) {
         />
       ) : null}
     </StaffShell>
+  );
+}
+
+function TemplateSchemaEditorV3({
+  active,
+  archived,
+  hasPublishedVersion,
+  onArchiveToggle,
+  onChange,
+  onDuplicate,
+  onPreviewAnswersChange,
+  onPublish,
+  onRestorePrevious,
+  onSave,
+  onTemplateMetaChange,
+  onToggleWorkerVisible,
+  previewAnswers = {},
+  previewWorker,
+  publishing,
+  saving,
+  schema,
+  selectedTemplate,
+  workerVisible,
+}) {
+  const current = normalizeClientTemplateSchema(schema);
+  const sections = Array.isArray(current.sections) ? current.sections : [];
+  const fieldCount = collectClientTemplateFields(current).length;
+  const [selected, setSelected] = useState({ kind: "header" });
+  const [view, setView] = useState("editor");
+  const [fieldPickerOpen, setFieldPickerOpen] = useState(false);
+  const [fieldPickerTab, setFieldPickerTab] = useState("basics");
+  const [optionDraft, setOptionDraft] = useState("");
+  const selectedSection =
+    selected.kind === "section" || selected.kind === "field"
+      ? sections[selected.sectionIndex]
+      : null;
+  const selectedField = selected.kind === "field"
+    ? selectedSection?.fields?.[selected.fieldIndex]
+    : null;
+  const activeSelection =
+    selected.kind === "field" && selectedField
+      ? selected
+      : selected.kind === "section" && selectedSection
+        ? selected
+        : { kind: "header" };
+  const targetSectionIndex =
+    activeSelection.kind === "field" || activeSelection.kind === "section"
+      ? activeSelection.sectionIndex
+      : Math.max(sections.length - 1, 0);
+  const activeFieldGroup =
+    TEMPLATE_V3_FIELD_GROUPS.find((group) => group.id === fieldPickerTab) || TEMPLATE_V3_FIELD_GROUPS[0];
+  const canToggleVisibility = hasPublishedVersion && active && !archived && !saving;
+
+  useEffect(() => {
+    setOptionDraft("");
+  }, [selectedField?.id]);
+
+  const updateSchema = (patch) => onChange({ ...current, ...patch });
+  const updateSection = (sectionIndex, patch) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex ? { ...section, ...patch } : section,
+      ),
+    });
+  };
+  const updateField = (sectionIndex, fieldIndex, patch) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
+              fields: section.fields.map((field, nextIndex) =>
+                nextIndex === fieldIndex ? normalizeTemplateField({ ...field, ...patch }) : field,
+              ),
+            }
+          : section,
+      ),
+    });
+  };
+  const selectBlock = (nextSelection) => {
+    setSelected(nextSelection);
+    setView("editor");
+  };
+  const addSection = () => {
+    const sectionIndex = current.sections.length;
+    onChange({
+      ...current,
+      sections: [...current.sections, createTemplateSection(sectionIndex + 1, { title: "" })],
+    });
+    selectBlock({ kind: "section", sectionIndex });
+  };
+  const removeSection = (sectionIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.filter((_, index) => index !== sectionIndex),
+    });
+    setSelected({ kind: "header" });
+  };
+  const moveSection = (sectionIndex, direction) => {
+    onChange({ ...current, sections: moveArrayItem(current.sections, sectionIndex, direction) });
+    setSelected({ kind: "section", sectionIndex: sectionIndex + direction });
+  };
+  const addFieldFromConfig = (fieldConfig, sectionIndex = targetSectionIndex) => {
+    if (!fieldConfig || fieldConfig.disabled) return;
+    const hasSections = current.sections.length > 0;
+    const safeSectionIndex = hasSections
+      ? Math.max(0, Math.min(sectionIndex, current.sections.length - 1))
+      : 0;
+    const sourceSections = hasSections ? current.sections : [createTemplateSection(1, { title: "" })];
+    const target = sourceSections[safeSectionIndex];
+    const fieldIndex = target.fields.length;
+    const field = createTemplateField(fieldIndex + 1, fieldConfig.type, {
+      label: fieldConfig.label ?? "",
+      required: Boolean(fieldConfig.required),
+      default: fieldConfig.default || "",
+      options: fieldConfig.options || (TEMPLATE_OPTION_FIELD_TYPES.has(fieldConfig.type) ? ["Option 1", "Option 2"] : []),
+    });
+    onChange({
+      ...current,
+      sections: sourceSections.map((section, index) =>
+        index === safeSectionIndex
+          ? { ...section, fields: [...section.fields, field] }
+          : section,
+      ),
+    });
+    setSelected({ kind: "field", sectionIndex: safeSectionIndex, fieldIndex });
+    setView("editor");
+    setFieldPickerOpen(false);
+  };
+  const duplicateField = (sectionIndex, fieldIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) => {
+        if (index !== sectionIndex) return section;
+        const source = section.fields[fieldIndex];
+        const duplicate = normalizeTemplateField({
+          ...source,
+          id: `${source.id || "field"}_${Date.now()}`,
+          label: source.label ? `${source.label} copy` : "",
+        });
+        const fields = [...section.fields];
+        fields.splice(fieldIndex + 1, 0, duplicate);
+        return { ...section, fields };
+      }),
+    });
+    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
+  };
+  const removeField = (sectionIndex, fieldIndex) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: section.fields.filter((_, nextIndex) => nextIndex !== fieldIndex) }
+          : section,
+      ),
+    });
+    setSelected({ kind: "section", sectionIndex });
+  };
+  const moveField = (sectionIndex, fieldIndex, direction) => {
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: moveArrayItem(section.fields, fieldIndex, direction) }
+          : section,
+      ),
+    });
+    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
+  };
+  const updateSelectedFieldType = (type) => {
+    if (!selectedField || activeSelection.kind !== "field") return;
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      type,
+      options:
+        TEMPLATE_OPTION_FIELD_TYPES.has(type) && !(selectedField.options || []).length
+          ? ["Option 1", "Option 2"]
+          : selectedField.options,
+    });
+  };
+  const addOptionToSelectedField = () => {
+    if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
+    const option = optionDraft.trim();
+    if (!option || (selectedField.options || []).includes(option)) {
+      setOptionDraft("");
+      return;
+    }
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      options: [...(selectedField.options || []), option],
+    });
+    setOptionDraft("");
+  };
+  const removeSelectedFieldOption = (option) => {
+    if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      options: (selectedField.options || []).filter((item) => item !== option),
+    });
+  };
+  const syncTemplateName = () => {
+    const label = String(current.title || "").trim();
+    if (label && label !== selectedTemplate.label) onTemplateMetaChange({ label });
+  };
+  const syncTemplateDescription = () => {
+    if ((current.description || "") !== (selectedTemplate.description || "")) {
+      onTemplateMetaChange({ description: current.description || "" });
+    }
+  };
+
+  return (
+    <div className="template-v3-builder">
+      <div className="template-v3-mobile-lock">
+        <h2>Form Builder V3 is designed for laptop or desktop editing.</h2>
+        <p>Please use a larger screen to build or edit form templates. Worker form filling still works on mobile.</p>
+      </div>
+
+      <div className="template-v3-workspace">
+        <section className="template-v3-main">
+          <div className="template-v3-toolbar">
+            <div className="template-v3-tabs" role="tablist" aria-label="Builder V3 views">
+              {[
+                ["editor", "Editor"],
+                ["options", "Options"],
+                ["preview", "Preview"],
+              ].map(([id, label]) => (
+                <button
+                  className={view === id ? "active" : ""}
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    setView(id);
+                    if (id === "options") setSelected({ kind: "header" });
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+              New Field +
+            </button>
+          </div>
+
+          {view === "preview" ? (
+            <section className="template-v3-preview-page">
+              <div className="template-v3-page-header">
+                <span>Preview</span>
+                <h2>{current.title || selectedTemplate.label}</h2>
+                {current.description ? <p>{current.description}</p> : null}
+              </div>
+              {fieldCount ? (
+                <TemplateFormFields
+                  answers={previewAnswers}
+                  schema={current}
+                  worker={previewWorker}
+                  onChange={onPreviewAnswersChange}
+                />
+              ) : (
+                <div className="template-v3-empty-page">
+                  <h2>No fields yet</h2>
+                  <p>Add fields before previewing the worker form.</p>
+                  <button type="button" onClick={() => setFieldPickerOpen(true)}>New Field +</button>
+                </div>
+              )}
+            </section>
+          ) : view === "options" ? (
+            <section className="template-v3-options-page">
+              <span>Options</span>
+              <h2>Template settings are on the right.</h2>
+              <p>Set the form name, description, worker visibility, and publishing actions from the options panel.</p>
+              <button type="button" onClick={() => setSelected({ kind: "header" })}>
+                Edit template options
+              </button>
+            </section>
+          ) : (
+            <section className="template-v3-canvas" aria-label="Builder V3 canvas">
+              <button
+                className={activeSelection.kind === "header" ? "template-v3-form-header selected" : "template-v3-form-header"}
+                type="button"
+                onClick={() => selectBlock({ kind: "header" })}
+              >
+                <span>Form header</span>
+                <strong>{current.title || selectedTemplate.label}</strong>
+                <small>{current.description || "Click to edit form name and description."}</small>
+              </button>
+
+              {!sections.length ? (
+                <div className="template-v3-empty-page">
+                  <span>Blank template</span>
+                  <h2>Start with your first field</h2>
+                  <p>Click New Field + to add questions, instructions, dates, choices, and confirmations.</p>
+                  <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                    New Field +
+                  </button>
+                </div>
+              ) : null}
+
+              {sections.map((section, sectionIndex) => (
+                <article
+                  className={
+                    activeSelection.kind === "section" && activeSelection.sectionIndex === sectionIndex
+                      ? "template-v3-section selected"
+                      : "template-v3-section"
+                  }
+                  key={section.id || sectionIndex}
+                >
+                  <div className="template-v3-section-head">
+                    <button type="button" onClick={() => selectBlock({ kind: "section", sectionIndex })}>
+                      <span>Section</span>
+                      <strong>{section.title || `Section ${sectionIndex + 1}`}</strong>
+                      <small>{section.description || `${section.fields.length} field${section.fields.length === 1 ? "" : "s"}`}</small>
+                    </button>
+                    <div>
+                      <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
+                      <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+                      <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Delete</button>
+                    </div>
+                  </div>
+
+                  <div className="template-v3-field-list">
+                    {(section.fields || []).map((field, fieldIndex) => (
+                      <article
+                        className={
+                          activeSelection.kind === "field" &&
+                          activeSelection.sectionIndex === sectionIndex &&
+                          activeSelection.fieldIndex === fieldIndex
+                            ? "template-v3-field-card selected"
+                            : "template-v3-field-card"
+                        }
+                        key={field.id || fieldIndex}
+                      >
+                        <button type="button" onClick={() => selectBlock({ kind: "field", sectionIndex, fieldIndex })}>
+                          <span>{templateFieldTypeLabel(field.type)}</span>
+                          <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
+                          <small>
+                            {field.required ? "Required" : "Optional"}
+                            {field.remember ? " / remembered" : ""}
+                          </small>
+                        </button>
+                        <div className="template-v3-field-actions">
+                          <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
+                          <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                          <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
+                          <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Delete</button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <button className="template-v3-add-row" type="button" onClick={() => setFieldPickerOpen(true)}>
+                    New Field +
+                  </button>
+                </article>
+              ))}
+
+              {sections.length ? (
+                <button className="template-v3-add-section" type="button" onClick={addSection}>
+                  New Section +
+                </button>
+              ) : null}
+            </section>
+          )}
+        </section>
+
+        <aside className="template-v3-sidebar" aria-label="Builder V3 settings">
+          <section className="template-v3-side-card">
+            <div className="template-v3-side-heading">
+              <span>Options</span>
+              <h2>Template</h2>
+            </div>
+            <label>
+              <span>Form name</span>
+              <input
+                value={current.title || ""}
+                onBlur={syncTemplateName}
+                onChange={(event) => updateSchema({ title: event.target.value })}
+              />
+            </label>
+            <label>
+              <span>Description</span>
+              <textarea
+                rows="4"
+                value={current.description || ""}
+                onBlur={syncTemplateDescription}
+                onChange={(event) => updateSchema({ description: event.target.value })}
+              />
+            </label>
+            <label className="settings-checkbox compact">
+              <input
+                checked={Boolean(active)}
+                disabled={saving || archived}
+                type="checkbox"
+                onChange={(event) => onTemplateMetaChange({ active: event.target.checked })}
+              />
+              <span>
+                Active template
+                <small>Inactive forms are hidden from workers.</small>
+              </span>
+            </label>
+            <label className={canToggleVisibility ? "settings-checkbox compact" : "settings-checkbox compact disabled"}>
+              <input
+                checked={Boolean(workerVisible)}
+                disabled={!canToggleVisibility}
+                type="checkbox"
+                onChange={onToggleWorkerVisible}
+              />
+              <span>
+                Show to workers
+                <small>{hasPublishedVersion ? "Workers see this only when active." : "Publish before showing."}</small>
+              </span>
+            </label>
+            <div className="template-v3-status-grid">
+              <span>{hasPublishedVersion ? "Published" : "Draft only"}</span>
+              <span>{workerVisible ? "Visible" : "Hidden"}</span>
+              <span>{archived ? "Archived" : active ? "Active" : "Inactive"}</span>
+            </div>
+            <div className="template-v3-actions">
+              <button disabled={saving} type="button" onClick={onSave}>{saving ? "Saving..." : "Save draft"}</button>
+              <button className="primary-button" disabled={publishing} type="button" onClick={onPublish}>
+                {publishing ? "Publishing..." : "Publish"}
+              </button>
+              <button type="button" onClick={() => setView("preview")}>Preview</button>
+              <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button>
+              {onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
+              <button
+                className={archived ? "" : "danger-button"}
+                type="button"
+                onClick={() => {
+                  if (archived) {
+                    onArchiveToggle(false);
+                  } else if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
+                    onArchiveToggle(true);
+                  }
+                }}
+              >
+                {archived ? "Restore archived" : "Archive form"}
+              </button>
+            </div>
+            <p className="template-v3-worker-url">Worker URL: /forms/{selectedTemplate.form_type}</p>
+          </section>
+
+          <section className="template-v3-side-card">
+            <div className="template-v3-side-heading">
+              <span>Selected Block</span>
+              <h2>
+                {activeSelection.kind === "field"
+                  ? "Field"
+                  : activeSelection.kind === "section"
+                    ? "Section"
+                    : "Form header"}
+              </h2>
+            </div>
+
+            {activeSelection.kind === "header" ? (
+              <p className="template-v3-help-text">Select a section or field on the canvas to edit its block settings.</p>
+            ) : null}
+
+            {activeSelection.kind === "section" && selectedSection ? (
+              <div className="template-v3-inspector-body">
+                <label>
+                  <span>Section title</span>
+                  <input
+                    value={selectedSection.title || ""}
+                    onChange={(event) => updateSection(activeSelection.sectionIndex, { title: event.target.value })}
+                  />
+                </label>
+                <label>
+                  <span>Section description</span>
+                  <textarea
+                    rows="3"
+                    value={selectedSection.description || ""}
+                    onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            {activeSelection.kind === "field" && selectedField ? (
+              <div className="template-v3-inspector-body">
+                <label>
+                  <span>Field type</span>
+                  <select value={selectedField.type} onChange={(event) => updateSelectedFieldType(event.target.value)}>
+                    {TEMPLATE_FIELD_TYPES.map((type) => (
+                      <option key={type.id} value={type.id}>{type.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span>{selectedField.type === "instructions" ? "Instruction text" : "Question label"}</span>
+                  <input
+                    value={selectedField.label || ""}
+                    onChange={(event) =>
+                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                        label: event.target.value,
+                        id: slugifyTemplateId(event.target.value) || selectedField.id,
+                      })
+                    }
+                  />
+                </label>
+                {selectedField.type !== "instructions" ? (
+                  <label>
+                    <span>Helper text</span>
+                    <input
+                      value={selectedField.helperText || ""}
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { helperText: event.target.value })
+                      }
+                    />
+                  </label>
+                ) : null}
+                {selectedField.type !== "instructions" ? (
+                  <label className="settings-checkbox compact">
+                    <input
+                      checked={Boolean(selectedField.required)}
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { required: event.target.checked })
+                      }
+                    />
+                    <span>Required</span>
+                  </label>
+                ) : null}
+                {TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type) ? (
+                  <div className="template-options-builder">
+                    <span>Options</span>
+                    <div className="template-option-chip-row">
+                      {(selectedField.options || []).map((option) => (
+                        <button key={option} type="button" onClick={() => removeSelectedFieldOption(option)}>
+                          <span>{option}</span>
+                          <strong aria-hidden="true">x</strong>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="template-option-entry">
+                      <input
+                        placeholder="Add option"
+                        value={optionDraft}
+                        onChange={(event) => setOptionDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            addOptionToSelectedField();
+                          }
+                        }}
+                      />
+                      <button type="button" onClick={addOptionToSelectedField}>Add</button>
+                    </div>
+                  </div>
+                ) : null}
+                {selectedField.type !== "instructions" ? (
+                  <label className="settings-checkbox compact">
+                    <input
+                      checked={Boolean(selectedField.remember)}
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { remember: event.target.checked })
+                      }
+                    />
+                    <span>Remember last value</span>
+                  </label>
+                ) : null}
+                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+                  <label>
+                    <span>Default value</span>
+                    <select
+                      value={selectedField.default || ""}
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
+                      }
+                    >
+                      <option value="">Blank</option>
+                      <option value="worker_name">Worker name</option>
+                      {selectedField.type === "date" ? <option value="today">Today</option> : null}
+                      {selectedField.type === "time" ? <option value="now">Current time</option> : null}
+                    </select>
+                  </label>
+                ) : null}
+              </div>
+            ) : null}
+          </section>
+        </aside>
+      </div>
+
+      {fieldPickerOpen ? (
+        <div className="template-v3-modal-backdrop" role="presentation">
+          <section className="template-v3-field-modal" role="dialog" aria-modal="true" aria-label="New field">
+            <div className="template-v3-modal-head">
+              <h2>New Field</h2>
+              <button aria-label="Close new field picker" type="button" onClick={() => setFieldPickerOpen(false)}>
+                X
+              </button>
+            </div>
+            <div className="template-v3-modal-tabs" role="tablist" aria-label="Field groups">
+              {TEMPLATE_V3_FIELD_GROUPS.map((group) => (
+                <button
+                  className={group.id === fieldPickerTab ? "active" : ""}
+                  key={group.id}
+                  type="button"
+                  onClick={() => setFieldPickerTab(group.id)}
+                >
+                  {group.label}
+                </button>
+              ))}
+            </div>
+            <div className="template-v3-field-grid">
+              {activeFieldGroup.fields.map((field) => (
+                <button
+                  className={field.disabled ? "disabled" : ""}
+                  disabled={field.disabled}
+                  key={`${activeFieldGroup.id}-${field.title}`}
+                  type="button"
+                  onClick={() => addFieldFromConfig(field)}
+                >
+                  <span>{field.icon}</span>
+                  <strong>{field.title}</strong>
+                  <small>{field.hint}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
