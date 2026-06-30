@@ -5929,7 +5929,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
 export function StaffFormTemplatesPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
-  const canManageTemplates = isAdminOrOwner(staff);
+  const canManageTemplates = Boolean(staff);
   const [rows, setRows] = useState([]);
   const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
   const [draftSchema, setDraftSchema] = useState(null);

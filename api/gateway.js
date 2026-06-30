@@ -881,7 +881,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { rows: await listFormTemplates() });
   }
   if (!parts.length && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const template = await createFormTemplate(await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -898,7 +897,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { template: await getFormTemplate(parts[0]) });
   }
   if (parts.length === 1 && req.method === "PATCH") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const template = await updateFormTemplate(parts[0], await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -916,7 +914,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { template });
   }
   if (parts.length === 2 && parts[1] === "draft" && req.method === "PATCH") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const draft = await saveFormTemplateDraft(parts[0], await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -930,7 +927,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { draft });
   }
   if (parts.length === 2 && parts[1] === "duplicate" && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const template = await duplicateFormTemplate(parts[0], staff);
     await recordAuditEvent({
       req,
@@ -944,7 +940,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 201, { template });
   }
   if (parts.length === 2 && parts[1] === "publish" && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const published = await publishFormTemplateDraft(parts[0], staff);
     await recordAuditEvent({
       req,
@@ -958,7 +953,6 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { published });
   }
   if (parts.length === 2 && parts[1] === "restore" && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const draft = await restoreFormTemplateVersion(parts[0], await readJson(req), staff);
     await recordAuditEvent({
       req,
