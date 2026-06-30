@@ -1268,7 +1268,7 @@ export function StaffHomePage({ navigateTo }) {
               : `${counts.signedIn} on site, ${counts.signedOut} signed out, ${counts.all} total today.`
           }
           title="Who's Here"
-          onAction={() => navigateTo("/staff/sign-ins")}
+          onAction={() => navigateTo("/staff/sign-ins/company")}
         >
           <div className="staff-mini-metrics">
             <span><strong>{counts.signedIn}</strong> On site</span>
