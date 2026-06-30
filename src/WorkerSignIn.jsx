@@ -1944,15 +1944,25 @@ export function StaffSignInsPage({ navigateTo }) {
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
   const [group, setGroup] = useState("none");
+  const [companyFilter, setCompanyFilter] = useState("");
   const [search, setSearch] = useState("");
   const [selectedSignIn, setSelectedSignIn] = useState(null);
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
+  const companyOptions = useMemo(
+    () => getCheckedInCompanyOptions(records.rows),
+    [records.rows],
+  );
+
   const visibleRows = useMemo(
-    () => filterRowsBySearch(records.rows, search),
-    [records.rows, search],
+    () => {
+      const searchedRows = filterRowsBySearch(records.rows, search);
+      if (group !== "company" || !companyFilter) return searchedRows;
+      return searchedRows.filter((row) => row.company === companyFilter);
+    },
+    [companyFilter, group, records.rows, search],
   );
 
   const visibleGroups = useMemo(
@@ -1984,6 +1994,16 @@ export function StaffSignInsPage({ navigateTo }) {
       active = false;
     };
   }, [date, dir, group, sort, staff]);
+
+  useEffect(() => {
+    if (group !== "company") {
+      setCompanyFilter("");
+      return;
+    }
+    if (companyFilter && !companyOptions.includes(companyFilter)) {
+      setCompanyFilter("");
+    }
+  }, [companyFilter, companyOptions, group]);
 
   const changeSortOption = (value) => {
     const [field, direction] = value.split(":");
@@ -2041,6 +2061,17 @@ export function StaffSignInsPage({ navigateTo }) {
             <option value="company">Company</option>
           </select>
         </label>
+        {group === "company" ? (
+          <label className="field">
+            <span>Company</span>
+            <select value={companyFilter} onChange={(event) => setCompanyFilter(event.target.value)}>
+              <option value="">All companies</option>
+              {companyOptions.map((company) => (
+                <option key={company} value={company}>{company}</option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <div className="staff-actions staff-report-buttons">
           <a className="staff-report-button" href={exportUrl("csv")}>
             Export CSV
@@ -2091,6 +2122,17 @@ export function StaffSignInsPage({ navigateTo }) {
             <option value="company">Company</option>
           </select>
         </label>
+        {group === "company" ? (
+          <label className="field staff-group-field">
+            <span>Company</span>
+            <select value={companyFilter} onChange={(event) => setCompanyFilter(event.target.value)}>
+              <option value="">All companies</option>
+              {companyOptions.map((company) => (
+                <option key={company} value={company}>{company}</option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <details className="staff-export-menu">
           <summary>Export</summary>
           <div className="staff-export-menu-panel">
@@ -13352,6 +13394,15 @@ function filterRowsBySearch(rows, search) {
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query)),
   );
+}
+
+function getCheckedInCompanyOptions(rows) {
+  return [...new Set(
+    rows
+      .filter(isSignedIn)
+      .map((row) => String(row.company || "").trim())
+      .filter(Boolean),
+  )].sort((a, b) => a.localeCompare(b));
 }
 
 function summarizeCompanies(rows) {
