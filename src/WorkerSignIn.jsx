@@ -5078,7 +5078,7 @@ export function StaffWorkersPage({ navigateTo }) {
   return (
     <StaffShell active="workers" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      <section className="staff-form-admin-grid">
+      <section className={canManageWorkers ? "staff-form-admin-grid" : "staff-form-admin-grid view-only"}>
         {canManageWorkers ? (
           <form className="staff-admin-form" onSubmit={saveWorker}>
             <h2>{editingId ? "Edit worker" : "Create worker"}</h2>
