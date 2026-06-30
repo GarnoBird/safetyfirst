@@ -712,7 +712,9 @@ async function handleStaffSubmissions(req, res, staff, parts) {
   }
   if (parts.length === 1 && req.method === "GET") {
     const submission = await getSubmissionById(parts[0], { includeDeleted: true });
-    const actionItems = await getActionItemsForSubmission(parts[0]);
+    const actionItems = ["owner", "admin"].includes(staff.role)
+      ? await getActionItemsForSubmission(parts[0])
+      : [];
     return sendJson(res, 200, { submission: { ...submission, action_items: actionItems } });
   }
   if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
@@ -782,11 +784,11 @@ async function handleStaffSubmissions(req, res, staff, parts) {
 }
 
 async function handleStaffActionItems(req, res, staff, parts) {
+  requireStaffRole(staff, ["owner", "admin"]);
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, await listActionItems(parseQuery(req)));
   }
   if (!parts.length && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const item = await createActionItem(await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -800,7 +802,6 @@ async function handleStaffActionItems(req, res, staff, parts) {
     return sendJson(res, 201, { item });
   }
   if (parts.length === 1 && parts[0] === "bulk" && req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const result = await bulkUpdateActionItems(await readJson(req), staff);
     await recordAuditEvent({
       req,
@@ -829,7 +830,6 @@ async function handleStaffActionItems(req, res, staff, parts) {
     return sendJson(res, 200, { item });
   }
   if (parts.length === 1 && req.method === "DELETE") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const result = await deleteActionItem(parts[0], staff);
     await recordAuditEvent({
       req,

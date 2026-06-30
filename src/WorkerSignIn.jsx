@@ -20,7 +20,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
   },
   { id: "forms", label: "FORMS", path: "/staff/forms" },
   { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
-  { id: "action-items", label: "ACTIONS", path: "/staff/action-items" },
+  { id: "action-items", label: "ACTIONS", path: "/staff/action-items", adminOnly: true },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "USERS", path: "/staff/users", adminOnly: true },
   { id: "backups", label: "BACKUPS", path: "/staff/backups", adminOnly: true },
@@ -6805,8 +6805,13 @@ export function StaffActionItemsPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadItems();
-  }, [staff]);
+    if (!staff) return;
+    if (!canManage) {
+      navigateTo("/staff/home");
+      return;
+    }
+    loadItems();
+  }, [staff, canManage, navigateTo]);
 
   const updateFilter = (field, value) => {
     setFilters((current) => ({ ...current, [field]: value }));
@@ -7065,7 +7070,7 @@ export function StaffActionItemsPage({ navigateTo }) {
     }
   };
 
-  if (!staff) return <StaffLoadingScreen />;
+  if (!staff || !canManage) return <StaffLoadingScreen />;
 
   const summary = records.summary || {};
 
