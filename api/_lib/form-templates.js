@@ -424,7 +424,7 @@ export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = 
       fieldCount += fields.length;
       return {
         id: cleanId(section?.id) || `section_${sectionIndex + 1}`,
-        title: cleanString(section?.title, MAX_TEXT) || `Section ${sectionIndex + 1}`,
+        title: cleanString(section?.title, MAX_TEXT),
         description: cleanString(section?.description, MAX_TEXT),
         fields,
       };
