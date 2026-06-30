@@ -1943,8 +1943,8 @@ export function StaffSignInsPage({ navigateTo }) {
   const [date, setDate] = useStaffPageDate();
   const [sort, setSort] = useState("signed_in_at");
   const [dir, setDir] = useState("asc");
-  const [group, setGroup] = useState("none");
-  const [companyFilter, setCompanyFilter] = useState("");
+  const [group, setGroup] = useState(readStaffRosterGroupFromUrl);
+  const [companyFilter, setCompanyFilter] = useState(readStaffRosterCompanyFromUrl);
   const [search, setSearch] = useState("");
   const [selectedSignIn, setSelectedSignIn] = useState(null);
   const [records, setRecords] = useState({ rows: [], groups: [] });
@@ -2000,10 +2000,31 @@ export function StaffSignInsPage({ navigateTo }) {
       setCompanyFilter("");
       return;
     }
-    if (companyFilter && !companyOptions.includes(companyFilter)) {
+    if (!loading && companyFilter && !companyOptions.includes(companyFilter)) {
       setCompanyFilter("");
     }
-  }, [companyFilter, companyOptions, group]);
+  }, [companyFilter, companyOptions, group, loading]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const nextGroup = group === "company" || group === "trade" ? group : "";
+    const nextCompany = group === "company" && companyFilter ? companyFilter : "";
+
+    if (nextGroup) {
+      url.searchParams.set("group", nextGroup);
+    } else {
+      url.searchParams.delete("group");
+    }
+
+    if (nextCompany) {
+      url.searchParams.set("company", nextCompany);
+    } else {
+      url.searchParams.delete("company");
+    }
+
+    window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+  }, [companyFilter, group]);
 
   const changeSortOption = (value) => {
     const [field, direction] = value.split(":");
@@ -2305,6 +2326,15 @@ export function StaffCompanySummaryPage({ navigateTo }) {
     setDate((current) => addDaysToISODate(current, days));
   };
 
+  const openCompanyPeople = (company) => {
+    const params = new URLSearchParams({
+      date,
+      group: "company",
+      company,
+    });
+    navigateTo(`/staff/sign-ins?${params}`);
+  };
+
   const emailReport = async () => {
     setMessage("");
     const response = await fetch("/api/staff/signins/email-report", {
@@ -2420,7 +2450,11 @@ export function StaffCompanySummaryPage({ navigateTo }) {
             <strong>Company summary</strong>
             <span>{formatLongDate(date)}</span>
           </div>
-          <CompanySummaryTable loading={loading} rows={companyRows} />
+          <CompanySummaryTable
+            loading={loading}
+            rows={companyRows}
+            onSelectCompany={openCompanyPeople}
+          />
         </div>
 
         <div className="mobile-roster">
@@ -2428,6 +2462,7 @@ export function StaffCompanySummaryPage({ navigateTo }) {
             loading={loading}
             rows={companyRows}
             totalWorkers={totalWorkers}
+            onSelectCompany={openCompanyPeople}
           />
         </div>
       </section>
@@ -10813,7 +10848,7 @@ function DesktopSignInTable({ dir, loading, rows, sort, onSelect, onSort }) {
   );
 }
 
-function CompanySummaryTable({ loading, rows }) {
+function CompanySummaryTable({ loading, rows, onSelectCompany }) {
   return (
     <div className="staff-table-scroll">
       <table className="staff-table company-summary-table">
@@ -10825,7 +10860,17 @@ function CompanySummaryTable({ loading, rows }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.company}>
+            <tr
+              key={row.company}
+              tabIndex="0"
+              onClick={() => onSelectCompany(row.company)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelectCompany(row.company);
+                }
+              }}
+            >
               <td>{row.company}</td>
               <td className="company-count-cell">{row.count}</td>
             </tr>
@@ -10859,7 +10904,7 @@ function SortableStaffHeader({ activeDir, field, label, sort, onSort }) {
   );
 }
 
-function CompactCompanySummaryList({ loading, rows, totalWorkers }) {
+function CompactCompanySummaryList({ loading, rows, totalWorkers, onSelectCompany }) {
   const companyLabel = rows.length === 1 ? "1 company" : `${rows.length} companies`;
   const workerLabel =
     totalWorkers === 1 ? "1 worker" : `${totalWorkers} workers`;
@@ -10872,7 +10917,12 @@ function CompactCompanySummaryList({ loading, rows, totalWorkers }) {
       </div>
       <div className="compact-company-rows">
         {rows.map((row) => (
-          <div className="compact-company-row" key={row.company}>
+          <button
+            className="compact-company-row"
+            key={row.company}
+            type="button"
+            onClick={() => onSelectCompany(row.company)}
+          >
             <div className="compact-person">
               <span className="row-mark" />
               <span>
@@ -10880,7 +10930,7 @@ function CompactCompanySummaryList({ loading, rows, totalWorkers }) {
               </span>
             </div>
             <strong>{row.count}</strong>
-          </div>
+          </button>
         ))}
         {!rows.length ? (
           <p className="empty-state compact-empty">
@@ -11307,6 +11357,17 @@ function readStaffDateFromUrl() {
   if (typeof window === "undefined") return todayInVancouver();
   const date = new URLSearchParams(window.location.search).get("date");
   return isISODate(date) ? date : todayInVancouver();
+}
+
+function readStaffRosterGroupFromUrl() {
+  if (typeof window === "undefined") return "none";
+  const group = new URLSearchParams(window.location.search).get("group");
+  return group === "company" || group === "trade" ? group : "none";
+}
+
+function readStaffRosterCompanyFromUrl() {
+  if (typeof window === "undefined") return "";
+  return String(new URLSearchParams(window.location.search).get("company") || "").trim();
 }
 
 function staffNavPath(path) {

@@ -2499,11 +2499,11 @@ p {
 }
 
 .company-summary-table tbody tr {
-  cursor: default;
+  cursor: pointer;
 }
 
 .company-summary-table tbody tr:hover {
-  background: transparent;
+  background: #f7faf9;
 }
 
 .company-count-cell {
@@ -2644,6 +2644,12 @@ p {
 }
 
 .compact-company-row {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 48px;
   align-items: center;
@@ -2651,6 +2657,13 @@ p {
   border-top: 1px solid #dfe7e2;
   padding: 0 14px 0 10px;
   column-gap: 8px;
+  text-align: left;
+  width: 100%;
+}
+
+.compact-company-row:hover,
+.compact-company-row:focus-visible {
+  background: #f7faf9;
 }
 
 .compact-company-row > strong {
