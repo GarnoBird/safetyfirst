@@ -67,6 +67,65 @@ const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
   toolbox_date: "date",
   toolbox_time: "time",
 };
+const SITE_INSPECTION_HEADER_FIELD_CONFIGS = [
+  { key: "project", id: "site_project", label: "Project", required: true },
+  { key: "areaInspected", id: "site_area_inspected", label: "Area inspected", required: true },
+  { key: "address", id: "site_address", label: "Address", required: false },
+  { key: "date", id: "site_date", label: "Date", required: true },
+  { key: "time", id: "site_time", label: "Time", required: true },
+  { key: "inspector", id: "site_inspector", label: "Inspector", required: true },
+  { key: "tradesPresent", id: "site_trades_present", label: "Trades present", required: false },
+  { key: "reviewer", id: "site_reviewer", label: "Reviewer / Supervisor", required: false },
+];
+const SITE_INSPECTION_HEADER_FIELD_ALIASES = {
+  address: "address",
+  area: "areaInspected",
+  area_inspected: "areaInspected",
+  areainspected: "areaInspected",
+  date: "date",
+  inspector: "inspector",
+  project: "project",
+  project_name: "project",
+  reviewer: "reviewer",
+  reviewer_supervisor: "reviewer",
+  site_address: "address",
+  site_area_inspected: "areaInspected",
+  site_date: "date",
+  site_inspector: "inspector",
+  site_project: "project",
+  site_reviewer: "reviewer",
+  site_time: "time",
+  site_trades_present: "tradesPresent",
+  supervisor: "reviewer",
+  time: "time",
+  trades: "tradesPresent",
+  trades_present: "tradesPresent",
+  tradespresent: "tradesPresent",
+};
+const SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS = [
+  { key: "positive", id: "site_positive_observations", label: "Positive observations", required: false },
+  { key: "highRiskWork", id: "site_high_risk_work", label: "High-risk work observed", required: false },
+  { key: "immediateControls", id: "site_immediate_controls", label: "Immediate controls", required: false },
+  { key: "followUpNotes", id: "site_follow_up_notes", label: "Follow-up notes", required: false },
+];
+const SITE_INSPECTION_OBSERVATION_FIELD_ALIASES = {
+  follow_up: "followUpNotes",
+  follow_up_notes: "followUpNotes",
+  followup: "followUpNotes",
+  followup_notes: "followUpNotes",
+  high_risk: "highRiskWork",
+  high_risk_work: "highRiskWork",
+  high_risk_work_observed: "highRiskWork",
+  highriskwork: "highRiskWork",
+  immediate_control: "immediateControls",
+  immediate_controls: "immediateControls",
+  positive: "positive",
+  positive_observations: "positive",
+  site_follow_up_notes: "followUpNotes",
+  site_high_risk_work: "highRiskWork",
+  site_immediate_controls: "immediateControls",
+  site_positive_observations: "positive",
+};
 const MAX_SITE_INSPECTION_DEFICIENCIES = 80;
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
@@ -1468,8 +1527,9 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     };
   }
   if (formType === "site_inspection") {
+    const siteInspectionConfig = await getSiteInspectionConfig();
     return {
-      formData: cleanSiteInspectionFormData(value, worker),
+      formData: cleanSiteInspectionFormData(value, worker, siteInspectionConfig),
       formTemplateVersionId: null,
       formSchemaSnapshot: {},
     };
@@ -1611,6 +1671,99 @@ async function getToolboxTalkConfig() {
   }
 }
 
+function createDefaultSiteInspectionConfig() {
+  return {
+    enabledBlocks: ["site_deficiencies"],
+    headerFields: SITE_INSPECTION_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+    observationFields: SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.map((field) => ({ ...field })),
+  };
+}
+
+function getSiteInspectionHeaderFieldKey(field) {
+  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
+    ? field.settings
+    : {};
+  const explicit = cleanText(settings.siteInspectionHeaderField, 80);
+  if (explicit && SITE_INSPECTION_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = SITE_INSPECTION_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  return SITE_INSPECTION_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
+}
+
+function getSiteInspectionObservationFieldKey(field) {
+  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
+    ? field.settings
+    : {};
+  const explicit = cleanText(settings.siteInspectionObservationField, 80);
+  if (explicit && SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyToolboxTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  return SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
+}
+
+async function getSiteInspectionConfig() {
+  try {
+    const template = await getPublishedWorkerFormTemplate("site_inspection");
+    const config = createDefaultSiteInspectionConfig();
+    const enabledBlocks = [];
+    const headerFields = [];
+    const observationFields = [];
+    const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
+      ? template.publishedVersion.schema.sections
+      : [];
+    if (!sections.length) return config;
+
+    sections.forEach((section) => {
+      const fields = Array.isArray(section?.fields) ? section.fields : [];
+      fields.forEach((field) => {
+        if (field?.type === "site_deficiencies") {
+          if (!enabledBlocks.includes(field.type)) enabledBlocks.push(field.type);
+          return;
+        }
+
+        const headerKey = getSiteInspectionHeaderFieldKey(field);
+        if (headerKey) {
+          const base = SITE_INSPECTION_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
+          if (base && !headerFields.some((item) => item.key === headerKey)) {
+            headerFields.push({
+              ...base,
+              id: cleanText(field?.id || base.id, 160),
+              label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
+              required: Boolean(field?.required),
+            });
+          }
+          return;
+        }
+
+        const observationKey = getSiteInspectionObservationFieldKey(field);
+        if (observationKey) {
+          const base = SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.find((item) => item.key === observationKey);
+          if (base && !observationFields.some((item) => item.key === observationKey)) {
+            observationFields.push({
+              ...base,
+              id: cleanText(field?.id || base.id, 160),
+              label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
+              required: Boolean(field?.required),
+            });
+          }
+        }
+      });
+    });
+
+    return {
+      enabledBlocks,
+      headerFields,
+      observationFields,
+    };
+  } catch {
+    return createDefaultSiteInspectionConfig();
+  }
+}
+
 function cleanToolboxTalkFormData(
   value,
   worker,
@@ -1736,41 +1889,94 @@ function cleanSelectedToolboxTopics(value) {
     .filter((topic) => topic.categoryId && topic.topicId && topic.label);
 }
 
-function cleanSiteInspectionFormData(value, worker) {
+function cleanSiteInspectionFormData(
+  value,
+  worker,
+  siteInspectionConfig = createDefaultSiteInspectionConfig(),
+) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throwBadRequest("Site inspection form data is required.");
   }
 
+  const config = siteInspectionConfig || createDefaultSiteInspectionConfig();
+  const enabled = new Set(Array.isArray(config.enabledBlocks) ? config.enabledBlocks : []);
+  const headerFields = Array.isArray(config.headerFields) ? config.headerFields : [];
+  const observationFields = Array.isArray(config.observationFields) ? config.observationFields : [];
   const headerInput = value.header || {};
+  const headerField = (key) =>
+    headerFields.find((field) => field.key === key)
+      || SITE_INSPECTION_HEADER_FIELD_CONFIGS.find((field) => field.key === key)
+      || { key, label: key, required: false };
+  const headerRequired = (key) => headerFields.some((field) => field.key === key && field.required);
+  const headerLabel = (key) => headerField(key).label || key;
+  const headerRaw = (key) => {
+    if (key === "project") return headerInput.project || headerInput.projectName;
+    if (key === "areaInspected") return headerInput.areaInspected || headerInput.area;
+    if (key === "inspector") return headerInput.inspector || worker?.name;
+    if (key === "reviewer") return headerInput.reviewer || headerInput.supervisor;
+    return headerInput[key];
+  };
+  const cleanHeaderText = (key) =>
+    headerRequired(key)
+      ? requireText(headerRaw(key), headerLabel(key))
+      : cleanText(headerRaw(key), MAX_FORM_TEXT_LENGTH);
+  const cleanHeaderDate = (key) =>
+    headerRequired(key)
+      ? cleanDate(headerRaw(key), headerLabel(key))
+      : cleanOptionalDate(headerRaw(key), headerLabel(key));
+  const cleanHeaderTime = (key) => {
+    const raw = String(headerRaw(key) || "").trim();
+    if (headerRequired(key)) return cleanTime(raw, headerLabel(key));
+    return raw ? cleanTime(raw, headerLabel(key)) : "";
+  };
   const header = {
-    project: requireText(headerInput.project || headerInput.projectName, "Project"),
-    address: cleanText(headerInput.address, MAX_FORM_TEXT_LENGTH),
-    areaInspected: requireText(headerInput.areaInspected || headerInput.area, "Area inspected"),
-    date: cleanDate(headerInput.date, "Date"),
-    time: cleanTime(headerInput.time, "Time"),
-    inspector: requireText(headerInput.inspector || worker?.name, "Inspector"),
-    tradesPresent: cleanText(headerInput.tradesPresent, MAX_FORM_TEXT_LENGTH),
-    reviewer: cleanText(headerInput.reviewer || headerInput.supervisor, MAX_FORM_TEXT_LENGTH),
+    project: cleanHeaderText("project"),
+    address: cleanHeaderText("address"),
+    areaInspected: cleanHeaderText("areaInspected"),
+    date: cleanHeaderDate("date"),
+    time: cleanHeaderTime("time"),
+    inspector: cleanHeaderText("inspector"),
+    tradesPresent: cleanHeaderText("tradesPresent"),
+    reviewer: cleanHeaderText("reviewer"),
   };
 
-  const noDeficiencies = value.noDeficiencies === true;
-  const deficiencies = cleanRows(value.deficiencies, cleanSiteInspectionDeficiency)
-    .filter((row) =>
-      row.category ||
-      row.location ||
-      row.description ||
-      row.immediateControl ||
-      row.recommendedAction ||
-      row.suggestedAssignee ||
-      row.dueDate,
-    )
-    .slice(0, MAX_SITE_INSPECTION_DEFICIENCIES);
+  const observationInput = value.observations || {};
+  const observationField = (key) =>
+    observationFields.find((field) => field.key === key)
+      || SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.find((field) => field.key === key)
+      || { key, label: key, required: false };
+  const observationRequired = (key) => observationFields.some((field) => field.key === key && field.required);
+  const observationLabel = (key) => observationField(key).label || key;
+  const observationRaw = (key, legacyKey) => observationInput[key] || value[legacyKey];
+  const cleanObservationText = (key, legacyKey) => {
+    const cleaned = cleanText(observationRaw(key, legacyKey), MAX_FORM_LONG_TEXT_LENGTH);
+    if (observationRequired(key) && !cleaned) {
+      throwBadRequest(`${observationLabel(key)} is required.`);
+    }
+    return cleaned;
+  };
 
-  if (!noDeficiencies && !deficiencies.length) {
+  const deficienciesEnabled = enabled.has("site_deficiencies");
+  const noDeficiencies = deficienciesEnabled && value.noDeficiencies === true;
+  const deficiencies = deficienciesEnabled && !noDeficiencies
+    ? cleanRows(value.deficiencies, cleanSiteInspectionDeficiency)
+        .filter((row) =>
+          row.category ||
+          row.location ||
+          row.description ||
+          row.immediateControl ||
+          row.recommendedAction ||
+          row.suggestedAssignee ||
+          row.dueDate,
+        )
+        .slice(0, MAX_SITE_INSPECTION_DEFICIENCIES)
+    : [];
+
+  if (deficienciesEnabled && !noDeficiencies && !deficiencies.length) {
     throwBadRequest("Add at least one deficiency or mark no deficiencies found.");
   }
 
-  if (deficiencies.length) {
+  if (deficienciesEnabled && deficiencies.length) {
     deficiencies.forEach((row, index) => {
       if (!row.description) {
         throwBadRequest(`Deficiency ${index + 1} needs a description.`);
@@ -1783,10 +1989,10 @@ function cleanSiteInspectionFormData(value, worker) {
     version: 1,
     header,
     observations: {
-      positive: cleanText(value.observations?.positive || value.positiveObservations, MAX_FORM_LONG_TEXT_LENGTH),
-      highRiskWork: cleanText(value.observations?.highRiskWork || value.highRiskWorkObserved, MAX_FORM_LONG_TEXT_LENGTH),
-      immediateControls: cleanText(value.observations?.immediateControls || value.immediateControls, MAX_FORM_LONG_TEXT_LENGTH),
-      followUpNotes: cleanText(value.observations?.followUpNotes || value.followUpNotes, MAX_FORM_LONG_TEXT_LENGTH),
+      positive: cleanObservationText("positive", "positiveObservations"),
+      highRiskWork: cleanObservationText("highRiskWork", "highRiskWorkObserved"),
+      immediateControls: cleanObservationText("immediateControls", "immediateControls"),
+      followUpNotes: cleanObservationText("followUpNotes", "followUpNotes"),
     },
     noDeficiencies,
     deficiencies,

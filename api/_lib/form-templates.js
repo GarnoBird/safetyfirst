@@ -28,6 +28,7 @@ export const TEMPLATE_FIELD_TYPES = [
   "toolbox_safety_concerns",
   "toolbox_attendance",
   "toolbox_final_confirmation",
+  "site_deficiencies",
 ];
 
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
@@ -37,6 +38,7 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_safety_concerns",
   "toolbox_attendance",
   "toolbox_final_confirmation",
+  "site_deficiencies",
 ]);
 
 const TEMPLATE_SELECT =

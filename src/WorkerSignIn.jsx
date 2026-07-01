@@ -142,6 +142,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "toolbox_safety_concerns", label: "Toolbox safety concerns" },
   { id: "toolbox_attendance", label: "Toolbox attendance" },
   { id: "toolbox_final_confirmation", label: "Toolbox final confirmation" },
+  { id: "site_deficiencies", label: "Site deficiencies" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
 const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
@@ -153,6 +154,7 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_safety_concerns",
   "toolbox_attendance",
   "toolbox_final_confirmation",
+  "site_deficiencies",
 ]);
 const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
   "toolbox_meeting_info",
@@ -245,6 +247,13 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       },
       { type: "toolbox_attendance", title: "Attendance list", hint: "Fast typed attendee chips", icon: "A", label: "Attendance" },
       { type: "toolbox_final_confirmation", title: "Final confirmation", hint: "Presenter comments and participation check", icon: "OK", label: "Final Confirmation" },
+      {
+        type: "site_deficiencies",
+        title: "Site deficiencies",
+        hint: "No-deficiency check and corrective action rows",
+        icon: "SI",
+        label: "Deficiencies",
+      },
     ],
   },
   {
@@ -693,6 +702,152 @@ const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
   toolbox_presenter: "presenter",
   toolbox_date: "date",
   toolbox_time: "time",
+};
+
+const SITE_INSPECTION_HEADER_FIELD_CONFIGS = [
+  {
+    key: "project",
+    id: "site_project",
+    label: "Project",
+    type: "short_text",
+    required: true,
+    remember: true,
+  },
+  {
+    key: "areaInspected",
+    id: "site_area_inspected",
+    label: "Area inspected",
+    type: "short_text",
+    required: true,
+  },
+  {
+    key: "address",
+    id: "site_address",
+    label: "Address",
+    type: "short_text",
+    required: false,
+    remember: true,
+  },
+  {
+    key: "date",
+    id: "site_date",
+    label: "Date",
+    type: "date",
+    required: true,
+    default: "today",
+  },
+  {
+    key: "time",
+    id: "site_time",
+    label: "Time",
+    type: "time",
+    required: true,
+    default: "now",
+  },
+  {
+    key: "inspector",
+    id: "site_inspector",
+    label: "Inspector",
+    type: "short_text",
+    required: true,
+    default: "worker_name",
+  },
+  {
+    key: "tradesPresent",
+    id: "site_trades_present",
+    label: "Trades present",
+    type: "short_text",
+    required: false,
+    remember: true,
+  },
+  {
+    key: "reviewer",
+    id: "site_reviewer",
+    label: "Reviewer / Supervisor",
+    type: "short_text",
+    required: false,
+    remember: true,
+  },
+];
+
+const SITE_INSPECTION_HEADER_FIELD_ALIASES = {
+  address: "address",
+  area: "areaInspected",
+  area_inspected: "areaInspected",
+  areainspected: "areaInspected",
+  date: "date",
+  inspector: "inspector",
+  project: "project",
+  project_name: "project",
+  reviewer: "reviewer",
+  reviewer_supervisor: "reviewer",
+  site_address: "address",
+  site_area_inspected: "areaInspected",
+  site_date: "date",
+  site_inspector: "inspector",
+  site_project: "project",
+  site_reviewer: "reviewer",
+  site_time: "time",
+  site_trades_present: "tradesPresent",
+  supervisor: "reviewer",
+  time: "time",
+  trades: "tradesPresent",
+  trades_present: "tradesPresent",
+  tradespresent: "tradesPresent",
+};
+
+const SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS = [
+  {
+    key: "positive",
+    id: "site_positive_observations",
+    label: "Positive observations",
+    sectionTitle: "Positive observations",
+    type: "long_text",
+    defaultCollapsed: true,
+  },
+  {
+    key: "highRiskWork",
+    id: "site_high_risk_work",
+    label: "High-risk work observed",
+    sectionTitle: "High-risk work observed",
+    type: "long_text",
+    defaultCollapsed: true,
+  },
+  {
+    key: "immediateControls",
+    id: "site_immediate_controls",
+    label: "Immediate controls",
+    sectionTitle: "Immediate controls",
+    type: "long_text",
+    defaultCollapsed: true,
+  },
+  {
+    key: "followUpNotes",
+    id: "site_follow_up_notes",
+    label: "Follow-up notes",
+    sectionTitle: "Follow-up notes",
+    type: "long_text",
+    defaultCollapsed: true,
+  },
+];
+
+const SITE_INSPECTION_OBSERVATION_FIELD_ALIASES = {
+  follow_up: "followUpNotes",
+  follow_up_notes: "followUpNotes",
+  followup: "followUpNotes",
+  followup_notes: "followUpNotes",
+  high_risk: "highRiskWork",
+  high_risk_work: "highRiskWork",
+  high_risk_work_observed: "highRiskWork",
+  highriskwork: "highRiskWork",
+  immediate_control: "immediateControls",
+  immediate_controls: "immediateControls",
+  positive: "positive",
+  positive_observations: "positive",
+  site_follow_up_notes: "followUpNotes",
+  site_high_risk_work: "highRiskWork",
+  site_immediate_controls: "immediateControls",
+  site_positive_observations: "positive",
 };
 
 const TOOLBOX_TALK_TOPIC_GROUP_IDS = TOOLBOX_TALK_TOPIC_GROUPS.map((group) => group.id);
@@ -3495,6 +3650,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       </button>
                     </div>
                     <SiteInspectionDigitalForm
+                      formTemplate={formTemplate}
                       submitting={submitting}
                       worker={worker}
                       onSubmit={submitSiteInspectionForm}
@@ -4253,8 +4409,9 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   );
 }
 
-function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
+function SiteInspectionDigitalForm({ formTemplate, onSubmit, submitting, worker }) {
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, "site_inspection", "fill_form"));
+  const optionalLayoutAppliedRef = useRef(false);
   const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
     () => restoredDraftRef.current?.form || initialSiteInspectionForm(worker),
@@ -4264,24 +4421,25 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
   const [error, setError] = useState("");
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const savedDefaults = useMemo(readSiteInspectionDefaults, []);
+  const siteLayout = useMemo(
+    () =>
+      getSiteInspectionLayout(
+        formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
+      ),
+    [formTemplate],
+  );
   const [optionalOpen, setOptionalOpen] = useState(() => {
-    const draftForm = restoredDraftRef.current?.form;
-    return {
-      observations: siteInspectionObservationsHaveValues(draftForm?.observations),
-      followUp: hasTextValue(draftForm?.observations?.followUpNotes),
-    };
+    return createInitialSiteInspectionOptionalOpen(restoredDraftRef.current?.form, siteLayout);
   });
   const missingFieldKeys = useMemo(
-    () => (submitAttempted ? getSiteInspectionMissingFields(form) : []),
-    [form, submitAttempted],
+    () => (submitAttempted ? getSiteInspectionMissingFields(form, siteLayout) : []),
+    [form, siteLayout, submitAttempted],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
-  const hasSavedDefaults = Boolean(
-    savedDefaults.project ||
-      savedDefaults.address ||
-      savedDefaults.tradesPresent ||
-      savedDefaults.reviewer,
+  const hasSavedDefaults = siteLayout.headerFields.some(
+    (field) => field.remember && hasTextValue(savedDefaults[field.key]),
   );
+  const enabledBlockSet = useMemo(() => new Set(siteLayout.enabledBlocks), [siteLayout.enabledBlocks]);
 
   const registerValidationTarget = (field) => (element) => {
     if (element) {
@@ -4296,9 +4454,15 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
 
   useEffect(() => {
     if (!submitAttempted) return;
-    const nextMissing = getSiteInspectionMissingFields(form);
-    setError(nextMissing.length ? siteInspectionValidationMessage(nextMissing[0]) : "");
-  }, [form, submitAttempted]);
+    const nextMissing = getSiteInspectionMissingFields(form, siteLayout);
+    setError(nextMissing.length ? siteInspectionValidationMessage(nextMissing[0], siteLayout) : "");
+  }, [form, siteLayout, submitAttempted]);
+
+  useEffect(() => {
+    if (optionalLayoutAppliedRef.current || restoredDraftRef.current?.form) return;
+    optionalLayoutAppliedRef.current = true;
+    setOptionalOpen(createInitialSiteInspectionOptionalOpen(null, siteLayout));
+  }, [siteLayout]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -4367,19 +4531,22 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
   const applyLastInspectionSetup = () => {
     setForm((current) => ({
       ...current,
-      header: {
-        ...current.header,
-        project: savedDefaults.project || current.header.project,
-        address: savedDefaults.address || current.header.address,
-        tradesPresent: savedDefaults.tradesPresent || current.header.tradesPresent,
-        reviewer: savedDefaults.reviewer || current.header.reviewer,
-      },
+      header: siteLayout.headerFields.reduce(
+        (header, field) => {
+          if (field.remember && hasTextValue(savedDefaults[field.key])) {
+            return { ...header, [field.key]: savedDefaults[field.key] };
+          }
+          return header;
+        },
+        { ...current.header },
+      ),
     }));
   };
 
   const startFresh = () => {
     clearWorkerFormDraft(worker, "site_inspection", "fill_form");
     setForm(initialSiteInspectionForm(worker));
+    setOptionalOpen(createInitialSiteInspectionOptionalOpen(null, siteLayout));
     setDraftRestored(false);
     setDraftSavedAt("");
     setError("");
@@ -4388,10 +4555,10 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
 
   const submitForm = async (event) => {
     event.preventDefault();
-    const nextMissingFields = getSiteInspectionMissingFields(form);
+    const nextMissingFields = getSiteInspectionMissingFields(form, siteLayout);
     if (nextMissingFields.length) {
       setSubmitAttempted(true);
-      setError(siteInspectionValidationMessage(nextMissingFields[0]));
+      setError(siteInspectionValidationMessage(nextMissingFields[0], siteLayout));
       scrollToToolboxValidationTarget(validationTargetsRef.current, nextMissingFields[0]);
       return;
     }
@@ -4401,153 +4568,106 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
     await onSubmit(cleanSiteInspectionClientForm(form));
   };
 
-  return (
-    <form className="submission-form toolbox-talk-form site-inspection-form" noValidate onSubmit={submitForm}>
-      {draftRestored || draftSavedAt ? (
-        <div className="offline-draft-status">
-          <div>
-            <strong>{draftRestored ? "Draft restored" : "Draft saved"}</strong>
-            {draftSavedAt ? <span>Saved {formatCompactTime(draftSavedAt)}</span> : null}
-          </div>
-          {draftRestored ? (
-            <button type="button" onClick={startFresh}>
-              Start fresh
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-
+  const renderHeaderSection = () => {
+    if (!siteLayout.headerFields.length) return null;
+    return (
       <section className={inspectionInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
-          <h2>Inspection Info</h2>
+          <h2>{siteLayout.inspectionInfo.title || "Inspection Info"}</h2>
           {hasSavedDefaults ? (
             <button type="button" onClick={applyLastInspectionSetup}>
               Use last job
             </button>
           ) : (
-            <span>Required</span>
+            <span>{siteLayout.headerFields.some((field) => field.required) ? "Required" : "Optional"}</span>
           )}
         </div>
+        {siteLayout.inspectionInfo.description ? (
+          <p className="toolbox-section-description">{siteLayout.inspectionInfo.description}</p>
+        ) : null}
         <div className="toolbox-field-grid">
-          <label className={isFieldInvalid("header.project") ? "toolbox-field-invalid" : ""}>
-            <span>Project</span>
-            <input
-              aria-invalid={isFieldInvalid("header.project") ? "true" : undefined}
-              ref={registerValidationTarget("header.project")}
-              required
-              value={form.header.project}
-              onChange={(event) => updateHeader("project", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.areaInspected") ? "toolbox-field-invalid" : ""}>
-            <span>Area inspected</span>
-            <input
-              aria-invalid={isFieldInvalid("header.areaInspected") ? "true" : undefined}
-              ref={registerValidationTarget("header.areaInspected")}
-              required
-              value={form.header.areaInspected}
-              onChange={(event) => updateHeader("areaInspected", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Address</span>
-            <input
-              value={form.header.address}
-              onChange={(event) => updateHeader("address", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.date") ? "toolbox-field-invalid" : ""}>
-            <span>Date</span>
-            <input
-              aria-invalid={isFieldInvalid("header.date") ? "true" : undefined}
-              ref={registerValidationTarget("header.date")}
-              required
-              type="date"
-              value={form.header.date}
-              onChange={(event) => updateHeader("date", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.time") ? "toolbox-field-invalid" : ""}>
-            <span>Time</span>
-            <input
-              aria-invalid={isFieldInvalid("header.time") ? "true" : undefined}
-              ref={registerValidationTarget("header.time")}
-              required
-              type="time"
-              value={form.header.time}
-              onChange={(event) => updateHeader("time", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.inspector") ? "toolbox-field-invalid" : ""}>
-            <span>Inspector</span>
-            <input
-              aria-invalid={isFieldInvalid("header.inspector") ? "true" : undefined}
-              ref={registerValidationTarget("header.inspector")}
-              required
-              value={form.header.inspector}
-              onChange={(event) => updateHeader("inspector", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Trades present</span>
-            <input
-              value={form.header.tradesPresent}
-              onChange={(event) => updateHeader("tradesPresent", event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Reviewer / Supervisor</span>
-            <input
-              value={form.header.reviewer}
-              onChange={(event) => updateHeader("reviewer", event.target.value)}
-            />
-          </label>
+          {siteLayout.headerFields.map((field) => {
+            const fieldName = `header.${field.key}`;
+            const invalid = isFieldInvalid(fieldName);
+            const inputType = field.type === "date" || field.type === "time" ? field.type : "text";
+            return (
+              <label className={invalid ? "toolbox-field-invalid" : ""} key={field.id || field.key}>
+                <span>{field.label || field.key}</span>
+                <input
+                  aria-invalid={invalid ? "true" : undefined}
+                  ref={registerValidationTarget(fieldName)}
+                  required={Boolean(field.required)}
+                  type={inputType}
+                  value={form.header[field.key] || ""}
+                  onChange={(event) => updateHeader(field.key, event.target.value)}
+                />
+                {field.helperText ? <small>{field.helperText}</small> : null}
+              </label>
+            );
+          })}
         </div>
       </section>
+    );
+  };
 
-      <section className={optionalOpen.observations ? "toolbox-section" : "toolbox-section collapsed"}>
+  const renderObservationSection = (section) => {
+    if (!section?.fields?.length) return null;
+    const open = Boolean(optionalOpen[section.id]);
+    const sectionInvalid = section.fields.some((field) => isFieldInvalid(`observations.${field.key}`));
+    const sectionClass = [
+      "toolbox-section",
+      open ? "" : "collapsed",
+      sectionInvalid ? "toolbox-section-invalid" : "",
+    ].filter(Boolean).join(" ");
+    return (
+      <section className={sectionClass} key={section.id}>
         <div className="toolbox-section-heading">
-          <h2>Observations</h2>
-          <button type="button" onClick={() => toggleOptional("observations")}>
-            {optionalOpen.observations ? "Hide" : "Add observations"}
+          <h2>{section.title || "Observations"}</h2>
+          <button type="button" onClick={() => toggleOptional(section.id)}>
+            {open ? "Hide" : `Add ${String(section.title || "observations").toLowerCase()}`}
           </button>
         </div>
-        {optionalOpen.observations ? (
-          <>
-            <label>
-              <span>Positive observations</span>
-              <textarea
-                rows="3"
-                value={form.observations.positive}
-                onChange={(event) => updateObservation("positive", event.target.value)}
-              />
-            </label>
-            <label>
-              <span>High-risk work observed</span>
-              <textarea
-                rows="3"
-                value={form.observations.highRiskWork}
-                onChange={(event) => updateObservation("highRiskWork", event.target.value)}
-              />
-            </label>
-            <label>
-              <span>Immediate controls</span>
-              <textarea
-                rows="3"
-                value={form.observations.immediateControls}
-                onChange={(event) => updateObservation("immediateControls", event.target.value)}
-              />
-            </label>
-          </>
+        {section.description ? <p className="toolbox-section-description">{section.description}</p> : null}
+        {open ? (
+          section.fields.map((field) => {
+            const fieldName = `observations.${field.key}`;
+            const invalid = isFieldInvalid(fieldName);
+            const commonProps = {
+              "aria-invalid": invalid ? "true" : undefined,
+              ref: registerValidationTarget(fieldName),
+              required: Boolean(field.required),
+              value: form.observations[field.key] || "",
+              onChange: (event) => updateObservation(field.key, event.target.value),
+            };
+            return (
+              <label className={invalid ? "toolbox-field-invalid" : ""} key={field.id || field.key}>
+                <span>{field.label || field.key}</span>
+                {field.type === "long_text" ? (
+                  <textarea rows="3" {...commonProps} />
+                ) : (
+                  <input
+                    type={field.type === "date" || field.type === "time" ? field.type : "text"}
+                    {...commonProps}
+                  />
+                )}
+                {field.helperText ? <small>{field.helperText}</small> : null}
+              </label>
+            );
+          })
         ) : null}
       </section>
+    );
+  };
 
+  const renderDeficienciesBlock = () => {
+    if (!enabledBlockSet.has("site_deficiencies")) return null;
+    return (
       <section
         className={deficienciesInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
         ref={registerValidationTarget("deficiencies")}
       >
         <div className="toolbox-section-heading">
-          <h2>Deficiencies</h2>
+          <h2>{siteLayout.blockLabels.site_deficiencies || "Deficiencies"}</h2>
           <span>{form.noDeficiencies ? "None found" : `${form.deficiencies.length} listed`}</span>
         </div>
         <label
@@ -4654,25 +4774,35 @@ function SiteInspectionDigitalForm({ onSubmit, submitting, worker }) {
           </>
         ) : null}
       </section>
+    );
+  };
 
-      <section className={optionalOpen.followUp ? "toolbox-section" : "toolbox-section collapsed"}>
-        <div className="toolbox-section-heading">
-          <h2>Follow-Up Notes</h2>
-          <button type="button" onClick={() => toggleOptional("followUp")}>
-            {optionalOpen.followUp ? "Hide" : "Add follow-up notes"}
-          </button>
+  const renderLayoutItem = (item) => {
+    if (item.type === "header") return <Fragment key={item.id}>{renderHeaderSection()}</Fragment>;
+    if (item.type === "observation") return renderObservationSection(item.section);
+    if (item.type === "block" && item.blockType === "site_deficiencies") {
+      return <Fragment key={item.id}>{renderDeficienciesBlock()}</Fragment>;
+    }
+    return null;
+  };
+
+  return (
+    <form className="submission-form toolbox-talk-form site-inspection-form" noValidate onSubmit={submitForm}>
+      {draftRestored || draftSavedAt ? (
+        <div className="offline-draft-status">
+          <div>
+            <strong>{draftRestored ? "Draft restored" : "Draft saved"}</strong>
+            {draftSavedAt ? <span>Saved {formatCompactTime(draftSavedAt)}</span> : null}
+          </div>
+          {draftRestored ? (
+            <button type="button" onClick={startFresh}>
+              Start fresh
+            </button>
+          ) : null}
         </div>
-        {optionalOpen.followUp ? (
-          <label>
-            <span>Follow-up notes</span>
-            <textarea
-              rows="4"
-              value={form.observations.followUpNotes}
-              onChange={(event) => updateObservation("followUpNotes", event.target.value)}
-            />
-          </label>
-        ) : null}
-      </section>
+      ) : null}
+
+      {siteLayout.items.map(renderLayoutItem)}
 
       {error ? <p className="form-message error">{error}</p> : null}
 
@@ -6756,6 +6886,8 @@ function StaffTemplateReadOnlyView({
     sections: [],
   });
   const fieldCount = collectClientTemplateFields(current).length;
+  const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
+  const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
   return (
     <section className="settings-section template-settings-card">
       <div className="settings-section-heading">
@@ -6789,12 +6921,18 @@ function StaffTemplateReadOnlyView({
         </div>
       </dl>
       {fieldCount ? (
-        <TemplateFormFields
-          answers={previewAnswers}
-          schema={current}
-          worker={previewWorker}
-          onChange={onPreviewAnswersChange}
-        />
+        useToolboxTalkPreview ? (
+          <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
+        ) : useSiteInspectionPreview ? (
+          <SiteInspectionTemplatePreview schema={current} worker={previewWorker} />
+        ) : (
+          <TemplateFormFields
+            answers={previewAnswers}
+            schema={current}
+            worker={previewWorker}
+            onChange={onPreviewAnswersChange}
+          />
+        )
       ) : (
         <div className="template-preview-empty">
           <strong>No fields to preview</strong>
@@ -7386,6 +7524,7 @@ function TemplateSchemaEditorV3({
     TEMPLATE_V3_FIELD_GROUPS.find((group) => group.id === fieldPickerTab) || TEMPLATE_V3_FIELD_GROUPS[0];
   const canToggleVisibility = hasPublishedVersion && active && !archived && !saving;
   const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
+  const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
 
   useEffect(() => {
     setOptionDraft("");
@@ -7614,6 +7753,8 @@ function TemplateSchemaEditorV3({
               {fieldCount ? (
                 useToolboxTalkPreview ? (
                   <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
+                ) : useSiteInspectionPreview ? (
+                  <SiteInspectionTemplatePreview schema={current} worker={previewWorker} />
                 ) : (
                   <TemplateFormFields
                     answers={previewAnswers}
@@ -7910,7 +8051,7 @@ function TemplateSchemaEditorV3({
                 ) : null}
                 {selectedFieldIsNonAnswer && selectedField.type !== "instructions" ? (
                   <p className="template-v3-help-text">
-                    This special block reuses the polished Toolbox Talk logic when the form supports it.
+                    This special block reuses polished custom mobile logic when the form supports it.
                   </p>
                 ) : null}
                 {selectedToolboxTopicSettings ? (
@@ -8236,6 +8377,122 @@ function ToolboxTalkTemplatePreview({ schema, worker }) {
           </label>
         </section>
       ) : null}
+    </div>
+  );
+}
+
+function SiteInspectionTemplatePreview({ schema, worker }) {
+  const current = normalizeClientTemplateSchema(schema);
+  const layout = getSiteInspectionLayout(current);
+  const enabled = new Set(layout.enabledBlocks);
+  const headerSampleValue = (field) => {
+    if (field.default === "worker_name") return worker?.name || "";
+    if (field.default === "today") return todayInVancouver();
+    if (field.default === "now") return timeInVancouver();
+    return "";
+  };
+
+  const renderHeaderPreview = () => {
+    if (!layout.headerFields.length) return null;
+    return (
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>{layout.inspectionInfo.title || "Inspection Info"}</h2>
+          {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
+        </div>
+        {layout.inspectionInfo.description ? <p className="muted">{layout.inspectionInfo.description}</p> : null}
+        <div className="toolbox-field-grid">
+          {layout.headerFields.map((field) => (
+            <label key={field.id || field.key}>
+              <span>{field.label}</span>
+              <input
+                readOnly
+                placeholder={field.helperText || ""}
+                type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
+                value={headerSampleValue(field)}
+              />
+            </label>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
+  const renderObservationPreview = (section) => {
+    const collapsed = section.defaultCollapsed !== false && !(section.fields || []).some((field) => field.required);
+    return (
+      <section className={collapsed ? "toolbox-section collapsed" : "toolbox-section"} key={section.id}>
+        <div className="toolbox-section-heading">
+          <h2>{section.title || "Observations"}</h2>
+          <button type="button">{collapsed ? `Add ${String(section.title || "observations").toLowerCase()}` : "Hide"}</button>
+        </div>
+        {section.description ? <p className="muted">{section.description}</p> : null}
+        {!collapsed ? (
+          (section.fields || []).map((field) => (
+            <label key={field.id || field.key}>
+              <span>{field.label}</span>
+              {field.type === "long_text" ? (
+                <textarea readOnly rows="3" value="" />
+              ) : (
+                <input
+                  readOnly
+                  type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
+                  value=""
+                />
+              )}
+            </label>
+          ))
+        ) : null}
+      </section>
+    );
+  };
+
+  const renderDeficiencyPreview = () => {
+    if (!enabled.has("site_deficiencies")) return null;
+    return (
+      <section className="toolbox-section">
+        <div className="toolbox-section-heading">
+          <h2>{layout.blockLabels.site_deficiencies || "Deficiencies"}</h2>
+          <span>Special block</span>
+        </div>
+        <label className="toolbox-confirmation">
+          <input readOnly type="checkbox" />
+          <span>No deficiencies found during this inspection.</span>
+        </label>
+        <div className="toolbox-row-list site-deficiency-list">
+          <div className="toolbox-repeat-row site-deficiency-card">
+            <div className="toolbox-section-heading site-deficiency-heading">
+              <h3>Deficiency 1</h3>
+              <button type="button">Remove</button>
+            </div>
+            <div className="toolbox-field-grid">
+              <label><span>Category</span><select disabled><option>Choose category</option></select></label>
+              <label><span>Location / area</span><input readOnly /></label>
+              <label><span>Priority</span><select disabled><option>Medium</option></select></label>
+              <label><span>Suggested assignee</span><input readOnly /></label>
+            </div>
+            <label><span>Deficiency / hazard</span><textarea readOnly rows="3" /></label>
+            <label><span>Immediate control taken</span><textarea readOnly rows="3" /></label>
+            <label><span>Recommended corrective action</span><textarea readOnly rows="3" /></label>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  const renderItem = (item) => {
+    if (item.type === "header") return <Fragment key={item.id}>{renderHeaderPreview()}</Fragment>;
+    if (item.type === "observation") return renderObservationPreview(item.section);
+    if (item.type === "block" && item.blockType === "site_deficiencies") {
+      return <Fragment key={item.id}>{renderDeficiencyPreview()}</Fragment>;
+    }
+    return null;
+  };
+
+  return (
+    <div className="template-runtime-form site-inspection-template-preview">
+      {current.description ? <p className="muted">{current.description}</p> : null}
+      {layout.items.map(renderItem)}
     </div>
   );
 }
@@ -11417,8 +11674,221 @@ function siteInspectionObservationsHaveValues(observations) {
   return Object.values(observations || {}).some(hasTextValue);
 }
 
-function getSiteInspectionMissingFields(form) {
+function getSiteInspectionHeaderFieldKey(field) {
+  const explicit = field?.settings?.siteInspectionHeaderField;
+  if (explicit && SITE_INSPECTION_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = SITE_INSPECTION_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  const labelKey = SITE_INSPECTION_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.label || "")];
+  return labelKey || "";
+}
+
+function getSiteInspectionObservationFieldKey(field) {
+  const explicit = field?.settings?.siteInspectionObservationField;
+  if (explicit && SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  const labelKey = SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyTemplateId(field?.label || "")];
+  return labelKey || "";
+}
+
+function createDefaultSiteInspectionLayout() {
+  const observationSections = SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.map((field) => ({
+    id: field.id,
+    title: field.sectionTitle,
+    description: "",
+    defaultCollapsed: field.defaultCollapsed !== false,
+    fields: [
+      {
+        ...field,
+        helperText: "",
+        required: false,
+        remember: false,
+        default: "",
+        settings: {},
+      },
+    ],
+  }));
+  return {
+    headerFields: SITE_INSPECTION_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+    observationSections,
+    enabledBlocks: ["site_deficiencies"],
+    blockLabels: {
+      site_deficiencies: "Deficiencies",
+    },
+    blockSettings: {
+      site_deficiencies: {},
+    },
+    inspectionInfo: {
+      title: "Inspection Info",
+      description: "",
+      settings: {},
+    },
+    items: [
+      { type: "header", id: "site_inspection_header" },
+      ...observationSections.slice(0, 3).map((section) => ({
+        type: "observation",
+        id: `observation.${section.id}`,
+        section,
+      })),
+      { type: "block", id: "block.site_deficiencies", blockType: "site_deficiencies" },
+      {
+        type: "observation",
+        id: `observation.${observationSections[3].id}`,
+        section: observationSections[3],
+      },
+    ],
+  };
+}
+
+function getSiteInspectionLayout(schema) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  if (!normalized.sections.length) return createDefaultSiteInspectionLayout();
+
+  const layout = {
+    ...createDefaultSiteInspectionLayout(),
+    headerFields: [],
+    observationSections: [],
+    enabledBlocks: [],
+    blockLabels: {},
+    blockSettings: {},
+    inspectionInfo: {
+      title: "",
+      description: "",
+      settings: {},
+    },
+    items: [],
+  };
+  let headerItemAdded = false;
+  const headerKeys = new Set();
+  const observationKeys = new Set();
+
+  normalized.sections.forEach((section) => {
+    const sectionSettings = normalizeTemplateSettings(section.settings);
+    const observationFields = [];
+
+    (section.fields || []).forEach((field) => {
+      const headerKey = getSiteInspectionHeaderFieldKey(field);
+      if (headerKey) {
+        const base = SITE_INSPECTION_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
+        if (!base || headerKeys.has(headerKey)) return;
+        headerKeys.add(headerKey);
+        if (!layout.inspectionInfo.title) {
+          layout.inspectionInfo = {
+            title: section.title || "Inspection Info",
+            description: section.description || "",
+            settings: sectionSettings,
+          };
+        }
+        layout.headerFields.push({
+          ...base,
+          id: field.id || base.id,
+          type: field.type || base.type,
+          label: field.label || base.label,
+          helperText: field.helperText || "",
+          required: Boolean(field.required),
+          remember: Boolean(field.remember),
+          default: field.default || base.default || "",
+          key: headerKey,
+          sectionTitle: section.title || "Inspection Info",
+          sectionDescription: section.description || "",
+          settings: normalizeTemplateSettings(field.settings),
+        });
+        if (!headerItemAdded) {
+          layout.items.push({ type: "header", id: "site_inspection_header" });
+          headerItemAdded = true;
+        }
+        return;
+      }
+
+      const observationKey = getSiteInspectionObservationFieldKey(field);
+      if (observationKey) {
+        const base = SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.find((item) => item.key === observationKey);
+        if (!base || observationKeys.has(observationKey)) return;
+        observationKeys.add(observationKey);
+        observationFields.push({
+          ...base,
+          id: field.id || base.id,
+          type: field.type || base.type,
+          label: field.label || base.label,
+          helperText: field.helperText || "",
+          required: Boolean(field.required),
+          remember: Boolean(field.remember),
+          default: field.default || "",
+          key: observationKey,
+          settings: normalizeTemplateSettings(field.settings),
+        });
+        return;
+      }
+
+      if (field.type === "site_deficiencies") {
+        if (!layout.enabledBlocks.includes("site_deficiencies")) {
+          layout.enabledBlocks.push("site_deficiencies");
+          layout.items.push({ type: "block", id: "block.site_deficiencies", blockType: "site_deficiencies" });
+        }
+        layout.blockLabels.site_deficiencies = field.label || "Deficiencies";
+        layout.blockSettings.site_deficiencies = {
+          ...sectionSettings,
+          ...normalizeTemplateSettings(field.settings),
+        };
+      }
+    });
+
+    if (observationFields.length) {
+      const firstField = observationFields[0];
+      const defaultCollapsed =
+        sectionSettings.defaultCollapsed ?? firstField.settings.defaultCollapsed ?? firstField.defaultCollapsed ?? true;
+      const observationSection = {
+        id: section.id || `site_observation_${layout.observationSections.length + 1}`,
+        title: section.title || firstField.sectionTitle || "Observations",
+        description: section.description || "",
+        defaultCollapsed: defaultCollapsed !== false,
+        fields: observationFields,
+      };
+      layout.observationSections.push(observationSection);
+      layout.items.push({
+        type: "observation",
+        id: `observation.${observationSection.id}`,
+        section: observationSection,
+      });
+    }
+  });
+
+  if (!layout.items.length) return layout;
+  if (!layout.inspectionInfo.title && layout.headerFields.length) {
+    layout.inspectionInfo = {
+      title: "Inspection Info",
+      description: "",
+      settings: {},
+    };
+  }
+  return layout;
+}
+
+function createInitialSiteInspectionOptionalOpen(form, layout = createDefaultSiteInspectionLayout()) {
+  const open = {};
+  (layout.observationSections || []).forEach((section) => {
+    const fields = Array.isArray(section.fields) ? section.fields : [];
+    const hasDraftValue = fields.some((field) => hasTextValue(form?.observations?.[field.key]));
+    open[section.id] =
+      hasDraftValue ||
+      section.defaultCollapsed === false ||
+      fields.some((field) => field.required);
+  });
+  return open;
+}
+
+function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSiteInspectionLayout()) {
+  const layout = layoutOrBlocks || createDefaultSiteInspectionLayout();
+  const enabled = new Set(
+    Array.isArray(layout.enabledBlocks) ? layout.enabledBlocks : createDefaultSiteInspectionLayout().enabledBlocks,
+  );
   const header = form?.header || {};
+  const observations = form?.observations || {};
   const deficiencies = Array.isArray(form?.deficiencies) ? form.deficiencies : [];
   const meaningfulDeficiencies = deficiencies.filter((row) =>
     Object.values(row || {}).some((value) => {
@@ -11428,21 +11898,25 @@ function getSiteInspectionMissingFields(form) {
   );
   const missing = [];
 
-  [
-    ["header.project", header.project],
-    ["header.areaInspected", header.areaInspected],
-    ["header.date", header.date],
-    ["header.time", header.time],
-    ["header.inspector", header.inspector],
-  ].forEach(([field, value]) => {
-    if (!String(value || "").trim()) missing.push(field);
+  (layout.headerFields || []).forEach((field) => {
+    if (field.required && !String(header[field.key] || "").trim()) {
+      missing.push(`header.${field.key}`);
+    }
   });
 
-  if (!form?.noDeficiencies && !meaningfulDeficiencies.length) {
+  (layout.observationSections || []).forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (field.required && !String(observations[field.key] || "").trim()) {
+        missing.push(`observations.${field.key}`);
+      }
+    });
+  });
+
+  if (enabled.has("site_deficiencies") && !form?.noDeficiencies && !meaningfulDeficiencies.length) {
     missing.push("deficiencies");
   }
 
-  if (!form?.noDeficiencies) {
+  if (enabled.has("site_deficiencies") && !form?.noDeficiencies) {
     deficiencies.forEach((row, index) => {
       const hasRowValue = Object.values(row || {}).some((value) => {
         if (value === "medium") return false;
@@ -11457,12 +11931,21 @@ function getSiteInspectionMissingFields(form) {
   return missing;
 }
 
-function siteInspectionValidationMessage(field) {
-  if (field === "header.project") return "Project is required.";
-  if (field === "header.areaInspected") return "Area inspected is required.";
-  if (field === "header.date") return "Date is required.";
-  if (field === "header.time") return "Time is required.";
-  if (field === "header.inspector") return "Inspector is required.";
+function siteInspectionValidationMessage(field, layout = createDefaultSiteInspectionLayout()) {
+  if (field?.startsWith("header.")) {
+    const key = field.replace("header.", "");
+    const headerField = (layout.headerFields || []).find((item) => item.key === key)
+      || SITE_INSPECTION_HEADER_FIELD_CONFIGS.find((item) => item.key === key);
+    return `${headerField?.label || "This field"} is required.`;
+  }
+  if (field?.startsWith("observations.")) {
+    const key = field.replace("observations.", "");
+    const observationField = (layout.observationSections || [])
+      .flatMap((section) => section.fields || [])
+      .find((item) => item.key === key)
+      || SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.find((item) => item.key === key);
+    return `${observationField?.label || "This field"} is required.`;
+  }
   if (field === "deficiencies") return "Add a deficiency or mark no deficiencies found.";
   if (field?.startsWith("deficiencies.")) return "Deficiency / hazard description is required.";
   return "Complete the required fields.";
@@ -11697,6 +12180,28 @@ function isToolboxTalkTemplateSchema(schema, template = {}) {
     ["toolbox_topics", "toolbox_attendance", "toolbox_final_confirmation"].includes(field.type),
   );
   return toolboxBlocks.length >= 2 && hasCoreToolboxBlock;
+}
+
+function isSiteInspectionTemplateSchema(schema, template = {}) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  if (normalized.formType === "site_inspection" || template?.form_type === "site_inspection") return true;
+
+  const templateSignal = slugifyTemplateId(
+    [
+      normalized.formType,
+      normalized.title,
+      template?.form_type,
+      template?.label,
+    ].filter(Boolean).join(" "),
+  );
+  if (templateSignal.includes("site_inspection")) return true;
+
+  const fields = collectClientTemplateFields(normalized);
+  return fields.some((field) =>
+    field.type === "site_deficiencies" ||
+    Boolean(field.settings?.siteInspectionHeaderField) ||
+    Boolean(field.settings?.siteInspectionObservationField),
+  );
 }
 
 function getToolboxTalkMissingFields(
@@ -11950,6 +12455,7 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     toolbox_safety_concerns: "Safety Concerns",
     toolbox_attendance: "Attendance",
     toolbox_final_confirmation: "Final Confirmation",
+    site_deficiencies: "Deficiencies",
   };
   return normalizeTemplateField({
     id: `field_${Date.now()}_${index}`,
@@ -12062,6 +12568,7 @@ function templateFieldBuilderHint(type) {
     toolbox_safety_concerns: "Concern and action rows",
     toolbox_attendance: "Typed attendee chips",
     toolbox_final_confirmation: "Presenter confirmation",
+    site_deficiencies: "Site inspection deficiency rows",
   };
   return hints[type] || "Question block";
 }
@@ -12085,6 +12592,7 @@ function templateFieldBuilderIcon(type) {
     toolbox_safety_concerns: "SC",
     toolbox_attendance: "A",
     toolbox_final_confirmation: "OK",
+    site_deficiencies: "SI",
   };
   return icons[type] || "+";
 }
