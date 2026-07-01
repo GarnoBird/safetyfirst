@@ -67,7 +67,11 @@ insert into public.form_template_versions (template_id, form_type, version_numbe
 select
   t.id,
   t.form_type,
-  1,
+  coalesce((
+    select max(existing.version_number) + 1
+    from public.form_template_versions existing
+    where existing.template_id = t.id
+  ), 1),
   'published',
   case t.form_type
     when 'daily_hazard_assessment' then
