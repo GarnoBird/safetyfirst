@@ -1545,6 +1545,14 @@ export function StaffHomePage({ navigateTo }) {
           </dl>
         </StaffActionCard>
 
+        <StaffActionCard
+          actionLabel="Open templates"
+          eyebrow="Form builder"
+          text="Create, edit, publish, hide, and duplicate worker form templates."
+          title="Form Templates"
+          onAction={() => navigateTo("/staff/form-templates")}
+        />
+
         {isAdminOrOwner(staff) ? (
           <StaffActionCard
             actionLabel="Open audit"
