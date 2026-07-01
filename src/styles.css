@@ -3671,12 +3671,16 @@ p {
 }
 
 .template-v3-sidebar {
-  position: sticky;
-  top: 14px;
+  align-self: start;
 }
 
 .template-v3-sidebar.has-active-block .template-v3-selected-block-card {
   order: -1;
+  position: sticky;
+  top: 14px;
+  z-index: 3;
+  max-height: calc(100vh - 28px);
+  overflow: auto;
 }
 
 .template-v3-toolbar,
