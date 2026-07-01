@@ -134,6 +134,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "dropdown", label: "Dropdown" },
   { id: "multi_select", label: "Multi-select chips" },
   { id: "checkbox", label: "Checkbox confirmation" },
+  { id: "signature", label: "Drawn signature" },
   { id: "instructions", label: "Instructions" },
   { id: "toolbox_meeting_info", label: "Toolbox meeting info" },
   { id: "toolbox_topics", label: "Toolbox topic picker" },
@@ -143,6 +144,8 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "toolbox_final_confirmation", label: "Toolbox final confirmation" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
+const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_meeting_info",
   "toolbox_topics",
@@ -186,6 +189,7 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       { type: "time", title: "Time", hint: "Time picker", icon: "T", label: "Time", default: "now" },
       { type: "yes_no", title: "Yes / No", hint: "Two-choice answer", icon: "Y/N", label: "" },
       { type: "checkbox", title: "Confirmation", hint: "Required acknowledgement", icon: "OK", label: "I confirm this information is correct." },
+      { type: "signature", title: "Drawn signature", hint: "Finger or mouse signature", icon: "Sig", label: "Signature" },
     ],
   },
   {
@@ -250,7 +254,6 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       { title: "Media upload", hint: "Photo/PDF fields need backend support", icon: "M", disabled: true },
       { title: "Editable table", hint: "Planned for a later schema version", icon: "Tbl", disabled: true },
       { title: "Calculation", hint: "Planned for a later schema version", icon: "Calc", disabled: true },
-      { title: "Drawn signature", hint: "Typed confirmations are supported now", icon: "Sig", disabled: true },
     ],
   },
 ];
@@ -8019,7 +8022,7 @@ function TemplateSchemaEditorV3({
                     <span>Remember last value</span>
                   </label>
                 ) : null}
-                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "dropdown", "signature"].includes(selectedField.type) ? (
                   <label>
                     <span>Default value</span>
                     <select
@@ -8397,6 +8400,17 @@ function TemplateRuntimeField({ field, invalid, targetRef, value, onChange }) {
       </label>
     );
   }
+  if (field.type === "signature") {
+    return (
+      <SignaturePadField
+        field={field}
+        invalid={invalid}
+        targetRef={targetRef}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
   return (
     <label className={labelClass} ref={targetRef}>
       <span>{field.label}</span>
@@ -8408,6 +8422,172 @@ function TemplateRuntimeField({ field, invalid, targetRef, value, onChange }) {
       />
     </label>
   );
+}
+
+function SignaturePadField({ field, invalid, targetRef, value, onChange }) {
+  const canvasRef = useRef(null);
+  const drawingRef = useRef(false);
+  const lastPointRef = useRef(null);
+  const valueRef = useRef(cleanSignatureDataUrl(value));
+
+  useEffect(() => {
+    valueRef.current = cleanSignatureDataUrl(value);
+  }, [value]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+
+    const drawStoredSignature = () => {
+      const context = prepareSignatureCanvas(canvas);
+      const rect = canvas.getBoundingClientRect();
+      context.clearRect(0, 0, rect.width, rect.height);
+      const storedValue = valueRef.current;
+      if (!storedValue) return;
+      const image = new Image();
+      image.onload = () => {
+        context.clearRect(0, 0, rect.width, rect.height);
+        context.drawImage(image, 0, 0, rect.width, rect.height);
+      };
+      image.src = storedValue;
+    };
+
+    drawStoredSignature();
+    window.addEventListener("resize", drawStoredSignature);
+    return () => window.removeEventListener("resize", drawStoredSignature);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || drawingRef.current) return;
+    const context = prepareSignatureCanvas(canvas);
+    const rect = canvas.getBoundingClientRect();
+    context.clearRect(0, 0, rect.width, rect.height);
+    const storedValue = cleanSignatureDataUrl(value);
+    valueRef.current = storedValue;
+    if (!storedValue) return;
+    const image = new Image();
+    image.onload = () => {
+      context.clearRect(0, 0, rect.width, rect.height);
+      context.drawImage(image, 0, 0, rect.width, rect.height);
+    };
+    image.src = storedValue;
+  }, [value]);
+
+  const pointForEvent = (event) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
+  const saveSignature = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const nextValue = canvas.toDataURL("image/png");
+    valueRef.current = nextValue;
+    onChange(nextValue);
+  };
+
+  const handlePointerDown = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    event.preventDefault();
+    canvas.setPointerCapture?.(event.pointerId);
+    drawingRef.current = true;
+    const point = pointForEvent(event);
+    lastPointRef.current = point;
+    const context = signatureContext(canvas);
+    context.beginPath();
+    context.arc(point.x, point.y, 1.3, 0, Math.PI * 2);
+    context.fill();
+  };
+
+  const handlePointerMove = (event) => {
+    if (!drawingRef.current || !canvasRef.current) return;
+    event.preventDefault();
+    const previous = lastPointRef.current;
+    const next = pointForEvent(event);
+    if (previous) {
+      const context = signatureContext(canvasRef.current);
+      context.beginPath();
+      context.moveTo(previous.x, previous.y);
+      context.lineTo(next.x, next.y);
+      context.stroke();
+    }
+    lastPointRef.current = next;
+  };
+
+  const finishDrawing = (event) => {
+    if (!drawingRef.current) return;
+    event.preventDefault();
+    canvasRef.current?.releasePointerCapture?.(event.pointerId);
+    drawingRef.current = false;
+    lastPointRef.current = null;
+    saveSignature();
+  };
+
+  const clearSignature = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = prepareSignatureCanvas(canvas);
+    const rect = canvas.getBoundingClientRect();
+    context.clearRect(0, 0, rect.width, rect.height);
+    valueRef.current = "";
+    onChange("");
+  };
+
+  return (
+    <div className={invalid ? "template-signature-field toolbox-field-invalid" : "template-signature-field"} ref={targetRef}>
+      <span>{field.label}</span>
+      <div className="template-signature-pad">
+        <canvas
+          aria-label={field.label}
+          className="template-signature-canvas"
+          ref={canvasRef}
+          onPointerCancel={finishDrawing}
+          onPointerDown={handlePointerDown}
+          onPointerLeave={finishDrawing}
+          onPointerMove={handlePointerMove}
+          onPointerUp={finishDrawing}
+        />
+        <div className="template-signature-toolbar">
+          <small>{field.helperText || "Draw in the box with a finger, stylus, or mouse."}</small>
+          <button type="button" onClick={clearSignature}>Clear</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function prepareSignatureCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.max(1, Math.floor(rect.width * ratio));
+  const height = Math.max(1, Math.floor(rect.height * ratio));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  const context = canvas.getContext("2d");
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.lineWidth = 2.4;
+  context.strokeStyle = "#17211f";
+  context.fillStyle = "#17211f";
+  return context;
+}
+
+function signatureContext(canvas) {
+  const context = canvas.getContext("2d");
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.lineWidth = 2.4;
+  context.strokeStyle = "#17211f";
+  context.fillStyle = "#17211f";
+  return context;
 }
 
 function ActionItemsTable({
@@ -11731,6 +11911,7 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     dropdown: "Dropdown question",
     multi_select: "Multi-select question",
     checkbox: "Confirmation statement",
+    signature: "Signature",
     toolbox_meeting_info: "Meeting Info",
     toolbox_topics: "Topics Discussed",
     toolbox_incident_review: "Incident / Review",
@@ -11841,6 +12022,7 @@ function templateFieldBuilderHint(type) {
     dropdown: "One option",
     multi_select: "Many chips",
     checkbox: "Final confirmation",
+    signature: "Drawn signature",
     instructions: "Read-only text",
     toolbox_meeting_info: "Toolbox Talk header logic",
     toolbox_topics: "APPIA toolbox topic picker",
@@ -11863,6 +12045,7 @@ function templateFieldBuilderIcon(type) {
     dropdown: "V",
     multi_select: "+",
     checkbox: "OK",
+    signature: "Sig",
     instructions: "i",
     toolbox_meeting_info: "TT",
     toolbox_topics: "T",
@@ -11948,6 +12131,7 @@ function cleanTemplateAnswersForSubmit(schema, answers, worker) {
 function cleanTemplateAnswerForSubmit(field, value) {
   if (field.type === "checkbox") return value === true;
   if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
+  if (field.type === "signature") return cleanSignatureDataUrl(value);
   if (field.type === "number") return value === "" || value === null || value === undefined ? "" : value;
   return typeof value === "string" ? value.trim() : value || "";
 }
@@ -12095,6 +12279,16 @@ function isTemplateDigitalSubmission(row) {
 
 function renderTemplateAnswerDisplay(field, value) {
   if (isTemplateNonAnswerField(field)) return "-";
+  if (field.type === "signature") {
+    const src = cleanSignatureDataUrl(value);
+    return src ? (
+      <img
+        alt={`${field.label || "Signature"} signature`}
+        className="template-signature-answer"
+        src={src}
+      />
+    ) : "-";
+  }
   const display = formatTemplateAnswerDisplay(field, value);
   if (Array.isArray(display)) {
     if (!display.length) return "-";
@@ -12112,6 +12306,7 @@ function renderTemplateAnswerDisplay(field, value) {
 function formatTemplateAnswerDisplay(field, value) {
   if (isTemplateNonAnswerField(field)) return "";
   if (field.type === "checkbox") return value ? "Yes" : "No";
+  if (field.type === "signature") return cleanSignatureDataUrl(value) ? "Signed" : "";
   if (field.type === "yes_no") {
     if (value === "yes") return "Yes";
     if (value === "no") return "No";
@@ -12123,6 +12318,12 @@ function formatTemplateAnswerDisplay(field, value) {
   if (field.type === "date" && value) return formatDateString(String(value));
   if (value === null || value === undefined || value === "") return "";
   return String(value);
+}
+
+function cleanSignatureDataUrl(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text || text.length > MAX_SIGNATURE_DATA_URL_LENGTH) return "";
+  return SIGNATURE_DATA_URL_PATTERN.test(text) ? text : "";
 }
 
 function actionItemStatusLabel(value) {
@@ -12341,6 +12542,7 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
   const sectionHtml = schema.sections.map((section) => {
     const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
     const rows = fields.map((field) => {
+      if (field.type === "signature") return signatureDefinitionHtml(field.label, answers[field.id]);
       const display = formatTemplateAnswerDisplay(field, answers[field.id]);
       const value = Array.isArray(display) ? display.join(", ") : display;
       return definitionHtml(field.label, value);
@@ -12373,6 +12575,7 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
       dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
       dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
       dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; white-space: pre-wrap; }
+      .signature-print-image { display: block; width: 100%; max-width: 360px; max-height: 130px; object-fit: contain; border: 1px solid #d9e3de; border-radius: 6px; background: #fff; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
       footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
@@ -12412,6 +12615,7 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
         dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3pt 5pt; }
         dt { font-size: 5.3pt; line-height: 1.05; }
         dd { margin-top: 1pt; font-size: 6.6pt; line-height: 1.12; }
+        .signature-print-image { max-height: 45pt; }
         .print-actions { display: none; }
         footer { font-size: 5.6pt; padding-top: 3pt; }
       }
@@ -12835,6 +13039,13 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
 function definitionHtml(label, value) {
   const displayValue = value === null || value === undefined || value === "" ? "-" : String(value);
   return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(displayValue)}</dd></div>`;
+}
+
+function signatureDefinitionHtml(label, value) {
+  const src = cleanSignatureDataUrl(value);
+  if (!src) return definitionHtml(label, "-");
+  const safeLabel = escapeHtml(label || "Signature");
+  return `<div><dt>${safeLabel}</dt><dd><img class="signature-print-image" alt="${safeLabel} signature" src="${src}" /></dd></div>`;
 }
 
 function slugifyFilePart(value) {

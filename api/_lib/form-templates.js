@@ -20,6 +20,7 @@ export const TEMPLATE_FIELD_TYPES = [
   "dropdown",
   "multi_select",
   "checkbox",
+  "signature",
   "instructions",
   "toolbox_meeting_info",
   "toolbox_topics",
@@ -47,6 +48,8 @@ const MAX_FIELDS = 100;
 const MAX_OPTIONS = 80;
 const MAX_TEXT = 600;
 const MAX_LONG_TEXT = 4000;
+const MAX_SIGNATURE_DATA_URL = 750000;
+const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const MAX_SETTINGS_KEYS = 80;
 const MAX_SETTINGS_DEPTH = 5;
 
@@ -645,6 +648,7 @@ function cleanAnswer(field, raw) {
       .filter((item) => allowed.has(item))
       .slice(0, MAX_OPTIONS);
   }
+  if (field.type === "signature") return cleanSignatureDataUrl(raw, field.label);
   const max = field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT;
   return cleanString(raw, max);
 }
@@ -796,9 +800,18 @@ function createDefaultSchemaForTemplate(template) {
 
 function formatAnswerForNotes(field, value) {
   if (field.type === "checkbox") return value ? "Yes" : "";
+  if (field.type === "signature") return cleanSignatureDataUrl(value, field.label) ? "Signed" : "";
   if (field.type === "multi_select") return Array.isArray(value) ? value.slice(0, 3).join(", ") : "";
   if (field.type === "yes_no") return value === "yes" ? "Yes" : value === "no" ? "No" : "";
   return cleanString(value, 120);
+}
+
+function cleanSignatureDataUrl(raw, label = "Signature") {
+  const value = typeof raw === "string" ? raw.trim() : "";
+  if (!value) return "";
+  if (value.length > MAX_SIGNATURE_DATA_URL) throwBadRequest(`${label} signature is too large.`);
+  if (!SIGNATURE_DATA_URL_PATTERN.test(value)) throwBadRequest(`${label} must be a valid signature image.`);
+  return value;
 }
 
 function cleanOptions(value) {
