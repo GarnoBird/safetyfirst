@@ -7385,6 +7385,7 @@ function TemplateSchemaEditorV3({
   const activeFieldGroup =
     TEMPLATE_V3_FIELD_GROUPS.find((group) => group.id === fieldPickerTab) || TEMPLATE_V3_FIELD_GROUPS[0];
   const canToggleVisibility = hasPublishedVersion && active && !archived && !saving;
+  const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
 
   useEffect(() => {
     setOptionDraft("");
@@ -7611,7 +7612,7 @@ function TemplateSchemaEditorV3({
                 {current.description ? <p>{current.description}</p> : null}
               </div>
               {fieldCount ? (
-                (current.formType === "toolbox_talk" || selectedTemplate.form_type === "toolbox_talk") ? (
+                useToolboxTalkPreview ? (
                   <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
                 ) : (
                   <TemplateFormFields
@@ -11673,6 +11674,29 @@ function getToolboxTalkLayout(schema) {
 
 function getToolboxTalkEnabledBlocks(schema) {
   return getToolboxTalkLayout(schema).enabledBlocks;
+}
+
+function isToolboxTalkTemplateSchema(schema, template = {}) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  if (normalized.formType === "toolbox_talk" || template?.form_type === "toolbox_talk") return true;
+
+  const templateSignal = slugifyTemplateId(
+    [
+      normalized.formType,
+      normalized.title,
+      template?.form_type,
+      template?.label,
+    ].filter(Boolean).join(" "),
+  );
+  if (templateSignal.includes("toolbox_talk")) return true;
+
+  const toolboxBlocks = collectClientTemplateFields(normalized).filter((field) =>
+    TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type),
+  );
+  const hasCoreToolboxBlock = toolboxBlocks.some((field) =>
+    ["toolbox_topics", "toolbox_attendance", "toolbox_final_confirmation"].includes(field.type),
+  );
+  return toolboxBlocks.length >= 2 && hasCoreToolboxBlock;
 }
 
 function getToolboxTalkMissingFields(
