@@ -7730,8 +7730,11 @@ function TemplateSchemaEditorV3({
           )}
         </section>
 
-        <aside className="template-v3-sidebar" aria-label="Builder V3 settings">
-          <section className="template-v3-side-card">
+        <aside
+          className={activeSelection.kind === "header" ? "template-v3-sidebar" : "template-v3-sidebar has-active-block"}
+          aria-label="Builder V3 settings"
+        >
+          <section className="template-v3-side-card template-v3-template-options-card">
             <div className="template-v3-side-heading">
               <span>Options</span>
               <h2>Template</h2>
@@ -7807,7 +7810,7 @@ function TemplateSchemaEditorV3({
             <p className="template-v3-worker-url">Worker URL: /forms/{selectedTemplate.form_type}</p>
           </section>
 
-          <section className="template-v3-side-card">
+          <section className="template-v3-side-card template-v3-selected-block-card">
             <div className="template-v3-side-heading">
               <span>Selected Block</span>
               <h2>
