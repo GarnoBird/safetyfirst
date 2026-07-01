@@ -7594,9 +7594,14 @@ function TemplateSchemaEditorV3({
                 </button>
               ))}
             </div>
-            <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
-              New Field +
-            </button>
+            <div className="template-v3-toolbar-actions">
+              <button type="button" onClick={addSection}>
+                New Section +
+              </button>
+              <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                New Field +
+              </button>
+            </div>
           </div>
 
           {view === "preview" ? (
@@ -7645,11 +7650,16 @@ function TemplateSchemaEditorV3({
               {!sections.length ? (
                 <div className="template-v3-empty-page">
                   <span>Blank template</span>
-                  <h2>Start with your first field</h2>
-                  <p>Click New Field + to add questions, instructions, dates, choices, and confirmations.</p>
-                  <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
-                    New Field +
-                  </button>
+                  <h2>Start with your first section or field</h2>
+                  <p>Add a section to organize the form, or add a field and we will create the first section for you.</p>
+                  <div className="template-v3-empty-actions">
+                    <button type="button" onClick={addSection}>
+                      New Section +
+                    </button>
+                    <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                      New Field +
+                    </button>
+                  </div>
                 </div>
               ) : null}
 

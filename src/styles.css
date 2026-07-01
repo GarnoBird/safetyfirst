@@ -3684,6 +3684,19 @@ p {
   justify-content: space-between;
 }
 
+.template-v3-toolbar-actions,
+.template-v3-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.template-v3-toolbar-actions {
+  justify-content: flex-end;
+}
+
 .template-v3-tabs,
 .template-v3-modal-tabs {
   display: inline-grid;
