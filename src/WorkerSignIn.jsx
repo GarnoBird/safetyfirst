@@ -6278,6 +6278,41 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   );
 }
 
+function patchHasKey(patch, key) {
+  return Boolean(patch && Object.prototype.hasOwnProperty.call(patch, key));
+}
+
+function syncSchemaMeta(schema, patch) {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) return schema;
+  if (!patchHasKey(patch, "label") && !patchHasKey(patch, "description")) return schema;
+  return {
+    ...schema,
+    title: patchHasKey(patch, "label") ? String(patch.label || "") : schema.title,
+    description: patchHasKey(patch, "description") ? String(patch.description || "") : schema.description,
+  };
+}
+
+function syncTemplateSchemaMeta(template, patch) {
+  if (!template || (!patchHasKey(patch, "label") && !patchHasKey(patch, "description"))) return template;
+  const syncVersion = (version) => (
+    version?.schema
+      ? { ...version, schema: syncSchemaMeta(version.schema, patch) }
+      : version
+  );
+  return {
+    ...template,
+    draftVersion: syncVersion(template.draftVersion),
+    publishedVersion: template.draftVersion ? template.publishedVersion : syncVersion(template.publishedVersion),
+    versions: Array.isArray(template.versions)
+      ? template.versions.map((version) =>
+          version.status === "draft" || (!template.draftVersion && version.status === "published")
+            ? syncVersion(version)
+            : version,
+        )
+      : template.versions,
+  };
+}
+
 export function StaffFormTemplatesPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const canManageTemplates = Boolean(staff);
@@ -6419,18 +6454,22 @@ export function StaffFormTemplatesPage({ navigateTo }) {
           body: JSON.stringify(patch),
         }),
       );
+      const nextTemplate = syncTemplateSchemaMeta(payload.template, patch);
       let nextRows = [];
       setRows((current) => {
-        nextRows = current.map((row) => (row.form_type === payload.template.form_type ? payload.template : row));
+        nextRows = current.map((row) => (row.form_type === nextTemplate.form_type ? nextTemplate : row));
         return nextRows;
       });
+      if (patchHasKey(patch, "label") || patchHasKey(patch, "description")) {
+        setDraftSchema((current) => syncSchemaMeta(current, patch));
+      }
       if (patch.archived) {
         setFocusedTemplateType("");
-        const nextTemplate = nextRows.find((row) => !row.archived_at && row.form_type !== payload.template.form_type);
-        if (nextTemplate) setSelectedFormType(nextTemplate.form_type);
+        const nextActiveTemplate = nextRows.find((row) => !row.archived_at && row.form_type !== nextTemplate.form_type);
+        if (nextActiveTemplate) setSelectedFormType(nextActiveTemplate.form_type);
       } else if (patch.archived === false) {
         setArchivedOpen(false);
-        setSelectedFormType(payload.template.form_type);
+        setSelectedFormType(nextTemplate.form_type);
       }
       setMessage(patch.archived ? "Template archived." : "Template settings saved.");
     } catch (error) {
@@ -8001,7 +8040,7 @@ function TemplateSchemaEditorV3({
                 </label>
                 <label className="settings-checkbox compact">
                   <input
-                    checked={Boolean(selectedSection.settings?.defaultCollapsed)}
+                    checked={Boolean(getTemplateSettingValue(selectedSection.settings, "defaultCollapsed"))}
                     type="checkbox"
                     onChange={(event) =>
                       updateSectionSettings(activeSelection.sectionIndex, { defaultCollapsed: event.target.checked })
@@ -8038,7 +8077,6 @@ function TemplateSchemaEditorV3({
                     onChange={(event) =>
                       updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
                         label: event.target.value,
-                        id: slugifyTemplateId(event.target.value) || selectedField.id,
                       })
                     }
                   />
@@ -8116,7 +8154,7 @@ function TemplateSchemaEditorV3({
                 {["toolbox_incident_review", "toolbox_safety_concerns"].includes(selectedField.type) ? (
                   <label className="settings-checkbox compact">
                     <input
-                      checked={normalizeTemplateSettings(selectedField.settings).defaultCollapsed !== false}
+                      checked={getTemplateSettingValue(selectedField.settings, "defaultCollapsed") !== false}
                       type="checkbox"
                       onChange={(event) => updateSelectedFieldSettings({ defaultCollapsed: event.target.checked })}
                     />
@@ -11680,7 +11718,7 @@ function siteInspectionObservationsHaveValues(observations) {
 }
 
 function getSiteInspectionHeaderFieldKey(field) {
-  const explicit = field?.settings?.siteInspectionHeaderField;
+  const explicit = getTemplateSettingValue(field?.settings, "siteInspectionHeaderField");
   if (explicit && SITE_INSPECTION_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -11691,7 +11729,7 @@ function getSiteInspectionHeaderFieldKey(field) {
 }
 
 function getSiteInspectionObservationFieldKey(field) {
-  const explicit = field?.settings?.siteInspectionObservationField;
+  const explicit = getTemplateSettingValue(field?.settings, "siteInspectionObservationField");
   if (explicit && SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -11845,8 +11883,10 @@ function getSiteInspectionLayout(schema) {
 
     if (observationFields.length) {
       const firstField = observationFields[0];
+      const sectionDefaultCollapsed = getTemplateSettingValue(sectionSettings, "defaultCollapsed");
+      const fieldDefaultCollapsed = getTemplateSettingValue(firstField.settings, "defaultCollapsed");
       const defaultCollapsed =
-        sectionSettings.defaultCollapsed ?? firstField.settings.defaultCollapsed ?? firstField.defaultCollapsed ?? true;
+        sectionDefaultCollapsed ?? fieldDefaultCollapsed ?? firstField.defaultCollapsed ?? true;
       const observationSection = {
         id: section.id || `site_observation_${layout.observationSections.length + 1}`,
         title: section.title || firstField.sectionTitle || "Observations",
@@ -12013,7 +12053,7 @@ function validateToolboxTalkForm(form) {
 }
 
 function getToolboxTalkHeaderFieldKey(field) {
-  const explicit = field?.settings?.toolboxHeaderField;
+  const explicit = getTemplateSettingValue(field?.settings, "toolboxHeaderField");
   if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -12050,18 +12090,20 @@ function createDefaultToolboxTalkLayout() {
 }
 
 function getToolboxTopicSettings(settings = {}) {
-  const enabledCategoryIds = Array.isArray(settings.enabledCategoryIds)
-    ? settings.enabledCategoryIds.filter((id) => TOOLBOX_TALK_TOPIC_GROUP_IDS.includes(id))
+  const enabledCategorySetting = getTemplateSettingValue(settings, "enabledCategoryIds");
+  const commonTopicSetting = getTemplateSettingValue(settings, "commonTopicLabels");
+  const enabledCategoryIds = Array.isArray(enabledCategorySetting)
+    ? enabledCategorySetting.filter((id) => TOOLBOX_TALK_TOPIC_GROUP_IDS.includes(id))
     : TOOLBOX_TALK_TOPIC_GROUP_IDS;
-  const commonTopicLabels = Array.isArray(settings.commonTopicLabels)
-    ? settings.commonTopicLabels
+  const commonTopicLabels = Array.isArray(commonTopicSetting)
+    ? commonTopicSetting
         .map((label) => String(label || "").trim())
         .filter(Boolean)
         .filter((label, index, labels) => labels.indexOf(label) === index)
     : TOOLBOX_TALK_QUICK_TOPIC_LABELS;
   return {
-    showCommon: settings.showCommon !== false,
-    showSearch: settings.showSearch !== false,
+    showCommon: getTemplateSettingValue(settings, "showCommon") !== false,
+    showSearch: getTemplateSettingValue(settings, "showSearch") !== false,
     enabledCategoryIds: enabledCategoryIds.length ? enabledCategoryIds : TOOLBOX_TALK_TOPIC_GROUP_IDS,
     commonTopicLabels: commonTopicLabels.length ? commonTopicLabels : TOOLBOX_TALK_QUICK_TOPIC_LABELS,
   };
@@ -12149,13 +12191,15 @@ function getToolboxTalkLayout(schema) {
     (field, index, fields) => fields.findIndex((item) => item.key === field.key) === index,
   );
   layout.blockSettings.toolbox_topics = getToolboxTopicSettings(layout.blockSettings.toolbox_topics);
+  const incidentSettings = layout.blockSettings.toolbox_incident_review || {};
   layout.blockSettings.toolbox_incident_review = {
-    defaultCollapsed: layout.blockSettings.toolbox_incident_review?.defaultCollapsed !== false,
-    ...layout.blockSettings.toolbox_incident_review,
+    ...incidentSettings,
+    defaultCollapsed: getTemplateSettingValue(incidentSettings, "defaultCollapsed") !== false,
   };
+  const concernSettings = layout.blockSettings.toolbox_safety_concerns || {};
   layout.blockSettings.toolbox_safety_concerns = {
-    defaultCollapsed: layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed !== false,
-    ...layout.blockSettings.toolbox_safety_concerns,
+    ...concernSettings,
+    defaultCollapsed: getTemplateSettingValue(concernSettings, "defaultCollapsed") !== false,
   };
   return layout;
 }
@@ -12204,8 +12248,8 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
   const fields = collectClientTemplateFields(normalized);
   return fields.some((field) =>
     field.type === "site_deficiencies" ||
-    Boolean(field.settings?.siteInspectionHeaderField) ||
-    Boolean(field.settings?.siteInspectionObservationField),
+    Boolean(getTemplateSettingValue(field.settings, "siteInspectionHeaderField")) ||
+    Boolean(getTemplateSettingValue(field.settings, "siteInspectionObservationField")),
   );
 }
 
@@ -12412,6 +12456,16 @@ function normalizeTemplateSettings(settings) {
   } catch {
     return {};
   }
+}
+
+function getTemplateSettingValue(settings, key) {
+  const source = normalizeTemplateSettings(settings);
+  if (Object.prototype.hasOwnProperty.call(source, key)) return source[key];
+  const normalizedKey = slugifyTemplateId(key);
+  if (normalizedKey && Object.prototype.hasOwnProperty.call(source, normalizedKey)) {
+    return source[normalizedKey];
+  }
+  return undefined;
 }
 
 function ensureTemplateSchemaHasStarterQuestion(schema) {

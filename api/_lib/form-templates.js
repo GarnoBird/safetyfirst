@@ -565,7 +565,7 @@ function cleanSettingsObject(value, depth = 0) {
   const entries = Object.entries(value).slice(0, MAX_SETTINGS_KEYS);
   const cleaned = {};
   entries.forEach(([rawKey, rawValue]) => {
-    const key = cleanId(rawKey) || cleanString(rawKey, 80);
+    const key = cleanSettingsKey(rawKey);
     if (!key) return;
     const cleanedValue = cleanSettingsValue(rawValue, depth + 1);
     if (cleanedValue !== undefined) cleaned[key] = cleanedValue;
@@ -848,6 +848,12 @@ function slugifyFormType(value) {
 
 function cleanString(value, maxLength) {
   return String(value || "").trim().slice(0, maxLength);
+}
+
+function cleanSettingsKey(value) {
+  return cleanString(value, 80)
+    .replace(/[^A-Za-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 function cleanId(value) {

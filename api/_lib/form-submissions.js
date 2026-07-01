@@ -1629,11 +1629,18 @@ function slugifyToolboxTemplateId(value) {
     .replace(/^_+|_+$/g, "");
 }
 
-function getToolboxTalkHeaderFieldKey(field) {
-  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
-    ? field.settings
+function getTemplateSettingValue(settings, key) {
+  const source = settings && typeof settings === "object" && !Array.isArray(settings)
+    ? settings
     : {};
-  const explicit = cleanText(settings.toolboxHeaderField, 80);
+  const direct = cleanText(source[key], 80);
+  if (direct) return direct;
+  const normalizedKey = slugifyToolboxTemplateId(key);
+  return normalizedKey ? cleanText(source[normalizedKey], 80) : "";
+}
+
+function getToolboxTalkHeaderFieldKey(field) {
+  const explicit = getTemplateSettingValue(field?.settings, "toolboxHeaderField");
   if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -1702,10 +1709,7 @@ function createDefaultSiteInspectionConfig() {
 }
 
 function getSiteInspectionHeaderFieldKey(field) {
-  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
-    ? field.settings
-    : {};
-  const explicit = cleanText(settings.siteInspectionHeaderField, 80);
+  const explicit = getTemplateSettingValue(field?.settings, "siteInspectionHeaderField");
   if (explicit && SITE_INSPECTION_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -1715,10 +1719,7 @@ function getSiteInspectionHeaderFieldKey(field) {
 }
 
 function getSiteInspectionObservationFieldKey(field) {
-  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
-    ? field.settings
-    : {};
-  const explicit = cleanText(settings.siteInspectionObservationField, 80);
+  const explicit = getTemplateSettingValue(field?.settings, "siteInspectionObservationField");
   if (explicit && SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.some((item) => item.key === explicit)) {
     return explicit;
   }
@@ -1733,8 +1734,8 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
   const fields = sections.flatMap((section) => Array.isArray(section?.fields) ? section.fields : []);
   return fields.some((field) =>
     field?.type === "site_deficiencies" ||
-    Boolean(field?.settings?.siteInspectionHeaderField) ||
-    Boolean(field?.settings?.siteInspectionObservationField),
+    Boolean(getTemplateSettingValue(field?.settings, "siteInspectionHeaderField")) ||
+    Boolean(getTemplateSettingValue(field?.settings, "siteInspectionObservationField")),
   );
 }
 
