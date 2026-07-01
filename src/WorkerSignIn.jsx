@@ -135,8 +135,30 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "multi_select", label: "Multi-select chips" },
   { id: "checkbox", label: "Checkbox confirmation" },
   { id: "instructions", label: "Instructions" },
+  { id: "toolbox_meeting_info", label: "Toolbox meeting info" },
+  { id: "toolbox_topics", label: "Toolbox topic picker" },
+  { id: "toolbox_incident_review", label: "Toolbox incident review" },
+  { id: "toolbox_safety_concerns", label: "Toolbox safety concerns" },
+  { id: "toolbox_attendance", label: "Toolbox attendance" },
+  { id: "toolbox_final_confirmation", label: "Toolbox final confirmation" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
+  "toolbox_meeting_info",
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
+]);
+const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
+  "toolbox_meeting_info",
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
+];
 const TEMPLATE_BLOCK_GROUPS = [
   {
     title: "Common",
@@ -182,6 +204,18 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       { type: "short_text", title: "Company", hint: "Company or subcontractor", icon: "Co", label: "Company" },
       { type: "short_text", title: "Project", hint: "Project or site name", icon: "P", label: "Project" },
       { type: "checkbox", title: "Final confirmation", hint: "Worker must check it", icon: "OK", label: "I confirm this form is complete.", required: true },
+    ],
+  },
+  {
+    id: "special",
+    label: "Special Blocks",
+    fields: [
+      { type: "toolbox_meeting_info", title: "Toolbox meeting info", hint: "Project, address, date, time, presenter, supervisor", icon: "TT", label: "Meeting Info" },
+      { type: "toolbox_topics", title: "Toolbox topics", hint: "Expandable APPIA topic picker", icon: "T", label: "Topics Discussed" },
+      { type: "toolbox_incident_review", title: "Incident review", hint: "FA, medical aids, near miss, lessons", icon: "IR", label: "Incident / Review" },
+      { type: "toolbox_safety_concerns", title: "Safety concerns", hint: "Concern, action, date rows", icon: "SC", label: "Safety Concerns" },
+      { type: "toolbox_attendance", title: "Attendance list", hint: "Fast typed attendee chips", icon: "A", label: "Attendance" },
+      { type: "toolbox_final_confirmation", title: "Final confirmation", hint: "Presenter comments and participation check", icon: "OK", label: "Final Confirmation" },
     ],
   },
   {
@@ -3337,6 +3371,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       </button>
                     </div>
                     <ToolboxTalkDigitalForm
+                      formTemplate={formTemplate}
                       submitting={submitting}
                       worker={worker}
                       onSubmit={submitToolboxTalkForm}
@@ -3417,7 +3452,7 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
   );
 }
 
-function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
+function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) {
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
   const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
@@ -3463,6 +3498,13 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
     () => filterToolboxTopicGroups(topicSearch),
     [topicSearch],
   );
+  const enabledBlocks = useMemo(
+    () => getToolboxTalkEnabledBlocks(
+      formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
+    ),
+    [formTemplate],
+  );
+  const enabledBlockSet = useMemo(() => new Set(enabledBlocks), [enabledBlocks]);
   const attendeeNames = useMemo(
     () =>
       (Array.isArray(form.attendance) ? form.attendance : [])
@@ -3471,8 +3513,8 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
     [form.attendance],
   );
   const missingFieldKeys = useMemo(
-    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput) : []),
-    [attendeeNameInput, form, submitAttempted],
+    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput, enabledBlocks) : []),
+    [attendeeNameInput, enabledBlocks, form, submitAttempted],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
   const hasSavedDefaults = Boolean(
@@ -3497,9 +3539,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
 
   useEffect(() => {
     if (!submitAttempted) return;
-    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput);
+    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput, enabledBlocks);
     setError(nextMissing.length ? toolboxValidationMessage(nextMissing[0]) : "");
-  }, [attendeeNameInput, form, submitAttempted]);
+  }, [attendeeNameInput, enabledBlocks, form, submitAttempted]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -3678,7 +3720,7 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
       setForm(formForSubmit);
       setAttendeeNameInput("");
     }
-    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit);
+    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit, "", enabledBlocks);
     if (nextMissingFields.length) {
       setSubmitAttempted(true);
       setError(toolboxValidationMessage(nextMissingFields[0]));
@@ -3708,7 +3750,8 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
         </div>
       ) : null}
 
-      <section className={meetingInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
+      {enabledBlockSet.has("toolbox_meeting_info") ? (
+        <section className={meetingInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
           <h2>Meeting Info</h2>
           {hasSavedDefaults ? (
@@ -3784,7 +3827,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           </label>
         </div>
       </section>
+        ) : null}
 
+        {enabledBlockSet.has("toolbox_topics") ? (
       <section
         className={topicsInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
         ref={registerValidationTarget("topics")}
@@ -3886,7 +3931,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           />
         </label>
       </section>
+        ) : null}
 
+        {enabledBlockSet.has("toolbox_incident_review") ? (
       <section className={optionalOpen.review ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
           <h2>Review Notes</h2>
@@ -3956,7 +4003,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           </>
         ) : null}
       </section>
+        ) : null}
 
+        {enabledBlockSet.has("toolbox_safety_concerns") ? (
       <section className={optionalOpen.concerns ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
           <h2>Safety Concerns</h2>
@@ -4003,7 +4052,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           </>
         ) : null}
       </section>
+        ) : null}
 
+        {enabledBlockSet.has("toolbox_attendance") ? (
       <section
         className={attendanceInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
         ref={registerValidationTarget("attendance")}
@@ -4039,7 +4090,9 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           ))}
         </div>
       </section>
+        ) : null}
 
+        {enabledBlockSet.has("toolbox_final_confirmation") ? (
       <section className={finalCheckInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
           <h2>Final Check</h2>
@@ -4100,6 +4153,7 @@ function ToolboxTalkDigitalForm({ onSubmit, submitting, worker }) {
           <span>I confirm the listed workers participated in this toolbox talk.</span>
         </label>
       </section>
+        ) : null}
 
       {error ? <p className="form-message error">{error}</p> : null}
 
@@ -7395,6 +7449,7 @@ function TemplateSchemaEditorV3({
   const selectedField = selected.kind === "field"
     ? selectedSection?.fields?.[selected.fieldIndex]
     : null;
+  const selectedFieldIsNonAnswer = selectedField ? isTemplateNonAnswerField(selectedField) : false;
   const activeSelection =
     selected.kind === "field" && selectedField
       ? selected
@@ -7701,8 +7756,14 @@ function TemplateSchemaEditorV3({
                           <span>{templateFieldTypeLabel(field.type)}</span>
                           <strong>{field.label || `Field ${fieldIndex + 1}`}</strong>
                           <small>
-                            {field.required ? "Required" : "Optional"}
-                            {field.remember ? " / remembered" : ""}
+                            {TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)
+                              ? "Special block"
+                              : (
+                                  <>
+                                    {field.required ? "Required" : "Optional"}
+                                    {field.remember ? " / remembered" : ""}
+                                  </>
+                                )}
                           </small>
                         </button>
                         <div className="template-v3-field-actions">
@@ -7857,7 +7918,13 @@ function TemplateSchemaEditorV3({
                   </select>
                 </label>
                 <label>
-                  <span>{selectedField.type === "instructions" ? "Instruction text" : "Question label"}</span>
+                  <span>
+                    {selectedField.type === "instructions"
+                      ? "Instruction text"
+                      : TEMPLATE_SPECIAL_BLOCK_TYPES.has(selectedField.type)
+                        ? "Block label"
+                        : "Question label"}
+                  </span>
                   <input
                     value={selectedField.label || ""}
                     onChange={(event) =>
@@ -7879,7 +7946,12 @@ function TemplateSchemaEditorV3({
                     />
                   </label>
                 ) : null}
-                {selectedField.type !== "instructions" ? (
+                {selectedFieldIsNonAnswer && selectedField.type !== "instructions" ? (
+                  <p className="template-v3-help-text">
+                    This special block reuses the polished Toolbox Talk logic when the form supports it.
+                  </p>
+                ) : null}
+                {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
                       checked={Boolean(selectedField.required)}
@@ -7918,7 +7990,7 @@ function TemplateSchemaEditorV3({
                     </div>
                   </div>
                 ) : null}
-                {selectedField.type !== "instructions" ? (
+                {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
                       checked={Boolean(selectedField.remember)}
@@ -7930,7 +8002,7 @@ function TemplateSchemaEditorV3({
                     <span>Remember last value</span>
                   </label>
                 ) : null}
-                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
                   <label>
                     <span>Default value</span>
                     <select
@@ -8230,6 +8302,7 @@ function TemplateSchemaEditorV2({
             <div className="template-v2-question-list">
               {(section.fields || []).map((field, fieldIndex) => {
                 const optionKey = `${sectionIndex}:${fieldIndex}`;
+                const fieldIsNonAnswer = isTemplateNonAnswerField(field);
                 return (
                   <article className="template-v2-question-card" key={field.id || fieldIndex}>
                     <div className="template-v2-question-topline">
@@ -8244,7 +8317,13 @@ function TemplateSchemaEditorV2({
                       </select>
                     </div>
                     <label>
-                      <span>{field.type === "instructions" ? "Instruction text" : "Question"}</span>
+                      <span>
+                        {field.type === "instructions"
+                          ? "Instruction text"
+                          : TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)
+                            ? "Block label"
+                            : "Question"}
+                      </span>
                       <input
                         autoFocus={sectionIndex === 0 && fieldIndex === 0 && !field.label}
                         placeholder={field.type === "instructions" ? "Type instructions" : "Type the question"}
@@ -8269,8 +8348,13 @@ function TemplateSchemaEditorV2({
                         />
                       </label>
                     ) : null}
+                    {fieldIsNonAnswer && field.type !== "instructions" ? (
+                      <p className="template-v3-help-text">
+                        This special block reuses the polished Toolbox Talk logic when the form supports it.
+                      </p>
+                    ) : null}
                     <div className="template-v2-question-toggles">
-                      {field.type !== "instructions" ? (
+                      {!fieldIsNonAnswer ? (
                         <label className="settings-checkbox compact">
                           <input
                             checked={Boolean(field.required)}
@@ -8323,7 +8407,7 @@ function TemplateSchemaEditorV2({
                     ) : null}
                     <details className="template-advanced-options">
                       <summary>More options</summary>
-                      {field.type !== "instructions" ? (
+                      {!fieldIsNonAnswer ? (
                         <label className="settings-checkbox compact">
                           <input
                             checked={Boolean(field.remember)}
@@ -8335,7 +8419,7 @@ function TemplateSchemaEditorV2({
                           <span>Remember last value on this device</span>
                         </label>
                       ) : null}
-                      {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(field.type) ? (
+                      {!fieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "dropdown"].includes(field.type) ? (
                         <label>
                           <span>Default value</span>
                           <select
@@ -8864,7 +8948,13 @@ function TemplateSchemaEditor({
           {activeSelection.kind === "field" && selectedField ? (
             <div className="template-inspector-body">
               <label>
-                <span>{selectedField.type === "instructions" ? "Instruction text" : "Question label"}</span>
+                <span>
+                  {selectedField.type === "instructions"
+                    ? "Instruction text"
+                    : TEMPLATE_SPECIAL_BLOCK_TYPES.has(selectedField.type)
+                      ? "Block label"
+                      : "Question label"}
+                </span>
                 <input
                   value={selectedField.label}
                   onChange={(event) =>
@@ -8875,7 +8965,7 @@ function TemplateSchemaEditor({
                   }
                 />
               </label>
-              {selectedField.type !== "instructions" ? (
+              {!isTemplateNonAnswerField(selectedField) ? (
                 <label className="settings-checkbox compact">
                   <input
                     checked={Boolean(selectedField.required)}
@@ -8886,6 +8976,11 @@ function TemplateSchemaEditor({
                   />
                   <span>Required</span>
                 </label>
+              ) : null}
+              {isTemplateNonAnswerField(selectedField) && selectedField.type !== "instructions" ? (
+                <p className="template-v3-help-text">
+                  This special block reuses the polished Toolbox Talk logic when the form supports it.
+                </p>
               ) : null}
               <label>
                 <span>Helper text</span>
@@ -8944,7 +9039,7 @@ function TemplateSchemaEditor({
                     ))}
                   </select>
                 </label>
-                {selectedField.type !== "instructions" ? (
+                {!isTemplateNonAnswerField(selectedField) ? (
                   <label className="settings-checkbox compact">
                     <input
                       checked={Boolean(selectedField.remember)}
@@ -8956,7 +9051,7 @@ function TemplateSchemaEditor({
                     <span>Remember last value on this device</span>
                   </label>
                 ) : null}
-                {!["instructions", "multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
+                {!isTemplateNonAnswerField(selectedField) && !["multi_select", "checkbox", "yes_no", "dropdown"].includes(selectedField.type) ? (
                   <label>
                     <span>Default value</span>
                     <select
@@ -9071,6 +9166,15 @@ function TemplateFormFields({
 function TemplateRuntimeField({ field, invalid, targetRef, value, onChange }) {
   if (field.type === "instructions") {
     return <p className="template-instructions">{field.label}</p>;
+  }
+  if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)) {
+    return (
+      <div className="template-special-block-runtime" ref={targetRef}>
+        <span>{templateFieldTypeLabel(field.type)}</span>
+        <strong>{field.label}</strong>
+        {field.helperText ? <small>{field.helperText}</small> : null}
+      </div>
+    );
   }
   const labelClass = invalid ? "toolbox-field-invalid" : "";
   if (field.type === "long_text") {
@@ -10331,7 +10435,7 @@ function TemplateSubmissionDetails({ data, row }) {
           {section.description ? <p className="toolbox-detail-text">{section.description}</p> : null}
           <dl className="staff-detail-list template-detail-answer-list">
             {section.fields
-              .filter((field) => field.type !== "instructions")
+              .filter((field) => !isTemplateNonAnswerField(field))
               .map((field) => (
                 <div key={field.id}>
                   <dt>{field.label}</dt>
@@ -12125,42 +12229,68 @@ function validateToolboxTalkForm(form) {
   return missingFields.length ? toolboxValidationMessage(missingFields[0]) : "";
 }
 
-function getToolboxTalkMissingFields(form, pendingAttendeeName = "") {
+function getToolboxTalkEnabledBlocks(schema) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  const enabled = [];
+  normalized.sections.forEach((section) => {
+    (section.fields || []).forEach((field) => {
+      if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field?.type) && !enabled.includes(field.type)) {
+        enabled.push(field.type);
+      }
+    });
+  });
+  return enabled.length ? enabled : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+}
+
+function getToolboxTalkMissingFields(
+  form,
+  pendingAttendeeName = "",
+  enabledBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+) {
+  const enabled = new Set(enabledBlocks?.length ? enabledBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER);
   const header = form?.header || {};
   const confirmation = form?.confirmation || {};
   const topics = form?.topics || {};
   const attendance = Array.isArray(form?.attendance) ? form.attendance : [];
   const missing = [];
 
-  [
-    ["header.projectName", header.projectName],
-    ["header.address", header.address],
-    ["header.date", header.date],
-    ["header.time", header.time],
-    ["header.presenter", header.presenter],
-    ["header.supervisor", header.supervisor],
-  ].forEach(([field, value]) => {
-    if (!String(value || "").trim()) missing.push(field);
-  });
+  if (enabled.has("toolbox_meeting_info")) {
+    [
+      ["header.projectName", header.projectName],
+      ["header.address", header.address],
+      ["header.date", header.date],
+      ["header.time", header.time],
+      ["header.presenter", header.presenter],
+      ["header.supervisor", header.supervisor],
+    ].forEach(([field, value]) => {
+      if (!String(value || "").trim()) missing.push(field);
+    });
+  }
 
-  if (!topics.selected?.length && !String(topics.other || "").trim()) {
+  if (
+    enabled.has("toolbox_topics") &&
+    !topics.selected?.length &&
+    !String(topics.other || "").trim()
+  ) {
     missing.push("topics");
   }
 
   const hasAttendance = attendance.some((row) => String(row?.name || "").trim())
     || Boolean(String(pendingAttendeeName || "").trim());
-  if (!hasAttendance) {
+  if (enabled.has("toolbox_attendance") && !hasAttendance) {
     missing.push("attendance");
   }
 
-  if (!String(confirmation.name || "").trim()) {
-    missing.push("confirmation.name");
-  }
-  if (!String(confirmation.date || "").trim()) {
-    missing.push("confirmation.date");
-  }
-  if (!confirmation.confirmed) {
-    missing.push("confirmation.confirmed");
+  if (enabled.has("toolbox_final_confirmation")) {
+    if (!String(confirmation.name || "").trim()) {
+      missing.push("confirmation.name");
+    }
+    if (!String(confirmation.date || "").trim()) {
+      missing.push("confirmation.date");
+    }
+    if (!confirmation.confirmed) {
+      missing.push("confirmation.confirmed");
+    }
   }
 
   return missing;
@@ -12313,6 +12443,12 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     dropdown: "Dropdown question",
     multi_select: "Multi-select question",
     checkbox: "Confirmation statement",
+    toolbox_meeting_info: "Meeting Info",
+    toolbox_topics: "Topics Discussed",
+    toolbox_incident_review: "Incident / Review",
+    toolbox_safety_concerns: "Safety Concerns",
+    toolbox_attendance: "Attendance",
+    toolbox_final_confirmation: "Final Confirmation",
   };
   return normalizeTemplateField({
     id: `field_${Date.now()}_${index}`,
@@ -12370,9 +12506,9 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     type,
     label,
     helperText: String(field?.helperText || field?.helper_text || ""),
-    required: Boolean(field?.required),
-    default: ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
-    remember: Boolean(field?.remember),
+    required: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.required),
+    default: isTemplateNonAnswerField({ type }) ? "" : ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
+    remember: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.remember),
     options,
   };
 }
@@ -12416,6 +12552,12 @@ function templateFieldBuilderHint(type) {
     multi_select: "Many chips",
     checkbox: "Final confirmation",
     instructions: "Read-only text",
+    toolbox_meeting_info: "Toolbox Talk header logic",
+    toolbox_topics: "APPIA toolbox topic picker",
+    toolbox_incident_review: "FA, medical aids, near misses",
+    toolbox_safety_concerns: "Concern and action rows",
+    toolbox_attendance: "Typed attendee chips",
+    toolbox_final_confirmation: "Presenter confirmation",
   };
   return hints[type] || "Question block";
 }
@@ -12432,6 +12574,12 @@ function templateFieldBuilderIcon(type) {
     multi_select: "+",
     checkbox: "OK",
     instructions: "i",
+    toolbox_meeting_info: "TT",
+    toolbox_topics: "T",
+    toolbox_incident_review: "IR",
+    toolbox_safety_concerns: "SC",
+    toolbox_attendance: "A",
+    toolbox_final_confirmation: "OK",
   };
   return icons[type] || "+";
 }
@@ -12479,9 +12627,13 @@ function collectClientTemplateFields(schema) {
   return (schema?.sections || []).flatMap((section) => section.fields || []);
 }
 
+function isTemplateNonAnswerField(field) {
+  return field?.type === "instructions" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(field?.type);
+}
+
 function getTemplateMissingFields(schema, answers, worker) {
   return collectClientTemplateFields(schema)
-    .filter((field) => field.type !== "instructions" && field.required)
+    .filter((field) => !isTemplateNonAnswerField(field) && field.required)
     .filter((field) => isTemplateAnswerEmpty(field, answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)))
     .map((field) => field.id);
 }
@@ -12494,7 +12646,7 @@ function templateValidationMessage(schema, fieldId) {
 function cleanTemplateAnswersForSubmit(schema, answers, worker) {
   const cleaned = {};
   collectClientTemplateFields(schema).forEach((field) => {
-    if (field.type === "instructions") return;
+    if (isTemplateNonAnswerField(field)) return;
     cleaned[field.id] = cleanTemplateAnswerForSubmit(
       field,
       answers[field.id] ?? templateFieldDefaultValue(field, worker, schema),
@@ -12517,7 +12669,7 @@ function isTemplateAnswerEmpty(field, value) {
 }
 
 function isTemplateDraftMeaningful(schema, answers, worker) {
-  return collectClientTemplateFields(schema).some((field) => {
+  return collectClientTemplateFields(schema).filter((field) => !isTemplateNonAnswerField(field)).some((field) => {
     const value = answers[field.id];
     const defaultValue = templateFieldDefaultValue(field, worker, schema);
     if (value === undefined || value === defaultValue) return false;
@@ -12652,6 +12804,7 @@ function isTemplateDigitalSubmission(row) {
 }
 
 function renderTemplateAnswerDisplay(field, value) {
+  if (isTemplateNonAnswerField(field)) return "-";
   const display = formatTemplateAnswerDisplay(field, value);
   if (Array.isArray(display)) {
     if (!display.length) return "-";
@@ -12667,6 +12820,7 @@ function renderTemplateAnswerDisplay(field, value) {
 }
 
 function formatTemplateAnswerDisplay(field, value) {
+  if (isTemplateNonAnswerField(field)) return "";
   if (field.type === "checkbox") return value ? "Yes" : "No";
   if (field.type === "yes_no") {
     if (value === "yes") return "Yes";
@@ -12895,7 +13049,7 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = digitalTemplateFormTitle(row, data);
   const sectionHtml = schema.sections.map((section) => {
-    const fields = (section.fields || []).filter((field) => field.type !== "instructions");
+    const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
     const rows = fields.map((field) => {
       const display = formatTemplateAnswerDisplay(field, answers[field.id]);
       const value = Array.isArray(display) ? display.join(", ") : display;

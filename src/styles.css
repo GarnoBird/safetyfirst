@@ -3351,6 +3351,33 @@ p {
   background: #f2f8f5;
 }
 
+.template-special-block-runtime {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #b8d8cf;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f5fbf8;
+}
+
+.template-special-block-runtime > span {
+  color: var(--brand);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.template-special-block-runtime > strong {
+  color: #17211f;
+  font-size: 1rem;
+}
+
+.template-special-block-runtime > small {
+  color: var(--muted);
+  font-weight: 750;
+}
+
 .template-manager-grid {
   display: grid;
   grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);

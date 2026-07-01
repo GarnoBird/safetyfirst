@@ -34,6 +34,15 @@ const MAX_FORM_TEXT_LENGTH = 600;
 const MAX_FORM_LONG_TEXT_LENGTH = 4000;
 const MAX_TOOLBOX_TOPICS = 80;
 const MAX_TOOLBOX_ROWS = 80;
+const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
+  "toolbox_meeting_info",
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
+];
+const TOOLBOX_TALK_SPECIAL_BLOCK_TYPES = new Set(TOOLBOX_TALK_SPECIAL_BLOCK_ORDER);
 const MAX_SITE_INSPECTION_DEFICIENCIES = 80;
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
@@ -1427,8 +1436,9 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     };
   }
   if (formType === "toolbox_talk") {
+    const enabledBlocks = await getToolboxTalkEnabledBlocks();
     return {
-      formData: cleanToolboxTalkFormData(value, worker),
+      formData: cleanToolboxTalkFormData(value, worker, enabledBlocks),
       formTemplateVersionId: null,
       formSchemaSnapshot: {},
     };
@@ -1496,24 +1506,70 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
   return String(value || "").trim().slice(0, MAX_FORM_LONG_TEXT_LENGTH);
 }
 
-function cleanToolboxTalkFormData(value, worker) {
+async function getToolboxTalkEnabledBlocks() {
+  try {
+    const template = await getPublishedWorkerFormTemplate("toolbox_talk");
+    const enabledBlocks = [];
+    const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
+      ? template.publishedVersion.schema.sections
+      : [];
+    sections.forEach((section) => {
+      const fields = Array.isArray(section?.fields) ? section.fields : [];
+      fields.forEach((field) => {
+        if (
+          TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type) &&
+          !enabledBlocks.includes(field.type)
+        ) {
+          enabledBlocks.push(field.type);
+        }
+      });
+    });
+    return enabledBlocks.length ? enabledBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+  } catch {
+    return TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+  }
+}
+
+function cleanToolboxTalkFormData(
+  value,
+  worker,
+  enabledBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throwBadRequest("Toolbox talk form data is required.");
   }
 
+  const enabled = new Set(
+    Array.isArray(enabledBlocks) && enabledBlocks.length
+      ? enabledBlocks
+      : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+  );
   const headerInput = value.header || {};
+  const requiresMeetingInfo = enabled.has("toolbox_meeting_info");
   const header = {
-    projectName: requireText(headerInput.projectName, "Project name"),
-    address: requireText(headerInput.address, "Address"),
-    date: cleanDate(headerInput.date, "Date"),
-    time: cleanTime(headerInput.time, "Time"),
-    presenter: requireText(headerInput.presenter || worker?.name, "Presenter"),
-    supervisor: requireText(headerInput.supervisor, "Supervisor"),
+    projectName: requiresMeetingInfo
+      ? requireText(headerInput.projectName, "Project name")
+      : cleanText(headerInput.projectName, MAX_FORM_TEXT_LENGTH),
+    address: requiresMeetingInfo
+      ? requireText(headerInput.address, "Address")
+      : cleanText(headerInput.address, MAX_FORM_TEXT_LENGTH),
+    date: requiresMeetingInfo
+      ? cleanDate(headerInput.date, "Date")
+      : cleanOptionalDate(headerInput.date, "Date"),
+    time: requiresMeetingInfo
+      ? cleanTime(headerInput.time, "Time")
+      : cleanText(headerInput.time, 20),
+    presenter: requiresMeetingInfo
+      ? requireText(headerInput.presenter || worker?.name, "Presenter")
+      : cleanText(headerInput.presenter || worker?.name, MAX_FORM_TEXT_LENGTH),
+    supervisor: requiresMeetingInfo
+      ? requireText(headerInput.supervisor, "Supervisor")
+      : cleanText(headerInput.supervisor, MAX_FORM_TEXT_LENGTH),
   };
 
   const selectedTopics = cleanSelectedToolboxTopics(value.topics?.selected);
   const otherTopics = cleanText(value.topics?.other || "", MAX_FORM_LONG_TEXT_LENGTH);
-  if (!selectedTopics.length && !otherTopics) {
+  if (enabled.has("toolbox_topics") && !selectedTopics.length && !otherTopics) {
     throwBadRequest("Select at least one topic or enter an additional topic.");
   }
 
@@ -1533,12 +1589,12 @@ function cleanToolboxTalkFormData(value, worker) {
   const attendance = cleanRows(value.attendance, (row) => ({
     name: cleanText(row?.name, MAX_FORM_TEXT_LENGTH),
   })).filter((row) => row.name);
-  if (!attendance.length) {
+  if (enabled.has("toolbox_attendance") && !attendance.length) {
     throwBadRequest("Add at least one attendee.");
   }
 
   const confirmationInput = value.confirmation || {};
-  if (confirmationInput.confirmed !== true) {
+  if (enabled.has("toolbox_final_confirmation") && confirmationInput.confirmed !== true) {
     throwBadRequest("Confirm that the listed workers participated.");
   }
 
@@ -1564,9 +1620,13 @@ function cleanToolboxTalkFormData(value, worker) {
     attendance,
     additionalComments: cleanText(value.additionalComments, MAX_FORM_LONG_TEXT_LENGTH),
     confirmation: {
-      name: requireText(confirmationInput.name, "Presenter confirmation name"),
-      date: cleanDate(confirmationInput.date, "Confirmation date"),
-      confirmed: true,
+      name: enabled.has("toolbox_final_confirmation")
+        ? requireText(confirmationInput.name, "Presenter confirmation name")
+        : cleanText(confirmationInput.name, MAX_FORM_TEXT_LENGTH),
+      date: enabled.has("toolbox_final_confirmation")
+        ? cleanDate(confirmationInput.date, "Confirmation date")
+        : cleanOptionalDate(confirmationInput.date, "Confirmation date"),
+      confirmed: confirmationInput.confirmed === true,
     },
   };
 }
@@ -1677,10 +1737,10 @@ function cleanDate(value, label) {
   return date;
 }
 
-function cleanOptionalDate(value) {
+function cleanOptionalDate(value, label = "Date taken") {
   const date = String(value || "").trim();
   if (!date) return "";
-  return cleanDate(date, "Date taken");
+  return cleanDate(date, label);
 }
 
 function cleanTime(value, label) {

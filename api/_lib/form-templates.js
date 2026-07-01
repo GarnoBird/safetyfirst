@@ -21,7 +21,22 @@ export const TEMPLATE_FIELD_TYPES = [
   "multi_select",
   "checkbox",
   "instructions",
+  "toolbox_meeting_info",
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
 ];
+
+const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
+  "toolbox_meeting_info",
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
+]);
 
 const TEMPLATE_SELECT =
   "id, form_type, label, description, renderer_type, active, worker_visible, display_order, archived_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
@@ -461,7 +476,7 @@ export function buildTemplateSubmissionNotes(formType, formData) {
   const title = schema.title || formData?.templateTitle || formType;
   const parts = [title];
   const firstFields = collectTemplateFields(schema)
-    .filter((field) => field.type !== "instructions" && answers[field.id] !== undefined)
+    .filter((field) => !isTemplateNonAnswerField(field) && answers[field.id] !== undefined)
     .slice(0, 3);
   firstFields.forEach((field) => {
     const value = formatAnswerForNotes(field, answers[field.id]);
@@ -528,9 +543,9 @@ function cleanTemplateField(field, sectionIndex, fieldIndex) {
     type,
     label,
     helperText: cleanString(field?.helperText || field?.helper_text, MAX_TEXT),
-    required: Boolean(field?.required),
-    default: cleanDefaultValue(field?.default),
-    remember: Boolean(field?.remember),
+    required: isTemplateNonAnswerType(type) ? false : Boolean(field?.required),
+    default: isTemplateNonAnswerType(type) ? "" : cleanDefaultValue(field?.default),
+    remember: isTemplateNonAnswerType(type) ? false : Boolean(field?.remember),
     options,
   };
 }
@@ -539,7 +554,7 @@ function cleanTemplateAnswers(schema, value, worker) {
   const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const answers = {};
   for (const field of collectTemplateFields(schema)) {
-    if (field.type === "instructions") continue;
+    if (isTemplateNonAnswerField(field)) continue;
     const raw = source[field.id] === undefined ? defaultForField(field, worker) : source[field.id];
     const cleaned = cleanAnswer(field, raw);
     if (field.required && isEmptyAnswer(field, cleaned)) {
@@ -611,6 +626,14 @@ function defaultForField(field, worker) {
 
 function collectTemplateFields(schema) {
   return (schema?.sections || []).flatMap((section) => section.fields || []);
+}
+
+function isTemplateNonAnswerType(type) {
+  return type === "instructions" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(type);
+}
+
+function isTemplateNonAnswerField(field) {
+  return isTemplateNonAnswerType(field?.type);
 }
 
 async function ensureSeedTemplates() {
