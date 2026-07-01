@@ -1527,13 +1527,19 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     };
   }
   if (formType === "site_inspection") {
-    const siteInspectionConfig = await getSiteInspectionConfig();
+    const siteInspectionConfig = await getSiteInspectionConfig(formType);
     return {
       formData: cleanSiteInspectionFormData(value, worker, siteInspectionConfig),
       formTemplateVersionId: null,
       formSchemaSnapshot: {},
     };
   }
+  const siteInspectionTemplateSubmission = await validateSiteInspectionTemplateSubmissionFormData({
+    formType,
+    rawFormData: value,
+    worker,
+  });
+  if (siteInspectionTemplateSubmission) return siteInspectionTemplateSubmission;
   const templateSubmission = await validateTemplateSubmissionFormData({
     formType,
     rawFormData: value,
@@ -1573,6 +1579,22 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
     const deficiencyCount = (formData.deficiencies || []).length;
     return [
       `Project: ${header.project}`,
+      header.areaInspected ? `Area: ${header.areaInspected}` : "",
+      deficiencyCount
+        ? `${deficiencyCount} deficienc${deficiencyCount === 1 ? "y" : "ies"}`
+        : "No deficiencies found",
+    ]
+      .filter(Boolean)
+      .join(" / ")
+      .slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+  }
+
+  if (submissionMode === "fill_form" && formData?.kind === "site_inspection_v1") {
+    const header = formData.header || {};
+    const deficiencyCount = (formData.deficiencies || []).length;
+    return [
+      formData.templateTitle || "Site Inspection",
+      header.project ? `Project: ${header.project}` : "",
       header.areaInspected ? `Area: ${header.areaInspected}` : "",
       deficiencyCount
         ? `${deficiencyCount} deficienc${deficiencyCount === 1 ? "y" : "ies"}`
@@ -1705,9 +1727,20 @@ function getSiteInspectionObservationFieldKey(field) {
   return SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
 }
 
-async function getSiteInspectionConfig() {
+function isSiteInspectionTemplateSchema(schema, template = {}) {
+  const sections = Array.isArray(schema?.sections) ? schema.sections : [];
+  if (schema?.formType === "site_inspection" || template?.form_type === "site_inspection") return true;
+  const fields = sections.flatMap((section) => Array.isArray(section?.fields) ? section.fields : []);
+  return fields.some((field) =>
+    field?.type === "site_deficiencies" ||
+    Boolean(field?.settings?.siteInspectionHeaderField) ||
+    Boolean(field?.settings?.siteInspectionObservationField),
+  );
+}
+
+async function getSiteInspectionConfig(formType = "site_inspection", templateOverride = null) {
   try {
-    const template = await getPublishedWorkerFormTemplate("site_inspection");
+    const template = templateOverride || await getPublishedWorkerFormTemplate(formType);
     const config = createDefaultSiteInspectionConfig();
     const enabledBlocks = [];
     const headerFields = [];
@@ -1762,6 +1795,26 @@ async function getSiteInspectionConfig() {
   } catch {
     return createDefaultSiteInspectionConfig();
   }
+}
+
+async function validateSiteInspectionTemplateSubmissionFormData({ formType, rawFormData, worker }) {
+  const template = await getPublishedWorkerFormTemplate(formType);
+  if (template.renderer_type !== "template") return null;
+  const version = template.publishedVersion;
+  if (!version || !isSiteInspectionTemplateSchema(version.schema, template)) return null;
+  const config = await getSiteInspectionConfig(formType, template);
+  const formData = cleanSiteInspectionFormData(rawFormData, worker, config);
+  return {
+    formData: {
+      ...formData,
+      templateVersionId: version.id,
+      templateVersionNumber: version.version_number,
+      templateTitle: version.schema?.title || template.label,
+      schemaSnapshot: version.schema || {},
+    },
+    formTemplateVersionId: version.id,
+    formSchemaSnapshot: version.schema || {},
+  };
 }
 
 function cleanToolboxTalkFormData(

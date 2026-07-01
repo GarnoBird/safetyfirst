@@ -3276,6 +3276,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const [formLoading, setFormLoading] = useState(true);
   const [formError, setFormError] = useState("");
   const isTemplateDriven = formTemplate?.renderer_type === "template";
+  const formTemplateSchema = formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema;
+  const isSiteInspectionDigital =
+    isSiteInspection || (isTemplateDriven && isSiteInspectionTemplateSchema(formTemplateSchema, formTemplate));
   const form = formTemplate
     ? { id: formTemplate.form_type, label: formTemplate.label, description: formTemplate.description || "" }
     : SAFETY_FORM_TYPES.find((item) => item.id === formType);
@@ -3326,11 +3329,11 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   }, [formLoading, formTemplate, formType, navigateTo, worker]);
 
   useEffect(() => {
-    setMode(isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "");
+    setMode(isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "");
     setFile(null);
     setNotes("");
     setStatus({ type: "", message: "", date: "" });
-  }, [formType, isSiteInspection, isTemplateDriven, isToolboxTalk]);
+  }, [formType, isSiteInspectionDigital, isTemplateDriven, isToolboxTalk]);
 
   useEffect(() => {
     if (
@@ -3608,9 +3611,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   <div className="form-platform-actions">
                     <button
                       type="button"
-                      onClick={() => setMode(isToolboxTalk || isSiteInspection || isTemplateDriven ? "fill_form" : "")}
+                      onClick={() => setMode(isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "")}
                     >
-                      {isToolboxTalk || isSiteInspection || isTemplateDriven ? "Back to digital form" : "Change option"}
+                      {isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "Back to digital form" : "Change option"}
                     </button>
                     <button className="primary-button" disabled={submitting} type="submit">
                       {submitting ? "Submitting..." : "Submit"}
@@ -3638,7 +3641,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       onSubmit={submitToolboxTalkForm}
                     />
                   </>
-                ) : isSiteInspection ? (
+                ) : isSiteInspectionDigital ? (
                   <>
                     <div className="toolbox-fast-actions">
                       <div>
@@ -3650,6 +3653,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       </button>
                     </div>
                     <SiteInspectionDigitalForm
+                      formType={formType}
                       formTemplate={formTemplate}
                       submitting={submitting}
                       worker={worker}
@@ -4409,8 +4413,9 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   );
 }
 
-function SiteInspectionDigitalForm({ formTemplate, onSubmit, submitting, worker }) {
-  const restoredDraftRef = useRef(readWorkerFormDraft(worker, "site_inspection", "fill_form"));
+function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection", onSubmit, submitting, worker }) {
+  const draftFormType = formType || formTemplate?.form_type || "site_inspection";
+  const restoredDraftRef = useRef(readWorkerFormDraft(worker, draftFormType, "fill_form"));
   const optionalLayoutAppliedRef = useRef(false);
   const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
@@ -4467,15 +4472,15 @@ function SiteInspectionDigitalForm({ formTemplate, onSubmit, submitting, worker 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       if (isSiteInspectionDraftMeaningful(form)) {
-        const savedAt = writeWorkerFormDraft(worker, "site_inspection", "fill_form", { form });
+        const savedAt = writeWorkerFormDraft(worker, draftFormType, "fill_form", { form });
         setDraftSavedAt(savedAt);
         return;
       }
-      clearWorkerFormDraft(worker, "site_inspection", "fill_form");
+      clearWorkerFormDraft(worker, draftFormType, "fill_form");
       setDraftSavedAt("");
     }, DRAFT_SAVE_DELAY_MS);
     return () => window.clearTimeout(timeout);
-  }, [form, worker]);
+  }, [draftFormType, form, worker]);
 
   const updateHeader = (field, value) => {
     setForm((current) => ({
@@ -4544,7 +4549,7 @@ function SiteInspectionDigitalForm({ formTemplate, onSubmit, submitting, worker 
   };
 
   const startFresh = () => {
-    clearWorkerFormDraft(worker, "site_inspection", "fill_form");
+    clearWorkerFormDraft(worker, draftFormType, "fill_form");
     setForm(initialSiteInspectionForm(worker));
     setOptionalOpen(createInitialSiteInspectionOptionalOpen(null, siteLayout));
     setDraftRestored(false);
@@ -12810,7 +12815,7 @@ function isDigitalToolboxTalkSubmission(row) {
 }
 
 function isDigitalSiteInspectionSubmission(row) {
-  return row?.form_type === "site_inspection" && row?.form_data?.kind === "site_inspection_v1";
+  return row?.submission_mode === "fill_form" && row?.form_data?.kind === "site_inspection_v1";
 }
 
 function isTemplateDigitalSubmission(row) {
