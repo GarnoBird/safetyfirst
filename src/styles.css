@@ -3465,6 +3465,9 @@ p {
 .template-card-list {
   display: grid;
   gap: 10px;
+  width: 100%;
+  min-width: 0;
+  align-content: start;
 }
 
 .template-new-button {
@@ -3499,6 +3502,9 @@ p {
   position: relative;
   display: grid;
   gap: 5px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 108px;
   justify-items: start;
   border: 1px solid #d9e3de;
@@ -3538,6 +3544,8 @@ p {
   gap: 5px;
   justify-items: start;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 0;
   border: 0;
   padding: 0;
@@ -3586,6 +3594,14 @@ p {
 .template-editor-heading span {
   color: var(--muted);
   font-weight: 800;
+}
+
+.template-card span,
+.template-card strong,
+.template-card small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .template-card strong {
