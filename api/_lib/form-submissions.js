@@ -43,6 +43,30 @@ const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
   "toolbox_final_confirmation",
 ];
 const TOOLBOX_TALK_SPECIAL_BLOCK_TYPES = new Set(TOOLBOX_TALK_SPECIAL_BLOCK_ORDER);
+const TOOLBOX_TALK_HEADER_FIELD_CONFIGS = [
+  { key: "projectName", id: "toolbox_project_name", label: "Project Name", required: true },
+  { key: "address", id: "toolbox_address", label: "Address", required: true },
+  { key: "date", id: "toolbox_date", label: "Date", required: true },
+  { key: "time", id: "toolbox_time", label: "Time", required: true },
+  { key: "presenter", id: "toolbox_presenter", label: "Presenter", required: true },
+  { key: "supervisor", id: "toolbox_supervisor", label: "Supervisor", required: true },
+];
+const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
+  address: "address",
+  project: "projectName",
+  project_name: "projectName",
+  projectname: "projectName",
+  supervisor: "supervisor",
+  presenter: "presenter",
+  date: "date",
+  time: "time",
+  toolbox_address: "address",
+  toolbox_project_name: "projectName",
+  toolbox_supervisor: "supervisor",
+  toolbox_presenter: "presenter",
+  toolbox_date: "date",
+  toolbox_time: "time",
+};
 const MAX_SITE_INSPECTION_DEFICIENCIES = 80;
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
@@ -1436,9 +1460,9 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     };
   }
   if (formType === "toolbox_talk") {
-    const enabledBlocks = await getToolboxTalkEnabledBlocks();
+    const toolboxConfig = await getToolboxTalkConfig();
     return {
-      formData: cleanToolboxTalkFormData(value, worker, enabledBlocks),
+      formData: cleanToolboxTalkFormData(value, worker, toolboxConfig),
       formTemplateVersionId: null,
       formSchemaSnapshot: {},
     };
@@ -1506,16 +1530,70 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
   return String(value || "").trim().slice(0, MAX_FORM_LONG_TEXT_LENGTH);
 }
 
-async function getToolboxTalkEnabledBlocks() {
+function createDefaultToolboxTalkConfig() {
+  return {
+    enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter(
+      (type) => type !== "toolbox_meeting_info",
+    ),
+    headerFields: TOOLBOX_TALK_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+  };
+}
+
+function slugifyToolboxTemplateId(value) {
+  return cleanText(value, 160)
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function getToolboxTalkHeaderFieldKey(field) {
+  const settings = field?.settings && typeof field.settings === "object" && !Array.isArray(field.settings)
+    ? field.settings
+    : {};
+  const explicit = cleanText(settings.toolboxHeaderField, 80);
+  if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  return TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
+}
+
+async function getToolboxTalkConfig() {
   try {
     const template = await getPublishedWorkerFormTemplate("toolbox_talk");
+    const config = createDefaultToolboxTalkConfig();
     const enabledBlocks = [];
+    const headerFields = [];
     const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
       ? template.publishedVersion.schema.sections
       : [];
     sections.forEach((section) => {
       const fields = Array.isArray(section?.fields) ? section.fields : [];
       fields.forEach((field) => {
+        if (field?.type === "toolbox_meeting_info") {
+          if (!enabledBlocks.includes(field.type)) enabledBlocks.push(field.type);
+          TOOLBOX_TALK_HEADER_FIELD_CONFIGS.forEach((base) => {
+            if (!headerFields.some((item) => item.key === base.key)) {
+              headerFields.push({ ...base });
+            }
+          });
+          return;
+        }
+        const headerKey = getToolboxTalkHeaderFieldKey(field);
+        if (headerKey) {
+          const base = TOOLBOX_TALK_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
+          if (base && !headerFields.some((item) => item.key === headerKey)) {
+            headerFields.push({
+              ...base,
+              id: cleanText(field?.id || base.id, 160),
+              label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
+              required: Boolean(field?.required),
+            });
+          }
+          return;
+        }
         if (
           TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type) &&
           !enabledBlocks.includes(field.type)
@@ -1524,47 +1602,61 @@ async function getToolboxTalkEnabledBlocks() {
         }
       });
     });
-    return enabledBlocks.length ? enabledBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+    return {
+      enabledBlocks: enabledBlocks.length ? enabledBlocks : config.enabledBlocks,
+      headerFields: headerFields.length ? headerFields : config.headerFields,
+    };
   } catch {
-    return TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+    return createDefaultToolboxTalkConfig();
   }
 }
 
 function cleanToolboxTalkFormData(
   value,
   worker,
-  enabledBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+  toolboxConfig = createDefaultToolboxTalkConfig(),
 ) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throwBadRequest("Toolbox talk form data is required.");
   }
 
+  const config = Array.isArray(toolboxConfig)
+    ? {
+        enabledBlocks: toolboxConfig,
+        headerFields: toolboxConfig.includes("toolbox_meeting_info")
+          ? TOOLBOX_TALK_HEADER_FIELD_CONFIGS
+          : [],
+      }
+    : toolboxConfig || createDefaultToolboxTalkConfig();
   const enabled = new Set(
-    Array.isArray(enabledBlocks) && enabledBlocks.length
-      ? enabledBlocks
-      : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+    Array.isArray(config.enabledBlocks) && config.enabledBlocks.length
+      ? config.enabledBlocks
+      : createDefaultToolboxTalkConfig().enabledBlocks,
   );
+  const headerFields = Array.isArray(config.headerFields) ? config.headerFields : [];
   const headerInput = value.header || {};
   const requiresMeetingInfo = enabled.has("toolbox_meeting_info");
+  const headerRequired = (key) =>
+    requiresMeetingInfo || headerFields.some((field) => field.key === key && field.required);
+  const cleanHeaderText = (key, label, fallback = "") =>
+    headerRequired(key)
+      ? requireText(headerInput[key] || fallback, label)
+      : cleanText(headerInput[key] || fallback, MAX_FORM_TEXT_LENGTH);
+  const cleanHeaderDate = (key, label) =>
+    headerRequired(key)
+      ? cleanDate(headerInput[key], label)
+      : cleanOptionalDate(headerInput[key], label);
+  const cleanHeaderTime = (key, label) =>
+    headerRequired(key)
+      ? cleanTime(headerInput[key], label)
+      : cleanText(headerInput[key], 20);
   const header = {
-    projectName: requiresMeetingInfo
-      ? requireText(headerInput.projectName, "Project name")
-      : cleanText(headerInput.projectName, MAX_FORM_TEXT_LENGTH),
-    address: requiresMeetingInfo
-      ? requireText(headerInput.address, "Address")
-      : cleanText(headerInput.address, MAX_FORM_TEXT_LENGTH),
-    date: requiresMeetingInfo
-      ? cleanDate(headerInput.date, "Date")
-      : cleanOptionalDate(headerInput.date, "Date"),
-    time: requiresMeetingInfo
-      ? cleanTime(headerInput.time, "Time")
-      : cleanText(headerInput.time, 20),
-    presenter: requiresMeetingInfo
-      ? requireText(headerInput.presenter || worker?.name, "Presenter")
-      : cleanText(headerInput.presenter || worker?.name, MAX_FORM_TEXT_LENGTH),
-    supervisor: requiresMeetingInfo
-      ? requireText(headerInput.supervisor, "Supervisor")
-      : cleanText(headerInput.supervisor, MAX_FORM_TEXT_LENGTH),
+    projectName: cleanHeaderText("projectName", "Project name"),
+    address: cleanHeaderText("address", "Address"),
+    date: cleanHeaderDate("date", "Date"),
+    time: cleanHeaderTime("time", "Time"),
+    presenter: cleanHeaderText("presenter", "Presenter", worker?.name),
+    supervisor: cleanHeaderText("supervisor", "Supervisor"),
   };
 
   const selectedTopics = cleanSelectedToolboxTopics(value.topics?.selected);

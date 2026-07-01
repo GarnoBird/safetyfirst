@@ -47,6 +47,8 @@ const MAX_FIELDS = 100;
 const MAX_OPTIONS = 80;
 const MAX_TEXT = 600;
 const MAX_LONG_TEXT = 4000;
+const MAX_SETTINGS_KEYS = 80;
+const MAX_SETTINGS_DEPTH = 5;
 
 export async function listFormTemplates() {
   await ensureSeedTemplates();
@@ -501,6 +503,7 @@ export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = 
         id: cleanId(section?.id) || `section_${sectionIndex + 1}`,
         title: cleanString(section?.title, MAX_TEXT),
         description: cleanString(section?.description, MAX_TEXT),
+        settings: cleanSettingsObject(section?.settings),
         fields,
       };
     })
@@ -547,7 +550,40 @@ function cleanTemplateField(field, sectionIndex, fieldIndex) {
     default: isTemplateNonAnswerType(type) ? "" : cleanDefaultValue(field?.default),
     remember: isTemplateNonAnswerType(type) ? false : Boolean(field?.remember),
     options,
+    settings: cleanSettingsObject(field?.settings),
   };
+}
+
+function cleanSettingsObject(value, depth = 0) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  if (depth > MAX_SETTINGS_DEPTH) return {};
+  const entries = Object.entries(value).slice(0, MAX_SETTINGS_KEYS);
+  const cleaned = {};
+  entries.forEach(([rawKey, rawValue]) => {
+    const key = cleanId(rawKey) || cleanString(rawKey, 80);
+    if (!key) return;
+    const cleanedValue = cleanSettingsValue(rawValue, depth + 1);
+    if (cleanedValue !== undefined) cleaned[key] = cleanedValue;
+  });
+  return cleaned;
+}
+
+function cleanSettingsValue(value, depth = 0) {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : "";
+  if (typeof value === "string") return cleanString(value, MAX_TEXT);
+  if (Array.isArray(value)) {
+    return value
+      .slice(0, MAX_OPTIONS)
+      .map((item) => cleanSettingsValue(item, depth + 1))
+      .filter((item) => item !== undefined && item !== null && item !== "");
+  }
+  if (typeof value === "object") {
+    if (depth > MAX_SETTINGS_DEPTH) return {};
+    return cleanSettingsObject(value, depth + 1);
+  }
+  return "";
 }
 
 function cleanTemplateAnswers(schema, value, worker) {

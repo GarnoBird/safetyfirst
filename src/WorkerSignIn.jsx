@@ -210,10 +210,35 @@ const TEMPLATE_V3_FIELD_GROUPS = [
     id: "special",
     label: "Special Blocks",
     fields: [
-      { type: "toolbox_meeting_info", title: "Toolbox meeting info", hint: "Project, address, date, time, presenter, supervisor", icon: "TT", label: "Meeting Info" },
-      { type: "toolbox_topics", title: "Toolbox topics", hint: "Expandable APPIA topic picker", icon: "T", label: "Topics Discussed" },
-      { type: "toolbox_incident_review", title: "Incident review", hint: "FA, medical aids, near miss, lessons", icon: "IR", label: "Incident / Review" },
-      { type: "toolbox_safety_concerns", title: "Safety concerns", hint: "Concern, action, date rows", icon: "SC", label: "Safety Concerns" },
+      {
+        type: "toolbox_topics",
+        title: "Toolbox topics",
+        hint: "Expandable APPIA topic picker",
+        icon: "T",
+        label: "Topics Discussed",
+        settings: {
+          showCommon: true,
+          showSearch: true,
+          enabledCategoryIds: "all",
+          commonTopicLabels: "default",
+        },
+      },
+      {
+        type: "toolbox_incident_review",
+        title: "Incident review",
+        hint: "FA, medical aids, near miss, lessons",
+        icon: "IR",
+        label: "Incident / Review",
+        settings: { defaultCollapsed: true },
+      },
+      {
+        type: "toolbox_safety_concerns",
+        title: "Safety concerns",
+        hint: "Concern, action, date rows",
+        icon: "SC",
+        label: "Safety Concerns",
+        settings: { defaultCollapsed: true },
+      },
       { type: "toolbox_attendance", title: "Attendance list", hint: "Fast typed attendee chips", icon: "A", label: "Attendance" },
       { type: "toolbox_final_confirmation", title: "Final confirmation", hint: "Presenter comments and participation check", icon: "OK", label: "Final Confirmation" },
     ],
@@ -598,6 +623,76 @@ const TOOLBOX_TALK_TOPIC_GROUPS = [
     ],
   },
 ];
+
+const TOOLBOX_TALK_HEADER_FIELD_CONFIGS = [
+  {
+    key: "projectName",
+    id: "toolbox_project_name",
+    label: "Project Name",
+    type: "short_text",
+    required: true,
+    remember: true,
+  },
+  {
+    key: "address",
+    id: "toolbox_address",
+    label: "Address",
+    type: "short_text",
+    required: true,
+    remember: true,
+  },
+  {
+    key: "date",
+    id: "toolbox_date",
+    label: "Date",
+    type: "date",
+    required: true,
+    default: "today",
+  },
+  {
+    key: "time",
+    id: "toolbox_time",
+    label: "Time",
+    type: "time",
+    required: true,
+    default: "now",
+  },
+  {
+    key: "presenter",
+    id: "toolbox_presenter",
+    label: "Presenter",
+    type: "short_text",
+    required: true,
+    default: "worker_name",
+  },
+  {
+    key: "supervisor",
+    id: "toolbox_supervisor",
+    label: "Supervisor",
+    type: "short_text",
+    required: true,
+    remember: true,
+  },
+];
+
+const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
+  address: "address",
+  project: "projectName",
+  project_name: "projectName",
+  projectname: "projectName",
+  supervisor: "supervisor",
+  presenter: "presenter",
+  date: "date",
+  time: "time",
+  toolbox_address: "address",
+  toolbox_project_name: "projectName",
+  toolbox_supervisor: "supervisor",
+  toolbox_presenter: "presenter",
+  toolbox_date: "date",
+  toolbox_time: "time",
+};
+
+const TOOLBOX_TALK_TOPIC_GROUP_IDS = TOOLBOX_TALK_TOPIC_GROUPS.map((group) => group.id);
 
 const STAFF_FORM_SORT_LABELS = {
   submitted_at: "Submitted",
@@ -3454,6 +3549,7 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
 
 function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) {
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
+  const optionalLayoutAppliedRef = useRef(false);
   const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
     () => restoredDraftRef.current?.form || initialToolboxTalkForm(worker),
@@ -3471,6 +3567,16 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   const savedDefaults = useMemo(readToolboxTalkDefaults, []);
   const [topicSearch, setTopicSearch] = useState("");
   const [attendeeNameInput, setAttendeeNameInput] = useState("");
+  const toolboxLayout = useMemo(
+    () =>
+      getToolboxTalkLayout(
+        formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
+      ),
+    [formTemplate],
+  );
+  const enabledBlocks = toolboxLayout.enabledBlocks;
+  const topicSettings = toolboxLayout.blockSettings.toolbox_topics || getToolboxTopicSettings();
+  const enabledTopicCategoryIds = topicSettings.enabledCategoryIds;
   const [optionalOpen, setOptionalOpen] = useState(() => {
     const draftForm = restoredDraftRef.current?.form;
     return {
@@ -3482,27 +3588,21 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   const recentTopicLabels = useMemo(
     () =>
       recentToolbox.topicLabels
-        .filter((label) => findToolboxTopic(label))
+        .filter((label) => findToolboxTopic(label, enabledTopicCategoryIds))
         .filter((label, index, labels) => labels.indexOf(label) === index)
         .slice(0, 6),
-    [recentToolbox.topicLabels],
+    [enabledTopicCategoryIds, recentToolbox.topicLabels],
   );
   const quickTopicLabels = useMemo(
     () =>
-      TOOLBOX_TALK_QUICK_TOPIC_LABELS
-        .filter((label) => findToolboxTopic(label))
+      topicSettings.commonTopicLabels
+        .filter((label) => findToolboxTopic(label, enabledTopicCategoryIds))
         .filter((label) => !recentTopicLabels.includes(label)),
-    [recentTopicLabels],
+    [enabledTopicCategoryIds, recentTopicLabels, topicSettings.commonTopicLabels],
   );
   const filteredTopicGroups = useMemo(
-    () => filterToolboxTopicGroups(topicSearch),
-    [topicSearch],
-  );
-  const enabledBlocks = useMemo(
-    () => getToolboxTalkEnabledBlocks(
-      formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
-    ),
-    [formTemplate],
+    () => filterToolboxTopicGroups(topicSearch, enabledTopicCategoryIds),
+    [enabledTopicCategoryIds, topicSearch],
   );
   const enabledBlockSet = useMemo(() => new Set(enabledBlocks), [enabledBlocks]);
   const attendeeNames = useMemo(
@@ -3513,8 +3613,8 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
     [form.attendance],
   );
   const missingFieldKeys = useMemo(
-    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput, enabledBlocks) : []),
-    [attendeeNameInput, enabledBlocks, form, submitAttempted],
+    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout) : []),
+    [attendeeNameInput, form, submitAttempted, toolboxLayout],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
   const hasSavedDefaults = Boolean(
@@ -3533,15 +3633,25 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   const attendanceInvalid = isFieldInvalid("attendance");
   const finalCheckInvalid = missingFieldKeys.some((field) => field.startsWith("confirmation."));
   const topicLabelIsSelected = (label) => {
-    const match = findToolboxTopic(label);
+    const match = findToolboxTopic(label, enabledTopicCategoryIds);
     return match ? selectedTopicKeys.has(topicKey(createToolboxTopic(match.group, match.label))) : false;
   };
 
   useEffect(() => {
     if (!submitAttempted) return;
-    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput, enabledBlocks);
+    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout);
     setError(nextMissing.length ? toolboxValidationMessage(nextMissing[0]) : "");
-  }, [attendeeNameInput, enabledBlocks, form, submitAttempted]);
+  }, [attendeeNameInput, form, submitAttempted, toolboxLayout]);
+
+  useEffect(() => {
+    if (optionalLayoutAppliedRef.current || restoredDraftRef.current?.form) return;
+    optionalLayoutAppliedRef.current = true;
+    setOptionalOpen((current) => ({
+      ...current,
+      review: toolboxLayout.blockSettings.toolbox_incident_review?.defaultCollapsed === false,
+      concerns: toolboxLayout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false,
+    }));
+  }, [toolboxLayout]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -3613,13 +3723,13 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   };
 
   const toggleTopicByLabel = (label) => {
-    const match = findToolboxTopic(label);
+    const match = findToolboxTopic(label, enabledTopicCategoryIds);
     if (!match) return;
     toggleTopic(match.group, match.label);
   };
 
   const addTopicLabels = (labels) => {
-    const topics = labels.map(findToolboxTopic).filter(Boolean);
+    const topics = labels.map((label) => findToolboxTopic(label, enabledTopicCategoryIds)).filter(Boolean);
     if (!topics.length) return;
     setForm((current) => {
       const existing = new Set(current.topics.selected.map(topicKey));
@@ -3720,7 +3830,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
       setForm(formForSubmit);
       setAttendeeNameInput("");
     }
-    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit, "", enabledBlocks);
+    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit, "", toolboxLayout);
     if (nextMissingFields.length) {
       setSubmitAttempted(true);
       setError(toolboxValidationMessage(nextMissingFields[0]));
@@ -3750,83 +3860,45 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         </div>
       ) : null}
 
-      {enabledBlockSet.has("toolbox_meeting_info") ? (
+      {toolboxLayout.headerFields.length ? (
         <section className={meetingInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
-        <div className="toolbox-section-heading">
-          <h2>Meeting Info</h2>
-          {hasSavedDefaults ? (
-            <button type="button" onClick={applyLastJobSetup}>
-              Use last job
-            </button>
-          ) : (
-            <span>Required</span>
-          )}
-        </div>
-        <div className="toolbox-field-grid">
-          <label className={isFieldInvalid("header.projectName") ? "toolbox-field-invalid" : ""}>
-            <span>Project Name</span>
-            <input
-              aria-invalid={isFieldInvalid("header.projectName") ? "true" : undefined}
-              ref={registerValidationTarget("header.projectName")}
-              required
-              value={form.header.projectName}
-              onChange={(event) => updateHeader("projectName", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.address") ? "toolbox-field-invalid" : ""}>
-            <span>Address</span>
-            <input
-              aria-invalid={isFieldInvalid("header.address") ? "true" : undefined}
-              ref={registerValidationTarget("header.address")}
-              required
-              value={form.header.address}
-              onChange={(event) => updateHeader("address", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.date") ? "toolbox-field-invalid" : ""}>
-            <span>Date</span>
-            <input
-              aria-invalid={isFieldInvalid("header.date") ? "true" : undefined}
-              ref={registerValidationTarget("header.date")}
-              required
-              type="date"
-              value={form.header.date}
-              onChange={(event) => updateHeader("date", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.time") ? "toolbox-field-invalid" : ""}>
-            <span>Time</span>
-            <input
-              aria-invalid={isFieldInvalid("header.time") ? "true" : undefined}
-              ref={registerValidationTarget("header.time")}
-              required
-              type="time"
-              value={form.header.time}
-              onChange={(event) => updateHeader("time", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.presenter") ? "toolbox-field-invalid" : ""}>
-            <span>Presenter</span>
-            <input
-              aria-invalid={isFieldInvalid("header.presenter") ? "true" : undefined}
-              ref={registerValidationTarget("header.presenter")}
-              required
-              value={form.header.presenter}
-              onChange={(event) => updateHeader("presenter", event.target.value)}
-            />
-          </label>
-          <label className={isFieldInvalid("header.supervisor") ? "toolbox-field-invalid" : ""}>
-            <span>Supervisor</span>
-            <input
-              aria-invalid={isFieldInvalid("header.supervisor") ? "true" : undefined}
-              ref={registerValidationTarget("header.supervisor")}
-              required
-              value={form.header.supervisor}
-              onChange={(event) => updateHeader("supervisor", event.target.value)}
-            />
-          </label>
-        </div>
-      </section>
+          <div className="toolbox-section-heading">
+            <h2>{toolboxLayout.meetingInfo.title || "Meeting Info"}</h2>
+            {hasSavedDefaults ? (
+              <button type="button" onClick={applyLastJobSetup}>
+                Use last job
+              </button>
+            ) : (
+              <span>
+                {toolboxLayout.headerFields.some((field) => field.required) ? "Required" : "Optional"}
+              </span>
+            )}
+          </div>
+          {toolboxLayout.meetingInfo.description ? (
+            <p className="toolbox-section-description">{toolboxLayout.meetingInfo.description}</p>
+          ) : null}
+          <div className="toolbox-field-grid">
+            {toolboxLayout.headerFields.map((field) => {
+              const fieldName = `header.${field.key}`;
+              const invalid = isFieldInvalid(fieldName);
+              const inputType = field.type === "date" || field.type === "time" ? field.type : "text";
+              return (
+                <label className={invalid ? "toolbox-field-invalid" : ""} key={field.id || field.key}>
+                  <span>{field.label || field.key}</span>
+                  <input
+                    aria-invalid={invalid ? "true" : undefined}
+                    ref={registerValidationTarget(fieldName)}
+                    required={Boolean(field.required)}
+                    type={inputType}
+                    value={form.header[field.key] || ""}
+                    onChange={(event) => updateHeader(field.key, event.target.value)}
+                  />
+                  {field.helperText ? <small>{field.helperText}</small> : null}
+                </label>
+              );
+            })}
+          </div>
+        </section>
         ) : null}
 
         {enabledBlockSet.has("toolbox_topics") ? (
@@ -3835,11 +3907,11 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         ref={registerValidationTarget("topics")}
       >
         <div className="toolbox-section-heading">
-          <h2>Topics Discussed</h2>
+          <h2>{toolboxLayout.blockLabels.toolbox_topics || "Topics Discussed"}</h2>
           <span>{form.topics.selected.length} selected</span>
         </div>
         <div className="toolbox-topic-shortcuts">
-          {recentTopicLabels.length ? (
+          {topicSettings.showCommon && recentTopicLabels.length ? (
             <div className="toolbox-shortcut-group">
               <div>
                 <strong>Recent</strong>
@@ -3861,33 +3933,37 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
               </div>
             </div>
           ) : null}
-          <div className="toolbox-shortcut-group">
-            <div>
-              <strong>Common</strong>
+          {topicSettings.showCommon && quickTopicLabels.length ? (
+            <div className="toolbox-shortcut-group">
+              <div>
+                <strong>Common</strong>
+              </div>
+              <div className="toolbox-chip-row">
+                {quickTopicLabels.map((label) => (
+                  <button
+                    className={topicLabelIsSelected(label) ? "topic-chip active" : "topic-chip"}
+                    key={`quick-${label}`}
+                    type="button"
+                    onClick={() => toggleTopicByLabel(label)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="toolbox-chip-row">
-              {quickTopicLabels.map((label) => (
-                <button
-                  className={topicLabelIsSelected(label) ? "topic-chip active" : "topic-chip"}
-                  key={`quick-${label}`}
-                  type="button"
-                  onClick={() => toggleTopicByLabel(label)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <label className="toolbox-search-field">
-            <span>Search topics</span>
-            <input
-              inputMode="search"
-              placeholder="Fall, WHMIS, access..."
-              type="search"
-              value={topicSearch}
-              onChange={(event) => setTopicSearch(event.target.value)}
-            />
-          </label>
+          ) : null}
+          {topicSettings.showSearch ? (
+            <label className="toolbox-search-field">
+              <span>Search topics</span>
+              <input
+                inputMode="search"
+                placeholder="Fall, WHMIS, access..."
+                type="search"
+                value={topicSearch}
+                onChange={(event) => setTopicSearch(event.target.value)}
+              />
+            </label>
+          ) : null}
         </div>
         <div className="toolbox-topic-list">
           {filteredTopicGroups.map((group) => (
@@ -3936,7 +4012,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         {enabledBlockSet.has("toolbox_incident_review") ? (
       <section className={optionalOpen.review ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
-          <h2>Review Notes</h2>
+          <h2>{toolboxLayout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
           <button type="button" onClick={() => toggleOptional("review")}>
             {optionalOpen.review ? "Hide" : "Add incident / review notes"}
           </button>
@@ -4008,7 +4084,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         {enabledBlockSet.has("toolbox_safety_concerns") ? (
       <section className={optionalOpen.concerns ? "toolbox-section" : "toolbox-section collapsed"}>
         <div className="toolbox-section-heading">
-          <h2>Safety Concerns</h2>
+          <h2>{toolboxLayout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
           <button type="button" onClick={() => toggleOptional("concerns")}>
             {optionalOpen.concerns ? "Hide" : "Add safety concern"}
           </button>
@@ -4060,7 +4136,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         ref={registerValidationTarget("attendance")}
       >
         <div className="toolbox-section-heading">
-          <h2>Attendance</h2>
+          <h2>{toolboxLayout.blockLabels.toolbox_attendance || "Attendance"}</h2>
           <span>{attendeeNames.length ? `${attendeeNames.length} listed` : "Required"}</span>
         </div>
         <label className={attendanceInvalid ? "attendance-entry-field toolbox-field-invalid" : "attendance-entry-field"}>
@@ -4095,7 +4171,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
         {enabledBlockSet.has("toolbox_final_confirmation") ? (
       <section className={finalCheckInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
         <div className="toolbox-section-heading">
-          <h2>Final Check</h2>
+          <h2>{toolboxLayout.blockLabels.toolbox_final_confirmation || "Final Check"}</h2>
           <span>Completed by presenter</span>
         </div>
         <button type="button" onClick={() => toggleOptional("comments")}>
@@ -7492,6 +7568,24 @@ function TemplateSchemaEditorV3({
       ),
     });
   };
+  const updateSectionSettings = (sectionIndex, patch) => {
+    const section = current.sections[sectionIndex] || {};
+    updateSection(sectionIndex, {
+      settings: {
+        ...normalizeTemplateSettings(section.settings),
+        ...patch,
+      },
+    });
+  };
+  const updateSelectedFieldSettings = (patch) => {
+    if (!selectedField || activeSelection.kind !== "field") return;
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      settings: {
+        ...normalizeTemplateSettings(selectedField.settings),
+        ...patch,
+      },
+    });
+  };
   const selectBlock = (nextSelection) => {
     setSelected(nextSelection);
     setView("editor");
@@ -7529,6 +7623,7 @@ function TemplateSchemaEditorV3({
       required: Boolean(fieldConfig.required),
       default: fieldConfig.default || "",
       options: fieldConfig.options || (TEMPLATE_OPTION_FIELD_TYPES.has(fieldConfig.type) ? ["Option 1", "Option 2"] : []),
+      settings: normalizeTemplateSettings(fieldConfig.settings),
     });
     onChange({
       ...current,
@@ -7610,6 +7705,9 @@ function TemplateSchemaEditorV3({
       options: (selectedField.options || []).filter((item) => item !== option),
     });
   };
+  const selectedToolboxTopicSettings = selectedField?.type === "toolbox_topics"
+    ? getToolboxTopicSettings(selectedField.settings)
+    : null;
   const syncTemplateName = () => {
     const label = String(current.title || "").trim();
     if (label && label !== selectedTemplate.label) onTemplateMetaChange({ label });
@@ -7667,12 +7765,16 @@ function TemplateSchemaEditorV3({
                 {current.description ? <p>{current.description}</p> : null}
               </div>
               {fieldCount ? (
-                <TemplateFormFields
-                  answers={previewAnswers}
-                  schema={current}
-                  worker={previewWorker}
-                  onChange={onPreviewAnswersChange}
-                />
+                (current.formType === "toolbox_talk" || selectedTemplate.form_type === "toolbox_talk") ? (
+                  <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
+                ) : (
+                  <TemplateFormFields
+                    answers={previewAnswers}
+                    schema={current}
+                    worker={previewWorker}
+                    onChange={onPreviewAnswersChange}
+                  />
+                )
               ) : (
                 <div className="template-v3-empty-page">
                   <h2>No fields yet</h2>
@@ -7904,6 +8006,19 @@ function TemplateSchemaEditorV3({
                     onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
                   />
                 </label>
+                <label className="settings-checkbox compact">
+                  <input
+                    checked={Boolean(selectedSection.settings?.defaultCollapsed)}
+                    type="checkbox"
+                    onChange={(event) =>
+                      updateSectionSettings(activeSelection.sectionIndex, { defaultCollapsed: event.target.checked })
+                    }
+                  />
+                  <span>
+                    Hide / collapse by default
+                    <small>Workers can open this section when they need it.</small>
+                  </span>
+                </label>
               </div>
             ) : null}
 
@@ -7950,6 +8065,73 @@ function TemplateSchemaEditorV3({
                   <p className="template-v3-help-text">
                     This special block reuses the polished Toolbox Talk logic when the form supports it.
                   </p>
+                ) : null}
+                {selectedToolboxTopicSettings ? (
+                  <div className="template-v3-topic-settings">
+                    <label className="settings-checkbox compact">
+                      <input
+                        checked={selectedToolboxTopicSettings.showCommon}
+                        type="checkbox"
+                        onChange={(event) => updateSelectedFieldSettings({ showCommon: event.target.checked })}
+                      />
+                      <span>Show Common shortcuts</span>
+                    </label>
+                    <label className="settings-checkbox compact">
+                      <input
+                        checked={selectedToolboxTopicSettings.showSearch}
+                        type="checkbox"
+                        onChange={(event) => updateSelectedFieldSettings({ showSearch: event.target.checked })}
+                      />
+                      <span>Show Search</span>
+                    </label>
+                    <label>
+                      <span>Common topics</span>
+                      <textarea
+                        className="template-v3-topic-textarea"
+                        rows="5"
+                        value={selectedToolboxTopicSettings.commonTopicLabels.join("\n")}
+                        onChange={(event) =>
+                          updateSelectedFieldSettings({
+                            commonTopicLabels: splitToolboxTopicLabels(event.target.value),
+                          })
+                        }
+                      />
+                    </label>
+                    <div className="template-v3-category-list">
+                      <span>Visible topic categories</span>
+                      {TOOLBOX_TALK_TOPIC_GROUPS.map((group) => (
+                        <label className="settings-checkbox compact" key={group.id}>
+                          <input
+                            checked={selectedToolboxTopicSettings.enabledCategoryIds.includes(group.id)}
+                            type="checkbox"
+                            onChange={(event) => {
+                              const currentIds = selectedToolboxTopicSettings.enabledCategoryIds;
+                              const nextIds = event.target.checked
+                                ? [...currentIds, group.id]
+                                : currentIds.filter((id) => id !== group.id);
+                              updateSelectedFieldSettings({
+                                enabledCategoryIds: nextIds.length ? nextIds : currentIds,
+                              });
+                            }}
+                          />
+                          <span>{group.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {["toolbox_incident_review", "toolbox_safety_concerns"].includes(selectedField.type) ? (
+                  <label className="settings-checkbox compact">
+                    <input
+                      checked={normalizeTemplateSettings(selectedField.settings).defaultCollapsed !== false}
+                      type="checkbox"
+                      onChange={(event) => updateSelectedFieldSettings({ defaultCollapsed: event.target.checked })}
+                    />
+                    <span>
+                      Hide / collapse by default
+                      <small>Workers can open this block when needed.</small>
+                    </span>
+                  </label>
                 ) : null}
                 {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
@@ -9118,6 +9300,150 @@ function TemplateSchemaEditor({
           )}
         </section>
       </aside>
+    </div>
+  );
+}
+
+function ToolboxTalkTemplatePreview({ schema, worker }) {
+  const current = normalizeClientTemplateSchema(schema);
+  const layout = getToolboxTalkLayout(current);
+  const enabled = new Set(layout.enabledBlocks);
+  const topicSettings = layout.blockSettings.toolbox_topics || getToolboxTopicSettings();
+  const topicGroups = getEnabledToolboxTopicGroups(topicSettings.enabledCategoryIds);
+  const headerSampleValue = (field) => {
+    if (field.default === "worker_name") return worker?.name || "";
+    if (field.default === "today") return todayInVancouver();
+    if (field.default === "now") return timeInVancouver();
+    return "";
+  };
+
+  return (
+    <div className="template-runtime-form toolbox-talk-template-preview">
+      {current.description ? <p className="muted">{current.description}</p> : null}
+      {layout.headerFields.length ? (
+        <section className="toolbox-section">
+          <div className="toolbox-section-heading">
+            <h2>{layout.meetingInfo.title || "Meeting Info"}</h2>
+            {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
+          </div>
+          {layout.meetingInfo.description ? <p className="muted">{layout.meetingInfo.description}</p> : null}
+          <div className="toolbox-field-grid">
+            {layout.headerFields.map((field) => (
+              <label key={field.id || field.key}>
+                <span>{field.label}</span>
+                <input
+                  readOnly
+                  placeholder={field.helperText || ""}
+                  type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
+                  value={headerSampleValue(field)}
+                />
+              </label>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {enabled.has("toolbox_topics") ? (
+        <section className="toolbox-section">
+          <div className="toolbox-section-heading">
+            <h2>{layout.blockLabels.toolbox_topics || "Topics Discussed"}</h2>
+            <span>Special block</span>
+          </div>
+          {topicSettings.showCommon && topicSettings.commonTopicLabels.length ? (
+            <div className="toolbox-topic-panel">
+              <h3>Common</h3>
+              <div className="toolbox-chip-row">
+                {topicSettings.commonTopicLabels.slice(0, 12).map((label) => (
+                  <span className="topic-chip" key={label}>{label}</span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {topicSettings.showSearch ? (
+            <label>
+              <span>Search topics</span>
+              <input readOnly placeholder="Fall, WHMIS, access..." value="" />
+            </label>
+          ) : null}
+          <div className="toolbox-topic-groups">
+            {topicGroups.map((group) => (
+              <details key={group.id}>
+                <summary>{group.label}</summary>
+                <div className="toolbox-chip-row">
+                  {group.topics.slice(0, 8).map((label) => (
+                    <span className="topic-chip" key={label}>{label}</span>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {enabled.has("toolbox_incident_review") ? (
+        <section
+          className={
+            layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false
+              ? "toolbox-section"
+              : "toolbox-section collapsed"
+          }
+        >
+          <div className="toolbox-section-heading">
+            <h2>{layout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
+            <button type="button">Add incident / review notes</button>
+          </div>
+          {layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false ? (
+            <div className="toolbox-field-grid">
+              <label><span># of FA since last meeting</span><input readOnly /></label>
+              <label><span># of Medical Aids</span><input readOnly /></label>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {enabled.has("toolbox_safety_concerns") ? (
+        <section
+          className={
+            layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false
+              ? "toolbox-section"
+              : "toolbox-section collapsed"
+          }
+        >
+          <div className="toolbox-section-heading">
+            <h2>{layout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
+            <button type="button">Add safety concern</button>
+          </div>
+        </section>
+      ) : null}
+
+      {enabled.has("toolbox_attendance") ? (
+        <section className="toolbox-section">
+          <div className="toolbox-section-heading">
+            <h2>{layout.blockLabels.toolbox_attendance || "Attendance"}</h2>
+            <span>Required</span>
+          </div>
+          <label>
+            <span>Name</span>
+            <input readOnly placeholder="Worker name" value="" />
+          </label>
+          <div className="toolbox-attendee-chip-row">
+            <span className="toolbox-attendee-chip">Garnet Bird <strong>x</strong></span>
+          </div>
+        </section>
+      ) : null}
+
+      {enabled.has("toolbox_final_confirmation") ? (
+        <section className="toolbox-section">
+          <div className="toolbox-section-heading">
+            <h2>{layout.blockLabels.toolbox_final_confirmation || "Final Check"}</h2>
+            <span>Completed by presenter</span>
+          </div>
+          <label className="toolbox-confirmation">
+            <input readOnly checked type="checkbox" />
+            <span>I confirm the listed workers participated in this toolbox talk.</span>
+          </label>
+        </section>
+      ) : null}
     </div>
   );
 }
@@ -12229,41 +12555,188 @@ function validateToolboxTalkForm(form) {
   return missingFields.length ? toolboxValidationMessage(missingFields[0]) : "";
 }
 
-function getToolboxTalkEnabledBlocks(schema) {
+function getToolboxTalkHeaderFieldKey(field) {
+  const explicit = field?.settings?.toolboxHeaderField;
+  if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
+    return explicit;
+  }
+  const idKey = TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  const labelKey = TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.label || "")];
+  return labelKey || "";
+}
+
+function createDefaultToolboxTalkLayout() {
+  return {
+    headerFields: TOOLBOX_TALK_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+    enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter((type) => type !== "toolbox_meeting_info"),
+    blockLabels: {
+      toolbox_topics: "Topics Discussed",
+      toolbox_incident_review: "Review Notes",
+      toolbox_safety_concerns: "Safety Concerns",
+      toolbox_attendance: "Attendance",
+      toolbox_final_confirmation: "Final Check",
+    },
+    blockSettings: {
+      toolbox_topics: getToolboxTopicSettings(),
+      toolbox_incident_review: { defaultCollapsed: true },
+      toolbox_safety_concerns: { defaultCollapsed: true },
+      toolbox_attendance: {},
+      toolbox_final_confirmation: {},
+    },
+    meetingInfo: {
+      title: "Meeting Info",
+      description: "",
+      settings: {},
+    },
+  };
+}
+
+function getToolboxTopicSettings(settings = {}) {
+  const enabledCategoryIds = Array.isArray(settings.enabledCategoryIds)
+    ? settings.enabledCategoryIds.filter((id) => TOOLBOX_TALK_TOPIC_GROUP_IDS.includes(id))
+    : TOOLBOX_TALK_TOPIC_GROUP_IDS;
+  const commonTopicLabels = Array.isArray(settings.commonTopicLabels)
+    ? settings.commonTopicLabels
+        .map((label) => String(label || "").trim())
+        .filter(Boolean)
+        .filter((label, index, labels) => labels.indexOf(label) === index)
+    : TOOLBOX_TALK_QUICK_TOPIC_LABELS;
+  return {
+    showCommon: settings.showCommon !== false,
+    showSearch: settings.showSearch !== false,
+    enabledCategoryIds: enabledCategoryIds.length ? enabledCategoryIds : TOOLBOX_TALK_TOPIC_GROUP_IDS,
+    commonTopicLabels: commonTopicLabels.length ? commonTopicLabels : TOOLBOX_TALK_QUICK_TOPIC_LABELS,
+  };
+}
+
+function getToolboxTalkLayout(schema) {
   const normalized = normalizeClientTemplateSchema(schema);
-  const enabled = [];
+  if (!normalized.sections.length) return createDefaultToolboxTalkLayout();
+
+  const layout = {
+    ...createDefaultToolboxTalkLayout(),
+    headerFields: [],
+    enabledBlocks: [],
+    blockLabels: {},
+    blockSettings: {},
+    meetingInfo: {
+      title: "",
+      description: "",
+      settings: {},
+    },
+  };
+
   normalized.sections.forEach((section) => {
     (section.fields || []).forEach((field) => {
-      if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field?.type) && !enabled.includes(field.type)) {
-        enabled.push(field.type);
+      if (field.type === "toolbox_meeting_info") {
+        if (!layout.meetingInfo.title) {
+          layout.meetingInfo = {
+            title: section.title || field.label || "Meeting Info",
+            description: section.description || field.helperText || "",
+            settings: { ...normalizeTemplateSettings(section.settings), ...normalizeTemplateSettings(field.settings) },
+          };
+        }
+        TOOLBOX_TALK_HEADER_FIELD_CONFIGS.forEach((base) => {
+          if (!layout.headerFields.some((item) => item.key === base.key)) {
+            layout.headerFields.push({
+              ...base,
+              sectionTitle: section.title || "Meeting Info",
+              sectionDescription: section.description || "",
+            });
+          }
+        });
+        return;
+      }
+
+      const headerKey = getToolboxTalkHeaderFieldKey(field);
+      if (headerKey) {
+        const base = TOOLBOX_TALK_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
+        if (!base) return;
+        if (!layout.meetingInfo.title) {
+          layout.meetingInfo = {
+            title: section.title || "Meeting Info",
+            description: section.description || "",
+            settings: normalizeTemplateSettings(section.settings),
+          };
+        }
+        layout.headerFields.push({
+          ...base,
+          id: field.id || base.id,
+          type: field.type || base.type,
+          label: field.label || base.label,
+          helperText: field.helperText || "",
+          required: Boolean(field.required),
+          remember: Boolean(field.remember),
+          default: field.default || base.default || "",
+          key: headerKey,
+          sectionTitle: section.title || "Meeting Info",
+          sectionDescription: section.description || "",
+          settings: normalizeTemplateSettings(field.settings),
+        });
+        return;
+      }
+
+      if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)) {
+        if (!layout.enabledBlocks.includes(field.type)) layout.enabledBlocks.push(field.type);
+        layout.blockLabels[field.type] = field.label || templateFieldTypeLabel(field.type);
+        layout.blockSettings[field.type] = {
+          ...normalizeTemplateSettings(section.settings),
+          ...normalizeTemplateSettings(field.settings),
+        };
       }
     });
   });
-  return enabled.length ? enabled : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER;
+
+  layout.headerFields = layout.headerFields.filter(
+    (field, index, fields) => fields.findIndex((item) => item.key === field.key) === index,
+  );
+  layout.blockSettings.toolbox_topics = getToolboxTopicSettings(layout.blockSettings.toolbox_topics);
+  layout.blockSettings.toolbox_incident_review = {
+    defaultCollapsed: layout.blockSettings.toolbox_incident_review?.defaultCollapsed !== false,
+    ...layout.blockSettings.toolbox_incident_review,
+  };
+  layout.blockSettings.toolbox_safety_concerns = {
+    defaultCollapsed: layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed !== false,
+    ...layout.blockSettings.toolbox_safety_concerns,
+  };
+  return layout;
+}
+
+function getToolboxTalkEnabledBlocks(schema) {
+  return getToolboxTalkLayout(schema).enabledBlocks;
 }
 
 function getToolboxTalkMissingFields(
   form,
   pendingAttendeeName = "",
-  enabledBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+  layoutOrBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
 ) {
-  const enabled = new Set(enabledBlocks?.length ? enabledBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER);
+  const layout = Array.isArray(layoutOrBlocks)
+    ? {
+        enabledBlocks: layoutOrBlocks.length ? layoutOrBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+        headerFields: layoutOrBlocks.includes("toolbox_meeting_info")
+          ? TOOLBOX_TALK_HEADER_FIELD_CONFIGS
+          : [],
+      }
+    : layoutOrBlocks || createDefaultToolboxTalkLayout();
+  const enabled = new Set(Array.isArray(layout.enabledBlocks) ? layout.enabledBlocks : TOOLBOX_TALK_SPECIAL_BLOCK_ORDER);
   const header = form?.header || {};
   const confirmation = form?.confirmation || {};
   const topics = form?.topics || {};
   const attendance = Array.isArray(form?.attendance) ? form.attendance : [];
   const missing = [];
 
-  if (enabled.has("toolbox_meeting_info")) {
-    [
-      ["header.projectName", header.projectName],
-      ["header.address", header.address],
-      ["header.date", header.date],
-      ["header.time", header.time],
-      ["header.presenter", header.presenter],
-      ["header.supervisor", header.supervisor],
-    ].forEach(([field, value]) => {
-      if (!String(value || "").trim()) missing.push(field);
+  const headerFields = Array.isArray(layout.headerFields) ? layout.headerFields : [];
+  if (headerFields.length) {
+    headerFields.forEach((field) => {
+      if (field.required && !String(header[field.key] || "").trim()) {
+        missing.push(`header.${field.key}`);
+      }
+    });
+  } else if (enabled.has("toolbox_meeting_info")) {
+    TOOLBOX_TALK_HEADER_FIELD_CONFIGS.forEach((field) => {
+      if (!String(header[field.key] || "").trim()) missing.push(`header.${field.key}`);
     });
   }
 
@@ -12349,10 +12822,35 @@ function cleanToolboxTalkClientForm(form) {
   };
 }
 
-function filterToolboxTopicGroups(search) {
+function getEnabledToolboxTopicGroups(enabledCategoryIds = TOOLBOX_TALK_TOPIC_GROUP_IDS) {
+  const ids = Array.isArray(enabledCategoryIds) && enabledCategoryIds.length
+    ? enabledCategoryIds
+    : TOOLBOX_TALK_TOPIC_GROUP_IDS;
+  const enabled = new Set(ids);
+  return TOOLBOX_TALK_TOPIC_GROUPS.filter((group) => enabled.has(group.id));
+}
+
+function splitToolboxTopicLabels(value) {
+  const values = Array.isArray(value)
+    ? value
+    : String(value || "").split(/\n|,/);
+  const seen = new Set();
+  return values
+    .map((label) => String(label || "").trim())
+    .filter(Boolean)
+    .filter((label) => {
+      const key = label.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function filterToolboxTopicGroups(search, enabledCategoryIds = TOOLBOX_TALK_TOPIC_GROUP_IDS) {
   const query = String(search || "").trim().toLowerCase();
-  if (!query) return TOOLBOX_TALK_TOPIC_GROUPS;
-  return TOOLBOX_TALK_TOPIC_GROUPS.map((group) => {
+  const groups = getEnabledToolboxTopicGroups(enabledCategoryIds);
+  if (!query) return groups;
+  return groups.map((group) => {
     const groupMatches = group.label.toLowerCase().includes(query);
     const topics = groupMatches
       ? group.topics
@@ -12361,10 +12859,10 @@ function filterToolboxTopicGroups(search) {
   }).filter(Boolean);
 }
 
-function findToolboxTopic(label) {
+function findToolboxTopic(label, enabledCategoryIds = TOOLBOX_TALK_TOPIC_GROUP_IDS) {
   const query = String(label || "").trim().toLowerCase();
   if (!query) return null;
-  for (const group of TOOLBOX_TALK_TOPIC_GROUPS) {
+  for (const group of getEnabledToolboxTopicGroups(enabledCategoryIds)) {
     const topicLabel = group.topics.find((topic) => topic.toLowerCase() === query);
     if (topicLabel) return { group, label: topicLabel };
   }
@@ -12405,6 +12903,15 @@ function cloneTemplateSchema(schema) {
   return normalizeClientTemplateSchema(schema ? JSON.parse(JSON.stringify(schema)) : null);
 }
 
+function normalizeTemplateSettings(settings) {
+  if (!settings || typeof settings !== "object" || Array.isArray(settings)) return {};
+  try {
+    return JSON.parse(JSON.stringify(settings));
+  } catch {
+    return {};
+  }
+}
+
 function ensureTemplateSchemaHasStarterQuestion(schema) {
   const current = cloneTemplateSchema(schema);
   if (collectClientTemplateFields(current).length > 0) return current;
@@ -12422,11 +12929,12 @@ function createDefaultTemplateSchema() {
   };
 }
 
-function createTemplateSection(index, { description = "", title, withField = false } = {}) {
+function createTemplateSection(index, { description = "", settings = {}, title, withField = false } = {}) {
   return {
     id: `section_${index}`,
     title: title === undefined ? `Section ${index}` : title,
     description,
+    settings: normalizeTemplateSettings(settings),
     fields: withField ? [createTemplateField(1)] : [],
   };
 }
@@ -12471,6 +12979,7 @@ function normalizeClientTemplateSchema(schema) {
       ? String(section.title || "")
       : `Section ${sectionIndex + 1}`,
     description: String(section?.description || ""),
+    settings: normalizeTemplateSettings(section?.settings),
     fields: (Array.isArray(section?.fields) ? section.fields : [])
       .map((field, fieldIndex) => normalizeTemplateField(field, sectionIndex, fieldIndex))
       .filter(Boolean),
@@ -12510,6 +13019,7 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     default: isTemplateNonAnswerField({ type }) ? "" : ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
     remember: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.remember),
     options,
+    settings: normalizeTemplateSettings(field?.settings),
   };
 }
 
