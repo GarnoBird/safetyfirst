@@ -6595,25 +6595,49 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     setPreviewAnswers({});
   }, [selectedFormType, selectedSchema]);
 
+  const saveTemplateMetaForSchema = async (schema) => {
+    const nextTitle = String(schema?.title || "").trim();
+    const nextDescription = String(schema?.description || "");
+    const patch = {};
+    if (nextTitle && nextTitle !== selectedTemplate.label) patch.label = nextTitle;
+    if (nextDescription !== (selectedTemplate.description || "")) patch.description = nextDescription;
+    if (!Object.keys(patch).length) return null;
+    const payload = await readApiJson(
+      await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      }),
+    );
+    return syncTemplateSchemaMeta(payload.template, patch);
+  };
+
   const saveDraft = async () => {
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
     setSaving(true);
     setMessage("");
     try {
+      const schemaToSave = cloneTemplateSchema(draftSchema);
       const payload = await readApiJson(
         await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/draft`, {
           method: "PATCH",
           credentials: "include",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ schema: draftSchema }),
+          body: JSON.stringify({ schema: schemaToSave }),
         }),
       );
+      const metaTemplate = await saveTemplateMetaForSchema(schemaToSave);
       setRows((current) =>
-        current.map((row) =>
-          row.form_type === selectedTemplate.form_type
-            ? { ...row, draftVersion: payload.draft, versions: mergeTemplateVersions(row.versions, payload.draft) }
-            : row,
-        ),
+        current.map((row) => {
+          if (row.form_type !== selectedTemplate.form_type) return row;
+          const base = metaTemplate ? { ...row, ...metaTemplate } : row;
+          return {
+            ...base,
+            draftVersion: payload.draft,
+            versions: mergeTemplateVersions(base.versions, payload.draft),
+          };
+        }),
       );
       setMessage("Draft saved.");
     } catch (error) {
@@ -6628,15 +6652,17 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     setPublishing(true);
     setMessage("");
     try {
+      const schemaToSave = cloneTemplateSchema(draftSchema);
       if (draftSchema) {
         await readApiJson(
           await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/draft`, {
             method: "PATCH",
             credentials: "include",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ schema: draftSchema }),
+            body: JSON.stringify({ schema: schemaToSave }),
           }),
         );
+        await saveTemplateMetaForSchema(schemaToSave);
       }
       const payload = await readApiJson(
         await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/publish`, {
@@ -7738,16 +7764,6 @@ function TemplateSchemaEditorV3({
   const selectedToolboxTopicSettings = selectedField?.type === "toolbox_topics"
     ? getToolboxTopicSettings(selectedField.settings)
     : null;
-  const syncTemplateName = () => {
-    const label = String(current.title || "").trim();
-    if (label && label !== selectedTemplate.label) onTemplateMetaChange({ label });
-  };
-  const syncTemplateDescription = () => {
-    if ((current.description || "") !== (selectedTemplate.description || "")) {
-      onTemplateMetaChange({ description: current.description || "" });
-    }
-  };
-
   return (
     <div className="template-v3-builder">
       <div className="template-v3-mobile-lock">
@@ -7938,7 +7954,6 @@ function TemplateSchemaEditorV3({
               <span>Form name</span>
               <input
                 value={current.title || ""}
-                onBlur={syncTemplateName}
                 onChange={(event) => updateSchema({ title: event.target.value })}
               />
             </label>
@@ -7947,7 +7962,6 @@ function TemplateSchemaEditorV3({
               <textarea
                 rows="4"
                 value={current.description || ""}
-                onBlur={syncTemplateDescription}
                 onChange={(event) => updateSchema({ description: event.target.value })}
               />
             </label>
