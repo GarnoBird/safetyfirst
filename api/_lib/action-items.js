@@ -219,7 +219,7 @@ export async function createDraftActionItemsFromSiteInspection(submission, formD
 }
 
 export async function createDraftActionItemsFromTemplateActionRows(submission, formData) {
-  if (formData?.kind !== "template_submission_v1") return [];
+  if (!["template_submission_v1", "toolbox_talk_v1", "site_inspection_v1"].includes(formData?.kind)) return [];
   const schema = formData.schemaSnapshot && typeof formData.schemaSnapshot === "object" ? formData.schemaSnapshot : {};
   const answers = formData.answers && typeof formData.answers === "object" ? formData.answers : {};
   const blocks = formData.actionItemBlocks && typeof formData.actionItemBlocks === "object" && !Array.isArray(formData.actionItemBlocks)
@@ -228,8 +228,10 @@ export async function createDraftActionItemsFromTemplateActionRows(submission, f
   const blockFields = collectTemplateActionItemFields(schema);
   if (!blockFields.length) return [];
 
-  const project = findTemplateAnswerByAlias(schema, answers, ["project", "project_name", "job", "job_name", "site"]);
-  const area = findTemplateAnswerByAlias(schema, answers, ["area", "work_area", "area_inspected", "site_area"]);
+  const project = findTemplateAnswerByAlias(schema, answers, ["project", "project_name", "job", "job_name", "site"])
+    || cleanText(formData?.header?.projectName || formData?.header?.project, MAX_ACTION_TEXT_LENGTH);
+  const area = findTemplateAnswerByAlias(schema, answers, ["area", "work_area", "area_inspected", "site_area"])
+    || cleanText(formData?.header?.areaInspected || formData?.header?.area, MAX_ACTION_TEXT_LENGTH);
   const rows = [];
   let flatIndex = 0;
   blockFields.forEach((field) => {

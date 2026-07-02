@@ -37,7 +37,8 @@
     "validate:wiki": "node scripts/validate-wiki-content.js",
     "verify:wiki-expansion": "node scripts/verify-wiki-expansion.js",
     "seed:staff": "node scripts/seed-staff-user.js",
-    "smoke:ops": "node scripts/smoke-security-ops.js"
+    "smoke:ops": "node scripts/smoke-security-ops.js",
+    "smoke:forms": "playwright test tests/form-builder-smoke.spec.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
@@ -47,6 +48,7 @@
     "resend": "^6.14.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "vite": "^8.0.16"
   }
 }

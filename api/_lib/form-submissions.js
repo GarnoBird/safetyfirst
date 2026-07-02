@@ -12,6 +12,7 @@ import {
 } from "./fallback-store.js";
 import {
   buildTemplateSubmissionNotes,
+  cleanTemplateSubmissionFieldsForSchema,
   getPublishedWorkerFormTemplate,
   validateTemplateSubmissionFormData,
 } from "./form-templates.js";
@@ -347,7 +348,10 @@ export async function createWorkerSubmission(worker, body) {
   if (submissionMode === "fill_form" && formData?.kind === "site_inspection_v1") {
     await createDraftActionItemsFromSiteInspection(inserted, formData);
   }
-  if (submissionMode === "fill_form" && formData?.kind === "template_submission_v1") {
+  if (
+    submissionMode === "fill_form" &&
+    ["template_submission_v1", "toolbox_talk_v1", "site_inspection_v1"].includes(formData?.kind)
+  ) {
     await createDraftActionItemsFromTemplateActionRows(inserted, formData);
   }
 
@@ -1535,21 +1539,77 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     };
   }
   if (formType === "toolbox_talk") {
-    const toolboxConfig = await getToolboxTalkConfig();
+    let template = null;
+    try {
+      template = await getPublishedWorkerFormTemplate("toolbox_talk");
+    } catch {
+      template = null;
+    }
+    const version = template?.publishedVersion || null;
+    const toolboxConfig = await getToolboxTalkConfig("toolbox_talk", template);
+    const generic = version?.schema
+      ? cleanCustomGenericSubmissionFields({
+          schema: version.schema,
+          rawFormData: value,
+          worker,
+          consumedFieldPredicate: isToolboxTalkConsumedTemplateField,
+          formType: "toolbox_talk",
+        })
+      : { answers: {}, actionItemBlocks: {}, schema: {} };
+    const formData = cleanToolboxTalkFormData(value, worker, toolboxConfig);
     return {
-      formData: cleanToolboxTalkFormData(value, worker, toolboxConfig),
-      formTemplateVersionId: null,
-      formSchemaSnapshot: {},
+      formData: {
+        ...formData,
+        templateVersionId: version?.id || "",
+        templateVersionNumber: version?.version_number || null,
+        templateTitle: version?.schema?.title || template?.label || "Toolbox Talk",
+        schemaSnapshot: version?.schema || {},
+        answers: generic.answers,
+        actionItemBlocks: generic.actionItemBlocks,
+      },
+      formTemplateVersionId: version?.id || null,
+      formSchemaSnapshot: version?.schema || {},
     };
   }
   if (formType === "site_inspection") {
-    const siteInspectionConfig = await getSiteInspectionConfig(formType);
+    let template = null;
+    try {
+      template = await getPublishedWorkerFormTemplate(formType);
+    } catch {
+      template = null;
+    }
+    const version = template?.publishedVersion || null;
+    const siteInspectionConfig = await getSiteInspectionConfig(formType, template);
+    const generic = version?.schema
+      ? cleanCustomGenericSubmissionFields({
+          schema: version.schema,
+          rawFormData: value,
+          worker,
+          consumedFieldPredicate: isSiteInspectionConsumedTemplateField,
+          formType,
+        })
+      : { answers: {}, actionItemBlocks: {}, schema: {} };
+    const formData = cleanSiteInspectionFormData(value, worker, siteInspectionConfig);
     return {
-      formData: cleanSiteInspectionFormData(value, worker, siteInspectionConfig),
-      formTemplateVersionId: null,
-      formSchemaSnapshot: {},
+      formData: {
+        ...formData,
+        templateVersionId: version?.id || "",
+        templateVersionNumber: version?.version_number || null,
+        templateTitle: version?.schema?.title || template?.label || "Site Inspection",
+        schemaSnapshot: version?.schema || {},
+        answers: generic.answers,
+        actionItemBlocks: generic.actionItemBlocks,
+      },
+      formTemplateVersionId: version?.id || null,
+      formSchemaSnapshot: version?.schema || {},
     };
   }
+  const toolboxTalkTemplateSubmission = await validateToolboxTalkTemplateSubmissionFormData({
+    formType,
+    rawFormData: value,
+    worker,
+  });
+  if (toolboxTalkTemplateSubmission) return toolboxTalkTemplateSubmission;
   const siteInspectionTemplateSubmission = await validateSiteInspectionTemplateSubmissionFormData({
     formType,
     rawFormData: value,
@@ -1582,6 +1642,27 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
     const attendeeCount = (formData.attendance || []).length;
     return [
       `Project: ${header.projectName}`,
+      topicSummary ? `Topics: ${topicSummary}` : "",
+      `${attendeeCount} attendee${attendeeCount === 1 ? "" : "s"}`,
+    ]
+      .filter(Boolean)
+      .join(" / ")
+      .slice(0, MAX_FORM_LONG_TEXT_LENGTH);
+  }
+
+  if (submissionMode === "fill_form" && formData?.kind === "toolbox_talk_v1") {
+    const header = formData.header || {};
+    const topicLabels = (formData.topics?.selected || [])
+      .map((topic) => topic.label)
+      .filter(Boolean)
+      .slice(0, 4);
+    const topicSummary = topicLabels.length
+      ? topicLabels.join(", ")
+      : cleanText(formData.topics?.other || "", MAX_FORM_TEXT_LENGTH);
+    const attendeeCount = (formData.attendance || []).length;
+    return [
+      formData.templateTitle || "Toolbox Talk",
+      header.projectName ? `Project: ${header.projectName}` : "",
       topicSummary ? `Topics: ${topicSummary}` : "",
       `${attendeeCount} attendee${attendeeCount === 1 ? "" : "s"}`,
     ]
@@ -1681,9 +1762,9 @@ function getToolboxTalkHeaderFieldKey(field) {
   return TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
 }
 
-async function getToolboxTalkConfig() {
+async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride = null) {
   try {
-    const template = await getPublishedWorkerFormTemplate("toolbox_talk");
+    const template = templateOverride || await getPublishedWorkerFormTemplate(formType);
     const config = createDefaultToolboxTalkConfig();
     const enabledBlocks = [];
     const headerFields = [];
@@ -1763,6 +1844,26 @@ function getSiteInspectionObservationFieldKey(field) {
   return SITE_INSPECTION_OBSERVATION_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
 }
 
+function isToolboxTalkTemplateSchema(schema, template = {}) {
+  const sections = Array.isArray(schema?.sections) ? schema.sections : [];
+  if (schema?.formType === "toolbox_talk" || template?.form_type === "toolbox_talk") return true;
+  const signal = slugifyToolboxTemplateId(
+    [
+      schema?.formType,
+      schema?.title,
+      template?.form_type,
+      template?.label,
+    ].filter(Boolean).join(" "),
+  );
+  if (signal.includes("toolbox_talk")) return true;
+  const fields = sections.flatMap((section) => Array.isArray(section?.fields) ? section.fields : []);
+  const toolboxBlocks = fields.filter((field) => TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type));
+  const hasCoreBlock = toolboxBlocks.some((field) =>
+    ["toolbox_topics", "toolbox_attendance", "toolbox_final_confirmation"].includes(field.type),
+  );
+  return toolboxBlocks.length >= 2 && hasCoreBlock;
+}
+
 function isSiteInspectionTemplateSchema(schema, template = {}) {
   const sections = Array.isArray(schema?.sections) ? schema.sections : [];
   if (schema?.formType === "site_inspection" || template?.form_type === "site_inspection") return true;
@@ -1772,6 +1873,78 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
     Boolean(getTemplateSettingValue(field?.settings, "siteInspectionHeaderField")) ||
     Boolean(getTemplateSettingValue(field?.settings, "siteInspectionObservationField")),
   );
+}
+
+function isToolboxTalkConsumedTemplateField(field) {
+  if (!field) return false;
+  if (field.type === "toolbox_meeting_info") return true;
+  if (TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field.type)) return true;
+  return Boolean(getToolboxTalkHeaderFieldKey(field));
+}
+
+function isSiteInspectionConsumedTemplateField(field) {
+  if (!field) return false;
+  if (field.type === "site_deficiencies") return true;
+  return Boolean(getSiteInspectionHeaderFieldKey(field) || getSiteInspectionObservationFieldKey(field));
+}
+
+function getCustomGenericTemplateSchema(schema, consumedFieldPredicate, formType = "") {
+  const source = schema && typeof schema === "object" && !Array.isArray(schema) ? schema : {};
+  const sections = (Array.isArray(source.sections) ? source.sections : [])
+    .map((section, sectionIndex) => ({
+      id: cleanText(section?.id || `generic_section_${sectionIndex + 1}`, 160),
+      title: cleanText(section?.title || `Section ${sectionIndex + 1}`, MAX_FORM_TEXT_LENGTH),
+      description: cleanText(section?.description, MAX_FORM_TEXT_LENGTH),
+      settings: cleanPlainSettings(section?.settings),
+      fields: (Array.isArray(section?.fields) ? section.fields : [])
+        .filter((field) => !consumedFieldPredicate(field)),
+    }))
+    .filter((section) => section.fields.length);
+  return {
+    schemaVersion: source.schemaVersion || 1,
+    formType: cleanText(source.formType || formType, 80),
+    title: cleanText(source.title, MAX_FORM_TEXT_LENGTH),
+    description: cleanText(source.description, MAX_FORM_TEXT_LENGTH),
+    sections,
+  };
+}
+
+function cleanCustomGenericSubmissionFields({ schema, rawFormData, worker, consumedFieldPredicate, formType }) {
+  const genericSchema = getCustomGenericTemplateSchema(schema, consumedFieldPredicate, formType);
+  const cleaned = cleanTemplateSubmissionFieldsForSchema(genericSchema, rawFormData || {}, worker);
+  return {
+    ...cleaned,
+    schema: genericSchema,
+  };
+}
+
+async function validateToolboxTalkTemplateSubmissionFormData({ formType, rawFormData, worker }) {
+  const template = await getPublishedWorkerFormTemplate(formType);
+  if (template.renderer_type !== "template") return null;
+  const version = template.publishedVersion;
+  if (!version || !isToolboxTalkTemplateSchema(version.schema, template)) return null;
+  const config = await getToolboxTalkConfig(formType, template);
+  const generic = cleanCustomGenericSubmissionFields({
+    schema: version.schema,
+    rawFormData,
+    worker,
+    consumedFieldPredicate: isToolboxTalkConsumedTemplateField,
+    formType,
+  });
+  const formData = cleanToolboxTalkFormData(rawFormData, worker, config);
+  return {
+    formData: {
+      ...formData,
+      templateVersionId: version.id,
+      templateVersionNumber: version.version_number,
+      templateTitle: version.schema?.title || template.label,
+      schemaSnapshot: version.schema || {},
+      answers: generic.answers,
+      actionItemBlocks: generic.actionItemBlocks,
+    },
+    formTemplateVersionId: version.id,
+    formSchemaSnapshot: version.schema || {},
+  };
 }
 
 async function getSiteInspectionConfig(formType = "site_inspection", templateOverride = null) {
@@ -1845,6 +2018,13 @@ async function validateSiteInspectionTemplateSubmissionFormData({ formType, rawF
   const version = template.publishedVersion;
   if (!version || !isSiteInspectionTemplateSchema(version.schema, template)) return null;
   const config = await getSiteInspectionConfig(formType, template);
+  const generic = cleanCustomGenericSubmissionFields({
+    schema: version.schema,
+    rawFormData,
+    worker,
+    consumedFieldPredicate: isSiteInspectionConsumedTemplateField,
+    formType,
+  });
   const formData = cleanSiteInspectionFormData(rawFormData, worker, config);
   return {
     formData: {
@@ -1853,6 +2033,8 @@ async function validateSiteInspectionTemplateSubmissionFormData({ formType, rawF
       templateVersionNumber: version.version_number,
       templateTitle: version.schema?.title || template.label,
       schemaSnapshot: version.schema || {},
+      answers: generic.answers,
+      actionItemBlocks: generic.actionItemBlocks,
     },
     formTemplateVersionId: version.id,
     formSchemaSnapshot: version.schema || {},

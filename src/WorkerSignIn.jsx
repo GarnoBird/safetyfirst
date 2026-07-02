@@ -3302,6 +3302,8 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const [formError, setFormError] = useState("");
   const isTemplateDriven = formTemplate?.renderer_type === "template";
   const formTemplateSchema = formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema;
+  const isToolboxTalkDigital =
+    isToolboxTalk || (isTemplateDriven && isToolboxTalkTemplateSchema(formTemplateSchema, formTemplate));
   const isSiteInspectionDigital =
     isSiteInspection || (isTemplateDriven && isSiteInspectionTemplateSchema(formTemplateSchema, formTemplate));
   const form = formTemplate
@@ -3354,18 +3356,18 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   }, [formLoading, formTemplate, formType, navigateTo, worker]);
 
   useEffect(() => {
-    setMode(isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "");
+    setMode(isToolboxTalkDigital || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "");
     setFile(null);
     setNotes("");
     setStatus({ type: "", message: "", date: "" });
-  }, [formType, isSiteInspectionDigital, isTemplateDriven, isToolboxTalk]);
+  }, [formType, isSiteInspectionDigital, isTemplateDriven, isToolboxTalkDigital]);
 
   useEffect(() => {
     if (
       !worker ||
       !form ||
       mode !== "fill_form" ||
-      formType === "toolbox_talk" ||
+      isToolboxTalkDigital ||
       formType === "site_inspection" ||
       isTemplateDriven
     ) {
@@ -3380,7 +3382,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
       !worker ||
       !form ||
       mode !== "fill_form" ||
-      formType === "toolbox_talk" ||
+      isToolboxTalkDigital ||
       formType === "site_inspection" ||
       isTemplateDriven
     ) {
@@ -3580,7 +3582,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
             </div>
           ) : (
             <>
-              {!mode && !isToolboxTalk && !isTemplateDriven ? (
+              {!mode && !isToolboxTalkDigital && !isTemplateDriven ? (
                 <div className="submission-mode-grid">
                   <button type="button" onClick={() => setMode("submit_file")}>
                     <strong>Submit File</strong>
@@ -3595,7 +3597,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
               {mode === "submit_file" ? (
                 <form className="submission-form" onSubmit={submitFileForm}>
-                  {isToolboxTalk ? (
+                  {isToolboxTalkDigital ? (
                     <div className="scanned-copy-picker">
                       <button type="button" onClick={openScannedCopyPicker}>
                         {file ? "Change scanned copy" : "Choose scanned copy"}
@@ -3636,9 +3638,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   <div className="form-platform-actions">
                     <button
                       type="button"
-                      onClick={() => setMode(isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "")}
+                      onClick={() => setMode(isToolboxTalkDigital || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "")}
                     >
-                      {isToolboxTalk || isSiteInspectionDigital || isTemplateDriven ? "Back to digital form" : "Change option"}
+                      {isToolboxTalkDigital || isSiteInspectionDigital || isTemplateDriven ? "Back to digital form" : "Change option"}
                     </button>
                     <button className="primary-button" disabled={submitting} type="submit">
                       {submitting ? "Submitting..." : "Submit"}
@@ -3648,7 +3650,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
               ) : null}
 
               {mode === "fill_form" ? (
-                formType === "toolbox_talk" ? (
+                isToolboxTalkDigital ? (
                   <>
                     <div className="toolbox-fast-actions">
                       <div>
@@ -3660,6 +3662,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                       </button>
                     </div>
                     <ToolboxTalkDigitalForm
+                      formType={formType}
                       formTemplate={formTemplate}
                       submitting={submitting}
                       worker={worker}
@@ -3743,8 +3746,9 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
   );
 }
 
-function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) {
-  const restoredDraftRef = useRef(readWorkerFormDraft(worker, "toolbox_talk", "fill_form"));
+function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSubmit, submitting, worker }) {
+  const draftFormType = formType || formTemplate?.form_type || "toolbox_talk";
+  const restoredDraftRef = useRef(readWorkerFormDraft(worker, draftFormType, "fill_form"));
   const optionalLayoutAppliedRef = useRef(false);
   const validationTargetsRef = useRef({});
   const [form, setForm] = useState(
@@ -3771,6 +3775,11 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
     [formTemplate],
   );
   const enabledBlocks = toolboxLayout.enabledBlocks;
+  const genericSchema = toolboxLayout.genericSchema || createGenericTemplateSchemaFromSections(
+    formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
+    [],
+    "toolbox_talk",
+  );
   const topicSettings = toolboxLayout.blockSettings.toolbox_topics || getToolboxTopicSettings();
   const enabledTopicCategoryIds = topicSettings.enabledCategoryIds;
   const [optionalOpen, setOptionalOpen] = useState(() => {
@@ -3809,8 +3818,8 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
     [form.attendance],
   );
   const missingFieldKeys = useMemo(
-    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout) : []),
-    [attendeeNameInput, form, submitAttempted, toolboxLayout],
+    () => (submitAttempted ? getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout, worker) : []),
+    [attendeeNameInput, form, submitAttempted, toolboxLayout, worker],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
   const hasSavedDefaults = Boolean(
@@ -3835,9 +3844,9 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
 
   useEffect(() => {
     if (!submitAttempted) return;
-    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout);
-    setError(nextMissing.length ? toolboxValidationMessage(nextMissing[0]) : "");
-  }, [attendeeNameInput, form, submitAttempted, toolboxLayout]);
+    const nextMissing = getToolboxTalkMissingFields(form, attendeeNameInput, toolboxLayout, worker);
+    setError(nextMissing.length ? toolboxValidationMessage(nextMissing[0], toolboxLayout) : "");
+  }, [attendeeNameInput, form, submitAttempted, toolboxLayout, worker]);
 
   useEffect(() => {
     if (optionalLayoutAppliedRef.current || restoredDraftRef.current?.form) return;
@@ -3851,21 +3860,28 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      if (isToolboxTalkDraftMeaningful(form)) {
-        const savedAt = writeWorkerFormDraft(worker, "toolbox_talk", "fill_form", { form });
+      if (isToolboxTalkDraftMeaningful(form, genericSchema, worker)) {
+        const savedAt = writeWorkerFormDraft(worker, draftFormType, "fill_form", { form });
         setDraftSavedAt(savedAt);
         return;
       }
-      clearWorkerFormDraft(worker, "toolbox_talk", "fill_form");
+      clearWorkerFormDraft(worker, draftFormType, "fill_form");
       setDraftSavedAt("");
     }, DRAFT_SAVE_DELAY_MS);
     return () => window.clearTimeout(timeout);
-  }, [form, worker]);
+  }, [draftFormType, form, genericSchema, worker]);
 
   const updateHeader = (field, value) => {
     setForm((current) => ({
       ...current,
       header: { ...current.header, [field]: value },
+    }));
+  };
+
+  const updateGenericAnswers = (answers) => {
+    setForm((current) => ({
+      ...current,
+      answers,
     }));
   };
 
@@ -4008,7 +4024,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
   };
 
   const startFresh = () => {
-    clearWorkerFormDraft(worker, "toolbox_talk", "fill_form");
+    clearWorkerFormDraft(worker, draftFormType, "fill_form");
     setForm(initialToolboxTalkForm(worker));
     setAttendeeNameInput("");
     setDraftRestored(false);
@@ -4026,10 +4042,10 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
       setForm(formForSubmit);
       setAttendeeNameInput("");
     }
-    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit, "", toolboxLayout);
+    const nextMissingFields = getToolboxTalkMissingFields(formForSubmit, "", toolboxLayout, worker);
     if (nextMissingFields.length) {
       setSubmitAttempted(true);
-      setError(toolboxValidationMessage(nextMissingFields[0]));
+      setError(toolboxValidationMessage(nextMissingFields[0], toolboxLayout));
       scrollToToolboxValidationTarget(validationTargetsRef.current, nextMissingFields[0]);
       return;
     }
@@ -4037,7 +4053,7 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
     setSubmitAttempted(false);
     rememberToolboxTalkDefaults(formForSubmit);
     rememberToolboxTalkRecents(formForSubmit);
-    await onSubmit(cleanToolboxTalkClientForm(formForSubmit));
+    await onSubmit(cleanToolboxTalkClientForm(formForSubmit, genericSchema, worker));
   };
 
   return (
@@ -4427,6 +4443,18 @@ function ToolboxTalkDigitalForm({ formTemplate, onSubmit, submitting, worker }) 
       </section>
         ) : null}
 
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          answers={form.answers || {}}
+          invalidFields={missingFieldSet}
+          registerValidationTarget={registerValidationTarget}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onChange={updateGenericAnswers}
+        />
+      ) : null}
+
       {error ? <p className="form-message error">{error}</p> : null}
 
       <div className="toolbox-submit-actions">
@@ -4458,12 +4486,17 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
       ),
     [formTemplate],
   );
+  const genericSchema = siteLayout.genericSchema || createGenericTemplateSchemaFromSections(
+    formTemplate?.publishedVersion?.schema || formTemplate?.draftVersion?.schema || formTemplate?.schema,
+    [],
+    draftFormType,
+  );
   const [optionalOpen, setOptionalOpen] = useState(() => {
     return createInitialSiteInspectionOptionalOpen(restoredDraftRef.current?.form, siteLayout);
   });
   const missingFieldKeys = useMemo(
-    () => (submitAttempted ? getSiteInspectionMissingFields(form, siteLayout) : []),
-    [form, siteLayout, submitAttempted],
+    () => (submitAttempted ? getSiteInspectionMissingFields(form, siteLayout, worker) : []),
+    [form, siteLayout, submitAttempted, worker],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
   const hasSavedDefaults = siteLayout.headerFields.some(
@@ -4484,9 +4517,9 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
 
   useEffect(() => {
     if (!submitAttempted) return;
-    const nextMissing = getSiteInspectionMissingFields(form, siteLayout);
+    const nextMissing = getSiteInspectionMissingFields(form, siteLayout, worker);
     setError(nextMissing.length ? siteInspectionValidationMessage(nextMissing[0], siteLayout) : "");
-  }, [form, siteLayout, submitAttempted]);
+  }, [form, siteLayout, submitAttempted, worker]);
 
   useEffect(() => {
     if (optionalLayoutAppliedRef.current || restoredDraftRef.current?.form) return;
@@ -4496,7 +4529,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      if (isSiteInspectionDraftMeaningful(form)) {
+      if (isSiteInspectionDraftMeaningful(form, genericSchema, worker)) {
         const savedAt = writeWorkerFormDraft(worker, draftFormType, "fill_form", { form });
         setDraftSavedAt(savedAt);
         return;
@@ -4505,12 +4538,19 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
       setDraftSavedAt("");
     }, DRAFT_SAVE_DELAY_MS);
     return () => window.clearTimeout(timeout);
-  }, [draftFormType, form, worker]);
+  }, [draftFormType, form, genericSchema, worker]);
 
   const updateHeader = (field, value) => {
     setForm((current) => ({
       ...current,
       header: { ...current.header, [field]: value },
+    }));
+  };
+
+  const updateGenericAnswers = (answers) => {
+    setForm((current) => ({
+      ...current,
+      answers,
     }));
   };
 
@@ -4585,7 +4625,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
 
   const submitForm = async (event) => {
     event.preventDefault();
-    const nextMissingFields = getSiteInspectionMissingFields(form, siteLayout);
+    const nextMissingFields = getSiteInspectionMissingFields(form, siteLayout, worker);
     if (nextMissingFields.length) {
       setSubmitAttempted(true);
       setError(siteInspectionValidationMessage(nextMissingFields[0], siteLayout));
@@ -4595,7 +4635,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
     setError("");
     setSubmitAttempted(false);
     rememberSiteInspectionDefaults(form);
-    await onSubmit(cleanSiteInspectionClientForm(form, siteLayout));
+    await onSubmit(cleanSiteInspectionClientForm(form, siteLayout, genericSchema, worker));
   };
 
   const renderHeaderSection = () => {
@@ -4740,6 +4780,18 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
       ) : null}
 
       {siteLayout.items.map(renderLayoutItem)}
+
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          answers={form.answers || {}}
+          invalidFields={missingFieldSet}
+          registerValidationTarget={registerValidationTarget}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onChange={updateGenericAnswers}
+        />
+      ) : null}
 
       {error ? <p className="form-message error">{error}</p> : null}
 
@@ -7944,9 +7996,19 @@ function TemplateSchemaEditorV3({
               </div>
               {fieldCount ? (
                 useToolboxTalkPreview ? (
-                  <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
+                  <ToolboxTalkTemplatePreview
+                    answers={previewAnswers}
+                    schema={current}
+                    worker={previewWorker}
+                    onChange={onPreviewAnswersChange}
+                  />
                 ) : useSiteInspectionPreview ? (
-                  <SiteInspectionTemplatePreview schema={current} worker={previewWorker} />
+                  <SiteInspectionTemplatePreview
+                    answers={previewAnswers}
+                    schema={current}
+                    worker={previewWorker}
+                    onChange={onPreviewAnswersChange}
+                  />
                 ) : (
                   <TemplateFormFields
                     answers={previewAnswers}
@@ -8272,11 +8334,6 @@ function TemplateSchemaEditorV3({
                     />
                   </label>
                 ) : null}
-                {selectedFieldIsNonAnswer && selectedField.type !== "instructions" ? (
-                  <p className="template-v3-help-text">
-                    This special block reuses polished custom mobile logic when the form supports it.
-                  </p>
-                ) : null}
                 {selectedActionItemRowsSettings ? (
                   <div className="template-action-row-settings">
                     <label>
@@ -8555,12 +8612,13 @@ function TemplateSchemaEditorV3({
   );
 }
 
-function ToolboxTalkTemplatePreview({ schema, worker }) {
+function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getToolboxTalkLayout(current);
   const enabled = new Set(layout.enabledBlocks);
   const topicSettings = layout.blockSettings.toolbox_topics || getToolboxTopicSettings();
   const topicGroups = getEnabledToolboxTopicGroups(topicSettings.enabledCategoryIds);
+  const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
   const headerSampleValue = (field) => {
     if (field.default === "worker_name") return worker?.name || "";
     if (field.default === "today") return todayInVancouver();
@@ -8695,14 +8753,24 @@ function ToolboxTalkTemplatePreview({ schema, worker }) {
           </label>
         </section>
       ) : null}
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          answers={answers}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onChange={onChange}
+        />
+      ) : null}
     </div>
   );
 }
 
-function SiteInspectionTemplatePreview({ schema, worker }) {
+function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getSiteInspectionLayout(current);
   const enabled = new Set(layout.enabledBlocks);
+  const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
   const headerSampleValue = (field) => {
     if (field.default === "worker_name") return worker?.name || "";
     if (field.default === "today") return todayInVancouver();
@@ -8797,6 +8865,15 @@ function SiteInspectionTemplatePreview({ schema, worker }) {
     <div className="template-runtime-form site-inspection-template-preview">
       {current.description ? <p className="muted">{current.description}</p> : null}
       {layout.items.map(renderItem)}
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          answers={answers}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onChange={onChange}
+        />
+      ) : null}
     </div>
   );
 }
@@ -8810,13 +8887,37 @@ function TemplateFormFields({
   worker,
 }) {
   const current = normalizeClientTemplateSchema(schema);
+  return (
+    <div className="template-runtime-form">
+      {current.description ? <p className="muted">{current.description}</p> : null}
+      <TemplateRuntimeSections
+        answers={answers}
+        invalidFields={invalidFields}
+        registerValidationTarget={registerValidationTarget}
+        schema={current}
+        sections={current.sections}
+        worker={worker}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
+
+function TemplateRuntimeSections({
+  answers,
+  invalidFields = new Set(),
+  onChange,
+  registerValidationTarget,
+  schema,
+  sections,
+  worker,
+}) {
   const updateAnswer = (fieldId, value) => {
     onChange({ ...answers, [fieldId]: value });
   };
   return (
-    <div className="template-runtime-form">
-      {current.description ? <p className="muted">{current.description}</p> : null}
-      {current.sections.map((section) => (
+    <>
+      {(sections || []).map((section) => (
         <section className="toolbox-section" key={section.id}>
           <div className="toolbox-section-heading">
             <h2>{section.title}</h2>
@@ -8833,14 +8934,14 @@ function TemplateFormFields({
                 key={field.id}
                 registerValidationTarget={registerValidationTarget}
                 targetRef={registerValidationTarget?.(field.id)}
-                value={answers[field.id] ?? templateFieldDefaultValue(field, worker, current)}
+                value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
                 onChange={(value) => updateAnswer(field.id, value)}
               />
             ))}
           </div>
         </section>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -10214,6 +10315,16 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
         </dl>
       </section>
 
+      <CustomGenericSubmissionDetails
+        actionItemBlocks={data.actionItemBlocks}
+        answers={data.answers}
+        schema={getCustomGenericTemplateSchema(
+          data?.schemaSnapshot || row?.form_schema_snapshot,
+          isToolboxTalkConsumedTemplateField,
+          "toolbox_talk",
+        )}
+      />
+
       <div className="digital-form-actions">
         <button disabled={saving} type="button" onClick={saveForm}>
           {saving ? "Opening..." : "Save"}
@@ -10303,6 +10414,16 @@ function SiteInspectionSubmissionDetails({ data, row }) {
         )}
       </section>
 
+      <CustomGenericSubmissionDetails
+        actionItemBlocks={data.actionItemBlocks}
+        answers={data.answers}
+        schema={getCustomGenericTemplateSchema(
+          data?.schemaSnapshot || row?.form_schema_snapshot,
+          isSiteInspectionConsumedTemplateField,
+          row?.form_type || data?.formType || "site_inspection",
+        )}
+      />
+
       <div className="digital-form-actions">
         <button disabled={saving} type="button" onClick={saveForm}>
           {saving ? "Opening..." : "Save"}
@@ -10313,6 +10434,40 @@ function SiteInspectionSubmissionDetails({ data, row }) {
         {saveStatus ? <p>{saveStatus}</p> : null}
       </div>
     </div>
+  );
+}
+
+function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, schema }) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  if (!normalized.sections.length) return null;
+  return (
+    <>
+      {normalized.sections.map((section) => (
+        <section key={section.id}>
+          <h3>{section.title}</h3>
+          {section.description ? <p className="toolbox-detail-text">{section.description}</p> : null}
+          <dl className="staff-detail-list template-detail-answer-list">
+            {section.fields
+              .filter((field) => !isTemplateNonAnswerField(field))
+              .map((field) => (
+                <div key={field.id}>
+                  <dt>{field.label}</dt>
+                  <dd>{renderTemplateAnswerDisplay(field, answers?.[field.id])}</dd>
+                </div>
+              ))}
+          </dl>
+          {section.fields
+            .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+            .map((field) => (
+              <ActionItemRowsSubmissionDetail
+                block={actionItemBlocks?.[field.id]}
+                field={field}
+                key={field.id}
+              />
+            ))}
+        </section>
+      ))}
+    </>
   );
 }
 
@@ -11635,7 +11790,7 @@ function createLocalQueueId() {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function isToolboxTalkDraftMeaningful(form) {
+function isToolboxTalkDraftMeaningful(form, genericSchema, worker) {
   return Boolean(
     hasTextValue(form?.header?.projectName) ||
       hasTextValue(form?.header?.address) ||
@@ -11646,7 +11801,8 @@ function isToolboxTalkDraftMeaningful(form) {
       (form?.safetyConcerns || []).some((row) => Object.values(row).some(hasTextValue)) ||
       (form?.attendance || []).some((row) => hasTextValue(row.name)) ||
       hasTextValue(form?.additionalComments) ||
-      Boolean(form?.confirmation?.confirmed),
+      Boolean(form?.confirmation?.confirmed) ||
+      isTemplateDraftMeaningful(genericSchema, form?.answers || {}, worker),
   );
 }
 
@@ -11976,6 +12132,7 @@ function initialToolboxTalkForm(worker) {
       date: today,
       confirmed: false,
     },
+    answers: {},
   };
 }
 
@@ -12048,6 +12205,7 @@ function initialSiteInspectionForm(worker) {
     },
     noDeficiencies: false,
     deficiencies: [{ ...EMPTY_SITE_DEFICIENCY }],
+    answers: {},
   };
 }
 
@@ -12064,7 +12222,7 @@ function rememberSiteInspectionDefaults(form) {
   });
 }
 
-function isSiteInspectionDraftMeaningful(form) {
+function isSiteInspectionDraftMeaningful(form, genericSchema, worker) {
   return Boolean(
     hasTextValue(form?.header?.project) ||
       hasTextValue(form?.header?.address) ||
@@ -12073,7 +12231,8 @@ function isSiteInspectionDraftMeaningful(form) {
       hasTextValue(form?.header?.reviewer) ||
       siteInspectionObservationsHaveValues(form?.observations) ||
       Boolean(form?.noDeficiencies) ||
-      (form?.deficiencies || []).some((row) => Object.values(row).some(hasTextValue)),
+      (form?.deficiencies || []).some((row) => Object.values(row).some(hasTextValue)) ||
+      isTemplateDraftMeaningful(genericSchema, form?.answers || {}, worker),
   );
 }
 
@@ -12213,6 +12372,7 @@ function createDefaultSiteInspectionLayout() {
   return {
     headerFields: SITE_INSPECTION_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
     observationSections,
+    genericSchema: createGenericTemplateSchemaFromSections({ title: "Site Inspection", sections: [] }, [], "site_inspection"),
     enabledBlocks: ["site_deficiencies"],
     blockLabels: {
       site_deficiencies: "Deficiencies",
@@ -12245,10 +12405,16 @@ function createDefaultSiteInspectionLayout() {
 function getSiteInspectionLayout(schema) {
   const normalized = normalizeClientTemplateSchema(schema);
   if (!normalized.sections.length) return createDefaultSiteInspectionLayout();
+  const genericSchema = getCustomGenericTemplateSchema(
+    normalized,
+    isSiteInspectionConsumedTemplateField,
+    normalized.formType || "site_inspection",
+  );
 
   const layout = {
     ...createDefaultSiteInspectionLayout(),
     headerFields: [],
+    genericSchema,
     observationSections: [],
     enabledBlocks: [],
     blockLabels: {},
@@ -12381,7 +12547,7 @@ function createInitialSiteInspectionOptionalOpen(form, layout = createDefaultSit
   return open;
 }
 
-function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSiteInspectionLayout()) {
+function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSiteInspectionLayout(), worker = null) {
   const layout = layoutOrBlocks || createDefaultSiteInspectionLayout();
   const enabled = new Set(
     Array.isArray(layout.enabledBlocks) ? layout.enabledBlocks : createDefaultSiteInspectionLayout().enabledBlocks,
@@ -12425,10 +12591,18 @@ function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSite
     });
   }
 
+  if (layout.genericSchema?.sections?.length) {
+    missing.push(...getTemplateMissingFields(layout.genericSchema, form?.answers || {}, worker));
+  }
+
   return missing;
 }
 
 function siteInspectionValidationMessage(field, layout = createDefaultSiteInspectionLayout()) {
+  if (layout?.genericSchema?.sections?.length) {
+    const genericMessage = templateValidationMessage(layout.genericSchema, field);
+    if (genericMessage !== "Complete the required field.") return genericMessage;
+  }
   if (field?.startsWith("header.")) {
     const key = field.replace("header.", "");
     const headerField = (layout.headerFields || []).find((item) => item.key === key)
@@ -12448,7 +12622,12 @@ function siteInspectionValidationMessage(field, layout = createDefaultSiteInspec
   return "Complete the required fields.";
 }
 
-function cleanSiteInspectionClientForm(form, layout = createDefaultSiteInspectionLayout()) {
+function cleanSiteInspectionClientForm(
+  form,
+  layout = createDefaultSiteInspectionLayout(),
+  genericSchema = createGenericTemplateSchemaFromSections({ sections: [] }, [], "site_inspection"),
+  worker = null,
+) {
   const deficiencySettings = normalizeActionItemRowsSettings(
     layout.blockSettings?.site_deficiencies,
     "site_deficiencies",
@@ -12464,6 +12643,8 @@ function cleanSiteInspectionClientForm(form, layout = createDefaultSiteInspectio
       : form.deficiencies
           .map((row) => cleanActionItemRowForSubmit(row, deficiencySettings))
           .filter(actionItemRowHasMeaningfulValue),
+    answers: cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker),
+    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}),
   };
 }
 
@@ -12514,6 +12695,7 @@ function getToolboxTalkHeaderFieldKey(field) {
 function createDefaultToolboxTalkLayout() {
   return {
     headerFields: TOOLBOX_TALK_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+    genericSchema: createGenericTemplateSchemaFromSections({ title: "Toolbox Talk", sections: [] }, [], "toolbox_talk"),
     enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter((type) => type !== "toolbox_meeting_info"),
     blockLabels: {
       toolbox_topics: "Topics Discussed",
@@ -12560,10 +12742,16 @@ function getToolboxTopicSettings(settings = {}) {
 function getToolboxTalkLayout(schema) {
   const normalized = normalizeClientTemplateSchema(schema);
   if (!normalized.sections.length) return createDefaultToolboxTalkLayout();
+  const genericSchema = getCustomGenericTemplateSchema(
+    normalized,
+    isToolboxTalkConsumedTemplateField,
+    "toolbox_talk",
+  );
 
   const layout = {
     ...createDefaultToolboxTalkLayout(),
     headerFields: [],
+    genericSchema,
     enabledBlocks: [],
     blockLabels: {},
     blockSettings: {},
@@ -12701,10 +12889,44 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
   );
 }
 
+function isToolboxTalkConsumedTemplateField(field) {
+  if (!field) return false;
+  if (field.type === "toolbox_meeting_info") return true;
+  if (TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type)) return true;
+  return Boolean(getToolboxTalkHeaderFieldKey(field));
+}
+
+function isSiteInspectionConsumedTemplateField(field) {
+  if (!field) return false;
+  if (field.type === "site_deficiencies") return true;
+  return Boolean(getSiteInspectionHeaderFieldKey(field) || getSiteInspectionObservationFieldKey(field));
+}
+
+function createGenericTemplateSchemaFromSections(baseSchema, sections, formType = "") {
+  const normalized = normalizeClientTemplateSchema(baseSchema);
+  return {
+    ...normalized,
+    formType: formType || normalized.formType,
+    sections: (sections || []).filter((section) => (section.fields || []).length),
+  };
+}
+
+function getCustomGenericTemplateSchema(schema, consumedFieldPredicate, formType = "") {
+  const normalized = normalizeClientTemplateSchema(schema);
+  const sections = (normalized.sections || [])
+    .map((section) => ({
+      ...section,
+      fields: (section.fields || []).filter((field) => !consumedFieldPredicate(field)),
+    }))
+    .filter((section) => section.fields.length);
+  return createGenericTemplateSchemaFromSections(normalized, sections, formType || normalized.formType);
+}
+
 function getToolboxTalkMissingFields(
   form,
   pendingAttendeeName = "",
   layoutOrBlocks = TOOLBOX_TALK_SPECIAL_BLOCK_ORDER,
+  worker = null,
 ) {
   const layout = Array.isArray(layoutOrBlocks)
     ? {
@@ -12760,10 +12982,18 @@ function getToolboxTalkMissingFields(
     }
   }
 
+  if (layout.genericSchema?.sections?.length) {
+    missing.push(...getTemplateMissingFields(layout.genericSchema, form?.answers || {}, worker));
+  }
+
   return missing;
 }
 
-function toolboxValidationMessage(field) {
+function toolboxValidationMessage(field, layout = null) {
+  if (layout?.genericSchema?.sections?.length) {
+    const genericMessage = templateValidationMessage(layout.genericSchema, field);
+    if (genericMessage !== "Complete the required field.") return genericMessage;
+  }
   const messages = {
     "header.projectName": "Project Name is required.",
     "header.address": "Address is required.",
@@ -12791,7 +13021,7 @@ function scrollToToolboxValidationTarget(targets, field) {
   });
 }
 
-function cleanToolboxTalkClientForm(form) {
+function cleanToolboxTalkClientForm(form, genericSchema = createGenericTemplateSchemaFromSections({ sections: [] }, [], "toolbox_talk"), worker = null) {
   return {
     kind: "toolbox_talk_v1",
     version: 1,
@@ -12813,6 +13043,8 @@ function cleanToolboxTalkClientForm(form) {
       date: form.confirmation.date,
       confirmed: Boolean(form.confirmation.confirmed),
     },
+    answers: cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker),
+    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}),
   };
 }
 
@@ -13390,7 +13622,7 @@ function isAdminOrOwner(staff) {
 }
 
 function isDigitalToolboxTalkSubmission(row) {
-  return row?.form_type === "toolbox_talk" && row?.form_data?.kind === "toolbox_talk_v1";
+  return row?.submission_mode === "fill_form" && row?.form_data?.kind === "toolbox_talk_v1";
 }
 
 function isDigitalSiteInspectionSubmission(row) {
@@ -13663,26 +13895,7 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
   const answers = data?.answers || {};
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = digitalTemplateFormTitle(row, data);
-  const sectionHtml = schema.sections.map((section) => {
-    const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
-    const rows = fields.map((field) => {
-      if (field.type === "signature") return signatureDefinitionHtml(field.label, answers[field.id]);
-      const display = formatTemplateAnswerDisplay(field, answers[field.id]);
-      const value = Array.isArray(display) ? display.join(", ") : display;
-      return definitionHtml(field.label, value);
-    }).join("");
-    const actionItemRowsHtml = (section.fields || [])
-      .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
-      .map((field) => actionItemRowsDefinitionHtml(field, data?.actionItemBlocks?.[field.id]))
-      .join("");
-    return `
-      <section>
-        <h2>${escapeHtml(section.title)}</h2>
-        ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
-        ${rows ? `<dl>${rows}</dl>` : ""}
-        ${actionItemRowsHtml || (!rows ? `<dl>${definitionHtml("Details", "-")}</dl>` : "")}
-      </section>`;
-  }).join("");
+  const sectionHtml = templateAnswerSectionsHtml(schema, answers, data?.actionItemBlocks);
 
   return `<!doctype html>
 <html>
@@ -13773,6 +13986,30 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
 </html>`;
 }
 
+function templateAnswerSectionsHtml(schema, answers = {}, actionItemBlocks = {}) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  return normalized.sections.map((section) => {
+    const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
+    const rows = fields.map((field) => {
+      if (field.type === "signature") return signatureDefinitionHtml(field.label, answers[field.id]);
+      const display = formatTemplateAnswerDisplay(field, answers[field.id]);
+      const value = Array.isArray(display) ? display.join(", ") : display;
+      return definitionHtml(field.label, value);
+    }).join("");
+    const actionItemRowsHtml = (section.fields || [])
+      .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+      .map((field) => actionItemRowsDefinitionHtml(field, actionItemBlocks?.[field.id]))
+      .join("");
+    return `
+      <section>
+        <h2>${escapeHtml(section.title)}</h2>
+        ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
+        ${rows ? `<dl>${rows}</dl>` : ""}
+        ${actionItemRowsHtml || (!rows ? `<dl>${definitionHtml("Details", "-")}</dl>` : "")}
+      </section>`;
+  }).join("");
+}
+
 function digitalToolboxTalkTitle(row, data) {
   const header = data?.header || {};
   const project = header.projectName || row?.company || "Toolbox Talk";
@@ -13796,6 +14033,11 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
   const confirmation = data?.confirmation || {};
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = digitalToolboxTalkTitle(row, data);
+  const genericSectionHtml = templateAnswerSectionsHtml(
+    getCustomGenericTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot, isToolboxTalkConsumedTemplateField, "toolbox_talk"),
+    data?.answers || {},
+    data?.actionItemBlocks || {},
+  );
   const topicRows = topics.length
     ? topics.map((topic) => `
         <tr>
@@ -13843,6 +14085,7 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
       th, td { border: 1px solid #d9e3de; padding: 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
       th { background: #eef7f3; font-size: 0.78rem; text-transform: uppercase; }
       .prewrap { white-space: pre-wrap; }
+      .signature-print-image { display: block; width: 100%; max-width: 360px; max-height: 130px; object-fit: contain; border: 1px solid #d9e3de; border-radius: 6px; background: #fff; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
       footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
@@ -13921,6 +14164,7 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
           font-size: 6.5pt;
           line-height: 1.14;
         }
+        .signature-print-image { max-height: 45pt; }
         .print-actions { display: none; }
         footer { font-size: 5.6pt; padding-top: 3pt; }
       }
@@ -13995,6 +14239,7 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
           ${definitionHtml("Participation confirmed", confirmation.confirmed ? "Yes" : "No")}
         </dl>
       </section>
+      ${genericSectionHtml}
       <footer>Submission ${escapeHtml(row?.id || "-")} / ${submitted ? escapeHtml(submitted) : "Not submitted"}</footer>
     </main>
     ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
@@ -14022,6 +14267,11 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
   const deficiencies = Array.isArray(data?.deficiencies) ? data.deficiencies : [];
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = digitalSiteInspectionTitle(row, data);
+  const genericSectionHtml = templateAnswerSectionsHtml(
+    getCustomGenericTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot, isSiteInspectionConsumedTemplateField, row?.form_type || "site_inspection"),
+    data?.answers || {},
+    data?.actionItemBlocks || {},
+  );
   const deficiencyRows = data?.noDeficiencies
     ? `<tr><td colspan="7">No deficiencies found during this inspection.</td></tr>`
     : deficiencies.length
@@ -14060,6 +14310,7 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
       table { width: 100%; border-collapse: collapse; table-layout: fixed; }
       th, td { border: 1px solid #d9e3de; padding: 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
       th { background: #eef7f3; font-size: 0.76rem; text-transform: uppercase; }
+      .signature-print-image { display: block; width: 100%; max-width: 360px; max-height: 130px; object-fit: contain; border: 1px solid #d9e3de; border-radius: 6px; background: #fff; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
       footer { grid-column: 1 / -1; color: #5f6f6b; font-size: 0.78rem; border-top: 1px solid #d9e3de; padding-top: 8px; }
@@ -14103,6 +14354,7 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
         table { font-size: 5.8pt; line-height: 1.1; }
         th, td { padding: 2pt; }
         th { font-size: 5.2pt; }
+        .signature-print-image { max-height: 45pt; }
         .print-actions { display: none; }
         footer { font-size: 5.6pt; padding-top: 3pt; }
       }
@@ -14162,6 +14414,7 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
         </table>
       </section>
 
+      ${genericSectionHtml}
       <footer>Submission ${escapeHtml(row?.id || "-")} / ${submitted ? escapeHtml(submitted) : "Not submitted"}</footer>
     </main>
     ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}

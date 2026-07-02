@@ -536,6 +536,21 @@ export async function validateTemplateSubmissionFormData({ formType, rawFormData
   };
 }
 
+export function cleanTemplateSubmissionFieldsForSchema(schema, rawFormData, worker) {
+  const cleanSchema = cleanTemplateSchema(schema, {
+    fallbackTitle: schema?.title || "Form",
+    formType: schema?.formType || "",
+    allowEmpty: true,
+  });
+  const rawAnswers = rawFormData?.answers && typeof rawFormData.answers === "object"
+    ? rawFormData.answers
+    : rawFormData;
+  return {
+    answers: cleanTemplateAnswers(cleanSchema, rawAnswers || {}, worker),
+    actionItemBlocks: cleanTemplateActionItemBlocks(cleanSchema, rawFormData || {}),
+  };
+}
+
 export function buildTemplateSubmissionNotes(formType, formData) {
   const schema = formData?.schemaSnapshot || {};
   const answers = formData?.answers || {};
