@@ -123,6 +123,11 @@ const SAFETY_FORM_TYPES = [
   { id: "site_inspection", label: "Site Inspection" },
   { id: "daily_hazard_assessment", label: "Daily Hazard Assessment" },
 ];
+const LOCKED_DEFAULT_FORM_TYPES = new Set([
+  "toolbox_talk",
+  "site_inspection",
+  "daily_hazard_assessment",
+]);
 const CUSTOM_FORM_TYPES = new Set(["toolbox_talk", "site_inspection"]);
 const TEMPLATE_FIELD_TYPES = [
   { id: "short_text", label: "Short answer" },
@@ -6357,6 +6362,11 @@ function patchHasKey(patch, key) {
   return Boolean(patch && Object.prototype.hasOwnProperty.call(patch, key));
 }
 
+function isLockedDefaultFormTemplate(templateOrType) {
+  const formType = typeof templateOrType === "string" ? templateOrType : templateOrType?.form_type;
+  return LOCKED_DEFAULT_FORM_TYPES.has(formType);
+}
+
 function syncSchemaMeta(schema, patch) {
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return schema;
   if (!patchHasKey(patch, "label") && !patchHasKey(patch, "description")) return schema;
@@ -6416,10 +6426,14 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     () => rows.find((row) => row.form_type === selectedFormType) || currentTemplates[0] || archivedTemplates[0] || null,
     [archivedTemplates, currentTemplates, rows, selectedFormType],
   );
-  const selectedSchema = selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
+  const selectedIsLockedDefault = isLockedDefaultFormTemplate(selectedTemplate);
+  const selectedCanEdit = canManageTemplates && !selectedIsLockedDefault;
+  const selectedSchema = selectedIsLockedDefault
+    ? selectedTemplate?.publishedVersion?.schema || selectedTemplate?.draftVersion?.schema || null
+    : selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
   const previousVersions = useMemo(
-    () => (selectedTemplate?.versions || []).filter((version) => version.status === "archived"),
-    [selectedTemplate],
+    () => selectedIsLockedDefault ? [] : (selectedTemplate?.versions || []).filter((version) => version.status === "archived"),
+    [selectedIsLockedDefault, selectedTemplate],
   );
   const isTemplateListFocused = Boolean(focusedTemplateType && rows.some((row) => row.form_type === focusedTemplateType));
   const visibleCurrentTemplates = newFormOpen
@@ -6889,11 +6903,15 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                   if (!isTemplateListFocused) setFocusedTemplateType("");
                 }}
               >
-                <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
+                <span>
+                  {isLockedDefaultFormTemplate(template)
+                    ? "Protected default"
+                    : template.renderer_type === "template" ? "Editable" : "Special renderer"}
+                </span>
                 <strong>{template.label}</strong>
                 <small>
                   Published v{template.publishedVersion?.version_number || "-"}
-                  {template.draftVersion ? " / Draft ready" : ""}
+                  {template.draftVersion && !isLockedDefaultFormTemplate(template) ? " / Draft ready" : ""}
                 </small>
                 <small>
                   {template.archived_at
@@ -6955,11 +6973,15 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       type="button"
                       onClick={() => setSelectedFormType(template.form_type)}
                     >
-                      <span>{template.renderer_type === "template" ? "Editable" : "Special renderer"}</span>
+                      <span>
+                        {isLockedDefaultFormTemplate(template)
+                          ? "Protected default"
+                          : template.renderer_type === "template" ? "Editable" : "Special renderer"}
+                      </span>
                       <strong>{template.label}</strong>
                       <small>
                         Published v{template.publishedVersion?.version_number || "-"}
-                        {template.draftVersion ? " / Draft ready" : ""}
+                        {template.draftVersion && !isLockedDefaultFormTemplate(template) ? " / Draft ready" : ""}
                       </small>
                       <small>Archived</small>
                     </button>
@@ -6993,11 +7015,20 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                   <h1>{draftSchema?.title || selectedTemplate.label}</h1>
                   <span>
                     Published v{selectedTemplate.publishedVersion?.version_number || "-"}
-                    {selectedTemplate.draftVersion ? " / Draft exists" : ""}
+                    {selectedTemplate.draftVersion && !selectedIsLockedDefault ? " / Draft exists" : ""}
                   </span>
                 </div>
                 <div className="staff-card-actions">
-                  {canManageTemplates ? (
+                  {selectedIsLockedDefault ? (
+                    <>
+                      <span className="muted">Protected default. Duplicate to edit.</span>
+                      {canManageTemplates ? (
+                        <button disabled={saving} type="button" onClick={() => duplicateTemplate(selectedTemplate)}>
+                          Duplicate
+                        </button>
+                      ) : null}
+                    </>
+                  ) : canManageTemplates ? (
                     <>
                       {previousVersions.length ? (
                         <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
@@ -7017,8 +7048,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 </div>
               </div>
 
-              {!canManageTemplates ? (
+              {!selectedCanEdit ? (
                 <StaffTemplateReadOnlyView
+                  canDuplicate={canManageTemplates && selectedTemplate.renderer_type === "template"}
+                  lockedDefault={selectedIsLockedDefault}
+                  onDuplicate={() => duplicateTemplate(selectedTemplate)}
                   previewAnswers={previewAnswers}
                   previewWorker={staffToPreviewWorker(staff)}
                   schema={selectedTemplate.publishedVersion?.schema || selectedTemplate.draftVersion?.schema}
@@ -7061,6 +7095,9 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 }
 
 function StaffTemplateReadOnlyView({
+  canDuplicate = false,
+  lockedDefault = false,
+  onDuplicate,
   onPreviewAnswersChange,
   previewAnswers,
   previewWorker,
@@ -7081,8 +7118,17 @@ function StaffTemplateReadOnlyView({
       <div className="settings-section-heading">
         <div>
           <h2>Template Preview</h2>
-          <p>Regular Staff can review templates, but Admin or Owner access is required to edit, publish, archive, duplicate, or reorder forms.</p>
+          <p>
+            {lockedDefault
+              ? "This default form is protected. Duplicate it to make an editable copy."
+              : "Regular Staff can review templates, but Admin or Owner access is required to edit, publish, archive, duplicate, or reorder forms."}
+          </p>
         </div>
+        {canDuplicate ? (
+          <button type="button" onClick={onDuplicate}>
+            Duplicate
+          </button>
+        ) : null}
       </div>
       <dl className="staff-detail-grid">
         <div>
@@ -7105,7 +7151,7 @@ function StaffTemplateReadOnlyView({
         </div>
         <div>
           <dt>Draft</dt>
-          <dd>{selectedTemplate.draftVersion ? "Draft exists" : "No draft"}</dd>
+          <dd>{lockedDefault ? "Protected default" : selectedTemplate.draftVersion ? "Draft exists" : "No draft"}</dd>
         </div>
       </dl>
       {fieldCount ? (

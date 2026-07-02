@@ -9,6 +9,11 @@ export const CUSTOM_FORM_TYPES = [
 ];
 
 export const SEEDED_FORM_TYPES = [...CUSTOM_FORM_TYPES, "daily_hazard_assessment"];
+export const LOCKED_DEFAULT_FORM_TYPES = [
+  "toolbox_talk",
+  "site_inspection",
+  "daily_hazard_assessment",
+];
 
 export const TEMPLATE_FIELD_TYPES = [
   "short_text",
@@ -194,10 +199,12 @@ export async function createFormTemplate(body, staff) {
 
 export async function duplicateFormTemplate(formType, staff) {
   const source = await getTemplateByType(cleanFormType(formType));
-  assertTemplateEditable(source);
+  assertTemplateRendererEditable(source);
   const sourceDraft = await getDraftVersion(source.id);
   const sourcePublished = await getPublishedVersion(source.id);
-  const sourceSchema = sourceDraft?.schema || sourcePublished?.schema || createDefaultSchemaForTemplate(source);
+  const sourceSchema = isLockedDefaultTemplate(source)
+    ? sourcePublished?.schema || sourceDraft?.schema || createDefaultSchemaForTemplate(source)
+    : sourceDraft?.schema || sourcePublished?.schema || createDefaultSchemaForTemplate(source);
   const label = await uniqueDuplicateLabel(source.label);
   const nextFormType = await uniqueFormTypeSlug(label);
   const displayOrder = await nextDisplayOrder();
@@ -266,7 +273,12 @@ export async function deleteArchivedFormTemplates(staff) {
     return { deleted: 0, rows: [] };
   }
 
-  const ids = archivedTemplates.map((template) => template.id);
+  const deletableTemplates = archivedTemplates.filter((template) => !isLockedDefaultTemplate(template));
+  if (!deletableTemplates.length) {
+    return { deleted: 0, rows: [] };
+  }
+
+  const ids = deletableTemplates.map((template) => template.id);
   throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("form_templates")
@@ -276,8 +288,8 @@ export async function deleteArchivedFormTemplates(staff) {
   );
 
   return {
-    deleted: archivedTemplates.length,
-    rows: archivedTemplates.map((template) => ({
+    deleted: deletableTemplates.length,
+    rows: deletableTemplates.map((template) => ({
       form_type: template.form_type,
       label: template.label,
     })),
@@ -929,9 +941,21 @@ function attachTemplateVersions(template, versions) {
   };
 }
 
-function assertTemplateEditable(template) {
+function isLockedDefaultTemplate(templateOrType) {
+  const formType = typeof templateOrType === "string" ? templateOrType : templateOrType?.form_type;
+  return LOCKED_DEFAULT_FORM_TYPES.includes(formType);
+}
+
+function assertTemplateRendererEditable(template) {
   if (template.renderer_type !== "template") {
     throwBadRequest("This form uses a special mobile renderer. Editable fields will be added in a later phase.");
+  }
+}
+
+function assertTemplateEditable(template) {
+  assertTemplateRendererEditable(template);
+  if (isLockedDefaultTemplate(template)) {
+    throwBadRequest("Default forms are protected. Duplicate this form to make an editable copy.");
   }
 }
 
