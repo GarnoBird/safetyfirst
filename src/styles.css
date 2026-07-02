@@ -3769,7 +3769,12 @@ p {
   align-content: start;
 }
 
+.template-v3-template-options-card {
+  order: 1;
+}
+
 .template-v3-selected-block-card {
+  order: 2;
   position: sticky;
   top: 14px;
   z-index: 2;
@@ -3778,7 +3783,12 @@ p {
   overscroll-behavior: contain;
 }
 
+.template-v3-sidebar.has-active-block .template-v3-template-options-card {
+  order: 2;
+}
+
 .template-v3-sidebar.has-active-block .template-v3-selected-block-card {
+  order: 1;
   overflow-y: auto;
 }
 
