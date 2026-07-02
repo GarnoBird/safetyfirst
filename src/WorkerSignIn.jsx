@@ -8531,6 +8531,7 @@ function SiteInspectionTemplatePreview({ schema, worker }) {
             <label><span>Deficiency / hazard</span><textarea readOnly rows="3" /></label>
             <label><span>Immediate control taken</span><textarea readOnly rows="3" /></label>
             <label><span>Recommended corrective action</span><textarea readOnly rows="3" /></label>
+            <label><span>Suggested due date</span><input readOnly type="date" /></label>
           </div>
         </div>
       </section>
