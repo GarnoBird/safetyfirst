@@ -3256,6 +3256,14 @@ p {
   grid-column: 1 / -1;
 }
 
+.toolbox-composite-field {
+  min-width: 0;
+}
+
+.toolbox-composite-field.wide {
+  grid-column: 1 / -1;
+}
+
 .toolbox-repeat-row button {
   justify-self: start;
 }

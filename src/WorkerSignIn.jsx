@@ -517,6 +517,41 @@ const ACTION_ITEM_ROW_FIELD_CONFIGS = [
   { key: "recommendedAction", input: "textarea", siteLabel: "Recommended corrective action", genericLabel: "Recommended corrective action", optional: true },
   { key: "dueDate", input: "date", siteLabel: "Suggested due date", genericLabel: "Suggested due date", optional: true },
 ];
+const TOOLBOX_INCIDENT_REVIEW_FIELD_CONFIGS = [
+  { key: "firstAidCount", input: "number", label: "# of FA since last meeting" },
+  { key: "medicalAidCount", input: "number", label: "# of Medical Aids" },
+  { key: "nearMissReviewed", input: "yes_no", label: "Near miss / accident to review?" },
+  {
+    key: "nearMissDescription",
+    input: "textarea",
+    label: "Near miss / accident description",
+    conditionalKey: "nearMissReviewed",
+    conditionalValue: "yes",
+  },
+  { key: "lessonsLearned", input: "textarea", label: "Lessons that can be learnt from the above numbers" },
+];
+const TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS = [
+  { key: "concern", input: "text", label: "Concern" },
+  { key: "actionToTake", input: "text", label: "Action to take" },
+  { key: "dateTaken", input: "date", label: "Date taken" },
+];
+const TOOLBOX_COMPOSITE_BLOCK_CONFIGS = {
+  toolbox_incident_review: {
+    settingsKey: "toolboxIncidentReview",
+    subfieldsLabel: "Review fields",
+    openButtonLabel: "Add incident / review notes",
+    hideButtonLabel: "Hide",
+    fieldConfigs: TOOLBOX_INCIDENT_REVIEW_FIELD_CONFIGS,
+  },
+  toolbox_safety_concerns: {
+    settingsKey: "toolboxSafetyConcerns",
+    subfieldsLabel: "Row fields",
+    openButtonLabel: "Add safety concern",
+    hideButtonLabel: "Hide",
+    addRowButtonLabel: "Add another concern",
+    fieldConfigs: TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS,
+  },
+};
 const ACTION_ITEM_STATUS_OPTIONS = [
   { id: "draft", label: "Draft" },
   { id: "open", label: "Open" },
@@ -3781,6 +3816,14 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     "toolbox_talk",
   );
   const topicSettings = toolboxLayout.blockSettings.toolbox_topics || getToolboxTopicSettings();
+  const incidentReviewSettings = normalizeToolboxCompositeSettings(
+    toolboxLayout.blockSettings.toolbox_incident_review,
+    "toolbox_incident_review",
+  );
+  const safetyConcernSettings = normalizeToolboxCompositeSettings(
+    toolboxLayout.blockSettings.toolbox_safety_concerns,
+    "toolbox_safety_concerns",
+  );
   const enabledTopicCategoryIds = topicSettings.enabledCategoryIds;
   const [optionalOpen, setOptionalOpen] = useState(() => {
     const draftForm = restoredDraftRef.current?.form;
@@ -4053,7 +4096,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     setSubmitAttempted(false);
     rememberToolboxTalkDefaults(formForSubmit);
     rememberToolboxTalkRecents(formForSubmit);
-    await onSubmit(cleanToolboxTalkClientForm(formForSubmit, genericSchema, worker));
+    await onSubmit(cleanToolboxTalkClientForm(formForSubmit, genericSchema, worker, toolboxLayout));
   };
 
   return (
@@ -4226,69 +4269,29 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         <div className="toolbox-section-heading">
           <h2>{toolboxLayout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
           <button type="button" onClick={() => toggleOptional("review")}>
-            {optionalOpen.review ? "Hide" : "Add incident / review notes"}
+            {optionalOpen.review ? incidentReviewSettings.hideButtonLabel : incidentReviewSettings.openButtonLabel}
           </button>
         </div>
         {optionalOpen.review ? (
-          <>
-            <div className="toolbox-field-grid compact">
-              <label>
-                <span># of FA since last meeting</span>
-                <input
-                  min="0"
-                  inputMode="numeric"
-                  type="number"
-                  value={form.incidentReview.firstAidCount}
-                  onChange={(event) => updateIncident("firstAidCount", event.target.value)}
+          <div className="toolbox-field-grid compact">
+            {visibleToolboxCompositeFields(incidentReviewSettings).map((field) => {
+              if (
+                field.conditionalKey &&
+                (!toolboxCompositeFieldIsVisible(incidentReviewSettings, field.conditionalKey) ||
+                  form.incidentReview[field.conditionalKey] !== field.conditionalValue)
+              ) {
+                return null;
+              }
+              return (
+                <ToolboxIncidentReviewField
+                  field={field}
+                  key={field.key}
+                  value={form.incidentReview[field.key]}
+                  onChange={(value) => updateIncident(field.key, value)}
                 />
-              </label>
-              <label>
-                <span># of Medical Aids</span>
-                <input
-                  min="0"
-                  inputMode="numeric"
-                  type="number"
-                  value={form.incidentReview.medicalAidCount}
-                  onChange={(event) => updateIncident("medicalAidCount", event.target.value)}
-                />
-              </label>
-              <div className="toolbox-segment-field">
-                <span>Near miss / accident to review?</span>
-                <div className="toolbox-segmented" role="group" aria-label="Near miss or accident to review">
-                  {["no", "yes"].map((value) => (
-                    <button
-                      className={form.incidentReview.nearMissReviewed === value ? "active" : ""}
-                      key={value}
-                      type="button"
-                      onClick={() => updateIncident("nearMissReviewed", value)}
-                    >
-                      {value === "yes" ? "Yes" : "No"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {form.incidentReview.nearMissReviewed === "yes" ? (
-              <label>
-                <span>Near miss / accident description</span>
-                <textarea
-                  rows="3"
-                  value={form.incidentReview.nearMissDescription}
-                  onChange={(event) =>
-                    updateIncident("nearMissDescription", event.target.value)
-                  }
-                />
-              </label>
-            ) : null}
-            <label>
-              <span>Lessons that can be learnt from the above numbers</span>
-              <textarea
-                rows="4"
-                value={form.incidentReview.lessonsLearned}
-                onChange={(event) => updateIncident("lessonsLearned", event.target.value)}
-              />
-            </label>
-          </>
+              );
+            })}
+          </div>
         ) : null}
       </section>
         ) : null}
@@ -4298,7 +4301,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         <div className="toolbox-section-heading">
           <h2>{toolboxLayout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
           <button type="button" onClick={() => toggleOptional("concerns")}>
-            {optionalOpen.concerns ? "Hide" : "Add safety concern"}
+            {optionalOpen.concerns ? safetyConcernSettings.hideButtonLabel : safetyConcernSettings.openButtonLabel}
           </button>
         </div>
         {optionalOpen.concerns ? (
@@ -4306,37 +4309,19 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
             <div className="toolbox-row-list">
               {form.safetyConcerns.map((row, index) => (
                 <div className="toolbox-repeat-row" key={`concern-${index}`}>
-                  <label>
-                    <span>Concern</span>
-                    <input
-                      value={row.concern}
-                      onChange={(event) => updateConcern(index, "concern", event.target.value)}
+                  {visibleToolboxCompositeFields(safetyConcernSettings).map((field) => (
+                    <ToolboxSafetyConcernField
+                      field={field}
+                      key={field.key}
+                      value={row[field.key]}
+                      onChange={(value) => updateConcern(index, field.key, value)}
                     />
-                  </label>
-                  <label>
-                    <span>Action to take</span>
-                    <input
-                      value={row.actionToTake}
-                      onChange={(event) =>
-                        updateConcern(index, "actionToTake", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Date taken</span>
-                    <input
-                      type="date"
-                      value={row.dateTaken}
-                      onChange={(event) =>
-                        updateConcern(index, "dateTaken", event.target.value)
-                      }
-                    />
-                  </label>
+                  ))}
                   <button type="button" onClick={() => removeConcern(index)}>Remove</button>
                 </div>
               ))}
             </div>
-            <button type="button" onClick={addConcern}>Add another concern</button>
+            <button type="button" onClick={addConcern}>{safetyConcernSettings.addRowButtonLabel}</button>
           </>
         ) : null}
       </section>
@@ -4945,6 +4930,66 @@ function ActionItemRowRuntimeField({ field, invalid = false, preview = false, ro
       <input
         {...commonProps}
         type={field.input === "date" ? "date" : "text"}
+        onChange={(event) => onChange?.(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function ToolboxIncidentReviewField({ field, onChange, value }) {
+  const readOnly = typeof onChange !== "function";
+  if (field.input === "yes_no") {
+    return (
+      <div className="toolbox-composite-field toolbox-segment-field">
+        <span>{field.label}</span>
+        <div className="toolbox-segmented" role="group" aria-label={field.label}>
+          {["no", "yes"].map((option) => (
+            <button
+              className={value === option ? "active" : ""}
+              disabled={readOnly}
+              key={option}
+              type="button"
+              onClick={() => onChange?.(option)}
+            >
+              {option === "yes" ? "Yes" : "No"}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (field.input === "textarea") {
+    return (
+      <label className="toolbox-composite-field wide">
+        <span>{field.label}</span>
+        <textarea readOnly={readOnly} rows="4" value={value || ""} onChange={(event) => onChange?.(event.target.value)} />
+      </label>
+    );
+  }
+  return (
+    <label className="toolbox-composite-field">
+      <span>{field.label}</span>
+      <input
+        inputMode={field.input === "number" ? "numeric" : undefined}
+        min={field.input === "number" ? "0" : undefined}
+        readOnly={readOnly}
+        type={field.input === "number" ? "number" : "text"}
+        value={value || ""}
+        onChange={(event) => onChange?.(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function ToolboxSafetyConcernField({ field, onChange, value }) {
+  const readOnly = typeof onChange !== "function";
+  return (
+    <label className="toolbox-composite-field">
+      <span>{field.label}</span>
+      <input
+        readOnly={readOnly}
+        type={field.input === "date" ? "date" : "text"}
+        value={value || ""}
         onChange={(event) => onChange?.(event.target.value)}
       />
     </label>
@@ -7918,8 +7963,17 @@ function TemplateSchemaEditorV3({
   const selectedActionItemRowsSettings = selectedField && ACTION_ITEM_ROW_BLOCK_TYPES.has(selectedField.type)
     ? normalizeActionItemRowsSettings(selectedField.settings, selectedField.type)
     : null;
+  const selectedToolboxCompositeSettings = selectedField && toolboxCompositeConfig(selectedField.type)
+    ? normalizeToolboxCompositeSettings(selectedField.settings, selectedField.type)
+    : null;
   const updateSelectedActionItemRowsSettings = (nextSettings) => {
     updateSelectedFieldSettings({ actionItemRows: serializeActionItemRowsSettings(nextSettings) });
+  };
+  const updateSelectedToolboxCompositeSettings = (nextSettings) => {
+    if (!nextSettings?.settingsKey) return;
+    updateSelectedFieldSettings({
+      [nextSettings.settingsKey]: serializeToolboxCompositeSettings(nextSettings),
+    });
   };
   const updateActionItemRowLabel = (key, label) => {
     if (!selectedActionItemRowsSettings) return;
@@ -7944,6 +7998,31 @@ function TemplateSchemaEditorV3({
     updateSelectedActionItemRowsSettings({
       ...selectedActionItemRowsSettings,
       subfields: moveArrayItem(selectedActionItemRowsSettings.subfields, index, direction),
+    });
+  };
+  const updateToolboxCompositeSubfieldLabel = (key, label) => {
+    if (!selectedToolboxCompositeSettings) return;
+    updateSelectedToolboxCompositeSettings({
+      ...selectedToolboxCompositeSettings,
+      subfields: selectedToolboxCompositeSettings.subfields.map((field) =>
+        field.key === key ? { ...field, label } : field,
+      ),
+    });
+  };
+  const updateToolboxCompositeSubfieldVisibility = (key, visible) => {
+    if (!selectedToolboxCompositeSettings) return;
+    updateSelectedToolboxCompositeSettings({
+      ...selectedToolboxCompositeSettings,
+      subfields: selectedToolboxCompositeSettings.subfields.map((field) =>
+        field.key === key ? { ...field, visible } : field,
+      ),
+    });
+  };
+  const moveToolboxCompositeSubfield = (index, direction) => {
+    if (!selectedToolboxCompositeSettings) return;
+    updateSelectedToolboxCompositeSettings({
+      ...selectedToolboxCompositeSettings,
+      subfields: moveArrayItem(selectedToolboxCompositeSettings.subfields, index, direction),
     });
   };
   const handleSidebarCardPointerDown = (card) => {
@@ -8452,6 +8531,93 @@ function TemplateSchemaEditorV3({
                     </div>
                   </div>
                 ) : null}
+                {selectedToolboxCompositeSettings ? (
+                  <div className="template-action-row-settings">
+                    <div className="template-v3-two-column">
+                      <label>
+                        <span>Show button</span>
+                        <input
+                          disabled={readOnly}
+                          value={selectedToolboxCompositeSettings.openButtonLabel}
+                          onChange={(event) =>
+                            updateSelectedToolboxCompositeSettings({
+                              ...selectedToolboxCompositeSettings,
+                              openButtonLabel: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>Hide button</span>
+                        <input
+                          disabled={readOnly}
+                          value={selectedToolboxCompositeSettings.hideButtonLabel}
+                          onChange={(event) =>
+                            updateSelectedToolboxCompositeSettings({
+                              ...selectedToolboxCompositeSettings,
+                              hideButtonLabel: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                    {selectedToolboxCompositeSettings.addRowButtonLabel ? (
+                      <label>
+                        <span>Add row button</span>
+                        <input
+                          disabled={readOnly}
+                          value={selectedToolboxCompositeSettings.addRowButtonLabel}
+                          onChange={(event) =>
+                            updateSelectedToolboxCompositeSettings({
+                              ...selectedToolboxCompositeSettings,
+                              addRowButtonLabel: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                    ) : null}
+                    <div className="template-action-row-subfields">
+                      <span>{selectedToolboxCompositeSettings.subfieldsLabel}</span>
+                      {selectedToolboxCompositeSettings.subfields.map((subfield, index) => (
+                        <div className="template-action-row-subfield" key={subfield.key}>
+                          <label>
+                            <span>{subfield.key}</span>
+                            <input
+                              disabled={readOnly}
+                              value={subfield.label}
+                              onChange={(event) => updateToolboxCompositeSubfieldLabel(subfield.key, event.target.value)}
+                            />
+                          </label>
+                          <label className="settings-checkbox compact">
+                            <input
+                              checked={subfield.visible}
+                              disabled={readOnly}
+                              type="checkbox"
+                              onChange={(event) => updateToolboxCompositeSubfieldVisibility(subfield.key, event.target.checked)}
+                            />
+                            <span>Show field</span>
+                          </label>
+                          <div>
+                            {canEdit ? (
+                              <>
+                                <button disabled={index === 0} type="button" onClick={() => moveToolboxCompositeSubfield(index, -1)}>
+                                  Up
+                                </button>
+                                <button
+                                  disabled={index === selectedToolboxCompositeSettings.subfields.length - 1}
+                                  type="button"
+                                  onClick={() => moveToolboxCompositeSubfield(index, 1)}
+                                >
+                                  Down
+                                </button>
+                              </>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 {selectedToolboxTopicSettings ? (
                   <div className="template-v3-topic-settings">
                     <label className="settings-checkbox compact">
@@ -8650,6 +8816,14 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
   const layout = getToolboxTalkLayout(current);
   const enabled = new Set(layout.enabledBlocks);
   const topicSettings = layout.blockSettings.toolbox_topics || getToolboxTopicSettings();
+  const incidentReviewSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings.toolbox_incident_review,
+    "toolbox_incident_review",
+  );
+  const safetyConcernSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings.toolbox_safety_concerns,
+    "toolbox_safety_concerns",
+  );
   const topicGroups = getEnabledToolboxTopicGroups(topicSettings.enabledCategoryIds);
   const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
   const headerSampleValue = (field) => {
@@ -8732,12 +8906,15 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
-            <button type="button">Add incident / review notes</button>
+            <button type="button">{incidentReviewSettings.openButtonLabel}</button>
           </div>
           {layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false ? (
             <div className="toolbox-field-grid">
-              <label><span># of FA since last meeting</span><input readOnly /></label>
-              <label><span># of Medical Aids</span><input readOnly /></label>
+              {visibleToolboxCompositeFields(incidentReviewSettings)
+                .filter((field) => !field.conditionalKey)
+                .map((field) => (
+                  <ToolboxIncidentReviewField field={field} key={field.key} value="" />
+                ))}
             </div>
           ) : null}
         </section>
@@ -8753,8 +8930,16 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
-            <button type="button">Add safety concern</button>
+            <button type="button">{safetyConcernSettings.openButtonLabel}</button>
           </div>
+          {layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false ? (
+            <div className="toolbox-repeat-row">
+              {visibleToolboxCompositeFields(safetyConcernSettings).map((field) => (
+                <ToolboxSafetyConcernField field={field} key={field.key} value="" />
+              ))}
+              <button type="button">Remove</button>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -10246,6 +10431,17 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
   const safetyConcerns = data.safetyConcerns || [];
   const attendance = data.attendance || [];
   const confirmation = data.confirmation || {};
+  const layout = getToolboxTalkLayout(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const incidentReviewSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings.toolbox_incident_review,
+    "toolbox_incident_review",
+  );
+  const safetyConcernSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings.toolbox_safety_concerns,
+    "toolbox_safety_concerns",
+  );
+  const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
+  const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
   const [saveStatus, setSaveStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -10295,32 +10491,37 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
       </section>
 
       <section>
-        <h3>Review Notes</h3>
+        <h3>{layout.blockLabels.toolbox_incident_review || "Review Notes"}</h3>
         <dl className="staff-detail-list">
-          <div><dt># of FA</dt><dd>{displayOptionalNumber(incident.firstAidCount)}</dd></div>
-          <div><dt># of Medical Aids</dt><dd>{displayOptionalNumber(incident.medicalAidCount)}</dd></div>
-          <div><dt>Near miss / accident</dt><dd>{nearMissLabel(incident.nearMissReviewed)}</dd></div>
-          {incident.nearMissDescription ? (
-            <div><dt>Description</dt><dd>{incident.nearMissDescription}</dd></div>
-          ) : null}
-          {incident.lessonsLearned ? (
-            <div><dt>Lessons</dt><dd>{incident.lessonsLearned}</dd></div>
-          ) : null}
+          {visibleIncidentFields
+            .filter((field) => {
+              if (field.conditionalKey) return incident[field.conditionalKey] === field.conditionalValue && incident[field.key];
+              if (field.input === "textarea") return Boolean(incident[field.key]);
+              return true;
+            })
+            .map((field) => (
+              <div key={field.key}>
+                <dt>{field.label}</dt>
+                <dd>{toolboxIncidentDisplayValue(field, incident) || "-"}</dd>
+              </div>
+            ))}
         </dl>
       </section>
 
       {safetyConcerns.length ? (
         <section>
-          <h3>Safety Concerns</h3>
-          <div className="toolbox-detail-table">
-            <div className="header">Concern</div>
-            <div className="header">Action</div>
-            <div className="header">Date</div>
+          <h3>{layout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h3>
+          <div className="toolbox-detail-table" style={toolboxDetailGridStyle(visibleSafetyConcernFields)}>
+            {visibleSafetyConcernFields.map((field) => (
+              <div className="header" key={`concern-header-${field.key}`}>{field.label}</div>
+            ))}
             {safetyConcerns.map((row, index) => (
               <Fragment key={`concern-detail-${index}`}>
-                <div>{row.concern || "-"}</div>
-                <div>{row.actionToTake || "-"}</div>
-                <div>{row.dateTaken ? formatDateString(row.dateTaken) : "-"}</div>
+                {visibleSafetyConcernFields.map((field) => (
+                  <div key={`concern-detail-${index}-${field.key}`}>
+                    {toolboxSafetyConcernDisplayValue(field, row)}
+                  </div>
+                ))}
               </Fragment>
             ))}
           </div>
@@ -12378,6 +12579,66 @@ function visibleActionItemRowFields(settings) {
   return (settings?.subfields || []).filter((field) => field.visible || field.lockedVisible);
 }
 
+function toolboxCompositeConfig(blockType) {
+  return TOOLBOX_COMPOSITE_BLOCK_CONFIGS[blockType] || null;
+}
+
+function normalizeToolboxCompositeSettings(settings = {}, blockType = "") {
+  const config = toolboxCompositeConfig(blockType);
+  if (!config) return null;
+  const source = getTemplateSettingValue(settings, config.settingsKey);
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const rawFields = Array.isArray(raw.subfields) ? raw.subfields : Array.isArray(raw.fields) ? raw.fields : [];
+  const rawFieldMap = new Map();
+  rawFields.forEach((field, index) => {
+    const key = String(field?.key || "").trim();
+    if (!key || rawFieldMap.has(key)) return;
+    rawFieldMap.set(key, { ...field, order: Number.isFinite(Number(field?.order)) ? Number(field.order) : index });
+  });
+  const subfields = config.fieldConfigs.map((field, index) => {
+    const override = rawFieldMap.get(field.key) || {};
+    return {
+      ...field,
+      label: String(override.label || "").trim() || field.label,
+      visible: override.visible !== false,
+      order: Number.isFinite(Number(override.order)) ? Number(override.order) : index,
+    };
+  }).sort((a, b) => a.order - b.order);
+  return {
+    blockType,
+    settingsKey: config.settingsKey,
+    subfieldsLabel: config.subfieldsLabel,
+    openButtonLabel: String(raw.openButtonLabel || "").trim() || config.openButtonLabel,
+    hideButtonLabel: String(raw.hideButtonLabel || "").trim() || config.hideButtonLabel,
+    addRowButtonLabel: config.addRowButtonLabel
+      ? String(raw.addRowButtonLabel || "").trim() || config.addRowButtonLabel
+      : "",
+    subfields: subfields.map((field, index) => ({ ...field, order: index })),
+  };
+}
+
+function serializeToolboxCompositeSettings(settings) {
+  return {
+    openButtonLabel: String(settings?.openButtonLabel || "").trim(),
+    hideButtonLabel: String(settings?.hideButtonLabel || "").trim(),
+    addRowButtonLabel: String(settings?.addRowButtonLabel || "").trim(),
+    subfields: (settings?.subfields || []).map((field, index) => ({
+      key: field.key,
+      label: String(field.label || "").trim(),
+      visible: field.visible !== false,
+      order: index,
+    })),
+  };
+}
+
+function visibleToolboxCompositeFields(settings) {
+  return (settings?.subfields || []).filter((field) => field.visible !== false);
+}
+
+function toolboxCompositeFieldIsVisible(settings, key) {
+  return visibleToolboxCompositeFields(settings).some((field) => field.key === key);
+}
+
 function actionItemRowHasMeaningfulValue(row) {
   return Object.entries(row || {}).some(([key, value]) => {
     if (key === "priority" && value === "medium") return false;
@@ -13054,7 +13315,42 @@ function scrollToToolboxValidationTarget(targets, field) {
   });
 }
 
-function cleanToolboxTalkClientForm(form, genericSchema = createGenericTemplateSchemaFromSections({ sections: [] }, [], "toolbox_talk"), worker = null) {
+function cleanToolboxIncidentReviewForSubmit(incidentReview, settings) {
+  const source = incidentReview || {};
+  const visible = new Set(visibleToolboxCompositeFields(settings).map((field) => field.key));
+  const cleaned = TOOLBOX_INCIDENT_REVIEW_FIELD_CONFIGS.reduce((next, field) => {
+    next[field.key] = visible.has(field.key) ? String(source[field.key] || "").trim() : "";
+    return next;
+  }, {});
+  if (!visible.has("nearMissReviewed") || cleaned.nearMissReviewed !== "yes") {
+    cleaned.nearMissDescription = "";
+  }
+  return cleaned;
+}
+
+function cleanToolboxSafetyConcernForSubmit(row, settings) {
+  const source = row || {};
+  const visible = new Set(visibleToolboxCompositeFields(settings).map((field) => field.key));
+  return TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS.reduce((next, field) => {
+    next[field.key] = visible.has(field.key) ? String(source[field.key] || "").trim() : "";
+    return next;
+  }, {});
+}
+
+function cleanToolboxTalkClientForm(
+  form,
+  genericSchema = createGenericTemplateSchemaFromSections({ sections: [] }, [], "toolbox_talk"),
+  worker = null,
+  layout = createDefaultToolboxTalkLayout(),
+) {
+  const incidentReviewSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings?.toolbox_incident_review,
+    "toolbox_incident_review",
+  );
+  const safetyConcernSettings = normalizeToolboxCompositeSettings(
+    layout.blockSettings?.toolbox_safety_concerns,
+    "toolbox_safety_concerns",
+  );
   return {
     kind: "toolbox_talk_v1",
     version: 1,
@@ -13063,9 +13359,9 @@ function cleanToolboxTalkClientForm(form, genericSchema = createGenericTemplateS
       selected: form.topics.selected,
       other: form.topics.other.trim(),
     },
-    incidentReview: cleanObjectStrings(form.incidentReview),
+    incidentReview: cleanToolboxIncidentReviewForSubmit(form.incidentReview, incidentReviewSettings),
     safetyConcerns: form.safetyConcerns
-      .map(cleanObjectStrings)
+      .map((row) => cleanToolboxSafetyConcernForSubmit(row, safetyConcernSettings))
       .filter((row) => row.concern || row.actionToTake || row.dateTaken),
     attendance: form.attendance
       .map((row) => ({ name: row.name.trim() }))
@@ -13763,6 +14059,30 @@ function nearMissLabel(value) {
   return "Not selected";
 }
 
+function toolboxIncidentDisplayValue(field, incident = {}) {
+  if (field.key === "firstAidCount" || field.key === "medicalAidCount") {
+    return displayOptionalNumber(incident[field.key]);
+  }
+  if (field.key === "nearMissReviewed") {
+    return nearMissLabel(incident.nearMissReviewed);
+  }
+  return incident[field.key] || "";
+}
+
+function toolboxSafetyConcernDisplayValue(field, row = {}) {
+  if (field.key === "dateTaken") return row.dateTaken ? formatDateString(row.dateTaken) : "-";
+  return row[field.key] || "-";
+}
+
+function toolboxDetailGridStyle(fields) {
+  const visibleFields = fields && fields.length ? fields : TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS;
+  return {
+    gridTemplateColumns: visibleFields
+      .map((field) => (field.input === "date" ? "minmax(90px, 0.6fr)" : "minmax(0, 1.2fr)"))
+      .join(" "),
+  };
+}
+
 function canRetryBackup(value) {
   return ["pending", "failed"].includes(value);
 }
@@ -14066,8 +14386,20 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
   const confirmation = data?.confirmation || {};
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = digitalToolboxTalkTitle(row, data);
+  const toolboxSchema = data?.schemaSnapshot || row?.form_schema_snapshot;
+  const toolboxLayout = getToolboxTalkLayout(toolboxSchema);
+  const incidentReviewSettings = normalizeToolboxCompositeSettings(
+    toolboxLayout.blockSettings.toolbox_incident_review,
+    "toolbox_incident_review",
+  );
+  const safetyConcernSettings = normalizeToolboxCompositeSettings(
+    toolboxLayout.blockSettings.toolbox_safety_concerns,
+    "toolbox_safety_concerns",
+  );
+  const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
+  const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
   const genericSectionHtml = templateAnswerSectionsHtml(
-    getCustomGenericTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot, isToolboxTalkConsumedTemplateField, "toolbox_talk"),
+    getCustomGenericTemplateSchema(toolboxSchema, isToolboxTalkConsumedTemplateField, "toolbox_talk"),
     data?.answers || {},
     data?.actionItemBlocks || {},
   );
@@ -14078,14 +14410,22 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
           <td>${escapeHtml(topic.label || "")}</td>
         </tr>`).join("")
     : `<tr><td colspan="2">No selected topics</td></tr>`;
+  const incidentRows = visibleIncidentFields
+    .filter((field) => {
+      if (field.conditionalKey) return incident[field.conditionalKey] === field.conditionalValue && incident[field.key];
+      if (field.input === "textarea") return Boolean(incident[field.key]);
+      return true;
+    })
+    .map((field) => definitionHtml(field.label, toolboxIncidentDisplayValue(field, incident)))
+    .join("");
   const concernRows = concerns.length
     ? concerns.map((concern) => `
         <tr>
-          <td>${escapeHtml(concern.concern || "-")}</td>
-          <td>${escapeHtml(concern.actionToTake || "-")}</td>
-          <td>${escapeHtml(concern.dateTaken ? formatDateString(concern.dateTaken) : "-")}</td>
+          ${visibleSafetyConcernFields.map((field) =>
+            `<td>${escapeHtml(toolboxSafetyConcernDisplayValue(field, concern))}</td>`,
+          ).join("")}
         </tr>`).join("")
-    : `<tr><td colspan="3">No safety concerns recorded</td></tr>`;
+    : `<tr><td colspan="${Math.max(visibleSafetyConcernFields.length, 1)}">No safety concerns recorded</td></tr>`;
   const attendeeRows = attendance.length
     ? attendance.map((attendee, index) => `
         <tr>
@@ -14237,20 +14577,16 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
       </section>
 
       <section>
-        <h2>Review Notes</h2>
+        <h2>${escapeHtml(toolboxLayout.blockLabels.toolbox_incident_review || "Review Notes")}</h2>
         <dl>
-          ${definitionHtml("# of FA", displayOptionalNumber(incident.firstAidCount))}
-          ${definitionHtml("# of Medical Aids", displayOptionalNumber(incident.medicalAidCount))}
-          ${definitionHtml("Near Miss / Accident", nearMissLabel(incident.nearMissReviewed))}
-          ${definitionHtml("Description", incident.nearMissDescription)}
-          ${definitionHtml("Lessons", incident.lessonsLearned)}
+          ${incidentRows}
         </dl>
       </section>
 
       <section>
-        <h2>Safety Concerns</h2>
+        <h2>${escapeHtml(toolboxLayout.blockLabels.toolbox_safety_concerns || "Safety Concerns")}</h2>
         <table>
-          <thead><tr><th>Concern</th><th>Action to Take</th><th>Date Taken</th></tr></thead>
+          <thead><tr>${visibleSafetyConcernFields.map((field) => `<th>${escapeHtml(field.label)}</th>`).join("")}</tr></thead>
           <tbody>${concernRows}</tbody>
         </table>
       </section>

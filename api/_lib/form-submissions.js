@@ -55,6 +55,28 @@ const TOOLBOX_TALK_HEADER_FIELD_CONFIGS = [
   { key: "presenter", id: "toolbox_presenter", label: "Presenter", required: true },
   { key: "supervisor", id: "toolbox_supervisor", label: "Supervisor", required: true },
 ];
+const TOOLBOX_INCIDENT_REVIEW_FIELD_CONFIGS = [
+  { key: "firstAidCount", defaultValue: "" },
+  { key: "medicalAidCount", defaultValue: "" },
+  { key: "nearMissReviewed", defaultValue: "" },
+  { key: "nearMissDescription", defaultValue: "" },
+  { key: "lessonsLearned", defaultValue: "" },
+];
+const TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS = [
+  { key: "concern", defaultValue: "" },
+  { key: "actionToTake", defaultValue: "" },
+  { key: "dateTaken", defaultValue: "" },
+];
+const TOOLBOX_COMPOSITE_BLOCK_CONFIGS = {
+  toolbox_incident_review: {
+    settingsKey: "toolboxIncidentReview",
+    fieldConfigs: TOOLBOX_INCIDENT_REVIEW_FIELD_CONFIGS,
+  },
+  toolbox_safety_concerns: {
+    settingsKey: "toolboxSafetyConcerns",
+    fieldConfigs: TOOLBOX_SAFETY_CONCERN_FIELD_CONFIGS,
+  },
+};
 const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
   address: "address",
   project: "projectName",
@@ -1714,6 +1736,10 @@ function createDefaultToolboxTalkConfig() {
     enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter(
       (type) => type !== "toolbox_meeting_info",
     ),
+    blockSettings: {
+      toolbox_incident_review: {},
+      toolbox_safety_concerns: {},
+    },
     headerFields: TOOLBOX_TALK_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
   };
 }
@@ -1752,6 +1778,32 @@ function cleanPlainSettings(settings) {
   return settings && typeof settings === "object" && !Array.isArray(settings) ? settings : {};
 }
 
+function normalizeToolboxCompositeSettings(settings = {}, blockType = "") {
+  const config = TOOLBOX_COMPOSITE_BLOCK_CONFIGS[blockType];
+  if (!config) return [];
+  const source = getTemplateSettingRaw(settings, config.settingsKey);
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const rawFields = Array.isArray(raw.subfields) ? raw.subfields : Array.isArray(raw.fields) ? raw.fields : [];
+  const rawFieldMap = new Map();
+  rawFields.forEach((field) => {
+    const key = cleanText(field?.key, 80);
+    if (key && !rawFieldMap.has(key)) rawFieldMap.set(key, field);
+  });
+  return config.fieldConfigs.map((field) => {
+    const override = rawFieldMap.get(field.key) || {};
+    return {
+      ...field,
+      visible: override.visible !== false,
+    };
+  });
+}
+
+function visibleToolboxCompositeKeys(settings, blockType) {
+  return new Set(normalizeToolboxCompositeSettings(settings, blockType)
+    .filter((field) => field.visible !== false)
+    .map((field) => field.key));
+}
+
 function getToolboxTalkHeaderFieldKey(field) {
   const explicit = getTemplateSettingValue(field?.settings, "toolboxHeaderField");
   if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
@@ -1767,6 +1819,7 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
     const template = templateOverride || await getPublishedWorkerFormTemplate(formType);
     const config = createDefaultToolboxTalkConfig();
     const enabledBlocks = [];
+    const blockSettings = {};
     const headerFields = [];
     const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
       ? template.publishedVersion.schema.sections
@@ -1802,10 +1855,20 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
         ) {
           enabledBlocks.push(field.type);
         }
+        if (TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type)) {
+          blockSettings[field.type] = {
+            ...cleanPlainSettings(section?.settings),
+            ...cleanPlainSettings(field?.settings),
+          };
+        }
       });
     });
     return {
       enabledBlocks: enabledBlocks.length ? enabledBlocks : config.enabledBlocks,
+      blockSettings: {
+        ...config.blockSettings,
+        ...blockSettings,
+      },
       headerFields: headerFields.length ? headerFields : config.headerFields,
     };
   } catch {
@@ -2041,6 +2104,42 @@ async function validateSiteInspectionTemplateSubmissionFormData({ formType, rawF
   };
 }
 
+function cleanToolboxIncidentReview(incidentInput, settings) {
+  const source = incidentInput && typeof incidentInput === "object" && !Array.isArray(incidentInput)
+    ? incidentInput
+    : {};
+  const visible = visibleToolboxCompositeKeys(settings, "toolbox_incident_review");
+  const cleaned = {
+    firstAidCount: visible.has("firstAidCount") ? cleanOptionalCount(source.firstAidCount) : "",
+    medicalAidCount: visible.has("medicalAidCount") ? cleanOptionalCount(source.medicalAidCount) : "",
+    nearMissReviewed: visible.has("nearMissReviewed")
+      ? cleanChoice(source.nearMissReviewed, ["", "yes", "no"], "Near miss review")
+      : "",
+    nearMissDescription: visible.has("nearMissDescription")
+      ? cleanText(source.nearMissDescription, MAX_FORM_LONG_TEXT_LENGTH)
+      : "",
+    lessonsLearned: visible.has("lessonsLearned")
+      ? cleanText(source.lessonsLearned, MAX_FORM_LONG_TEXT_LENGTH)
+      : "",
+  };
+  if (cleaned.nearMissReviewed !== "yes") {
+    cleaned.nearMissDescription = "";
+  }
+  return cleaned;
+}
+
+function cleanToolboxSafetyConcern(row, settings) {
+  const source = row && typeof row === "object" && !Array.isArray(row) ? row : {};
+  const visible = visibleToolboxCompositeKeys(settings, "toolbox_safety_concerns");
+  return {
+    concern: visible.has("concern") ? cleanText(source.concern, MAX_FORM_TEXT_LENGTH) : "",
+    actionToTake: visible.has("actionToTake")
+      ? cleanText(source.actionToTake ?? source.action, MAX_FORM_TEXT_LENGTH)
+      : "",
+    dateTaken: visible.has("dateTaken") ? cleanOptionalDate(source.dateTaken) : "",
+  };
+}
+
 function cleanToolboxTalkFormData(
   value,
   worker,
@@ -2095,18 +2194,14 @@ function cleanToolboxTalkFormData(
     throwBadRequest("Select at least one topic or enter an additional topic.");
   }
 
-  const incidentInput = value.incidentReview || {};
-  const nearMissReviewed = cleanChoice(
-    incidentInput.nearMissReviewed,
-    ["", "yes", "no"],
-    "Near miss review",
+  const incidentReview = cleanToolboxIncidentReview(
+    value.incidentReview,
+    config.blockSettings?.toolbox_incident_review,
   );
 
-  const safetyConcerns = cleanRows(value.safetyConcerns, (row) => ({
-    concern: cleanText(row?.concern, MAX_FORM_TEXT_LENGTH),
-    actionToTake: cleanText(row?.actionToTake ?? row?.action, MAX_FORM_TEXT_LENGTH),
-    dateTaken: cleanOptionalDate(row?.dateTaken),
-  })).filter((row) => row.concern || row.actionToTake || row.dateTaken);
+  const safetyConcerns = cleanRows(value.safetyConcerns, (row) =>
+    cleanToolboxSafetyConcern(row, config.blockSettings?.toolbox_safety_concerns),
+  ).filter((row) => row.concern || row.actionToTake || row.dateTaken);
 
   const attendance = cleanRows(value.attendance, (row) => ({
     name: cleanText(row?.name, MAX_FORM_TEXT_LENGTH),
@@ -2128,16 +2223,7 @@ function cleanToolboxTalkFormData(
       selected: selectedTopics,
       other: otherTopics,
     },
-    incidentReview: {
-      firstAidCount: cleanOptionalCount(incidentInput.firstAidCount),
-      medicalAidCount: cleanOptionalCount(incidentInput.medicalAidCount),
-      nearMissReviewed,
-      nearMissDescription: cleanText(
-        incidentInput.nearMissDescription,
-        MAX_FORM_LONG_TEXT_LENGTH,
-      ),
-      lessonsLearned: cleanText(incidentInput.lessonsLearned, MAX_FORM_LONG_TEXT_LENGTH),
-    },
+    incidentReview,
     safetyConcerns,
     attendance,
     additionalComments: cleanText(value.additionalComments, MAX_FORM_LONG_TEXT_LENGTH),
