@@ -1,5 +1,8 @@
 import crypto from "node:crypto";
-import { createDraftActionItemsFromSiteInspection } from "./action-items.js";
+import {
+  createDraftActionItemsFromSiteInspection,
+  createDraftActionItemsFromTemplateActionRows,
+} from "./action-items.js";
 import { assertDateString, getVancouverDate } from "./date.js";
 import {
   deleteFallbackRecord,
@@ -127,6 +130,16 @@ const SITE_INSPECTION_OBSERVATION_FIELD_ALIASES = {
   site_positive_observations: "positive",
 };
 const MAX_SITE_INSPECTION_DEFICIENCIES = 80;
+const ACTION_ITEM_ROW_FIELD_CONFIGS = [
+  { key: "category", defaultValue: "" },
+  { key: "location", defaultValue: "" },
+  { key: "priority", defaultValue: "medium" },
+  { key: "suggestedAssignee", defaultValue: "" },
+  { key: "description", defaultValue: "", lockedVisible: true },
+  { key: "immediateControl", defaultValue: "" },
+  { key: "recommendedAction", defaultValue: "" },
+  { key: "dueDate", defaultValue: "" },
+];
 const ALLOWED_SUBMISSION_MIME_TYPES = [
   "image/jpeg",
   "image/png",
@@ -331,8 +344,11 @@ export async function createWorkerSubmission(worker, body) {
     await markUploadAttached(file.storagePath, inserted.id);
   }
 
-  if (submissionMode === "fill_form" && formType === "site_inspection") {
+  if (submissionMode === "fill_form" && formData?.kind === "site_inspection_v1") {
     await createDraftActionItemsFromSiteInspection(inserted, formData);
+  }
+  if (submissionMode === "fill_form" && formData?.kind === "template_submission_v1") {
+    await createDraftActionItemsFromTemplateActionRows(inserted, formData);
   }
 
   await backupSubmissionBestEffort(inserted.id);
@@ -1639,6 +1655,22 @@ function getTemplateSettingValue(settings, key) {
   return normalizedKey ? cleanText(source[normalizedKey], 80) : "";
 }
 
+function getTemplateSettingRaw(settings, key) {
+  const source = settings && typeof settings === "object" && !Array.isArray(settings)
+    ? settings
+    : {};
+  if (Object.prototype.hasOwnProperty.call(source, key)) return source[key];
+  const normalizedKey = slugifyToolboxTemplateId(key);
+  if (normalizedKey && Object.prototype.hasOwnProperty.call(source, normalizedKey)) return source[normalizedKey];
+  const target = String(key || "").toLowerCase();
+  const match = Object.keys(source).find((item) => item.toLowerCase() === target);
+  return match ? source[match] : undefined;
+}
+
+function cleanPlainSettings(settings) {
+  return settings && typeof settings === "object" && !Array.isArray(settings) ? settings : {};
+}
+
 function getToolboxTalkHeaderFieldKey(field) {
   const explicit = getTemplateSettingValue(field?.settings, "toolboxHeaderField");
   if (explicit && TOOLBOX_TALK_HEADER_FIELD_CONFIGS.some((item) => item.key === explicit)) {
@@ -1703,6 +1735,9 @@ async function getToolboxTalkConfig() {
 function createDefaultSiteInspectionConfig() {
   return {
     enabledBlocks: ["site_deficiencies"],
+    blockSettings: {
+      site_deficiencies: {},
+    },
     headerFields: SITE_INSPECTION_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
     observationFields: SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.map((field) => ({ ...field })),
   };
@@ -1744,6 +1779,7 @@ async function getSiteInspectionConfig(formType = "site_inspection", templateOve
     const template = templateOverride || await getPublishedWorkerFormTemplate(formType);
     const config = createDefaultSiteInspectionConfig();
     const enabledBlocks = [];
+    const blockSettings = {};
     const headerFields = [];
     const observationFields = [];
     const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
@@ -1756,6 +1792,10 @@ async function getSiteInspectionConfig(formType = "site_inspection", templateOve
       fields.forEach((field) => {
         if (field?.type === "site_deficiencies") {
           if (!enabledBlocks.includes(field.type)) enabledBlocks.push(field.type);
+          blockSettings.site_deficiencies = {
+            ...cleanPlainSettings(section?.settings),
+            ...cleanPlainSettings(field?.settings),
+          };
           return;
         }
 
@@ -1790,6 +1830,7 @@ async function getSiteInspectionConfig(formType = "site_inspection", templateOve
 
     return {
       enabledBlocks,
+      blockSettings,
       headerFields,
       observationFields,
     };
@@ -1954,6 +1995,7 @@ function cleanSiteInspectionFormData(
 
   const config = siteInspectionConfig || createDefaultSiteInspectionConfig();
   const enabled = new Set(Array.isArray(config.enabledBlocks) ? config.enabledBlocks : []);
+  const deficiencySettings = normalizeActionItemRowsSettings(config.blockSettings?.site_deficiencies);
   const headerFields = Array.isArray(config.headerFields) ? config.headerFields : [];
   const observationFields = Array.isArray(config.observationFields) ? config.observationFields : [];
   const headerInput = value.header || {};
@@ -2013,7 +2055,7 @@ function cleanSiteInspectionFormData(
   const deficienciesEnabled = enabled.has("site_deficiencies");
   const noDeficiencies = deficienciesEnabled && value.noDeficiencies === true;
   const deficiencies = deficienciesEnabled && !noDeficiencies
-    ? cleanRows(value.deficiencies, cleanSiteInspectionDeficiency)
+    ? cleanRows(value.deficiencies, (row) => cleanSiteInspectionDeficiency(row, deficiencySettings))
         .filter((row) =>
           row.category ||
           row.location ||
@@ -2053,17 +2095,49 @@ function cleanSiteInspectionFormData(
   };
 }
 
-function cleanSiteInspectionDeficiency(row) {
-  return {
-    category: cleanText(row?.category, MAX_FORM_TEXT_LENGTH),
-    location: cleanText(row?.location, MAX_FORM_TEXT_LENGTH),
-    description: cleanText(row?.description || row?.deficiency, MAX_FORM_LONG_TEXT_LENGTH),
-    priority: cleanChoice(row?.priority || "medium", ["low", "medium", "high", "critical"], "Priority"),
-    immediateControl: cleanText(row?.immediateControl, MAX_FORM_LONG_TEXT_LENGTH),
-    recommendedAction: cleanText(row?.recommendedAction, MAX_FORM_LONG_TEXT_LENGTH),
-    suggestedAssignee: cleanText(row?.suggestedAssignee, MAX_FORM_TEXT_LENGTH),
-    dueDate: cleanOptionalDate(row?.dueDate),
-  };
+function cleanSiteInspectionDeficiency(row, settings = normalizeActionItemRowsSettings()) {
+  const visible = new Set(settings.filter((field) => field.visible || field.lockedVisible).map((field) => field.key));
+  return ACTION_ITEM_ROW_FIELD_CONFIGS.reduce((cleaned, config) => {
+    if (!visible.has(config.key) && !config.lockedVisible) {
+      cleaned[config.key] = config.defaultValue;
+      return cleaned;
+    }
+    if (config.key === "description") {
+      cleaned.description = cleanText(row?.description || row?.deficiency, MAX_FORM_LONG_TEXT_LENGTH);
+      return cleaned;
+    }
+    if (config.key === "priority") {
+      cleaned.priority = cleanChoice(row?.priority || "medium", ["low", "medium", "high", "critical"], "Priority");
+      return cleaned;
+    }
+    if (config.key === "dueDate") {
+      cleaned.dueDate = cleanOptionalDate(row?.dueDate);
+      return cleaned;
+    }
+    const maxLength = ["immediateControl", "recommendedAction"].includes(config.key)
+      ? MAX_FORM_LONG_TEXT_LENGTH
+      : MAX_FORM_TEXT_LENGTH;
+    cleaned[config.key] = cleanText(row?.[config.key], maxLength);
+    return cleaned;
+  }, {});
+}
+
+function normalizeActionItemRowsSettings(settings = {}) {
+  const source = getTemplateSettingRaw(settings, "actionItemRows");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const rawFields = Array.isArray(raw.subfields) ? raw.subfields : Array.isArray(raw.fields) ? raw.fields : [];
+  const rawFieldMap = new Map();
+  rawFields.forEach((field) => {
+    const key = cleanText(field?.key, 80);
+    if (key && !rawFieldMap.has(key)) rawFieldMap.set(key, field);
+  });
+  return ACTION_ITEM_ROW_FIELD_CONFIGS.map((config) => {
+    const override = rawFieldMap.get(config.key) || {};
+    return {
+      ...config,
+      visible: config.lockedVisible ? true : override.visible !== false,
+    };
+  });
 }
 
 function cleanRows(value, cleaner) {

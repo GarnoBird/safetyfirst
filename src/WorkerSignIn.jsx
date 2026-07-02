@@ -143,6 +143,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "toolbox_attendance", label: "Toolbox attendance" },
   { id: "toolbox_final_confirmation", label: "Toolbox final confirmation" },
   { id: "site_deficiencies", label: "Site deficiencies" },
+  { id: "action_item_rows", label: "Action item rows" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
 const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
@@ -155,7 +156,9 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_attendance",
   "toolbox_final_confirmation",
   "site_deficiencies",
+  "action_item_rows",
 ]);
+const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["site_deficiencies", "action_item_rows"]);
 const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
   "toolbox_meeting_info",
   "toolbox_topics",
@@ -253,6 +256,13 @@ const TEMPLATE_V3_FIELD_GROUPS = [
         hint: "No-deficiency check and corrective action rows",
         icon: "SI",
         label: "Deficiencies",
+      },
+      {
+        type: "action_item_rows",
+        title: "Action item rows",
+        hint: "Creates draft Action Items",
+        icon: "AI",
+        label: "Action item rows",
       },
     ],
   },
@@ -491,6 +501,16 @@ const ACTION_ITEM_PRIORITY_OPTIONS = [
   { id: "medium", label: "Medium" },
   { id: "high", label: "High" },
   { id: "critical", label: "Critical" },
+];
+const ACTION_ITEM_ROW_FIELD_CONFIGS = [
+  { key: "category", input: "category", siteLabel: "Category", genericLabel: "Category", optional: true },
+  { key: "location", input: "text", siteLabel: "Location / area", genericLabel: "Location / area", optional: true },
+  { key: "priority", input: "priority", siteLabel: "Priority", genericLabel: "Priority", optional: true, defaultValue: "medium" },
+  { key: "suggestedAssignee", input: "text", siteLabel: "Suggested assignee", genericLabel: "Suggested assignee", optional: true },
+  { key: "description", input: "textarea", siteLabel: "Deficiency / hazard", genericLabel: "Action item / issue", lockedVisible: true },
+  { key: "immediateControl", input: "textarea", siteLabel: "Immediate control taken", genericLabel: "Immediate control taken", optional: true },
+  { key: "recommendedAction", input: "textarea", siteLabel: "Recommended corrective action", genericLabel: "Recommended corrective action", optional: true },
+  { key: "dueDate", input: "date", siteLabel: "Suggested due date", genericLabel: "Suggested due date", optional: true },
 ];
 const ACTION_ITEM_STATUS_OPTIONS = [
   { id: "draft", label: "Draft" },
@@ -4570,7 +4590,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
     setError("");
     setSubmitAttempted(false);
     rememberSiteInspectionDefaults(form);
-    await onSubmit(cleanSiteInspectionClientForm(form));
+    await onSubmit(cleanSiteInspectionClientForm(form, siteLayout));
   };
 
   const renderHeaderSection = () => {
@@ -4666,119 +4686,26 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
 
   const renderDeficienciesBlock = () => {
     if (!enabledBlockSet.has("site_deficiencies")) return null;
+    const blockSettings = normalizeActionItemRowsSettings(
+      siteLayout.blockSettings.site_deficiencies,
+      "site_deficiencies",
+    );
     return (
-      <section
-        className={deficienciesInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
-        ref={registerValidationTarget("deficiencies")}
-      >
-        <div className="toolbox-section-heading">
-          <h2>{siteLayout.blockLabels.site_deficiencies || "Deficiencies"}</h2>
-          <span>{form.noDeficiencies ? "None found" : `${form.deficiencies.length} listed`}</span>
-        </div>
-        <label
-          className={isFieldInvalid("deficiencies") ? "toolbox-confirmation toolbox-field-invalid" : "toolbox-confirmation"}
-        >
-          <input
-            checked={form.noDeficiencies}
-            type="checkbox"
-            onChange={(event) => setNoDeficiencies(event.target.checked)}
-          />
-          <span>No deficiencies found during this inspection.</span>
-        </label>
-        {!form.noDeficiencies ? (
-          <>
-            <div className="toolbox-row-list site-deficiency-list">
-              {form.deficiencies.map((row, index) => {
-                const descriptionField = `deficiencies.${index}.description`;
-                return (
-                  <div className="toolbox-repeat-row site-deficiency-card" key={`deficiency-${index}`}>
-                    <div className="toolbox-section-heading site-deficiency-heading">
-                      <h3>Deficiency {index + 1}</h3>
-                      <button type="button" onClick={() => removeDeficiency(index)}>
-                        Remove
-                      </button>
-                    </div>
-                    <div className="toolbox-field-grid">
-                      <label>
-                        <span>Category</span>
-                        <select
-                          value={row.category}
-                          onChange={(event) => updateDeficiency(index, "category", event.target.value)}
-                        >
-                          <option value="">Choose category</option>
-                          {SITE_INSPECTION_CATEGORIES.map((category) => (
-                            <option key={category} value={category}>{category}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span>Location / area</span>
-                        <input
-                          value={row.location}
-                          onChange={(event) => updateDeficiency(index, "location", event.target.value)}
-                        />
-                      </label>
-                      <label>
-                        <span>Priority</span>
-                        <select
-                          value={row.priority}
-                          onChange={(event) => updateDeficiency(index, "priority", event.target.value)}
-                        >
-                          {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
-                            <option key={priority.id} value={priority.id}>{priority.label}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span>Suggested assignee</span>
-                        <input
-                          value={row.suggestedAssignee}
-                          onChange={(event) => updateDeficiency(index, "suggestedAssignee", event.target.value)}
-                        />
-                      </label>
-                    </div>
-                    <label className={isFieldInvalid(descriptionField) ? "toolbox-field-invalid" : ""}>
-                      <span>Deficiency / hazard</span>
-                      <textarea
-                        aria-invalid={isFieldInvalid(descriptionField) ? "true" : undefined}
-                        ref={registerValidationTarget(descriptionField)}
-                        rows="3"
-                        value={row.description}
-                        onChange={(event) => updateDeficiency(index, "description", event.target.value)}
-                      />
-                    </label>
-                    <label>
-                      <span>Immediate control taken</span>
-                      <textarea
-                        rows="3"
-                        value={row.immediateControl}
-                        onChange={(event) => updateDeficiency(index, "immediateControl", event.target.value)}
-                      />
-                    </label>
-                    <label>
-                      <span>Recommended corrective action</span>
-                      <textarea
-                        rows="3"
-                        value={row.recommendedAction}
-                        onChange={(event) => updateDeficiency(index, "recommendedAction", event.target.value)}
-                      />
-                    </label>
-                    <label>
-                      <span>Suggested due date</span>
-                      <input
-                        type="date"
-                        value={row.dueDate}
-                        onChange={(event) => updateDeficiency(index, "dueDate", event.target.value)}
-                      />
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-            <button type="button" onClick={addDeficiency}>Add deficiency</button>
-          </>
-        ) : null}
-      </section>
+      <ActionItemRowsBlock
+        blockInvalid={deficienciesInvalid}
+        blockType="site_deficiencies"
+        invalidFields={missingFieldSet}
+        noItems={form.noDeficiencies}
+        registerValidationTarget={registerValidationTarget}
+        rows={form.deficiencies}
+        settings={blockSettings}
+        targetPrefix="deficiencies"
+        title={siteLayout.blockLabels.site_deficiencies || "Deficiencies"}
+        onAddRow={addDeficiency}
+        onNoItemsChange={setNoDeficiencies}
+        onRemoveRow={removeDeficiency}
+        onUpdateRow={updateDeficiency}
+      />
     );
   };
 
@@ -4817,6 +4744,153 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
         </button>
       </div>
     </form>
+  );
+}
+
+function ActionItemRowsBlock({
+  blockInvalid = false,
+  blockType = "action_item_rows",
+  invalidFields = new Set(),
+  noItems = false,
+  preview = false,
+  registerValidationTarget,
+  rows = [],
+  settings,
+  targetPrefix,
+  title,
+  onAddRow,
+  onNoItemsChange,
+  onRemoveRow,
+  onUpdateRow,
+}) {
+  const currentSettings = settings || normalizeActionItemRowsSettings({}, blockType);
+  const visibleFields = visibleActionItemRowFields(currentSettings);
+  const effectiveRows = rows.length ? rows : [createEmptyActionItemRow()];
+  const listedCount = noItems ? 0 : effectiveRows.length;
+  const targetRef = registerValidationTarget?.(targetPrefix);
+  const blockIsInvalid =
+    blockInvalid ||
+    invalidFields.has(targetPrefix) ||
+    Array.from(invalidFields).some((field) => String(field).startsWith(`${targetPrefix}.`));
+  const sectionClass = blockIsInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section";
+  const statusLabel = noItems ? "None" : `${listedCount} listed`;
+
+  return (
+    <section className={sectionClass} ref={targetRef}>
+      <div className="toolbox-section-heading">
+        <h2>{title || (blockType === "site_deficiencies" ? "Deficiencies" : "Action item rows")}</h2>
+        <span>{preview ? "Special block" : statusLabel}</span>
+      </div>
+      <label className={blockIsInvalid ? "toolbox-confirmation toolbox-field-invalid" : "toolbox-confirmation"}>
+        <input
+          checked={Boolean(noItems)}
+          readOnly={preview}
+          type="checkbox"
+          onChange={(event) => onNoItemsChange?.(event.target.checked)}
+        />
+        <span>{currentSettings.noneLabel}</span>
+      </label>
+      {!noItems ? (
+        <>
+          <div className="toolbox-row-list site-deficiency-list">
+            {effectiveRows.map((row, index) => (
+              <div className="toolbox-repeat-row site-deficiency-card" key={`${targetPrefix || "action-row"}-${index}`}>
+                <div className="toolbox-section-heading site-deficiency-heading">
+                  <h3>{currentSettings.rowLabel} {index + 1}</h3>
+                  <button disabled={preview} type="button" onClick={() => onRemoveRow?.(index)}>
+                    Remove
+                  </button>
+                </div>
+                <div className="action-item-row-field-grid">
+                  {visibleFields.map((field) => (
+                    <ActionItemRowRuntimeField
+                      field={field}
+                      invalid={invalidFields.has(`${targetPrefix}.${index}.description`) && field.key === "description"}
+                      key={field.key}
+                      preview={preview}
+                      row={row}
+                      targetRef={field.key === "description" ? registerValidationTarget?.(`${targetPrefix}.${index}.description`) : null}
+                      onChange={(value) => onUpdateRow?.(index, field.key, value)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <button disabled={preview} type="button" onClick={onAddRow}>{currentSettings.addButtonLabel}</button>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function ActionItemRowRuntimeField({ field, invalid = false, preview = false, row = {}, targetRef, onChange }) {
+  const className = [
+    "action-item-row-field",
+    field.input === "textarea" ? "wide" : "",
+    invalid ? "toolbox-field-invalid" : "",
+  ].filter(Boolean).join(" ");
+  const commonProps = {
+    "aria-invalid": invalid ? "true" : undefined,
+    disabled: preview,
+    readOnly: preview,
+    value: row[field.key] || (field.key === "priority" ? "medium" : ""),
+  };
+
+  if (field.input === "category") {
+    return (
+      <label className={className} ref={targetRef}>
+        <span>{field.label}</span>
+        <select
+          disabled={preview}
+          value={row.category || ""}
+          onChange={(event) => onChange?.(event.target.value)}
+        >
+          <option value="">Choose category</option>
+          {SITE_INSPECTION_CATEGORIES.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+  if (field.input === "priority") {
+    return (
+      <label className={className} ref={targetRef}>
+        <span>{field.label}</span>
+        <select
+          disabled={preview}
+          value={row.priority || "medium"}
+          onChange={(event) => onChange?.(event.target.value)}
+        >
+          {ACTION_ITEM_PRIORITY_OPTIONS.map((priority) => (
+            <option key={priority.id} value={priority.id}>{priority.label}</option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+  if (field.input === "textarea") {
+    return (
+      <label className={className} ref={targetRef}>
+        <span>{field.label}</span>
+        <textarea
+          {...commonProps}
+          rows="3"
+          onChange={(event) => onChange?.(event.target.value)}
+        />
+      </label>
+    );
+  }
+  return (
+    <label className={className} ref={targetRef}>
+      <span>{field.label}</span>
+      <input
+        {...commonProps}
+        type={field.input === "date" ? "date" : "text"}
+        onChange={(event) => onChange?.(event.target.value)}
+      />
+    </label>
   );
 }
 
@@ -4927,6 +5001,7 @@ function TemplateDrivenWorkerForm({
       kind: "template_submission_v1",
       templateVersionId: template?.publishedVersion?.id || "",
       answers: cleanTemplateAnswersForSubmit(schema, answers, worker),
+      actionItemBlocks: cleanActionItemBlocksForSubmit(schema, answers),
     });
   };
 
@@ -7764,6 +7839,37 @@ function TemplateSchemaEditorV3({
   const selectedToolboxTopicSettings = selectedField?.type === "toolbox_topics"
     ? getToolboxTopicSettings(selectedField.settings)
     : null;
+  const selectedActionItemRowsSettings = selectedField && ACTION_ITEM_ROW_BLOCK_TYPES.has(selectedField.type)
+    ? normalizeActionItemRowsSettings(selectedField.settings, selectedField.type)
+    : null;
+  const updateSelectedActionItemRowsSettings = (nextSettings) => {
+    updateSelectedFieldSettings({ actionItemRows: serializeActionItemRowsSettings(nextSettings) });
+  };
+  const updateActionItemRowLabel = (key, label) => {
+    if (!selectedActionItemRowsSettings) return;
+    updateSelectedActionItemRowsSettings({
+      ...selectedActionItemRowsSettings,
+      subfields: selectedActionItemRowsSettings.subfields.map((field) =>
+        field.key === key ? { ...field, label } : field,
+      ),
+    });
+  };
+  const updateActionItemRowVisibility = (key, visible) => {
+    if (!selectedActionItemRowsSettings) return;
+    updateSelectedActionItemRowsSettings({
+      ...selectedActionItemRowsSettings,
+      subfields: selectedActionItemRowsSettings.subfields.map((field) =>
+        field.key === key ? { ...field, visible: field.lockedVisible ? true : visible } : field,
+      ),
+    });
+  };
+  const moveActionItemRowSubfield = (index, direction) => {
+    if (!selectedActionItemRowsSettings) return;
+    updateSelectedActionItemRowsSettings({
+      ...selectedActionItemRowsSettings,
+      subfields: moveArrayItem(selectedActionItemRowsSettings.subfields, index, direction),
+    });
+  };
   return (
     <div className="template-v3-builder">
       <div className="template-v3-mobile-lock">
@@ -8110,6 +8216,83 @@ function TemplateSchemaEditorV3({
                   <p className="template-v3-help-text">
                     This special block reuses polished custom mobile logic when the form supports it.
                   </p>
+                ) : null}
+                {selectedActionItemRowsSettings ? (
+                  <div className="template-action-row-settings">
+                    <label>
+                      <span>None checkbox label</span>
+                      <input
+                        value={selectedActionItemRowsSettings.noneLabel}
+                        onChange={(event) =>
+                          updateSelectedActionItemRowsSettings({
+                            ...selectedActionItemRowsSettings,
+                            noneLabel: event.target.value,
+                          })
+                        }
+                      />
+                    </label>
+                    <div className="template-v3-two-column">
+                      <label>
+                        <span>Row title</span>
+                        <input
+                          value={selectedActionItemRowsSettings.rowLabel}
+                          onChange={(event) =>
+                            updateSelectedActionItemRowsSettings({
+                              ...selectedActionItemRowsSettings,
+                              rowLabel: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                      <label>
+                        <span>Add button</span>
+                        <input
+                          value={selectedActionItemRowsSettings.addButtonLabel}
+                          onChange={(event) =>
+                            updateSelectedActionItemRowsSettings({
+                              ...selectedActionItemRowsSettings,
+                              addButtonLabel: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                    <div className="template-action-row-subfields">
+                      <span>Row fields</span>
+                      {selectedActionItemRowsSettings.subfields.map((subfield, index) => (
+                        <div className="template-action-row-subfield" key={subfield.key}>
+                          <label>
+                            <span>{subfield.key}</span>
+                            <input
+                              value={subfield.label}
+                              onChange={(event) => updateActionItemRowLabel(subfield.key, event.target.value)}
+                            />
+                          </label>
+                          <label className={subfield.lockedVisible ? "settings-checkbox compact disabled" : "settings-checkbox compact"}>
+                            <input
+                              checked={subfield.visible}
+                              disabled={subfield.lockedVisible}
+                              type="checkbox"
+                              onChange={(event) => updateActionItemRowVisibility(subfield.key, event.target.checked)}
+                            />
+                            <span>{subfield.lockedVisible ? "Always visible" : "Show field"}</span>
+                          </label>
+                          <div>
+                            <button disabled={index === 0} type="button" onClick={() => moveActionItemRowSubfield(index, -1)}>
+                              Up
+                            </button>
+                            <button
+                              disabled={index === selectedActionItemRowsSettings.subfields.length - 1}
+                              type="button"
+                              onClick={() => moveActionItemRowSubfield(index, 1)}
+                            >
+                              Down
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ) : null}
                 {selectedToolboxTopicSettings ? (
                   <div className="template-v3-topic-settings">
@@ -8506,35 +8689,20 @@ function SiteInspectionTemplatePreview({ schema, worker }) {
 
   const renderDeficiencyPreview = () => {
     if (!enabled.has("site_deficiencies")) return null;
+    const settings = normalizeActionItemRowsSettings(
+      layout.blockSettings.site_deficiencies,
+      "site_deficiencies",
+    );
     return (
-      <section className="toolbox-section">
-        <div className="toolbox-section-heading">
-          <h2>{layout.blockLabels.site_deficiencies || "Deficiencies"}</h2>
-          <span>Special block</span>
-        </div>
-        <label className="toolbox-confirmation">
-          <input readOnly type="checkbox" />
-          <span>No deficiencies found during this inspection.</span>
-        </label>
-        <div className="toolbox-row-list site-deficiency-list">
-          <div className="toolbox-repeat-row site-deficiency-card">
-            <div className="toolbox-section-heading site-deficiency-heading">
-              <h3>Deficiency 1</h3>
-              <button type="button">Remove</button>
-            </div>
-            <div className="toolbox-field-grid">
-              <label><span>Category</span><select disabled><option>Choose category</option></select></label>
-              <label><span>Location / area</span><input readOnly /></label>
-              <label><span>Priority</span><select disabled><option>Medium</option></select></label>
-              <label><span>Suggested assignee</span><input readOnly /></label>
-            </div>
-            <label><span>Deficiency / hazard</span><textarea readOnly rows="3" /></label>
-            <label><span>Immediate control taken</span><textarea readOnly rows="3" /></label>
-            <label><span>Recommended corrective action</span><textarea readOnly rows="3" /></label>
-            <label><span>Suggested due date</span><input readOnly type="date" /></label>
-          </div>
-        </div>
-      </section>
+      <ActionItemRowsBlock
+        blockType="site_deficiencies"
+        noItems={false}
+        preview
+        rows={[createEmptyActionItemRow()]}
+        settings={settings}
+        targetPrefix="preview.site_deficiencies"
+        title={layout.blockLabels.site_deficiencies || "Deficiencies"}
+      />
     );
   };
 
@@ -8583,7 +8751,9 @@ function TemplateFormFields({
                 answers={answers}
                 field={field}
                 invalid={invalidFields.has(field.id)}
+                invalidFields={invalidFields}
                 key={field.id}
+                registerValidationTarget={registerValidationTarget}
                 targetRef={registerValidationTarget?.(field.id)}
                 value={answers[field.id] ?? templateFieldDefaultValue(field, worker, current)}
                 onChange={(value) => updateAnswer(field.id, value)}
@@ -8596,9 +8766,61 @@ function TemplateFormFields({
   );
 }
 
-function TemplateRuntimeField({ field, invalid, targetRef, value, onChange }) {
+function TemplateRuntimeField({ field, invalid, invalidFields = new Set(), registerValidationTarget, targetRef, value, onChange }) {
   if (field.type === "instructions") {
     return <p className="template-instructions">{field.label}</p>;
+  }
+  if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
+    const block = normalizeActionItemBlockValue(value);
+    const settings = normalizeActionItemRowsSettings(field.settings, field.type);
+    const updateRow = (index, key, nextValue) => {
+      onChange({
+        ...block,
+        noItems: false,
+        rows: block.rows.map((row, rowIndex) =>
+          rowIndex === index ? { ...row, [key]: nextValue } : row,
+        ),
+      });
+    };
+    const addRow = () => {
+      onChange({
+        ...block,
+        noItems: false,
+        rows: [...block.rows, createEmptyActionItemRow()],
+      });
+    };
+    const removeRow = (index) => {
+      const nextRows = block.rows.filter((_, rowIndex) => rowIndex !== index);
+      onChange({
+        ...block,
+        rows: nextRows.length ? nextRows : [createEmptyActionItemRow()],
+      });
+    };
+    const setNoItems = (checked) => {
+      onChange({
+        noItems: checked,
+        rows: checked ? [] : block.rows.length ? block.rows : [createEmptyActionItemRow()],
+      });
+    };
+    return (
+      <div className="template-action-item-runtime">
+        <ActionItemRowsBlock
+          blockInvalid={invalid}
+          blockType={field.type}
+          invalidFields={invalidFields}
+          noItems={block.noItems}
+          registerValidationTarget={registerValidationTarget}
+          rows={block.rows}
+          settings={settings}
+          targetPrefix={field.id}
+          title={field.label}
+          onAddRow={addRow}
+          onNoItemsChange={setNoItems}
+          onRemoveRow={removeRow}
+          onUpdateRow={updateRow}
+        />
+      </div>
+    );
   }
   if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)) {
     return (
@@ -10019,6 +10241,7 @@ function SiteInspectionSubmissionDetails({ data, row }) {
 function TemplateSubmissionDetails({ data, row }) {
   const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
   const answers = data?.answers || {};
+  const actionItemBlocks = data?.actionItemBlocks || {};
   const [saveStatus, setSaveStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -10053,6 +10276,15 @@ function TemplateSubmissionDetails({ data, row }) {
                 </div>
               ))}
           </dl>
+          {section.fields
+            .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+            .map((field) => (
+              <ActionItemRowsSubmissionDetail
+                block={actionItemBlocks[field.id]}
+                field={field}
+                key={field.id}
+              />
+            ))}
         </section>
       ))}
 
@@ -10067,6 +10299,45 @@ function TemplateSubmissionDetails({ data, row }) {
       </div>
     </div>
   );
+}
+
+function ActionItemRowsSubmissionDetail({ block, field }) {
+  const settings = normalizeActionItemRowsSettings(field.settings, field.type);
+  const value = normalizeActionItemBlockValue(block);
+  const rows = value.noItems ? [] : (Array.isArray(block?.rows) ? block.rows : []);
+  const visibleFields = visibleActionItemRowFields(settings);
+  if (value.noItems) {
+    return <p className="toolbox-detail-text">{settings.noneLabel}</p>;
+  }
+  if (!rows.length) {
+    return <p className="empty-state">No action items recorded.</p>;
+  }
+  return (
+    <div className="site-deficiency-detail-list">
+      {rows.map((row, index) => (
+        <article key={`${field.id}-action-row-${index}`}>
+          <div className="toolbox-section-heading">
+            <h4>{row.description || `${settings.rowLabel} ${index + 1}`}</h4>
+            <StatusPill value={priorityLabel(row.priority || "medium")} />
+          </div>
+          <dl className="staff-detail-list">
+            {visibleFields.map((subfield) => (
+              <div key={subfield.key}>
+                <dt>{subfield.label}</dt>
+                <dd>{formatActionItemRowFieldDisplay(subfield.key, row[subfield.key])}</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function formatActionItemRowFieldDisplay(key, value) {
+  if (key === "priority") return priorityLabel(value || "medium");
+  if (key === "dueDate") return value ? formatDateString(value) : "-";
+  return value || "-";
 }
 
 function FileChoice({ accept, capture, label, onFile }) {
@@ -11754,6 +12025,96 @@ function getSiteInspectionObservationFieldKey(field) {
   return labelKey || "";
 }
 
+function createEmptyActionItemRow() {
+  return { ...EMPTY_SITE_DEFICIENCY };
+}
+
+function createEmptyActionItemBlock() {
+  return { noItems: false, rows: [createEmptyActionItemRow()] };
+}
+
+function normalizeActionItemBlockValue(value) {
+  const source = value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : createEmptyActionItemBlock();
+  const rows = Array.isArray(source.rows)
+    ? source.rows.map((row) => ({ ...EMPTY_SITE_DEFICIENCY, ...(row || {}) }))
+    : [];
+  return {
+    noItems: Boolean(source.noItems || source.noActionItems || source.noDeficiencies),
+    rows: rows.length ? rows : [createEmptyActionItemRow()],
+  };
+}
+
+function actionItemRowsDefaults(blockType = "action_item_rows") {
+  const siteMode = blockType === "site_deficiencies";
+  return {
+    noneLabel: siteMode ? "No deficiencies found during this inspection." : "No action items needed.",
+    rowLabel: siteMode ? "Deficiency" : "Action item",
+    addButtonLabel: siteMode ? "Add deficiency" : "Add action item",
+  };
+}
+
+function defaultActionItemRowFieldLabel(config, blockType = "action_item_rows") {
+  return blockType === "site_deficiencies" ? config.siteLabel : config.genericLabel;
+}
+
+function normalizeActionItemRowsSettings(settings = {}, blockType = "action_item_rows") {
+  const source = getTemplateSettingValue(settings, "actionItemRows");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const defaults = actionItemRowsDefaults(blockType);
+  const rawFields = Array.isArray(raw.subfields) ? raw.subfields : Array.isArray(raw.fields) ? raw.fields : [];
+  const rawFieldMap = new Map();
+  rawFields.forEach((field, index) => {
+    const key = String(field?.key || "").trim();
+    if (!key || rawFieldMap.has(key)) return;
+    rawFieldMap.set(key, { ...field, order: Number.isFinite(Number(field?.order)) ? Number(field.order) : index });
+  });
+  const subfields = ACTION_ITEM_ROW_FIELD_CONFIGS.map((config, index) => {
+    const override = rawFieldMap.get(config.key) || {};
+    const label = String(override.label || "").trim() || defaultActionItemRowFieldLabel(config, blockType);
+    return {
+      key: config.key,
+      label,
+      input: config.input,
+      visible: config.lockedVisible ? true : override.visible !== false,
+      lockedVisible: Boolean(config.lockedVisible),
+      order: Number.isFinite(Number(override.order)) ? Number(override.order) : index,
+    };
+  }).sort((a, b) => a.order - b.order);
+  return {
+    noneLabel: String(raw.noneLabel || "").trim() || defaults.noneLabel,
+    rowLabel: String(raw.rowLabel || "").trim() || defaults.rowLabel,
+    addButtonLabel: String(raw.addButtonLabel || "").trim() || defaults.addButtonLabel,
+    subfields: subfields.map((field, index) => ({ ...field, order: index })),
+  };
+}
+
+function serializeActionItemRowsSettings(settings) {
+  return {
+    noneLabel: String(settings?.noneLabel || "").trim(),
+    rowLabel: String(settings?.rowLabel || "").trim(),
+    addButtonLabel: String(settings?.addButtonLabel || "").trim(),
+    subfields: (settings?.subfields || []).map((field, index) => ({
+      key: field.key,
+      label: String(field.label || "").trim(),
+      visible: field.lockedVisible ? true : field.visible !== false,
+      order: index,
+    })),
+  };
+}
+
+function visibleActionItemRowFields(settings) {
+  return (settings?.subfields || []).filter((field) => field.visible || field.lockedVisible);
+}
+
+function actionItemRowHasMeaningfulValue(row) {
+  return Object.entries(row || {}).some(([key, value]) => {
+    if (key === "priority" && value === "medium") return false;
+    return hasTextValue(value);
+  });
+}
+
 function createDefaultSiteInspectionLayout() {
   const observationSections = SITE_INSPECTION_OBSERVATION_FIELD_CONFIGS.map((field) => ({
     id: field.id,
@@ -11947,15 +12308,16 @@ function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSite
   const enabled = new Set(
     Array.isArray(layout.enabledBlocks) ? layout.enabledBlocks : createDefaultSiteInspectionLayout().enabledBlocks,
   );
+  const deficiencySettings = normalizeActionItemRowsSettings(
+    layout.blockSettings?.site_deficiencies,
+    "site_deficiencies",
+  );
   const header = form?.header || {};
   const observations = form?.observations || {};
   const deficiencies = Array.isArray(form?.deficiencies) ? form.deficiencies : [];
-  const meaningfulDeficiencies = deficiencies.filter((row) =>
-    Object.values(row || {}).some((value) => {
-      if (value === "medium") return false;
-      return hasTextValue(value);
-    }),
-  );
+  const meaningfulDeficiencies = deficiencies
+    .map((row) => cleanActionItemRowForSubmit(row, deficiencySettings))
+    .filter(actionItemRowHasMeaningfulValue);
   const missing = [];
 
   (layout.headerFields || []).forEach((field) => {
@@ -11978,10 +12340,7 @@ function getSiteInspectionMissingFields(form, layoutOrBlocks = createDefaultSite
 
   if (enabled.has("site_deficiencies") && !form?.noDeficiencies) {
     deficiencies.forEach((row, index) => {
-      const hasRowValue = Object.values(row || {}).some((value) => {
-        if (value === "medium") return false;
-        return hasTextValue(value);
-      });
+      const hasRowValue = actionItemRowHasMeaningfulValue(cleanActionItemRowForSubmit(row, deficiencySettings));
       if (hasRowValue && !String(row?.description || "").trim()) {
         missing.push(`deficiencies.${index}.description`);
       }
@@ -12011,7 +12370,11 @@ function siteInspectionValidationMessage(field, layout = createDefaultSiteInspec
   return "Complete the required fields.";
 }
 
-function cleanSiteInspectionClientForm(form) {
+function cleanSiteInspectionClientForm(form, layout = createDefaultSiteInspectionLayout()) {
+  const deficiencySettings = normalizeActionItemRowsSettings(
+    layout.blockSettings?.site_deficiencies,
+    "site_deficiencies",
+  );
   return {
     kind: "site_inspection_v1",
     version: 1,
@@ -12021,16 +12384,8 @@ function cleanSiteInspectionClientForm(form) {
     deficiencies: form.noDeficiencies
       ? []
       : form.deficiencies
-          .map(cleanObjectStrings)
-          .filter((row) =>
-            row.category ||
-            row.location ||
-            row.description ||
-            row.immediateControl ||
-            row.recommendedAction ||
-            row.suggestedAssignee ||
-            row.dueDate,
-          ),
+          .map((row) => cleanActionItemRowForSubmit(row, deficiencySettings))
+          .filter(actionItemRowHasMeaningfulValue),
   };
 }
 
@@ -12530,6 +12885,7 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     toolbox_attendance: "Attendance",
     toolbox_final_confirmation: "Final Confirmation",
     site_deficiencies: "Deficiencies",
+    action_item_rows: "Action item rows",
   };
   return normalizeTemplateField({
     id: `field_${Date.now()}_${index}`,
@@ -12643,6 +12999,7 @@ function templateFieldBuilderHint(type) {
     toolbox_attendance: "Typed attendee chips",
     toolbox_final_confirmation: "Presenter confirmation",
     site_deficiencies: "Site inspection deficiency rows",
+    action_item_rows: "Creates draft Action Items",
   };
   return hints[type] || "Question block";
 }
@@ -12667,6 +13024,7 @@ function templateFieldBuilderIcon(type) {
     toolbox_attendance: "A",
     toolbox_final_confirmation: "OK",
     site_deficiencies: "SI",
+    action_item_rows: "AI",
   };
   return icons[type] || "+";
 }
@@ -12719,15 +13077,51 @@ function isTemplateNonAnswerField(field) {
 }
 
 function getTemplateMissingFields(schema, answers, worker) {
-  return collectClientTemplateFields(schema)
+  const fields = collectClientTemplateFields(schema);
+  const missing = fields
     .filter((field) => !isTemplateNonAnswerField(field) && field.required)
     .filter((field) => isTemplateAnswerEmpty(field, answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)))
     .map((field) => field.id);
+  fields
+    .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+    .forEach((field) => {
+      missing.push(...getActionItemBlockMissingFields(field, answers[field.id]));
+    });
+  return missing;
 }
 
 function templateValidationMessage(schema, fieldId) {
   const field = collectClientTemplateFields(schema).find((item) => item.id === fieldId);
+  if (!field && String(fieldId || "").includes(".description")) {
+    const blockId = String(fieldId).split(".")[0];
+    const block = collectClientTemplateFields(schema).find((item) => item.id === blockId);
+    if (block && ACTION_ITEM_ROW_BLOCK_TYPES.has(block.type)) {
+      const settings = normalizeActionItemRowsSettings(block.settings, block.type);
+      const description = settings.subfields.find((item) => item.key === "description");
+      return `${description?.label || "Action item / issue"} is required.`;
+    }
+  }
+  if (field && ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
+    return `${field.label}: add a row or mark none needed.`;
+  }
   return field ? `${field.label} is required.` : "Complete the required field.";
+}
+
+function getActionItemBlockMissingFields(field, value) {
+  const block = normalizeActionItemBlockValue(value);
+  if (block.noItems) return [];
+  const missing = [];
+  const meaningfulRows = block.rows.filter(actionItemRowHasMeaningfulValue);
+  if (!meaningfulRows.length) {
+    missing.push(field.id);
+    return missing;
+  }
+  block.rows.forEach((row, index) => {
+    if (actionItemRowHasMeaningfulValue(row) && !String(row?.description || "").trim()) {
+      missing.push(`${field.id}.${index}.description`);
+    }
+  });
+  return missing;
 }
 
 function cleanTemplateAnswersForSubmit(schema, answers, worker) {
@@ -12740,6 +13134,39 @@ function cleanTemplateAnswersForSubmit(schema, answers, worker) {
     );
   });
   return cleaned;
+}
+
+function cleanActionItemBlocksForSubmit(schema, answers) {
+  const blocks = {};
+  collectClientTemplateFields(schema)
+    .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+    .forEach((field) => {
+      const settings = normalizeActionItemRowsSettings(field.settings, field.type);
+      const block = normalizeActionItemBlockValue(answers[field.id]);
+      blocks[field.id] = {
+        noItems: block.noItems,
+        rows: block.noItems
+          ? []
+          : block.rows
+              .map((row) => cleanActionItemRowForSubmit(row, settings))
+              .filter(actionItemRowHasMeaningfulValue),
+      };
+    });
+  return blocks;
+}
+
+function cleanActionItemRowForSubmit(row, settings) {
+  const visible = new Set(visibleActionItemRowFields(settings).map((field) => field.key));
+  return ACTION_ITEM_ROW_FIELD_CONFIGS.reduce((cleaned, config) => {
+    if (!visible.has(config.key) && !config.lockedVisible) {
+      cleaned[config.key] = config.key === "priority" ? "medium" : "";
+      return cleaned;
+    }
+    const value = row?.[config.key];
+    cleaned[config.key] = typeof value === "string" ? value.trim() : value || "";
+    if (config.key === "priority" && !cleaned[config.key]) cleaned[config.key] = "medium";
+    return cleaned;
+  }, {});
 }
 
 function cleanTemplateAnswerForSubmit(field, value) {
@@ -12757,7 +13184,12 @@ function isTemplateAnswerEmpty(field, value) {
 }
 
 function isTemplateDraftMeaningful(schema, answers, worker) {
-  return collectClientTemplateFields(schema).filter((field) => !isTemplateNonAnswerField(field)).some((field) => {
+  return collectClientTemplateFields(schema).some((field) => {
+    if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
+      const block = normalizeActionItemBlockValue(answers[field.id]);
+      return block.noItems || block.rows.some(actionItemRowHasMeaningfulValue);
+    }
+    if (isTemplateNonAnswerField(field)) return false;
     const value = answers[field.id];
     const defaultValue = templateFieldDefaultValue(field, worker, schema);
     if (value === undefined || value === defaultValue) return false;
@@ -13161,11 +13593,16 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
       const value = Array.isArray(display) ? display.join(", ") : display;
       return definitionHtml(field.label, value);
     }).join("");
+    const actionItemRowsHtml = (section.fields || [])
+      .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+      .map((field) => actionItemRowsDefinitionHtml(field, data?.actionItemBlocks?.[field.id]))
+      .join("");
     return `
       <section>
         <h2>${escapeHtml(section.title)}</h2>
         ${section.description ? `<p>${escapeHtml(section.description)}</p>` : ""}
-        <dl>${rows || definitionHtml("Details", "-")}</dl>
+        ${rows ? `<dl>${rows}</dl>` : ""}
+        ${actionItemRowsHtml || (!rows ? `<dl>${definitionHtml("Details", "-")}</dl>` : "")}
       </section>`;
   }).join("");
 
@@ -13186,6 +13623,8 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
       h2 { margin: 0 0 10px; font-size: 1.15rem; }
       p { margin: 0; white-space: pre-wrap; }
       section { break-inside: avoid; display: grid; gap: 10px; border: 1px solid #d9e3de; border-radius: 8px; padding: 14px; margin: 0 0 14px; }
+      .action-row { display: grid; gap: 8px; border: 1px solid #d9e3de; border-radius: 6px; padding: 10px; }
+      .action-row h3 { margin: 0; font-size: 1rem; }
       dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
       dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
       dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; white-space: pre-wrap; }
@@ -13226,6 +13665,8 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
           break-inside: avoid;
           page-break-inside: avoid;
         }
+        .action-row { gap: 2pt; border-radius: 3pt; padding: 3pt; }
+        .action-row h3 { font-size: 7pt; line-height: 1.1; }
         dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3pt 5pt; }
         dt { font-size: 5.3pt; line-height: 1.05; }
         dd { margin-top: 1pt; font-size: 6.6pt; line-height: 1.12; }
@@ -13653,6 +14094,24 @@ function buildDigitalSiteInspectionHtml(row, data, options = {}) {
 function definitionHtml(label, value) {
   const displayValue = value === null || value === undefined || value === "" ? "-" : String(value);
   return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(displayValue)}</dd></div>`;
+}
+
+function actionItemRowsDefinitionHtml(field, block) {
+  const settings = normalizeActionItemRowsSettings(field.settings, field.type);
+  const value = normalizeActionItemBlockValue(block);
+  if (value.noItems) return `<p>${escapeHtml(settings.noneLabel)}</p>`;
+  const rows = Array.isArray(block?.rows) ? block.rows : [];
+  if (!rows.length) return `<p>No action items recorded.</p>`;
+  const visibleFields = visibleActionItemRowFields(settings);
+  return rows.map((row, index) => `
+    <div class="action-row">
+      <h3>${escapeHtml(row.description || `${settings.rowLabel} ${index + 1}`)}</h3>
+      <dl>
+        ${visibleFields.map((subfield) =>
+          definitionHtml(subfield.label, formatActionItemRowFieldDisplay(subfield.key, row[subfield.key])),
+        ).join("")}
+      </dl>
+    </div>`).join("");
 }
 
 function signatureDefinitionHtml(label, value) {

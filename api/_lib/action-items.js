@@ -152,7 +152,7 @@ export async function getActionItemsForSubmission(submissionId) {
 }
 
 export async function createDraftActionItemsFromSiteInspection(submission, formData) {
-  if (submission?.form_type !== "site_inspection" || formData?.kind !== "site_inspection_v1") {
+  if (formData?.kind !== "site_inspection_v1") {
     return [];
   }
 
@@ -216,6 +216,119 @@ export async function createDraftActionItemsFromSiteInspection(submission, formD
     if (isSupabaseMissingRelationError(error)) return [];
     throw error;
   }
+}
+
+export async function createDraftActionItemsFromTemplateActionRows(submission, formData) {
+  if (formData?.kind !== "template_submission_v1") return [];
+  const schema = formData.schemaSnapshot && typeof formData.schemaSnapshot === "object" ? formData.schemaSnapshot : {};
+  const answers = formData.answers && typeof formData.answers === "object" ? formData.answers : {};
+  const blocks = formData.actionItemBlocks && typeof formData.actionItemBlocks === "object" && !Array.isArray(formData.actionItemBlocks)
+    ? formData.actionItemBlocks
+    : {};
+  const blockFields = collectTemplateActionItemFields(schema);
+  if (!blockFields.length) return [];
+
+  const project = findTemplateAnswerByAlias(schema, answers, ["project", "project_name", "job", "job_name", "site"]);
+  const area = findTemplateAnswerByAlias(schema, answers, ["area", "work_area", "area_inspected", "site_area"]);
+  const rows = [];
+  let flatIndex = 0;
+  blockFields.forEach((field) => {
+    const block = blocks[field.id];
+    const actionRows = Array.isArray(block?.rows) && !block?.noItems ? block.rows : [];
+    actionRows.forEach((actionRow, rowIndex) => {
+      const description = cleanText(actionRow.description, MAX_ACTION_LONG_TEXT_LENGTH);
+      if (!description) return;
+      const category = cleanText(actionRow.category, MAX_ACTION_TEXT_LENGTH);
+      rows.push({
+        source_submission_id: submission.id,
+        source_form_type: submission.form_type,
+        source_deficiency_index: flatIndex,
+        worker_id: submission.worker_id || null,
+        worker_name: submission.worker_name || "",
+        worker_phone: submission.worker_phone || "",
+        worker_username: submission.worker_username || "",
+        company: submission.company || "",
+        project,
+        area,
+        location: cleanText(actionRow.location || area, MAX_ACTION_TEXT_LENGTH),
+        category,
+        title: cleanText(actionRow.title || description || category || `${field.label || "Action item"} ${rowIndex + 1}`, 160),
+        description,
+        priority: cleanPriority(actionRow.priority || "medium"),
+        status: "draft",
+        immediate_control: cleanText(actionRow.immediateControl, MAX_ACTION_LONG_TEXT_LENGTH),
+        recommended_action: cleanText(actionRow.recommendedAction, MAX_ACTION_LONG_TEXT_LENGTH),
+        suggested_assignee: cleanText(actionRow.suggestedAssignee, MAX_ACTION_TEXT_LENGTH),
+        due_date: cleanOptionalDate(actionRow.dueDate),
+        metadata: {
+          deficiency: actionRow,
+          actionItemBlock: {
+            fieldId: field.id,
+            label: field.label || "Action item rows",
+            rowIndex,
+          },
+          templateTitle: formData.templateTitle || schema.title || "",
+        },
+      });
+      flatIndex += 1;
+    });
+  });
+  if (!rows.length) return [];
+
+  try {
+    const inserted = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("action_items")
+        .insert(rows)
+        .select(ACTION_ITEM_SELECT),
+      "Draft action items could not be created.",
+    );
+    await Promise.all(
+      inserted.map((row) =>
+        recordActionItemEvent({
+          actionItemId: row.id,
+          eventType: "draft_created",
+          toStatus: "draft",
+          body: "Draft action item created from form action item row.",
+          metadata: { sourceSubmissionId: submission.id },
+        }),
+      ),
+    );
+    return inserted.map(publicActionItem);
+  } catch (error) {
+    if (isSupabaseMissingRelationError(error)) return [];
+    throw error;
+  }
+}
+
+function collectTemplateActionItemFields(schema) {
+  return (Array.isArray(schema?.sections) ? schema.sections : [])
+    .flatMap((section) => Array.isArray(section?.fields) ? section.fields : [])
+    .filter((field) => field?.type === "action_item_rows");
+}
+
+function findTemplateAnswerByAlias(schema, answers, aliases) {
+  const wanted = new Set(aliases);
+  const fields = (Array.isArray(schema?.sections) ? schema.sections : [])
+    .flatMap((section) => Array.isArray(section?.fields) ? section.fields : [])
+    .filter((field) => field?.id && !["instructions", "action_item_rows"].includes(field.type));
+  const match = fields.find((field) => {
+    const id = slugifyActionItemKey(field.id);
+    const label = slugifyActionItemKey(field.label);
+    return wanted.has(id) || wanted.has(label);
+  });
+  if (!match) return "";
+  const value = answers?.[match.id];
+  if (Array.isArray(value)) return cleanText(value.join(", "), MAX_ACTION_TEXT_LENGTH);
+  return cleanText(value, MAX_ACTION_TEXT_LENGTH);
+}
+
+function slugifyActionItemKey(value) {
+  return cleanText(value, 160)
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 export async function createActionItem(body, staff) {

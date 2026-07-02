@@ -29,6 +29,7 @@ export const TEMPLATE_FIELD_TYPES = [
   "toolbox_attendance",
   "toolbox_final_confirmation",
   "site_deficiencies",
+  "action_item_rows",
 ];
 
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
@@ -39,6 +40,7 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_attendance",
   "toolbox_final_confirmation",
   "site_deficiencies",
+  "action_item_rows",
 ]);
 
 const TEMPLATE_SELECT =
@@ -54,6 +56,17 @@ const MAX_SIGNATURE_DATA_URL = 750000;
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const MAX_SETTINGS_KEYS = 80;
 const MAX_SETTINGS_DEPTH = 5;
+const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["action_item_rows"]);
+const ACTION_ITEM_ROW_FIELD_CONFIGS = [
+  { key: "category", defaultValue: "" },
+  { key: "location", defaultValue: "" },
+  { key: "priority", defaultValue: "medium" },
+  { key: "suggestedAssignee", defaultValue: "" },
+  { key: "description", defaultValue: "", lockedVisible: true },
+  { key: "immediateControl", defaultValue: "" },
+  { key: "recommendedAction", defaultValue: "" },
+  { key: "dueDate", defaultValue: "" },
+];
 
 export async function listFormTemplates() {
   await ensureSeedTemplates();
@@ -461,6 +474,7 @@ export async function validateTemplateSubmissionFormData({ formType, rawFormData
     ? rawFormData.answers
     : rawFormData;
   const answers = cleanTemplateAnswers(schema, rawAnswers || {}, worker);
+  const actionItemBlocks = cleanTemplateActionItemBlocks(schema, rawFormData || {});
   return {
     formData: {
       kind: "template_submission_v1",
@@ -471,6 +485,7 @@ export async function validateTemplateSubmissionFormData({ formType, rawFormData
       templateTitle: schema.title || template.label,
       schemaSnapshot: schema,
       answers,
+      actionItemBlocks,
     },
     formTemplateVersionId: version.id,
     formSchemaSnapshot: schema,
@@ -489,6 +504,13 @@ export function buildTemplateSubmissionNotes(formType, formData) {
     const value = formatAnswerForNotes(field, answers[field.id]);
     if (value) parts.push(`${field.label}: ${value}`);
   });
+  const actionItemCount = Object.values(formData?.actionItemBlocks || {}).reduce(
+    (count, block) => count + (Array.isArray(block?.rows) ? block.rows.length : 0),
+    0,
+  );
+  if (actionItemCount) {
+    parts.push(`${actionItemCount} action item${actionItemCount === 1 ? "" : "s"}`);
+  }
   return parts.join(" / ").slice(0, MAX_LONG_TEXT);
 }
 
@@ -589,6 +611,97 @@ function cleanSettingsValue(value, depth = 0) {
     return cleanSettingsObject(value, depth + 1);
   }
   return "";
+}
+
+function getSettingValue(settings, key) {
+  if (!settings || typeof settings !== "object" || Array.isArray(settings)) return undefined;
+  if (Object.prototype.hasOwnProperty.call(settings, key)) return settings[key];
+  const target = String(key || "").toLowerCase();
+  const match = Object.keys(settings).find((item) => item.toLowerCase() === target);
+  return match ? settings[match] : undefined;
+}
+
+function cleanTemplateActionItemBlocks(schema, rawFormData) {
+  const source = rawFormData && typeof rawFormData === "object" && !Array.isArray(rawFormData)
+    ? rawFormData
+    : {};
+  const rawBlocks = source.actionItemBlocks && typeof source.actionItemBlocks === "object" && !Array.isArray(source.actionItemBlocks)
+    ? source.actionItemBlocks
+    : source.action_item_blocks && typeof source.action_item_blocks === "object" && !Array.isArray(source.action_item_blocks)
+      ? source.action_item_blocks
+      : {};
+  const blocks = {};
+  collectTemplateFields(schema)
+    .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
+    .forEach((field) => {
+      blocks[field.id] = cleanTemplateActionItemBlock(field, rawBlocks[field.id]);
+    });
+  return blocks;
+}
+
+function cleanTemplateActionItemBlock(field, rawBlock) {
+  const source = rawBlock && typeof rawBlock === "object" && !Array.isArray(rawBlock) ? rawBlock : {};
+  const noItems = Boolean(source.noItems || source.noActionItems || source.no_deficiencies);
+  if (noItems) return { noItems: true, rows: [] };
+  const settings = normalizeActionItemRowsSettings(field.settings);
+  const rows = (Array.isArray(source.rows) ? source.rows : [])
+    .map((row) => cleanTemplateActionItemRow(row, settings))
+    .filter(actionItemRowHasMeaningfulValue)
+    .slice(0, 50);
+  if (!rows.length) {
+    throwBadRequest(`${field.label}: add a row or mark none needed.`);
+  }
+  rows.forEach((row, index) => {
+    if (!row.description) throwBadRequest(`${field.label} row ${index + 1} needs a description.`);
+  });
+  return { noItems: false, rows };
+}
+
+function normalizeActionItemRowsSettings(settings = {}) {
+  const source = getSettingValue(settings, "actionItemRows");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const rawFields = Array.isArray(raw.subfields) ? raw.subfields : Array.isArray(raw.fields) ? raw.fields : [];
+  const rawFieldMap = new Map();
+  rawFields.forEach((field) => {
+    const key = cleanString(field?.key, 80);
+    if (key && !rawFieldMap.has(key)) rawFieldMap.set(key, field);
+  });
+  return ACTION_ITEM_ROW_FIELD_CONFIGS.map((config) => {
+    const override = rawFieldMap.get(config.key) || {};
+    return {
+      ...config,
+      visible: config.lockedVisible ? true : override.visible !== false,
+    };
+  });
+}
+
+function cleanTemplateActionItemRow(row, settings) {
+  const source = row && typeof row === "object" && !Array.isArray(row) ? row : {};
+  const visible = new Set(settings.filter((field) => field.visible || field.lockedVisible).map((field) => field.key));
+  return ACTION_ITEM_ROW_FIELD_CONFIGS.reduce((cleaned, config) => {
+    if (!visible.has(config.key) && !config.lockedVisible) {
+      cleaned[config.key] = config.defaultValue;
+      return cleaned;
+    }
+    if (config.key === "dueDate") {
+      const value = cleanString(source[config.key], 20);
+      if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throwBadRequest("Suggested due date must be a valid date.");
+      cleaned[config.key] = value;
+      return cleaned;
+    }
+    cleaned[config.key] = cleanString(source[config.key] ?? config.defaultValue, config.key === "description" || config.key === "immediateControl" || config.key === "recommendedAction" ? MAX_LONG_TEXT : MAX_TEXT);
+    if (config.key === "priority" && !["low", "medium", "high", "critical"].includes(cleaned[config.key])) {
+      cleaned[config.key] = "medium";
+    }
+    return cleaned;
+  }, {});
+}
+
+function actionItemRowHasMeaningfulValue(row) {
+  return Object.entries(row || {}).some(([key, value]) => {
+    if (key === "priority" && value === "medium") return false;
+    return Boolean(cleanString(value, MAX_TEXT));
+  });
 }
 
 function cleanTemplateAnswers(schema, value, worker) {
