@@ -3769,19 +3769,8 @@ p {
   align-content: start;
 }
 
-.template-v3-sidebar.has-active-block {
-  position: relative;
-  z-index: 3;
-}
-
 .template-v3-sidebar.has-active-block .template-v3-selected-block-card {
-  order: -1;
-  position: sticky;
-  top: 14px;
-  z-index: 4;
-  max-height: calc(100vh - 28px);
-  overflow: auto;
-  box-shadow: 0 10px 24px rgba(20, 31, 28, 0.08);
+  overflow: visible;
 }
 
 .template-v3-toolbar,
