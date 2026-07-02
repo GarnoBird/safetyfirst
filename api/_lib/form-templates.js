@@ -252,6 +252,38 @@ export async function duplicateFormTemplate(formType, staff) {
   return attachTemplateVersions(template, [draft]);
 }
 
+export async function deleteArchivedFormTemplates(staff) {
+  await ensureSeedTemplates();
+  const archivedTemplates = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .select(TEMPLATE_SELECT)
+      .not("archived_at", "is", null)
+      .order("label", { ascending: true }),
+    "Archived form templates could not be loaded.",
+  );
+  if (!archivedTemplates.length) {
+    return { deleted: 0, rows: [] };
+  }
+
+  const ids = archivedTemplates.map((template) => template.id);
+  throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .delete()
+      .in("id", ids),
+    "Archived form templates could not be deleted.",
+  );
+
+  return {
+    deleted: archivedTemplates.length,
+    rows: archivedTemplates.map((template) => ({
+      form_type: template.form_type,
+      label: template.label,
+    })),
+  };
+}
+
 export async function updateFormTemplate(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
   const bodyKeys = Object.keys(body || {});

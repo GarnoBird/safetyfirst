@@ -6515,6 +6515,39 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     }
   };
 
+  const deleteArchivedTemplates = async () => {
+    if (!canManageTemplates || !archivedTemplates.length) return;
+    const count = archivedTemplates.length;
+    if (!window.confirm(`Delete ${count} archived form template${count === 1 ? "" : "s"}? This cannot be undone.`)) {
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/form-templates/archived", {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      const deletedTypes = new Set((payload.rows || []).map((row) => row.form_type));
+      const nextRows = rows.filter((row) => !deletedTypes.has(row.form_type));
+      setRows(nextRows);
+      setArchivedOpen(false);
+      if (deletedTypes.has(selectedTemplate?.form_type)) {
+        const nextTemplate = nextRows.find((row) => !row.archived_at) || nextRows[0] || null;
+        setSelectedFormType(nextTemplate?.form_type || "");
+        setFocusedTemplateType("");
+        setDraftSchema(cloneTemplateSchema(nextTemplate?.draftVersion?.schema || nextTemplate?.publishedVersion?.schema));
+      }
+      setMessage(`Deleted ${payload.deleted || 0} archived form template${payload.deleted === 1 ? "" : "s"}.`);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const updateTemplateMeta = async (patch) => {
     if (!canManageTemplates) return;
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
@@ -6903,6 +6936,16 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 <span>Archived</span>
                 <strong>{archivedTemplates.length}</strong>
               </button>
+              {canManageTemplates ? (
+                <button
+                  className="danger-button"
+                  disabled={saving}
+                  type="button"
+                  onClick={deleteArchivedTemplates}
+                >
+                  {saving ? "Deleting..." : "Delete archived"}
+                </button>
+              ) : null}
               {archivedOpen ? (
                 <div className="template-archive-items">
                   {archivedTemplates.map((template) => (

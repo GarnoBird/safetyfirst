@@ -40,6 +40,7 @@ import {
 } from "./_lib/form-submissions.js";
 import {
   createFormTemplate,
+  deleteArchivedFormTemplates,
   duplicateFormTemplate,
   getFormTemplate,
   getPublishedWorkerFormTemplate,
@@ -892,6 +893,21 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
       metadata: { formType: template.form_type, label: template.label },
     });
     return sendJson(res, 201, { template });
+  }
+  if (parts.length === 1 && parts[0] === "archived" && req.method === "DELETE") {
+    const result = await deleteArchivedFormTemplates(staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_templates_archived_deleted",
+      targetType: "form_template",
+      summary: `${staff.username} deleted ${result.deleted} archived form template${result.deleted === 1 ? "" : "s"}.`,
+      metadata: {
+        deleted: result.deleted,
+        templates: result.rows,
+      },
+    });
+    return sendJson(res, 200, result);
   }
   if (parts.length === 1 && req.method === "GET") {
     return sendJson(res, 200, { template: await getFormTemplate(parts[0]) });
