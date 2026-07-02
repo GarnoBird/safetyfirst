@@ -3769,8 +3769,17 @@ p {
   align-content: start;
 }
 
+.template-v3-selected-block-card {
+  position: sticky;
+  top: 14px;
+  z-index: 2;
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .template-v3-sidebar.has-active-block .template-v3-selected-block-card {
-  overflow: visible;
+  overflow-y: auto;
 }
 
 .template-v3-toolbar,
