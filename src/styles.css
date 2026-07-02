@@ -3795,6 +3795,12 @@ p {
   justify-content: flex-end;
 }
 
+.template-v3-protected-note {
+  align-self: center;
+  color: #536965;
+  font-weight: 900;
+}
+
 .template-v3-tabs,
 .template-v3-modal-tabs {
   display: inline-grid;

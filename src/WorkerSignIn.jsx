@@ -7048,132 +7048,39 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 </div>
               </div>
 
-              {!selectedCanEdit ? (
-                <StaffTemplateReadOnlyView
-                  canDuplicate={canManageTemplates && selectedTemplate.renderer_type === "template"}
-                  lockedDefault={selectedIsLockedDefault}
-                  onDuplicate={() => duplicateTemplate(selectedTemplate)}
-                  previewAnswers={previewAnswers}
-                  previewWorker={staffToPreviewWorker(staff)}
-                  schema={selectedTemplate.publishedVersion?.schema || selectedTemplate.draftVersion?.schema}
-                  selectedTemplate={selectedTemplate}
-                  onPreviewAnswersChange={setPreviewAnswers}
-                />
-              ) : (
-                <TemplateSchemaEditorV3
-                  active={Boolean(selectedTemplate.active)}
-                  archived={Boolean(selectedTemplate.archived_at)}
-                  hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
-                  onArchiveToggle={(archived) =>
-                    updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
-                  }
-                  onChange={setDraftSchema}
-                  onDuplicate={() => duplicateTemplate(selectedTemplate)}
-                  onPreviewAnswersChange={setPreviewAnswers}
-                  onPublish={publishDraft}
-                  onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
-                  onSave={saveDraft}
-                  onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
-                  onToggleWorkerVisible={() =>
-                    updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
-                  }
-                  previewAnswers={previewAnswers}
-                  previewWorker={staffToPreviewWorker(staff)}
-                  publishing={publishing}
-                  saving={saving}
-                  schema={draftSchema}
-                  selectedTemplate={selectedTemplate}
-                  workerVisible={Boolean(selectedTemplate.worker_visible)}
-                />
-              )}
+              <TemplateSchemaEditorV3
+                active={Boolean(selectedTemplate.active)}
+                archived={Boolean(selectedTemplate.archived_at)}
+                canDuplicate={canManageTemplates && selectedTemplate.renderer_type === "template"}
+                hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
+                lockedDefault={selectedIsLockedDefault}
+                onArchiveToggle={(archived) =>
+                  updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
+                }
+                onChange={selectedCanEdit ? setDraftSchema : () => {}}
+                onDuplicate={() => duplicateTemplate(selectedTemplate)}
+                onPreviewAnswersChange={setPreviewAnswers}
+                onPublish={publishDraft}
+                onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
+                onSave={saveDraft}
+                onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
+                onToggleWorkerVisible={() =>
+                  updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
+                }
+                previewAnswers={previewAnswers}
+                previewWorker={staffToPreviewWorker(staff)}
+                publishing={publishing}
+                readOnly={!selectedCanEdit}
+                saving={saving}
+                schema={draftSchema}
+                selectedTemplate={selectedTemplate}
+                workerVisible={Boolean(selectedTemplate.worker_visible)}
+              />
             </>
           )}
         </section>
       </section>
     </StaffShell>
-  );
-}
-
-function StaffTemplateReadOnlyView({
-  canDuplicate = false,
-  lockedDefault = false,
-  onDuplicate,
-  onPreviewAnswersChange,
-  previewAnswers,
-  previewWorker,
-  schema,
-  selectedTemplate,
-}) {
-  const current = normalizeClientTemplateSchema(schema || {
-    formType: selectedTemplate?.form_type || "",
-    title: selectedTemplate?.label || "Form template",
-    description: selectedTemplate?.description || "",
-    sections: [],
-  });
-  const fieldCount = collectClientTemplateFields(current).length;
-  const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
-  const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
-  return (
-    <section className="settings-section template-settings-card">
-      <div className="settings-section-heading">
-        <div>
-          <h2>Template Preview</h2>
-          <p>
-            {lockedDefault
-              ? "This default form is protected. Duplicate it to make an editable copy."
-              : "Regular Staff can review templates, but Admin or Owner access is required to edit, publish, archive, duplicate, or reorder forms."}
-          </p>
-        </div>
-        {canDuplicate ? (
-          <button type="button" onClick={onDuplicate}>
-            Duplicate
-          </button>
-        ) : null}
-      </div>
-      <dl className="staff-detail-grid">
-        <div>
-          <dt>Worker URL</dt>
-          <dd>/forms/{selectedTemplate.form_type}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>
-            {selectedTemplate.archived_at
-              ? "Archived"
-              : selectedTemplate.active
-                ? selectedTemplate.worker_visible ? "Shown to workers" : "Hidden from workers"
-                : "Inactive"}
-          </dd>
-        </div>
-        <div>
-          <dt>Published</dt>
-          <dd>v{selectedTemplate.publishedVersion?.version_number || "-"}</dd>
-        </div>
-        <div>
-          <dt>Draft</dt>
-          <dd>{lockedDefault ? "Protected default" : selectedTemplate.draftVersion ? "Draft exists" : "No draft"}</dd>
-        </div>
-      </dl>
-      {fieldCount ? (
-        useToolboxTalkPreview ? (
-          <ToolboxTalkTemplatePreview schema={current} worker={previewWorker} />
-        ) : useSiteInspectionPreview ? (
-          <SiteInspectionTemplatePreview schema={current} worker={previewWorker} />
-        ) : (
-          <TemplateFormFields
-            answers={previewAnswers}
-            schema={current}
-            worker={previewWorker}
-            onChange={onPreviewAnswersChange}
-          />
-        )
-      ) : (
-        <div className="template-preview-empty">
-          <strong>No fields to preview</strong>
-          <span>This template does not have saved fields yet.</span>
-        </div>
-      )}
-    </section>
   );
 }
 
@@ -7710,7 +7617,9 @@ export function StaffActionItemsPage({ navigateTo }) {
 function TemplateSchemaEditorV3({
   active,
   archived,
+  canDuplicate = true,
   hasPublishedVersion,
+  lockedDefault = false,
   onArchiveToggle,
   onChange,
   onDuplicate,
@@ -7723,12 +7632,14 @@ function TemplateSchemaEditorV3({
   previewAnswers = {},
   previewWorker,
   publishing,
+  readOnly = false,
   saving,
   schema,
   selectedTemplate,
   workerVisible,
 }) {
   const current = normalizeClientTemplateSchema(schema);
+  const canEdit = !readOnly;
   const sections = Array.isArray(current.sections) ? current.sections : [];
   const fieldCount = collectClientTemplateFields(current).length;
   const [selected, setSelected] = useState({ kind: "header" });
@@ -7756,7 +7667,7 @@ function TemplateSchemaEditorV3({
       : Math.max(sections.length - 1, 0);
   const activeFieldGroup =
     TEMPLATE_V3_FIELD_GROUPS.find((group) => group.id === fieldPickerTab) || TEMPLATE_V3_FIELD_GROUPS[0];
-  const canToggleVisibility = hasPublishedVersion && active && !archived && !saving;
+  const canToggleVisibility = canEdit && hasPublishedVersion && active && !archived && !saving;
   const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
   const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
 
@@ -7764,8 +7675,13 @@ function TemplateSchemaEditorV3({
     setOptionDraft("");
   }, [selectedField?.id]);
 
+  useEffect(() => {
+    if (readOnly) setFieldPickerOpen(false);
+  }, [readOnly]);
+
   const updateSchema = (patch) => onChange({ ...current, ...patch });
   const updateSection = (sectionIndex, patch) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.map((section, index) =>
@@ -7774,6 +7690,7 @@ function TemplateSchemaEditorV3({
     });
   };
   const updateField = (sectionIndex, fieldIndex, patch) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.map((section, index) =>
@@ -7789,6 +7706,7 @@ function TemplateSchemaEditorV3({
     });
   };
   const updateSectionSettings = (sectionIndex, patch) => {
+    if (!canEdit) return;
     const section = current.sections[sectionIndex] || {};
     updateSection(sectionIndex, {
       settings: {
@@ -7798,6 +7716,7 @@ function TemplateSchemaEditorV3({
     });
   };
   const updateSelectedFieldSettings = (patch) => {
+    if (!canEdit) return;
     if (!selectedField || activeSelection.kind !== "field") return;
     updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
       settings: {
@@ -7811,6 +7730,7 @@ function TemplateSchemaEditorV3({
     setView("editor");
   };
   const addSection = () => {
+    if (!canEdit) return;
     const sectionIndex = current.sections.length;
     onChange({
       ...current,
@@ -7819,6 +7739,7 @@ function TemplateSchemaEditorV3({
     selectBlock({ kind: "section", sectionIndex });
   };
   const removeSection = (sectionIndex) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.filter((_, index) => index !== sectionIndex),
@@ -7826,10 +7747,12 @@ function TemplateSchemaEditorV3({
     setSelected({ kind: "header" });
   };
   const moveSection = (sectionIndex, direction) => {
+    if (!canEdit) return;
     onChange({ ...current, sections: moveArrayItem(current.sections, sectionIndex, direction) });
     setSelected({ kind: "section", sectionIndex: sectionIndex + direction });
   };
   const addFieldFromConfig = (fieldConfig, sectionIndex = targetSectionIndex) => {
+    if (!canEdit) return;
     if (!fieldConfig || fieldConfig.disabled) return;
     const hasSections = current.sections.length > 0;
     const safeSectionIndex = hasSections
@@ -7858,6 +7781,7 @@ function TemplateSchemaEditorV3({
     setFieldPickerOpen(false);
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.map((section, index) => {
@@ -7876,6 +7800,7 @@ function TemplateSchemaEditorV3({
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
   };
   const removeField = (sectionIndex, fieldIndex) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.map((section, index) =>
@@ -7887,6 +7812,7 @@ function TemplateSchemaEditorV3({
     setSelected({ kind: "section", sectionIndex });
   };
   const moveField = (sectionIndex, fieldIndex, direction) => {
+    if (!canEdit) return;
     onChange({
       ...current,
       sections: current.sections.map((section, index) =>
@@ -7898,6 +7824,7 @@ function TemplateSchemaEditorV3({
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
   };
   const updateSelectedFieldType = (type) => {
+    if (!canEdit) return;
     if (!selectedField || activeSelection.kind !== "field") return;
     updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
       type,
@@ -7908,6 +7835,7 @@ function TemplateSchemaEditorV3({
     });
   };
   const addOptionToSelectedField = () => {
+    if (!canEdit) return;
     if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
     const option = optionDraft.trim();
     if (!option || (selectedField.options || []).includes(option)) {
@@ -7920,6 +7848,7 @@ function TemplateSchemaEditorV3({
     setOptionDraft("");
   };
   const removeSelectedFieldOption = (option) => {
+    if (!canEdit) return;
     if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
     updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
       options: (selectedField.options || []).filter((item) => item !== option),
@@ -7989,12 +7918,20 @@ function TemplateSchemaEditorV3({
               ))}
             </div>
             <div className="template-v3-toolbar-actions">
-              <button type="button" onClick={addSection}>
-                New Section +
-              </button>
-              <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
-                New Field +
-              </button>
+              {canEdit ? (
+                <>
+                  <button type="button" onClick={addSection}>
+                    New Section +
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                    New Field +
+                  </button>
+                </>
+              ) : (
+                <span className="template-v3-protected-note">
+                  {lockedDefault ? "Protected default. Duplicate to edit." : "View only."}
+                </span>
+              )}
             </div>
           </div>
 
@@ -8022,7 +7959,7 @@ function TemplateSchemaEditorV3({
                 <div className="template-v3-empty-page">
                   <h2>No fields yet</h2>
                   <p>Add fields before previewing the worker form.</p>
-                  <button type="button" onClick={() => setFieldPickerOpen(true)}>New Field +</button>
+                  {canEdit ? <button type="button" onClick={() => setFieldPickerOpen(true)}>New Field +</button> : null}
                 </div>
               )}
             </section>
@@ -8052,14 +7989,16 @@ function TemplateSchemaEditorV3({
                   <span>Blank template</span>
                   <h2>Start with your first section or field</h2>
                   <p>Add a section to organize the form, or add a field and we will create the first section for you.</p>
-                  <div className="template-v3-empty-actions">
-                    <button type="button" onClick={addSection}>
-                      New Section +
-                    </button>
-                    <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
-                      New Field +
-                    </button>
-                  </div>
+                  {canEdit ? (
+                    <div className="template-v3-empty-actions">
+                      <button type="button" onClick={addSection}>
+                        New Section +
+                      </button>
+                      <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                        New Field +
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -8078,11 +8017,13 @@ function TemplateSchemaEditorV3({
                       <strong>{section.title || `Section ${sectionIndex + 1}`}</strong>
                       <small>{section.description || `${section.fields.length} field${section.fields.length === 1 ? "" : "s"}`}</small>
                     </button>
-                    <div>
-                      <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
-                      <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
-                      <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Delete</button>
-                    </div>
+                    {canEdit ? (
+                      <div>
+                        <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
+                        <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+                        <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Delete</button>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="template-v3-field-list">
@@ -8111,23 +8052,27 @@ function TemplateSchemaEditorV3({
                                 )}
                           </small>
                         </button>
-                        <div className="template-v3-field-actions">
-                          <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
-                          <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
-                          <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
-                          <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Delete</button>
-                        </div>
+                        {canEdit ? (
+                          <div className="template-v3-field-actions">
+                            <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
+                            <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                            <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
+                            <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Delete</button>
+                          </div>
+                        ) : null}
                       </article>
                     ))}
                   </div>
 
-                  <button className="template-v3-add-row" type="button" onClick={() => setFieldPickerOpen(true)}>
-                    New Field +
-                  </button>
+                  {canEdit ? (
+                    <button className="template-v3-add-row" type="button" onClick={() => setFieldPickerOpen(true)}>
+                      New Field +
+                    </button>
+                  ) : null}
                 </article>
               ))}
 
-              {sections.length ? (
+              {sections.length && canEdit ? (
                 <button className="template-v3-add-section" type="button" onClick={addSection}>
                   New Section +
                 </button>
@@ -8148,6 +8093,7 @@ function TemplateSchemaEditorV3({
             <label>
               <span>Form name</span>
               <input
+                disabled={readOnly}
                 value={current.title || ""}
                 onChange={(event) => updateSchema({ title: event.target.value })}
               />
@@ -8155,6 +8101,7 @@ function TemplateSchemaEditorV3({
             <label>
               <span>Description</span>
               <textarea
+                disabled={readOnly}
                 rows="4"
                 value={current.description || ""}
                 onChange={(event) => updateSchema({ description: event.target.value })}
@@ -8163,7 +8110,7 @@ function TemplateSchemaEditorV3({
             <label className="settings-checkbox compact">
               <input
                 checked={Boolean(active)}
-                disabled={saving || archived}
+                disabled={readOnly || saving || archived}
                 type="checkbox"
                 onChange={(event) => onTemplateMetaChange({ active: event.target.checked })}
               />
@@ -8187,30 +8134,43 @@ function TemplateSchemaEditorV3({
             <div className="template-v3-status-grid">
               <span>{hasPublishedVersion ? "Published" : "Draft only"}</span>
               <span>{workerVisible ? "Visible" : "Hidden"}</span>
-              <span>{archived ? "Archived" : active ? "Active" : "Inactive"}</span>
+              <span>{lockedDefault ? "Protected" : archived ? "Archived" : active ? "Active" : "Inactive"}</span>
             </div>
             <div className="template-v3-actions">
-              <button disabled={saving} type="button" onClick={onSave}>{saving ? "Saving..." : "Save draft"}</button>
-              <button className="primary-button" disabled={publishing} type="button" onClick={onPublish}>
-                {publishing ? "Publishing..." : "Publish"}
-              </button>
+              {canEdit ? (
+                <>
+                  <button disabled={saving} type="button" onClick={onSave}>{saving ? "Saving..." : "Save draft"}</button>
+                  <button className="primary-button" disabled={publishing} type="button" onClick={onPublish}>
+                    {publishing ? "Publishing..." : "Publish"}
+                  </button>
+                </>
+              ) : null}
               <button type="button" onClick={() => setView("preview")}>Preview</button>
-              <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button>
-              {onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
-              <button
-                className={archived ? "" : "danger-button"}
-                type="button"
-                onClick={() => {
-                  if (archived) {
-                    onArchiveToggle(false);
-                  } else if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
-                    onArchiveToggle(true);
-                  }
-                }}
-              >
-                {archived ? "Restore archived" : "Archive form"}
-              </button>
+              {canDuplicate ? <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button> : null}
+              {canEdit && onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
+              {canEdit ? (
+                <button
+                  className={archived ? "" : "danger-button"}
+                  type="button"
+                  onClick={() => {
+                    if (archived) {
+                      onArchiveToggle(false);
+                    } else if (window.confirm(`Archive ${selectedTemplate.label}? Workers will not see it.`)) {
+                      onArchiveToggle(true);
+                    }
+                  }}
+                >
+                  {archived ? "Restore archived" : "Archive form"}
+                </button>
+              ) : null}
             </div>
+            {readOnly ? (
+              <p className="template-v3-help-text">
+                {lockedDefault
+                  ? "This default form is protected. Duplicate it to make an editable copy."
+                  : "You can preview this template, but cannot edit it with your current access."}
+              </p>
+            ) : null}
             <p className="template-v3-worker-url">Worker URL: /forms/{selectedTemplate.form_type}</p>
           </section>
 
@@ -8227,7 +8187,13 @@ function TemplateSchemaEditorV3({
             </div>
 
             {activeSelection.kind === "header" ? (
-              <p className="template-v3-help-text">Select a section or field on the canvas to edit its block settings.</p>
+              <p className="template-v3-help-text">
+                {readOnly
+                  ? lockedDefault
+                    ? "This default form is protected. Select a section or field to inspect it, or duplicate the form to edit."
+                    : "Select a section or field to inspect it."
+                  : "Select a section or field on the canvas to edit its block settings."}
+              </p>
             ) : null}
 
             {activeSelection.kind === "section" && selectedSection ? (
@@ -8235,6 +8201,7 @@ function TemplateSchemaEditorV3({
                 <label>
                   <span>Section title</span>
                   <input
+                    disabled={readOnly}
                     value={selectedSection.title || ""}
                     onChange={(event) => updateSection(activeSelection.sectionIndex, { title: event.target.value })}
                   />
@@ -8242,6 +8209,7 @@ function TemplateSchemaEditorV3({
                 <label>
                   <span>Section description</span>
                   <textarea
+                    disabled={readOnly}
                     rows="3"
                     value={selectedSection.description || ""}
                     onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
@@ -8250,6 +8218,7 @@ function TemplateSchemaEditorV3({
                 <label className="settings-checkbox compact">
                   <input
                     checked={Boolean(getTemplateSettingValue(selectedSection.settings, "defaultCollapsed"))}
+                    disabled={readOnly}
                     type="checkbox"
                     onChange={(event) =>
                       updateSectionSettings(activeSelection.sectionIndex, { defaultCollapsed: event.target.checked })
@@ -8267,7 +8236,7 @@ function TemplateSchemaEditorV3({
               <div className="template-v3-inspector-body">
                 <label>
                   <span>Field type</span>
-                  <select value={selectedField.type} onChange={(event) => updateSelectedFieldType(event.target.value)}>
+                  <select disabled={readOnly} value={selectedField.type} onChange={(event) => updateSelectedFieldType(event.target.value)}>
                     {TEMPLATE_FIELD_TYPES.map((type) => (
                       <option key={type.id} value={type.id}>{type.label}</option>
                     ))}
@@ -8282,6 +8251,7 @@ function TemplateSchemaEditorV3({
                         : "Question label"}
                   </span>
                   <input
+                    disabled={readOnly}
                     value={selectedField.label || ""}
                     onChange={(event) =>
                       updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
@@ -8294,6 +8264,7 @@ function TemplateSchemaEditorV3({
                   <label>
                     <span>Helper text</span>
                     <input
+                      disabled={readOnly}
                       value={selectedField.helperText || ""}
                       onChange={(event) =>
                         updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { helperText: event.target.value })
@@ -8311,6 +8282,7 @@ function TemplateSchemaEditorV3({
                     <label>
                       <span>None checkbox label</span>
                       <input
+                        disabled={readOnly}
                         value={selectedActionItemRowsSettings.noneLabel}
                         onChange={(event) =>
                           updateSelectedActionItemRowsSettings({
@@ -8324,6 +8296,7 @@ function TemplateSchemaEditorV3({
                       <label>
                         <span>Row title</span>
                         <input
+                          disabled={readOnly}
                           value={selectedActionItemRowsSettings.rowLabel}
                           onChange={(event) =>
                             updateSelectedActionItemRowsSettings({
@@ -8336,6 +8309,7 @@ function TemplateSchemaEditorV3({
                       <label>
                         <span>Add button</span>
                         <input
+                          disabled={readOnly}
                           value={selectedActionItemRowsSettings.addButtonLabel}
                           onChange={(event) =>
                             updateSelectedActionItemRowsSettings({
@@ -8353,6 +8327,7 @@ function TemplateSchemaEditorV3({
                           <label>
                             <span>{subfield.key}</span>
                             <input
+                              disabled={readOnly}
                               value={subfield.label}
                               onChange={(event) => updateActionItemRowLabel(subfield.key, event.target.value)}
                             />
@@ -8360,23 +8335,27 @@ function TemplateSchemaEditorV3({
                           <label className={subfield.lockedVisible ? "settings-checkbox compact disabled" : "settings-checkbox compact"}>
                             <input
                               checked={subfield.visible}
-                              disabled={subfield.lockedVisible}
+                              disabled={readOnly || subfield.lockedVisible}
                               type="checkbox"
                               onChange={(event) => updateActionItemRowVisibility(subfield.key, event.target.checked)}
                             />
                             <span>{subfield.lockedVisible ? "Always visible" : "Show field"}</span>
                           </label>
                           <div>
-                            <button disabled={index === 0} type="button" onClick={() => moveActionItemRowSubfield(index, -1)}>
-                              Up
-                            </button>
-                            <button
-                              disabled={index === selectedActionItemRowsSettings.subfields.length - 1}
-                              type="button"
-                              onClick={() => moveActionItemRowSubfield(index, 1)}
-                            >
-                              Down
-                            </button>
+                            {canEdit ? (
+                              <>
+                                <button disabled={index === 0} type="button" onClick={() => moveActionItemRowSubfield(index, -1)}>
+                                  Up
+                                </button>
+                                <button
+                                  disabled={index === selectedActionItemRowsSettings.subfields.length - 1}
+                                  type="button"
+                                  onClick={() => moveActionItemRowSubfield(index, 1)}
+                                >
+                                  Down
+                                </button>
+                              </>
+                            ) : null}
                           </div>
                         </div>
                       ))}
@@ -8388,6 +8367,7 @@ function TemplateSchemaEditorV3({
                     <label className="settings-checkbox compact">
                       <input
                         checked={selectedToolboxTopicSettings.showCommon}
+                        disabled={readOnly}
                         type="checkbox"
                         onChange={(event) => updateSelectedFieldSettings({ showCommon: event.target.checked })}
                       />
@@ -8396,6 +8376,7 @@ function TemplateSchemaEditorV3({
                     <label className="settings-checkbox compact">
                       <input
                         checked={selectedToolboxTopicSettings.showSearch}
+                        disabled={readOnly}
                         type="checkbox"
                         onChange={(event) => updateSelectedFieldSettings({ showSearch: event.target.checked })}
                       />
@@ -8405,6 +8386,7 @@ function TemplateSchemaEditorV3({
                       <span>Common topics</span>
                       <textarea
                         className="template-v3-topic-textarea"
+                        disabled={readOnly}
                         rows="5"
                         value={selectedToolboxTopicSettings.commonTopicLabels.join("\n")}
                         onChange={(event) =>
@@ -8420,6 +8402,7 @@ function TemplateSchemaEditorV3({
                         <label className="settings-checkbox compact" key={group.id}>
                           <input
                             checked={selectedToolboxTopicSettings.enabledCategoryIds.includes(group.id)}
+                            disabled={readOnly}
                             type="checkbox"
                             onChange={(event) => {
                               const currentIds = selectedToolboxTopicSettings.enabledCategoryIds;
@@ -8441,6 +8424,7 @@ function TemplateSchemaEditorV3({
                   <label className="settings-checkbox compact">
                     <input
                       checked={getTemplateSettingValue(selectedField.settings, "defaultCollapsed") !== false}
+                      disabled={readOnly}
                       type="checkbox"
                       onChange={(event) => updateSelectedFieldSettings({ defaultCollapsed: event.target.checked })}
                     />
@@ -8454,6 +8438,7 @@ function TemplateSchemaEditorV3({
                   <label className="settings-checkbox compact">
                     <input
                       checked={Boolean(selectedField.required)}
+                      disabled={readOnly}
                       type="checkbox"
                       onChange={(event) =>
                         updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { required: event.target.checked })
@@ -8467,32 +8452,35 @@ function TemplateSchemaEditorV3({
                     <span>Options</span>
                     <div className="template-option-chip-row">
                       {(selectedField.options || []).map((option) => (
-                        <button key={option} type="button" onClick={() => removeSelectedFieldOption(option)}>
+                        <button disabled={readOnly} key={option} type="button" onClick={() => removeSelectedFieldOption(option)}>
                           <span>{option}</span>
                           <strong aria-hidden="true">x</strong>
                         </button>
                       ))}
                     </div>
-                    <div className="template-option-entry">
-                      <input
-                        placeholder="Add option"
-                        value={optionDraft}
-                        onChange={(event) => setOptionDraft(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            addOptionToSelectedField();
-                          }
-                        }}
-                      />
-                      <button type="button" onClick={addOptionToSelectedField}>Add</button>
-                    </div>
+                    {canEdit ? (
+                      <div className="template-option-entry">
+                        <input
+                          placeholder="Add option"
+                          value={optionDraft}
+                          onChange={(event) => setOptionDraft(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addOptionToSelectedField();
+                            }
+                          }}
+                        />
+                        <button type="button" onClick={addOptionToSelectedField}>Add</button>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
                 {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
                       checked={Boolean(selectedField.remember)}
+                      disabled={readOnly}
                       type="checkbox"
                       onChange={(event) =>
                         updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { remember: event.target.checked })
@@ -8505,6 +8493,7 @@ function TemplateSchemaEditorV3({
                   <label>
                     <span>Default value</span>
                     <select
+                      disabled={readOnly}
                       value={selectedField.default || ""}
                       onChange={(event) =>
                         updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
@@ -8523,7 +8512,7 @@ function TemplateSchemaEditorV3({
         </aside>
       </div>
 
-      {fieldPickerOpen ? (
+      {canEdit && fieldPickerOpen ? (
         <div className="template-v3-modal-backdrop" role="presentation">
           <section className="template-v3-field-modal" role="dialog" aria-modal="true" aria-label="New field">
             <div className="template-v3-modal-head">
