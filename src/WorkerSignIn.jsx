@@ -7695,6 +7695,8 @@ function TemplateSchemaEditorV3({
   const sections = Array.isArray(current.sections) ? current.sections : [];
   const fieldCount = collectClientTemplateFields(current).length;
   const [selected, setSelected] = useState({ kind: "header" });
+  const [sidebarFocus, setSidebarFocus] = useState("template");
+  const sidebarPointerFocusRef = useRef("");
   const [view, setView] = useState("editor");
   const [fieldPickerOpen, setFieldPickerOpen] = useState(false);
   const [fieldPickerTab, setFieldPickerTab] = useState("basics");
@@ -7730,6 +7732,10 @@ function TemplateSchemaEditorV3({
   useEffect(() => {
     if (readOnly) setFieldPickerOpen(false);
   }, [readOnly]);
+
+  useEffect(() => {
+    setSidebarFocus(activeSelection.kind === "header" ? "template" : "selected");
+  }, [activeSelection.kind, activeSelection.sectionIndex, activeSelection.fieldIndex]);
 
   const updateSchema = (patch) => onChange({ ...current, ...patch });
   const updateSection = (sectionIndex, patch) => {
@@ -7940,6 +7946,15 @@ function TemplateSchemaEditorV3({
       subfields: moveArrayItem(selectedActionItemRowsSettings.subfields, index, direction),
     });
   };
+  const handleSidebarCardPointerDown = (card) => {
+    sidebarPointerFocusRef.current = card;
+  };
+  const handleSidebarCardPointerEnd = () => {
+    sidebarPointerFocusRef.current = "";
+  };
+  const handleSidebarCardFocus = (card) => {
+    if (sidebarPointerFocusRef.current !== card) setSidebarFocus(card);
+  };
   return (
     <div className="template-v3-builder">
       <div className="template-v3-mobile-lock">
@@ -8144,10 +8159,21 @@ function TemplateSchemaEditorV3({
         </section>
 
         <aside
-          className={activeSelection.kind === "header" ? "template-v3-sidebar" : "template-v3-sidebar has-active-block"}
+          className={[
+            "template-v3-sidebar",
+            activeSelection.kind === "header" ? "" : "has-active-block",
+            sidebarFocus === "selected" ? "focus-selected" : "focus-template",
+          ].filter(Boolean).join(" ")}
           aria-label="Builder V3 settings"
         >
-          <section className="template-v3-side-card template-v3-template-options-card">
+          <section
+            className="template-v3-side-card template-v3-template-options-card"
+            onClick={() => setSidebarFocus("template")}
+            onFocusCapture={() => handleSidebarCardFocus("template")}
+            onPointerCancel={handleSidebarCardPointerEnd}
+            onPointerDown={() => handleSidebarCardPointerDown("template")}
+            onPointerUp={handleSidebarCardPointerEnd}
+          >
             <div className="template-v3-side-heading">
               <span>Options</span>
               <h2>Template</h2>
@@ -8236,7 +8262,14 @@ function TemplateSchemaEditorV3({
             <p className="template-v3-worker-url">Worker URL: /forms/{selectedTemplate.form_type}</p>
           </section>
 
-          <section className="template-v3-side-card template-v3-selected-block-card">
+          <section
+            className="template-v3-side-card template-v3-selected-block-card"
+            onClick={() => setSidebarFocus("selected")}
+            onFocusCapture={() => handleSidebarCardFocus("selected")}
+            onPointerCancel={handleSidebarCardPointerEnd}
+            onPointerDown={() => handleSidebarCardPointerDown("selected")}
+            onPointerUp={handleSidebarCardPointerEnd}
+          >
             <div className="template-v3-side-heading">
               <span>Selected Block</span>
               <h2>

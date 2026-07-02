@@ -149,6 +149,14 @@ async function openPreview(page) {
   await page.locator(".template-v3-tabs").getByRole("button", { name: "Preview" }).click();
 }
 
+async function expectCardAbove(page, topSelector, lowerSelector) {
+  const topBox = await page.locator(topSelector).boundingBox();
+  const lowerBox = await page.locator(lowerSelector).boundingBox();
+  expect(topBox?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(
+    lowerBox?.y ?? Number.NEGATIVE_INFINITY,
+  );
+}
+
 test("custom Toolbox Talk preview and worker form render added drawn signatures", async ({ page }) => {
   const row = template("toolbox_talk_copy", "Toolbox Talk copy", toolboxSignatureSchema);
   await mockApis(page, [row]);
@@ -157,11 +165,11 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await expect(page.getByRole("heading", { name: "Toolbox Talk Smoke" })).toBeVisible();
   await page.locator(".template-v3-field-card").filter({ hasText: "Signature" }).getByRole("button").first().click();
   await expect(page.locator(".template-v3-selected-block-card")).toContainText("Selected Block");
-  const selectedBlockBox = await page.locator(".template-v3-selected-block-card").boundingBox();
-  const templateOptionsBox = await page.locator(".template-v3-template-options-card").boundingBox();
-  expect(selectedBlockBox?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(
-    templateOptionsBox?.y ?? Number.NEGATIVE_INFINITY,
-  );
+  await expectCardAbove(page, ".template-v3-selected-block-card", ".template-v3-template-options-card");
+  await page.locator(".template-v3-template-options-card input").first().click();
+  await expectCardAbove(page, ".template-v3-template-options-card", ".template-v3-selected-block-card");
+  await page.locator(".template-v3-selected-block-card input").first().click();
+  await expectCardAbove(page, ".template-v3-selected-block-card", ".template-v3-template-options-card");
   await openPreview(page);
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
   await expect(page.getByText("Signature", { exact: true }).first()).toBeVisible();

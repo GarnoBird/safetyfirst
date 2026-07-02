@@ -3765,8 +3765,13 @@ p {
 }
 
 .template-v3-sidebar {
-  align-self: stretch;
+  align-self: start;
   align-content: start;
+  position: sticky;
+  top: 14px;
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .template-v3-template-options-card {
@@ -3775,21 +3780,14 @@ p {
 
 .template-v3-selected-block-card {
   order: 2;
-  position: sticky;
-  top: 14px;
-  z-index: 2;
-  max-height: calc(100vh - 28px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
-.template-v3-sidebar.has-active-block .template-v3-template-options-card {
+.template-v3-sidebar.focus-selected .template-v3-template-options-card {
   order: 2;
 }
 
-.template-v3-sidebar.has-active-block .template-v3-selected-block-card {
+.template-v3-sidebar.focus-selected .template-v3-selected-block-card {
   order: 1;
-  overflow-y: auto;
 }
 
 .template-v3-toolbar,
