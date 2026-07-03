@@ -167,6 +167,37 @@ export async function updateStaffUser(body, actor) {
   return publicStaffUser(row);
 }
 
+export async function deleteStaffUser(id, actor) {
+  const cleanedId = cleanUuid(id, "Staff user id is not valid.");
+  const existing = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("staff_profiles")
+      .select(STAFF_USER_SELECT)
+      .eq("id", cleanedId)
+      .maybeSingle(),
+    "Staff user could not be loaded.",
+  );
+  if (!existing) {
+    const error = new Error("Staff user was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (existing.id === actor.id) {
+    throwBadRequest("You cannot delete your own staff account.");
+  }
+  if (existing.role === "owner" && actor.role !== "owner") {
+    throwForbidden("Only an owner can delete an owner account.");
+  }
+  if (existing.role === "owner") {
+    await assertAnotherActiveOwner(existing.id);
+  }
+
+  const { error } = await getSupabaseServiceClient().auth.admin.deleteUser(existing.auth_user_id);
+  if (error) throwAuthError(error, "Staff auth user could not be deleted.");
+  return publicStaffUser(existing);
+}
+
 export async function updateOwnStaffProfile(body, actor) {
   const existing = throwIfSupabaseError(
     await getSupabaseServiceClient()

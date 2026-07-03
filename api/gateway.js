@@ -76,6 +76,7 @@ import {
 } from "./_lib/settings.js";
 import {
   createStaffUser,
+  deleteStaffUser,
   listStaffUsers,
   updateOwnStaffProfile,
   updateStaffUser,
@@ -315,7 +316,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "company-profiles") return handleCompanyProfiles(req, res, staff);
   if (parts[0] === "signins") return handleStaffSignIns(req, res, staff, parts.slice(1));
   if (parts[0] === "workers") return handleStaffWorkers(req, res, staff, parts.slice(1));
-  if (parts[0] === "users") return handleStaffUsers(req, res, staff);
+  if (parts[0] === "users") return handleStaffUsers(req, res, staff, parts.slice(1));
   if (parts[0] === "audit") return handleStaffAudit(req, res, staff);
   if (parts[0] === "alerts") return handleStaffAlerts(req, res, staff, parts.slice(1));
   if (parts[0] === "health") return handleStaffHealth(req, res);
@@ -504,7 +505,24 @@ async function handleStaffWorkers(req, res, staff, parts = []) {
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
-async function handleStaffUsers(req, res, staff) {
+async function handleStaffUsers(req, res, staff, parts = []) {
+  if (parts.length === 1 && req.method === "DELETE") {
+    requireStaffRole(staff, ["owner", "admin"]);
+    const user = await deleteStaffUser(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "staff_user_deleted",
+      targetType: "staff",
+      targetId: user.id,
+      summary: `${staff.username} deleted staff user ${user.username}.`,
+      metadata: { username: user.username, role: user.role, active: user.active },
+    });
+    return sendJson(res, 200, { user, deleted: true });
+  }
+
+  if (parts.length) return sendJson(res, 404, { error: "Not found" });
+
   if (req.method === "GET") {
     const query = parseQuery(req);
     const rows = await listStaffUsers({
@@ -550,7 +568,7 @@ async function handleStaffUsers(req, res, staff) {
     });
     return sendJson(res, 200, { user });
   }
-  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH"]);
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
 async function handleStaffProfile(req, res, staff) {

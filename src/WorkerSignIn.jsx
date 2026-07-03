@@ -154,6 +154,31 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "action_item_rows", label: "Action item rows" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const TEMPLATE_DEFAULT_VALUE_OPTIONS = [
+  { id: "", label: "Blank" },
+  { id: "worker_name", label: "Worker name" },
+  { id: "worker_phone", label: "Worker phone" },
+  { id: "worker_username", label: "Worker username" },
+  { id: "worker_company", label: "Worker company" },
+  { id: "worker_address", label: "Worker address" },
+  { id: "today", label: "Today", fieldTypes: ["date", "short_text"] },
+  { id: "now", label: "Current time", fieldTypes: ["time", "short_text"] },
+];
+const TEMPLATE_DEFAULT_VALUES = new Set(TEMPLATE_DEFAULT_VALUE_OPTIONS.map((option) => option.id));
+const TEMPLATE_VISIBILITY_SOURCE_TYPES = new Set([
+  "yes_no",
+  "boolean",
+  "toggle",
+  "checkbox",
+  "dropdown",
+  "multi_select",
+]);
+const TEMPLATE_VISIBILITY_OPERATORS = [
+  { id: "equals", label: "is" },
+  { id: "not_equals", label: "is not" },
+  { id: "contains", label: "includes" },
+  { id: "not_contains", label: "does not include" },
+];
 const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
@@ -458,48 +483,44 @@ const TEMPLATE_STARTER_TEMPLATES = [
   },
 ];
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
-const MEDIA_UPLOAD_ACCEPT = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-  ".pdf",
-  "application/pdf",
-  ".xls",
-  ".xlsx",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-].join(",");
+const MEDIA_UPLOAD_KIND_CONFIGS = {
+  image: {
+    label: "Images",
+    helper: "JPG, PNG, WEBP, HEIC",
+    extensions: [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"],
+    mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"],
+  },
+  pdf: {
+    label: "PDF",
+    helper: "PDF",
+    extensions: [".pdf"],
+    mimeTypes: ["application/pdf"],
+  },
+  excel: {
+    label: "Excel",
+    helper: "XLS, XLSX",
+    extensions: [".xls", ".xlsx"],
+    mimeTypes: [
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ],
+  },
+};
+const DEFAULT_MEDIA_UPLOAD_KINDS = Object.keys(MEDIA_UPLOAD_KIND_CONFIGS);
+const MEDIA_UPLOAD_ACCEPT = DEFAULT_MEDIA_UPLOAD_KINDS
+  .flatMap((kind) => [
+    ...MEDIA_UPLOAD_KIND_CONFIGS[kind].mimeTypes,
+    ...MEDIA_UPLOAD_KIND_CONFIGS[kind].extensions,
+  ])
+  .join(",");
 const MAX_MEDIA_UPLOAD_FILES = 5;
 const MAX_MEDIA_UPLOAD_FILE_BYTES = 50 * 1024 * 1024;
-const MEDIA_UPLOAD_ALLOWED_EXTENSIONS = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-  ".pdf",
-  ".xls",
-  ".xlsx",
-]);
-const MEDIA_UPLOAD_ALLOWED_MIME_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "application/pdf",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-]);
+const MEDIA_UPLOAD_ALLOWED_EXTENSIONS = new Set(
+  DEFAULT_MEDIA_UPLOAD_KINDS.flatMap((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].extensions),
+);
+const MEDIA_UPLOAD_ALLOWED_MIME_TYPES = new Set(
+  DEFAULT_MEDIA_UPLOAD_KINDS.flatMap((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].mimeTypes),
+);
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
 const SITE_INSPECTION_DEFAULTS_KEY = "sf_site_inspection_defaults";
@@ -5206,7 +5227,7 @@ function TemplateDrivenWorkerForm({
       kind: "template_submission_v1",
       templateVersionId: template?.publishedVersion?.id || "",
       answers: cleanTemplateAnswersForSubmit(schema, answers, worker),
-      actionItemBlocks: cleanActionItemBlocksForSubmit(schema, answers),
+      actionItemBlocks: cleanActionItemBlocksForSubmit(schema, answers, worker),
     });
   };
 
@@ -5876,6 +5897,30 @@ export function StaffUsersPage({ navigateTo }) {
     }
   };
 
+  const deleteUser = async (user) => {
+    if (!canManageStaffUsers) {
+      setMessage("Only admins and owners can manage staff accounts.");
+      return;
+    }
+    if (!window.confirm(`Delete staff account for ${user.display_name || user.username}?`)) {
+      return;
+    }
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/users/${user.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      if (editingId === user.id) resetForm();
+      await loadUsers();
+      setMessage("Staff account deleted.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
   if (!staff) return <StaffLoadingScreen />;
 
   return (
@@ -5962,6 +6007,7 @@ export function StaffUsersPage({ navigateTo }) {
             loading={loading}
             rows={rows}
             showEmail={canManageStaffUsers}
+            onDelete={deleteUser}
             onEdit={startEdit}
             onToggleActive={toggleActive}
           />
@@ -8289,7 +8335,10 @@ function TemplateSchemaEditorV3({
                     <button type="button" onClick={() => selectBlock({ kind: "section", sectionIndex })}>
                       <span>Section</span>
                       <strong>{section.title || `Section ${sectionIndex + 1}`}</strong>
-                      <small>{section.description || `${section.fields.length} field${section.fields.length === 1 ? "" : "s"}`}</small>
+                      <small>
+                        {section.description || `${section.fields.length} field${section.fields.length === 1 ? "" : "s"}`}
+                        {normalizeTemplateVisibilitySettings(section.settings).enabled ? " / conditional" : ""}
+                      </small>
                     </button>
                     {canEdit ? (
                       <div>
@@ -8320,8 +8369,9 @@ function TemplateSchemaEditorV3({
                               ? "Special block"
                               : (
                                   <>
-                                    {field.required ? "Required" : "Optional"}
+                                    {templateFieldIsHidden(field) ? "Hidden" : field.required ? "Required" : "Optional"}
                                     {field.remember ? " / remembered" : ""}
+                                    {normalizeTemplateVisibilitySettings(field.settings).enabled ? " / conditional" : ""}
                                   </>
                                 )}
                           </small>
@@ -8521,6 +8571,14 @@ function TemplateSchemaEditorV3({
                     <small>Workers can open this section when they need it.</small>
                   </span>
                 </label>
+                <TemplateVisibilitySettingsEditor
+                  disabled={readOnly}
+                  schema={current}
+                  settings={selectedSection.settings}
+                  onChange={(visibility) =>
+                    updateSectionSettings(activeSelection.sectionIndex, { visibility })
+                  }
+                />
               </div>
             ) : null}
 
@@ -8564,6 +8622,13 @@ function TemplateSchemaEditorV3({
                     />
                   </label>
                 ) : null}
+                <TemplateVisibilitySettingsEditor
+                  disabled={readOnly}
+                  excludeFieldId={selectedField.id}
+                  schema={current}
+                  settings={selectedField.settings}
+                  onChange={(visibility) => updateSelectedFieldSettings({ visibility })}
+                />
                 {selectedActionItemRowsSettings ? (
                   <div className="template-action-row-settings">
                     <label>
@@ -8811,6 +8876,20 @@ function TemplateSchemaEditorV3({
                 {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
+                      checked={templateFieldIsHidden(selectedField)}
+                      disabled={readOnly}
+                      type="checkbox"
+                      onChange={(event) => updateSelectedFieldSettings({ hidden: event.target.checked })}
+                    />
+                    <span>
+                      Hidden from workers
+                      <small>Submits its default or worker value automatically.</small>
+                    </span>
+                  </label>
+                ) : null}
+                {!selectedFieldIsNonAnswer ? (
+                  <label className="settings-checkbox compact">
+                    <input
                       checked={Boolean(selectedField.required)}
                       disabled={readOnly}
                       type="checkbox"
@@ -8850,6 +8929,13 @@ function TemplateSchemaEditorV3({
                     ) : null}
                   </div>
                 ) : null}
+                {selectedField.type === "media_upload" ? (
+                  <TemplateMediaUploadSettingsEditor
+                    disabled={readOnly}
+                    field={selectedField}
+                    onChange={updateSelectedFieldSettings}
+                  />
+                ) : null}
                 {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
@@ -8863,7 +8949,7 @@ function TemplateSchemaEditorV3({
                     <span>Remember last value</span>
                   </label>
                 ) : null}
-                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "boolean", "toggle", "media_upload", "dropdown", "signature"].includes(selectedField.type) ? (
+                {!selectedFieldIsNonAnswer && templateDefaultOptionsForField(selectedField).length > 1 ? (
                   <label>
                     <span>Default value</span>
                     <select
@@ -8873,10 +8959,9 @@ function TemplateSchemaEditorV3({
                         updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, { default: event.target.value })
                       }
                     >
-                      <option value="">Blank</option>
-                      <option value="worker_name">Worker name</option>
-                      {selectedField.type === "date" ? <option value="today">Today</option> : null}
-                      {selectedField.type === "time" ? <option value="now">Current time</option> : null}
+                      {templateDefaultOptionsForField(selectedField).map((option) => (
+                        <option key={option.id} value={option.id}>{option.label}</option>
+                      ))}
                     </select>
                   </label>
                 ) : null}
@@ -8929,6 +9014,134 @@ function TemplateSchemaEditorV3({
   );
 }
 
+function TemplateVisibilitySettingsEditor({
+  disabled = false,
+  excludeFieldId = "",
+  onChange,
+  schema,
+  settings,
+}) {
+  const visibility = normalizeTemplateVisibilitySettings(settings);
+  const sourceFields = templateVisibilitySourceFields(schema, excludeFieldId);
+  const sourceField = sourceFields.find((field) => field.id === visibility.sourceFieldId) || null;
+  const operatorOptions = sourceField?.type === "multi_select"
+    ? TEMPLATE_VISIBILITY_OPERATORS.filter((operator) => ["contains", "not_contains"].includes(operator.id))
+    : TEMPLATE_VISIBILITY_OPERATORS.filter((operator) => ["equals", "not_equals"].includes(operator.id));
+  const valueOptions = templateVisibilitySourceValueOptions(sourceField);
+  const updateVisibility = (patch) => {
+    const next = { ...visibility, ...patch };
+    if (patch.sourceFieldId) {
+      const nextSource = sourceFields.find((field) => field.id === patch.sourceFieldId);
+      const nextOptions = templateVisibilitySourceValueOptions(nextSource);
+      next.operator = nextSource?.type === "multi_select" ? "contains" : "equals";
+      next.value = nextOptions[0]?.value ?? "";
+    }
+    if (!next.enabled) {
+      next.sourceFieldId = "";
+      next.operator = "equals";
+      next.value = "";
+    }
+    onChange(serializeTemplateVisibilitySettings(next));
+  };
+
+  return (
+    <div className="template-conditional-settings">
+      <label className={sourceFields.length ? "settings-checkbox compact" : "settings-checkbox compact disabled"}>
+        <input
+          checked={visibility.enabled}
+          disabled={disabled || !sourceFields.length}
+          type="checkbox"
+          onChange={(event) => updateVisibility({ enabled: event.target.checked })}
+        />
+        <span>
+          Conditional visibility
+          <small>Show this only when another answer matches.</small>
+        </span>
+      </label>
+      {visibility.enabled ? (
+        <div className="template-v3-two-column">
+          <label>
+            <span>When field</span>
+            <select
+              disabled={disabled}
+              value={visibility.sourceFieldId}
+              onChange={(event) => updateVisibility({ sourceFieldId: event.target.value })}
+            >
+              <option value="">Choose field</option>
+              {sourceFields.map((field) => (
+                <option key={field.id} value={field.id}>{field.label || field.id}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Condition</span>
+            <select
+              disabled={disabled || !sourceField}
+              value={operatorOptions.some((item) => item.id === visibility.operator) ? visibility.operator : operatorOptions[0]?.id || "equals"}
+              onChange={(event) => updateVisibility({ operator: event.target.value })}
+            >
+              {operatorOptions.map((operator) => (
+                <option key={operator.id} value={operator.id}>{operator.label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Value</span>
+            <select
+              disabled={disabled || !sourceField}
+              value={String(visibility.value)}
+              onChange={(event) => updateVisibility({ value: event.target.value })}
+            >
+              {valueOptions.map((option) => (
+                <option key={String(option.value)} value={String(option.value)}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : null}
+      {!sourceFields.length ? (
+        <p className="template-v3-help-text compact">Add a Yes / No, Boolean, Toggle, Checkbox, Dropdown, or Multi-select field to use conditions.</p>
+      ) : null}
+    </div>
+  );
+}
+
+function TemplateMediaUploadSettingsEditor({ disabled = false, field, onChange }) {
+  const acceptedKinds = mediaUploadAcceptedKinds(field);
+  const toggleKind = (kind, checked) => {
+    const next = checked
+      ? [...acceptedKinds, kind]
+      : acceptedKinds.filter((item) => item !== kind);
+    onChange({
+      mediaUpload: serializeMediaUploadSettings({
+        mediaUpload: {
+          acceptedKinds: next.length ? [...new Set(next)] : acceptedKinds,
+        },
+      }),
+    });
+  };
+
+  return (
+    <div className="template-media-kind-settings">
+      <span>Accepted uploads</span>
+      {DEFAULT_MEDIA_UPLOAD_KINDS.map((kind) => (
+        <label className="settings-checkbox compact" key={kind}>
+          <input
+            checked={acceptedKinds.includes(kind)}
+            disabled={disabled || (acceptedKinds.length === 1 && acceptedKinds.includes(kind))}
+            type="checkbox"
+            onChange={(event) => toggleKind(kind, event.target.checked)}
+          />
+          <span>
+            {MEDIA_UPLOAD_KIND_CONFIGS[kind].label}
+            <small>{MEDIA_UPLOAD_KIND_CONFIGS[kind].helper}</small>
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getToolboxTalkLayout(current);
@@ -8944,12 +9157,7 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
   );
   const topicGroups = getEnabledToolboxTopicGroups(topicSettings.enabledCategoryIds);
   const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
-  const headerSampleValue = (field) => {
-    if (field.default === "worker_name") return worker?.name || "";
-    if (field.default === "today") return todayInVancouver();
-    if (field.default === "now") return timeInVancouver();
-    return "";
-  };
+  const headerSampleValue = (field) => templateFieldDefaultValue(field, worker, current);
 
   return (
     <div className="template-runtime-form toolbox-talk-template-preview">
@@ -9107,12 +9315,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
   const layout = getSiteInspectionLayout(current);
   const enabled = new Set(layout.enabledBlocks);
   const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
-  const headerSampleValue = (field) => {
-    if (field.default === "worker_name") return worker?.name || "";
-    if (field.default === "today") return todayInVancouver();
-    if (field.default === "now") return timeInVancouver();
-    return "";
-  };
+  const headerSampleValue = (field) => templateFieldDefaultValue(field, worker, current);
 
   const renderHeaderPreview = () => {
     if (!layout.headerFields.length) return null;
@@ -9254,9 +9457,10 @@ function TemplateRuntimeSections({
   const updateAnswer = (fieldId, value) => {
     onChange({ ...answers, [fieldId]: value });
   };
+  const visibleSections = getVisibleTemplateSections({ ...schema, sections }, answers, worker);
   return (
     <>
-      {(sections || []).map((section) => (
+      {visibleSections.map((section) => (
         <section className="toolbox-section" key={section.id}>
           <div className="toolbox-section-heading">
             <h2>{section.title}</h2>
@@ -9565,9 +9769,9 @@ function MediaUploadRuntimeField({ field, invalid, targetRef, value, onChange, o
       setMessage(`Remove a file before adding another. ${MAX_MEDIA_UPLOAD_FILES} files max.`);
       return;
     }
-    const rejected = selected.find((file) => mediaUploadLocalFileError(file));
+    const rejected = selected.find((file) => mediaUploadLocalFileError(file, field));
     if (rejected) {
-      setMessage(mediaUploadLocalFileError(rejected));
+      setMessage(mediaUploadLocalFileError(rejected, field));
       return;
     }
     const toUpload = selected.slice(0, remaining);
@@ -9612,7 +9816,7 @@ function MediaUploadRuntimeField({ field, invalid, targetRef, value, onChange, o
       <div className="template-media-upload-drop">
         <label className={uploading ? "template-media-upload-select disabled" : "template-media-upload-select"}>
           <input
-            accept={MEDIA_UPLOAD_ACCEPT}
+            accept={mediaUploadAccept(field) || MEDIA_UPLOAD_ACCEPT}
             aria-label={field.label}
             disabled={!canUpload || uploading || files.length >= MAX_MEDIA_UPLOAD_FILES}
             multiple
@@ -9621,7 +9825,7 @@ function MediaUploadRuntimeField({ field, invalid, targetRef, value, onChange, o
           />
           <span>{uploading ? "Uploading..." : files.length ? "Add files" : "Choose files"}</span>
         </label>
-        <small>JPG, PNG, WEBP, HEIC, PDF, XLS, XLSX / {MAX_MEDIA_UPLOAD_FILES} files max / 50 MiB each</small>
+        <small>{mediaUploadAcceptedKindsLabel(field)} / {MAX_MEDIA_UPLOAD_FILES} files max / 50 MiB each</small>
       </div>
       {files.length ? (
         <div className="template-media-file-list">
@@ -10231,6 +10435,7 @@ function StaffUsersTable({
   loading,
   rows,
   showEmail,
+  onDelete,
   onEdit,
   onToggleActive,
 }) {
@@ -10239,7 +10444,7 @@ function StaffUsersTable({
 
   return (
     <div className="staff-table-scroll staff-form-table-scroll">
-      <table className="staff-table">
+      <table className={`staff-table worker-accounts-table staff-accounts-table${canManage ? " staff-accounts-table-actions" : ""}`}>
         <thead>
           <tr>
             <th>Name</th>
@@ -10254,14 +10459,14 @@ function StaffUsersTable({
         <tbody>
           {rows.map((user) => (
             <tr key={user.id}>
-              <td>{user.display_name}</td>
-              <td>{user.username}</td>
-              {showEmail ? <td><a href={`mailto:${user.email}`}>{user.email}</a></td> : null}
-              <td><StatusPill value={roleLabel(user.role)} /></td>
-              <td><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
-              <td>{user.last_login_at ? formatDateTime(user.last_login_at) : "Never"}</td>
+              <td data-label="Name">{user.display_name}</td>
+              <td data-label="Username">{user.username}</td>
+              {showEmail ? <td data-label="Email"><a href={`mailto:${user.email}`}>{user.email}</a></td> : null}
+              <td data-label="Role"><StatusPill value={roleLabel(user.role)} /></td>
+              <td data-label="Status"><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
+              <td data-label="Last login">{user.last_login_at ? formatDateTime(user.last_login_at) : "Never"}</td>
               {canManage ? (
-                <td>
+                <td data-label="Actions">
                   <div className="table-action-row">
                     <button type="button" onClick={() => onEdit(user)}>Edit</button>
                     <button
@@ -10270,6 +10475,14 @@ function StaffUsersTable({
                       onClick={() => onToggleActive(user)}
                     >
                       {user.active ? "Deactivate" : "Activate"}
+                    </button>
+                    <button
+                      className="danger-button"
+                      disabled={user.id === currentStaffId}
+                      type="button"
+                      onClick={() => onDelete(user)}
+                    >
+                      Delete
                     </button>
                   </div>
                 </td>
@@ -10948,10 +11161,11 @@ function SiteInspectionSubmissionDetails({ data, filePreviewContext, row, showAc
 
 function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, filePreviewContext, schema }) {
   const normalized = normalizeClientTemplateSchema(schema);
-  if (!normalized.sections.length) return null;
+  const visibleSections = getVisibleTemplateSections(normalized, answers, null, { includeHiddenFields: true });
+  if (!visibleSections.length) return null;
   return (
     <>
-      {normalized.sections.map((section) => (
+      {visibleSections.map((section) => (
         <section key={section.id}>
           <h3>{section.title}</h3>
           {section.description ? <p className="toolbox-detail-text">{section.description}</p> : null}
@@ -10984,10 +11198,11 @@ function TemplateSubmissionDetails({ data, filePreviewContext, row, showActions 
   const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
   const answers = data?.answers || {};
   const actionItemBlocks = data?.actionItemBlocks || {};
+  const visibleSections = getVisibleTemplateSections(schema, answers, null, { includeHiddenFields: true });
 
   return (
     <div className="toolbox-detail template-submission-detail">
-      {schema.sections.map((section) => (
+      {visibleSections.map((section) => (
         <section key={section.id}>
           <h3>{section.title}</h3>
           {section.description ? <p className="toolbox-detail-text">{section.description}</p> : null}
@@ -13245,7 +13460,7 @@ function cleanSiteInspectionClientForm(
           .map((row) => cleanActionItemRowForSubmit(row, deficiencySettings))
           .filter(actionItemRowHasMeaningfulValue),
     answers: cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker),
-    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}),
+    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}, worker),
   };
 }
 
@@ -13680,7 +13895,7 @@ function cleanToolboxTalkClientForm(
       confirmed: Boolean(form.confirmation.confirmed),
     },
     answers: cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker),
-    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}),
+    actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}, worker),
   };
 }
 
@@ -13782,6 +13997,140 @@ function getTemplateSettingValue(settings, key) {
     return source[normalizedKey];
   }
   return undefined;
+}
+
+function normalizeTemplateVisibilitySettings(settings = {}) {
+  const source = getTemplateSettingValue(settings, "visibility");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const sourceFieldId = slugifyTemplateId(raw.sourceFieldId || raw.fieldId || raw.source || "");
+  const operator = TEMPLATE_VISIBILITY_OPERATORS.some((item) => item.id === raw.operator)
+    ? raw.operator
+    : "equals";
+  let value = raw.value;
+  if (Array.isArray(value)) value = value[0] ?? "";
+  if (value === null || value === undefined) value = "";
+  return {
+    enabled: Boolean(raw.enabled && sourceFieldId),
+    sourceFieldId,
+    operator,
+    value: typeof value === "boolean" ? value : String(value),
+  };
+}
+
+function serializeTemplateVisibilitySettings(visibility = {}) {
+  const normalized = normalizeTemplateVisibilitySettings({ visibility });
+  return normalized.enabled
+    ? normalized
+    : { enabled: false, sourceFieldId: "", operator: "equals", value: "" };
+}
+
+function templateFieldIsHidden(field) {
+  return getTemplateSettingValue(field?.settings, "hidden") === true;
+}
+
+function normalizeMediaUploadSettings(settings = {}) {
+  const source = getTemplateSettingValue(settings, "mediaUpload");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const acceptedKinds = Array.isArray(raw.acceptedKinds)
+    ? raw.acceptedKinds.filter((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind])
+    : [];
+  return {
+    acceptedKinds: acceptedKinds.length ? [...new Set(acceptedKinds)] : DEFAULT_MEDIA_UPLOAD_KINDS,
+  };
+}
+
+function serializeMediaUploadSettings(settings = {}) {
+  const normalized = normalizeMediaUploadSettings(settings);
+  return { acceptedKinds: normalized.acceptedKinds };
+}
+
+function mediaUploadAcceptedKinds(field) {
+  return normalizeMediaUploadSettings(field?.settings).acceptedKinds;
+}
+
+function mediaUploadAccept(field) {
+  return mediaUploadAcceptedKinds(field)
+    .flatMap((kind) => [
+      ...MEDIA_UPLOAD_KIND_CONFIGS[kind].mimeTypes,
+      ...MEDIA_UPLOAD_KIND_CONFIGS[kind].extensions,
+    ])
+    .join(",");
+}
+
+function mediaUploadAllowedExtensions(field) {
+  return new Set(mediaUploadAcceptedKinds(field).flatMap((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].extensions));
+}
+
+function mediaUploadAllowedMimeTypes(field) {
+  return new Set(mediaUploadAcceptedKinds(field).flatMap((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].mimeTypes));
+}
+
+function mediaUploadAcceptedKindsLabel(field) {
+  return mediaUploadAcceptedKinds(field)
+    .map((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].helper)
+    .join(", ");
+}
+
+function templateVisibilitySourceFields(schema, excludeFieldId = "") {
+  return collectClientTemplateFields(schema)
+    .filter((field) => TEMPLATE_VISIBILITY_SOURCE_TYPES.has(field.type))
+    .filter((field) => field.id !== excludeFieldId)
+    .filter((field) => !isTemplateNonAnswerField(field) && !templateFieldIsHidden(field));
+}
+
+function templateVisibilitySourceValueOptions(field) {
+  if (!field) return [];
+  if (field.type === "yes_no") return [
+    { value: "yes", label: "Yes" },
+    { value: "no", label: "No" },
+  ];
+  if (["boolean", "toggle", "checkbox"].includes(field.type)) return [
+    { value: true, label: "Checked / On / Yes" },
+    { value: false, label: "Unchecked / Off / No" },
+  ];
+  return (field.options || []).map((option) => ({ value: option, label: option }));
+}
+
+function normalizeTemplateVisibilityValueForField(field, value) {
+  if (["boolean", "toggle", "checkbox"].includes(field?.type)) {
+    if (value === true || value === false) return value;
+    const text = String(value || "").trim().toLowerCase();
+    return ["true", "yes", "1", "on"].includes(text);
+  }
+  return String(value ?? "");
+}
+
+function templateBlockConditionIsVisible(block, schema, answers = {}, worker = null) {
+  const visibility = normalizeTemplateVisibilitySettings(block?.settings);
+  if (!visibility.enabled) return true;
+  const sourceField = collectClientTemplateFields(schema).find((field) => field.id === visibility.sourceFieldId);
+  if (!sourceField) return true;
+  const rawValue = answers?.[sourceField.id] ?? templateFieldDefaultValue(sourceField, worker, schema);
+  const expected = normalizeTemplateVisibilityValueForField(sourceField, visibility.value);
+  if (Array.isArray(rawValue)) {
+    const actualValues = rawValue.map((item) => String(item));
+    const expectedText = String(expected);
+    const includes = actualValues.includes(expectedText);
+    return visibility.operator === "not_contains" || visibility.operator === "not_equals" ? !includes : includes;
+  }
+  const actual = normalizeTemplateVisibilityValueForField(sourceField, rawValue);
+  const matches = actual === expected;
+  if (visibility.operator === "not_equals" || visibility.operator === "not_contains") return !matches;
+  return matches;
+}
+
+function getVisibleTemplateSections(schema, answers = {}, worker = null, { includeHiddenFields = false } = {}) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  return (normalized.sections || [])
+    .filter((section) => templateBlockConditionIsVisible(section, normalized, answers, worker))
+    .map((section) => ({
+      ...section,
+      fields: (section.fields || []).filter((field) =>
+        templateBlockConditionIsVisible(field, normalized, answers, worker) &&
+        (includeHiddenFields || !templateFieldIsHidden(field)),
+      ),
+    }))
+    .filter((section) => section.fields.length);
 }
 
 function ensureTemplateSchemaHasStarterQuestion(schema) {
@@ -13894,7 +14243,7 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     label,
     helperText: String(field?.helperText || field?.helper_text || ""),
     required: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.required),
-    default: isTemplateNonAnswerField({ type }) ? "" : ["", "today", "now", "worker_name"].includes(field?.default) ? field.default : "",
+    default: isTemplateNonAnswerField({ type }) ? "" : TEMPLATE_DEFAULT_VALUES.has(field?.default) ? field.default : "",
     remember: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.remember),
     options,
     settings: normalizeTemplateSettings(field?.settings),
@@ -14004,7 +14353,7 @@ function readTemplateFieldDefaults(worker, formType) {
 function rememberTemplateFieldDefaults(formType, schema, answers, worker) {
   const current = readTemplateFieldDefaults(worker, formType);
   const next = { ...current };
-  collectClientTemplateFields(schema).forEach((field) => {
+  getVisibleTemplateSections(schema, answers, worker).flatMap((section) => section.fields || []).forEach((field) => {
     if (!field.remember) return;
     const value = answers[field.id];
     if (typeof value === "string" && value.trim()) next[field.id] = value.trim();
@@ -14012,12 +14361,33 @@ function rememberTemplateFieldDefaults(formType, schema, answers, worker) {
   writeStorageJson(templateDefaultsKey(worker, formType), next);
 }
 
+function templateWorkerDefaultValue(defaultKey, worker) {
+  if (defaultKey === "today") return todayInVancouver();
+  if (defaultKey === "now") return timeInVancouver();
+  if (defaultKey === "worker_name") return worker?.name || "";
+  if (defaultKey === "worker_phone") return worker?.phone || "";
+  if (defaultKey === "worker_username") return worker?.username || worker?.user_name || "";
+  if (defaultKey === "worker_company") return worker?.company || "";
+  if (defaultKey === "worker_address") return worker?.address || worker?.street_address || "";
+  return "";
+}
+
+function templateDefaultOptionsForField(field) {
+  if (isTemplateNonAnswerField(field)) return [];
+  if (["multi_select", "checkbox", "yes_no", "boolean", "toggle", "media_upload", "dropdown", "signature"].includes(field.type)) {
+    return TEMPLATE_DEFAULT_VALUE_OPTIONS.filter((option) => option.id === "");
+  }
+  return TEMPLATE_DEFAULT_VALUE_OPTIONS.filter((option) => {
+    if (!option.fieldTypes) return true;
+    return option.fieldTypes.includes(field.type);
+  });
+}
+
 function templateFieldDefaultValue(field, worker, schema) {
   const remembered = readTemplateFieldDefaults(worker, schema?.formType || "daily_hazard_assessment");
   if (field.remember && remembered[field.id]) return remembered[field.id];
-  if (field.default === "today") return todayInVancouver();
-  if (field.default === "now") return timeInVancouver();
-  if (field.default === "worker_name") return worker?.name || "";
+  const workerDefault = templateWorkerDefaultValue(field.default, worker);
+  if (workerDefault) return workerDefault;
   if (field.type === "multi_select") return [];
   if (field.type === "media_upload") return [];
   if (field.type === "boolean" || field.type === "toggle") return false;
@@ -14034,7 +14404,7 @@ function isTemplateNonAnswerField(field) {
 }
 
 function getTemplateMissingFields(schema, answers, worker) {
-  const fields = collectClientTemplateFields(schema);
+  const fields = getVisibleTemplateSections(schema, answers, worker).flatMap((section) => section.fields || []);
   const missing = fields
     .filter((field) => !isTemplateNonAnswerField(field) && field.required)
     .filter((field) => isTemplateAnswerEmpty(field, answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)))
@@ -14083,19 +14453,22 @@ function getActionItemBlockMissingFields(field, value) {
 
 function cleanTemplateAnswersForSubmit(schema, answers, worker) {
   const cleaned = {};
-  collectClientTemplateFields(schema).forEach((field) => {
-    if (isTemplateNonAnswerField(field)) return;
-    cleaned[field.id] = cleanTemplateAnswerForSubmit(
-      field,
-      answers[field.id] ?? templateFieldDefaultValue(field, worker, schema),
-    );
-  });
+  getVisibleTemplateSections(schema, answers, worker, { includeHiddenFields: true })
+    .flatMap((section) => section.fields || [])
+    .forEach((field) => {
+      if (isTemplateNonAnswerField(field)) return;
+      cleaned[field.id] = cleanTemplateAnswerForSubmit(
+        field,
+        answers[field.id] ?? templateFieldDefaultValue(field, worker, schema),
+      );
+    });
   return cleaned;
 }
 
-function cleanActionItemBlocksForSubmit(schema, answers) {
+function cleanActionItemBlocksForSubmit(schema, answers, worker = null) {
   const blocks = {};
-  collectClientTemplateFields(schema)
+  getVisibleTemplateSections(schema, answers, worker)
+    .flatMap((section) => section.fields || [])
     .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
     .forEach((field) => {
       const settings = normalizeActionItemRowsSettings(field.settings, field.type);
@@ -14145,7 +14518,9 @@ function isTemplateAnswerEmpty(field, value) {
 }
 
 function isTemplateDraftMeaningful(schema, answers, worker) {
-  return collectClientTemplateFields(schema).some((field) => {
+  return getVisibleTemplateSections(schema, answers, worker)
+    .flatMap((section) => section.fields || [])
+    .some((field) => {
     if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
       const block = normalizeActionItemBlockValue(answers[field.id]);
       return block.noItems || block.rows.some(actionItemRowHasMeaningfulValue);
@@ -14185,14 +14560,16 @@ function cleanMediaUploadAnswerFile(file) {
   };
 }
 
-function mediaUploadLocalFileError(file) {
+function mediaUploadLocalFileError(file, field = null) {
   const name = String(file?.name || "");
   const extension = mediaUploadFileExtension(name);
   const mimeType = String(file?.type || "").toLowerCase();
-  if (!MEDIA_UPLOAD_ALLOWED_EXTENSIONS.has(extension)) {
-    return "Use JPG, PNG, WEBP, HEIC, PDF, XLS, or XLSX files.";
+  const allowedExtensions = field ? mediaUploadAllowedExtensions(field) : MEDIA_UPLOAD_ALLOWED_EXTENSIONS;
+  const allowedMimeTypes = field ? mediaUploadAllowedMimeTypes(field) : MEDIA_UPLOAD_ALLOWED_MIME_TYPES;
+  if (!allowedExtensions.has(extension)) {
+    return `Use ${mediaUploadAcceptedKindsLabel(field || { settings: {} })} files.`;
   }
-  if (mimeType && mimeType !== "application/octet-stream" && !MEDIA_UPLOAD_ALLOWED_MIME_TYPES.has(mimeType)) {
+  if (mimeType && mimeType !== "application/octet-stream" && !allowedMimeTypes.has(mimeType)) {
     return "File extension and file type do not match.";
   }
   if (!Number.isFinite(file?.size) || file.size < 1) return "File size is required.";
@@ -14752,7 +15129,8 @@ function buildDigitalTemplateFormHtml(row, data, options = {}) {
 
 function templateAnswerSectionsHtml(schema, answers = {}, actionItemBlocks = {}) {
   const normalized = normalizeClientTemplateSchema(schema);
-  return normalized.sections.map((section) => {
+  const visibleSections = getVisibleTemplateSections(normalized, answers, null, { includeHiddenFields: true });
+  return visibleSections.map((section) => {
     const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
     const rows = fields.map((field) => {
       if (field.type === "signature") return signatureDefinitionHtml(field.label, answers[field.id]);

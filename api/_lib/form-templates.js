@@ -2,6 +2,7 @@ import {
   getSupabaseServiceClient,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { getVancouverDate } from "./date.js";
 
 export const CUSTOM_FORM_TYPES = [
   "toolbox_talk",
@@ -62,6 +63,17 @@ const MAX_TEXT = 600;
 const MAX_LONG_TEXT = 4000;
 const MAX_SIGNATURE_DATA_URL = 750000;
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
+const TEMPLATE_DEFAULT_VALUES = new Set([
+  "",
+  "today",
+  "now",
+  "worker_name",
+  "worker_phone",
+  "worker_username",
+  "worker_company",
+  "worker_address",
+]);
+const TEMPLATE_VISIBILITY_OPERATORS = new Set(["equals", "not_equals", "contains", "not_contains"]);
 const MAX_MEDIA_UPLOAD_FILES = 5;
 const MAX_MEDIA_UPLOAD_FILE_BYTES = 50 * 1024 * 1024;
 const MEDIA_UPLOAD_EXTENSIONS = {
@@ -75,6 +87,12 @@ const MEDIA_UPLOAD_EXTENSIONS = {
   ".xls": ["application/vnd.ms-excel"],
   ".xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
 };
+const MEDIA_UPLOAD_KIND_EXTENSIONS = {
+  image: [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"],
+  pdf: [".pdf"],
+  excel: [".xls", ".xlsx"],
+};
+const DEFAULT_MEDIA_UPLOAD_KINDS = Object.keys(MEDIA_UPLOAD_KIND_EXTENSIONS);
 const GENERIC_MEDIA_MIME_TYPES = ["", "application/octet-stream"];
 const MAX_SETTINGS_KEYS = 80;
 const MAX_SETTINGS_DEPTH = 5;
@@ -535,7 +553,7 @@ export async function validateTemplateSubmissionFormData({ formType, rawFormData
     ? rawFormData.answers
     : rawFormData;
   const answers = cleanTemplateAnswers(schema, rawAnswers || {}, worker);
-  const actionItemBlocks = cleanTemplateActionItemBlocks(schema, rawFormData || {});
+  const actionItemBlocks = cleanTemplateActionItemBlocks(schema, rawFormData || {}, answers, worker);
   return {
     formData: {
       kind: "template_submission_v1",
@@ -562,9 +580,10 @@ export function cleanTemplateSubmissionFieldsForSchema(schema, rawFormData, work
   const rawAnswers = rawFormData?.answers && typeof rawFormData.answers === "object"
     ? rawFormData.answers
     : rawFormData;
+  const answers = cleanTemplateAnswers(cleanSchema, rawAnswers || {}, worker);
   return {
-    answers: cleanTemplateAnswers(cleanSchema, rawAnswers || {}, worker),
-    actionItemBlocks: cleanTemplateActionItemBlocks(cleanSchema, rawFormData || {}),
+    answers,
+    actionItemBlocks: cleanTemplateActionItemBlocks(cleanSchema, rawFormData || {}, answers, worker),
   };
 }
 
@@ -577,10 +596,11 @@ export function collectTemplateMediaUploadFiles(formData) {
   const answers = formData?.answers && typeof formData.answers === "object" && !Array.isArray(formData.answers)
     ? formData.answers
     : {};
-  return collectTemplateFields(schema)
+  return getVisibleTemplateSections(schema, answers, null, { includeHiddenFields: true })
+    .flatMap((section) => section.fields || [])
     .filter((field) => field.type === "media_upload")
     .flatMap((field) =>
-      cleanMediaUploadAnswer(answers[field.id], field.label).map((file) => ({
+      cleanMediaUploadAnswer(answers[field.id], field.label, field).map((file) => ({
         ...file,
         fieldId: field.id,
         fieldLabel: field.label,
@@ -593,7 +613,8 @@ export function buildTemplateSubmissionNotes(formType, formData) {
   const answers = formData?.answers || {};
   const title = schema.title || formData?.templateTitle || formType;
   const parts = [title];
-  const firstFields = collectTemplateFields(schema)
+  const firstFields = getVisibleTemplateSections(schema, answers, null, { includeHiddenFields: true })
+    .flatMap((section) => section.fields || [])
     .filter((field) => !isTemplateNonAnswerField(field) && answers[field.id] !== undefined)
     .slice(0, 3);
   firstFields.forEach((field) => {
@@ -717,7 +738,92 @@ function getSettingValue(settings, key) {
   return match ? settings[match] : undefined;
 }
 
-function cleanTemplateActionItemBlocks(schema, rawFormData) {
+function templateFieldIsHidden(field) {
+  return getSettingValue(field?.settings, "hidden") === true;
+}
+
+function normalizeTemplateVisibilitySettings(settings = {}) {
+  const source = getSettingValue(settings, "visibility");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const sourceFieldId = cleanId(raw.sourceFieldId || raw.fieldId || raw.source);
+  const operator = TEMPLATE_VISIBILITY_OPERATORS.has(raw.operator) ? raw.operator : "equals";
+  let value = raw.value;
+  if (Array.isArray(value)) value = value[0] ?? "";
+  if (value === null || value === undefined) value = "";
+  return {
+    enabled: Boolean(raw.enabled && sourceFieldId),
+    sourceFieldId,
+    operator,
+    value,
+  };
+}
+
+function normalizeVisibilityValueForField(field, value) {
+  if (["boolean", "toggle", "checkbox"].includes(field?.type)) {
+    if (value === true || value === false) return value;
+    const text = cleanString(value, 20).toLowerCase();
+    return ["true", "yes", "1", "on"].includes(text);
+  }
+  return cleanString(value, MAX_TEXT);
+}
+
+function templateBlockConditionIsVisible(block, schema, answers = {}, worker = null) {
+  const visibility = normalizeTemplateVisibilitySettings(block?.settings);
+  if (!visibility.enabled) return true;
+  const sourceField = collectTemplateFields(schema).find((field) => field.id === visibility.sourceFieldId);
+  if (!sourceField) return true;
+  const rawValue = answers?.[sourceField.id] === undefined ? defaultForField(sourceField, worker) : answers[sourceField.id];
+  const expected = normalizeVisibilityValueForField(sourceField, visibility.value);
+  if (Array.isArray(rawValue)) {
+    const actualValues = rawValue.map((item) => cleanString(item, MAX_TEXT));
+    const includes = actualValues.includes(cleanString(expected, MAX_TEXT));
+    return visibility.operator === "not_contains" || visibility.operator === "not_equals" ? !includes : includes;
+  }
+  const actual = normalizeVisibilityValueForField(sourceField, rawValue);
+  const matches = actual === expected;
+  if (visibility.operator === "not_equals" || visibility.operator === "not_contains") return !matches;
+  return matches;
+}
+
+function getVisibleTemplateSections(schema, answers = {}, worker = null, { includeHiddenFields = false } = {}) {
+  return (schema?.sections || [])
+    .filter((section) => templateBlockConditionIsVisible(section, schema, answers, worker))
+    .map((section) => ({
+      ...section,
+      fields: (section.fields || []).filter((field) =>
+        templateBlockConditionIsVisible(field, schema, answers, worker) &&
+        (includeHiddenFields || !templateFieldIsHidden(field)),
+      ),
+    }))
+    .filter((section) => section.fields.length);
+}
+
+function cleanMediaUploadKinds(settings = {}) {
+  const source = getSettingValue(settings, "mediaUpload");
+  const raw = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const acceptedKinds = Array.isArray(raw.acceptedKinds)
+    ? raw.acceptedKinds.filter((kind) => MEDIA_UPLOAD_KIND_EXTENSIONS[kind])
+    : [];
+  return acceptedKinds.length ? [...new Set(acceptedKinds)] : DEFAULT_MEDIA_UPLOAD_KINDS;
+}
+
+function allowedMediaExtensionsForField(field) {
+  return new Set(cleanMediaUploadKinds(field?.settings).flatMap((kind) => MEDIA_UPLOAD_KIND_EXTENSIONS[kind]));
+}
+
+function mediaUploadAcceptedKindsLabel(field) {
+  return cleanMediaUploadKinds(field?.settings)
+    .map((kind) => {
+      if (kind === "image") return "JPG, PNG, WEBP, or HEIC";
+      if (kind === "pdf") return "PDF";
+      if (kind === "excel") return "XLS or XLSX";
+      return "";
+    })
+    .filter(Boolean)
+    .join(", ");
+}
+
+function cleanTemplateActionItemBlocks(schema, rawFormData, answers = {}, worker = null) {
   const source = rawFormData && typeof rawFormData === "object" && !Array.isArray(rawFormData)
     ? rawFormData
     : {};
@@ -727,7 +833,8 @@ function cleanTemplateActionItemBlocks(schema, rawFormData) {
       ? source.action_item_blocks
       : {};
   const blocks = {};
-  collectTemplateFields(schema)
+  getVisibleTemplateSections(schema, answers, worker)
+    .flatMap((section) => section.fields || [])
     .filter((field) => ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type))
     .forEach((field) => {
       blocks[field.id] = cleanTemplateActionItemBlock(field, rawBlocks[field.id]);
@@ -803,11 +910,13 @@ function actionItemRowHasMeaningfulValue(row) {
 function cleanTemplateAnswers(schema, value, worker) {
   const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   const answers = {};
-  for (const field of collectTemplateFields(schema)) {
+  const fields = getVisibleTemplateSections(schema, source, worker, { includeHiddenFields: true })
+    .flatMap((section) => section.fields || []);
+  for (const field of fields) {
     if (isTemplateNonAnswerField(field)) continue;
     const raw = source[field.id] === undefined ? defaultForField(field, worker) : source[field.id];
     const cleaned = cleanAnswer(field, raw);
-    if (field.required && isEmptyAnswer(field, cleaned)) {
+    if (!templateFieldIsHidden(field) && field.required && isEmptyAnswer(field, cleaned)) {
       throwBadRequest(`${field.label} is required.`);
     }
     answers[field.id] = cleaned;
@@ -862,7 +971,7 @@ function cleanAnswer(field, raw) {
       .filter((item) => allowed.has(item))
       .slice(0, MAX_OPTIONS);
   }
-  if (field.type === "media_upload") return cleanMediaUploadAnswer(raw, field.label);
+  if (field.type === "media_upload") return cleanMediaUploadAnswer(raw, field.label, field);
   if (field.type === "signature") return cleanSignatureDataUrl(raw, field.label);
   const max = field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT;
   return cleanString(raw, max);
@@ -885,7 +994,7 @@ function cleanBooleanAnswer(raw, label) {
   throwBadRequest(`${label} must be true or false.`);
 }
 
-function cleanMediaUploadAnswer(raw, label) {
+function cleanMediaUploadAnswer(raw, label, field = null) {
   const source = Array.isArray(raw)
     ? raw
     : Array.isArray(raw?.files)
@@ -894,15 +1003,16 @@ function cleanMediaUploadAnswer(raw, label) {
   if (source.length > MAX_MEDIA_UPLOAD_FILES) {
     throwBadRequest(`${label} allows ${MAX_MEDIA_UPLOAD_FILES} files or fewer.`);
   }
-  return source.map((file) => cleanMediaUploadFile(file, label));
+  return source.map((file) => cleanMediaUploadFile(file, label, field));
 }
 
-function cleanMediaUploadFile(file, label) {
+function cleanMediaUploadFile(file, label, field = null) {
   const source = file && typeof file === "object" && !Array.isArray(file) ? file : {};
   const originalFilename = cleanString(source.originalFilename || source.original_filename || source.name, MAX_TEXT);
   const storagePath = cleanString(source.storagePath || source.storage_path, 1000);
   const extension = mediaUploadFileExtension(originalFilename);
   const allowedMimeTypes = MEDIA_UPLOAD_EXTENSIONS[extension] || [];
+  const allowedExtensions = field ? allowedMediaExtensionsForField(field) : new Set(Object.keys(MEDIA_UPLOAD_EXTENSIONS));
   const rawMimeType = cleanString(source.mimeType || source.mime_type || source.type, 160).toLowerCase();
   const mimeType = GENERIC_MEDIA_MIME_TYPES.includes(rawMimeType)
     ? allowedMimeTypes[0] || "application/octet-stream"
@@ -911,8 +1021,8 @@ function cleanMediaUploadFile(file, label) {
   if (!originalFilename || !storagePath) {
     throwBadRequest(`${label} upload metadata is incomplete.`);
   }
-  if (!allowedMimeTypes.length) {
-    throwBadRequest(`${label} only accepts JPG, PNG, WEBP, HEIC, PDF, XLS, or XLSX files.`);
+  if (!allowedMimeTypes.length || !allowedExtensions.has(extension)) {
+    throwBadRequest(`${label} only accepts ${mediaUploadAcceptedKindsLabel(field || { settings: {} })} files.`);
   }
   if (!allowedMimeTypes.includes(mimeType)) {
     throwBadRequest(`${label} file extension and file type do not match.`);
@@ -938,10 +1048,25 @@ function mediaUploadFileExtension(name) {
 }
 
 function defaultForField(field, worker) {
+  if (field.default === "today") return getVancouverDate();
+  if (field.default === "now") return getVancouverTime();
   if (field.default === "worker_name") return worker?.name || "";
+  if (field.default === "worker_phone") return worker?.phone || "";
+  if (field.default === "worker_username") return worker?.username || worker?.user_name || "";
+  if (field.default === "worker_company") return worker?.company || "";
+  if (field.default === "worker_address") return worker?.address || worker?.street_address || "";
   if (field.type === "media_upload") return [];
   if (field.type === "boolean" || field.type === "toggle") return false;
   return "";
+}
+
+function getVancouverTime(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Vancouver",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
 }
 
 function collectTemplateFields(schema) {
@@ -1123,7 +1248,7 @@ function cleanOptions(value) {
 
 function cleanDefaultValue(value) {
   const cleaned = cleanString(value, 80);
-  return ["", "today", "now", "worker_name"].includes(cleaned) ? cleaned : "";
+  return TEMPLATE_DEFAULT_VALUES.has(cleaned) ? cleaned : "";
 }
 
 function cleanFormType(value) {

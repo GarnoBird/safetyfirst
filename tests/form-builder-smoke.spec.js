@@ -192,6 +192,83 @@ const genericAllFieldsSchema = {
   ],
 };
 
+const advancedSettingsSchema = {
+  schemaVersion: 1,
+  formType: "advanced_settings_smoke",
+  title: "Advanced Settings Smoke",
+  description: "Conditional, hidden, and media settings.",
+  sections: [
+    {
+      id: "advanced",
+      title: "Advanced Fields",
+      description: "",
+      fields: [
+        { id: "needs_training", type: "yes_no", label: "Needs extra training?" },
+        {
+          id: "training_details",
+          type: "long_text",
+          label: "Training details",
+          required: true,
+          settings: {
+            visibility: {
+              enabled: true,
+              sourceFieldId: "needs_training",
+              operator: "equals",
+              value: "yes",
+            },
+          },
+        },
+        {
+          id: "hidden_name",
+          type: "short_text",
+          label: "Hidden worker name",
+          required: true,
+          default: "worker_name",
+          settings: { hidden: true },
+        },
+        {
+          id: "hidden_phone",
+          type: "short_text",
+          label: "Hidden worker phone",
+          default: "worker_phone",
+          settings: { hidden: true },
+        },
+        {
+          id: "hidden_username",
+          type: "short_text",
+          label: "Hidden worker username",
+          default: "worker_username",
+          settings: { hidden: true },
+        },
+        {
+          id: "hidden_company",
+          type: "short_text",
+          label: "Hidden worker company",
+          default: "worker_company",
+          settings: { hidden: true },
+        },
+        {
+          id: "hidden_date",
+          type: "date",
+          label: "Hidden date",
+          default: "today",
+          settings: { hidden: true },
+        },
+        {
+          id: "image_evidence",
+          type: "media_upload",
+          label: "Image evidence",
+          settings: {
+            mediaUpload: {
+              acceptedKinds: ["image"],
+            },
+          },
+        },
+      ],
+    },
+  ],
+};
+
 async function mockApis(page, templates) {
   const templatesByType = new Map(templates.map((row) => [row.form_type, row]));
   const submissions = [];
@@ -462,6 +539,64 @@ test("generic V3 preview renders all normal field types and action item rows", a
       storagePath: expect.stringContaining(`${worker.id}/smoke-`),
       originalFilename: "metrics.xlsx",
       mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+  ]);
+});
+
+test("conditional visibility, hidden worker variables, and image-only media settings work", async ({ page }) => {
+  const row = template("advanced_settings_smoke", "Advanced Settings Smoke", advancedSettingsSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Training details" }).getByRole("button").first().click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByText("Conditional visibility")).toBeVisible();
+  await expect(selectedBlock.getByLabel("When field")).toHaveValue("needs_training");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Hidden worker name" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByText("Hidden from workers")).toBeVisible();
+  await expect(selectedBlock.getByLabel("Default value")).toHaveValue("worker_name");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Image evidence" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByText("Accepted uploads")).toBeVisible();
+  await expect(selectedBlock.getByLabel("Images")).toBeChecked();
+  await expect(selectedBlock.getByLabel("PDF")).not.toBeChecked();
+  await expect(selectedBlock.getByLabel("Excel")).not.toBeChecked();
+
+  await openPreview(page);
+  await expect(page.getByText("Training details")).toHaveCount(0);
+  await expect(page.getByText("Hidden worker name")).toHaveCount(0);
+  await page.getByRole("button", { name: "Yes" }).click();
+  await expect(page.getByLabel("Training details")).toBeVisible();
+  await expect(page.getByText("JPG, PNG, WEBP, HEIC / 5 files max / 50 MiB each")).toBeVisible();
+
+  await page.goto("/forms/advanced_settings_smoke");
+  await expect(page.getByText("Training details")).toHaveCount(0);
+  await expect(page.getByText("Hidden worker name")).toHaveCount(0);
+  await page.getByRole("button", { name: "No" }).click();
+  await page.locator('input[type="file"][aria-label="Image evidence"]').setInputFiles({
+    name: "report.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.4 smoke"),
+  });
+  await expect(page.getByText(/Use JPG, PNG, WEBP, HEIC files/)).toBeVisible();
+  await page.locator('input[type="file"][aria-label="Image evidence"]').setInputFiles({
+    name: "photo.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("jpg"),
+  });
+  await expect(page.getByText("photo.jpg")).toBeVisible();
+  await page.getByRole("button", { name: "Submit Advanced Settings Smoke" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.needs_training).toBe("no");
+  expect(submissions[0].formData.answers.training_details).toBeUndefined();
+  expect(submissions[0].formData.answers.hidden_name).toBe(worker.name);
+  expect(submissions[0].formData.answers.hidden_phone).toBe(worker.phone);
+  expect(submissions[0].formData.answers.hidden_username).toBe(worker.username);
+  expect(submissions[0].formData.answers.hidden_company).toBe(worker.company);
+  expect(submissions[0].formData.answers.hidden_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  expect(submissions[0].formData.answers.image_evidence).toEqual([
+    expect.objectContaining({
+      originalFilename: "photo.jpg",
+      mimeType: "image/jpeg",
     }),
   ]);
 });

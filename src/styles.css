@@ -4404,14 +4404,17 @@ p {
 .template-advanced-options,
 .template-action-row-settings,
 .template-action-row-subfields,
-.template-action-row-subfield {
+.template-action-row-subfield,
+.template-conditional-settings,
+.template-media-kind-settings {
   display: grid;
   gap: 8px;
   min-width: 0;
 }
 
 .template-options-builder > span,
-.template-action-row-subfields > span {
+.template-action-row-subfields > span,
+.template-media-kind-settings > span {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 850;
@@ -4421,6 +4424,15 @@ p {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.template-conditional-settings .template-v3-two-column {
+  grid-template-columns: 1fr;
+}
+
+.template-v3-help-text.compact {
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 .template-action-row-subfield {
@@ -4831,6 +4843,15 @@ p {
 .table-action-row button {
   min-height: 34px;
   padding: 0 10px;
+}
+
+.staff-accounts-table-actions th:last-child,
+.staff-accounts-table-actions td:last-child {
+  min-width: 292px;
+}
+
+.staff-accounts-table-actions .table-action-row {
+  flex-wrap: nowrap;
 }
 
 .status-pill {
