@@ -4298,8 +4298,15 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         </div>
       ) : null}
 
+      <div className="template-runtime-section-grid">
       {toolboxLayout.headerFields.length ? (
-        <section className={meetingInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
+        <section
+          className={templateRuntimeSectionClassName(
+            "toolbox_meeting_info",
+            toolboxLayout.meetingInfo,
+            meetingInfoInvalid ? "toolbox-section-invalid" : "",
+          )}
+        >
           <div className="toolbox-section-heading">
             <h2>{toolboxLayout.meetingInfo.title || "Meeting Info"}</h2>
             {hasSavedDefaults ? (
@@ -4341,7 +4348,11 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
 
         {enabledBlockSet.has("toolbox_topics") ? (
       <section
-        className={topicsInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
+        className={templateRuntimeSectionClassName(
+          "toolbox_topics",
+          { settings: toolboxLayout.blockSettings.toolbox_topics },
+          topicsInvalid ? "toolbox-section-invalid" : "",
+        )}
         ref={registerValidationTarget("topics")}
       >
         <div className="toolbox-section-heading">
@@ -4448,7 +4459,13 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         ) : null}
 
         {enabledBlockSet.has("toolbox_incident_review") ? (
-      <section className={optionalOpen.review ? "toolbox-section" : "toolbox-section collapsed"}>
+      <section
+        className={templateRuntimeSectionClassName(
+          "toolbox_incident_review",
+          { settings: toolboxLayout.blockSettings.toolbox_incident_review },
+          optionalOpen.review ? "" : "collapsed",
+        )}
+      >
         <div className="toolbox-section-heading">
           <h2>{toolboxLayout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
           <button type="button" onClick={() => toggleOptional("review")}>
@@ -4480,7 +4497,13 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         ) : null}
 
         {enabledBlockSet.has("toolbox_safety_concerns") ? (
-      <section className={optionalOpen.concerns ? "toolbox-section" : "toolbox-section collapsed"}>
+      <section
+        className={templateRuntimeSectionClassName(
+          "toolbox_safety_concerns",
+          { settings: toolboxLayout.blockSettings.toolbox_safety_concerns },
+          optionalOpen.concerns ? "" : "collapsed",
+        )}
+      >
         <div className="toolbox-section-heading">
           <h2>{toolboxLayout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
           <button type="button" onClick={() => toggleOptional("concerns")}>
@@ -4512,7 +4535,11 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
 
         {enabledBlockSet.has("toolbox_attendance") ? (
       <section
-        className={attendanceInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}
+        className={templateRuntimeSectionClassName(
+          "toolbox_attendance",
+          { settings: toolboxLayout.blockSettings.toolbox_attendance },
+          attendanceInvalid ? "toolbox-section-invalid" : "",
+        )}
         ref={registerValidationTarget("attendance")}
       >
         <div className="toolbox-section-heading">
@@ -4549,7 +4576,13 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         ) : null}
 
         {enabledBlockSet.has("toolbox_final_confirmation") ? (
-      <section className={finalCheckInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
+      <section
+        className={templateRuntimeSectionClassName(
+          "toolbox_final_confirmation",
+          { settings: toolboxLayout.blockSettings.toolbox_final_confirmation },
+          finalCheckInvalid ? "toolbox-section-invalid" : "",
+        )}
+      >
         <div className="toolbox-section-heading">
           <h2>{toolboxLayout.blockLabels.toolbox_final_confirmation || "Final Check"}</h2>
           <span>Completed by presenter</span>
@@ -4610,6 +4643,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         </label>
       </section>
         ) : null}
+      </div>
 
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
@@ -4810,7 +4844,13 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
   const renderHeaderSection = () => {
     if (!siteLayout.headerFields.length) return null;
     return (
-      <section className={inspectionInfoInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section"}>
+      <section
+        className={templateRuntimeSectionClassName(
+          "site_inspection_header",
+          siteLayout.inspectionInfo,
+          inspectionInfoInvalid ? "toolbox-section-invalid" : "",
+        )}
+      >
         <div className="toolbox-section-heading">
           <h2>{siteLayout.inspectionInfo.title || "Inspection Info"}</h2>
           {hasSavedDefaults ? (
@@ -4854,7 +4894,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
     const open = Boolean(optionalOpen[section.id]);
     const sectionInvalid = section.fields.some((field) => isFieldInvalid(`observations.${field.key}`));
     const sectionClass = [
-      "toolbox-section",
+      templateRuntimeSectionClassName(section.id, section),
       open ? "" : "collapsed",
       sectionInvalid ? "toolbox-section-invalid" : "",
     ].filter(Boolean).join(" ");
@@ -4909,9 +4949,11 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
         blockInvalid={deficienciesInvalid}
         blockType="site_deficiencies"
         invalidFields={missingFieldSet}
+        layoutSettings={siteLayout.blockSettings.site_deficiencies}
         noItems={form.noDeficiencies}
         registerValidationTarget={registerValidationTarget}
         rows={form.deficiencies}
+        sectionId="site_deficiencies"
         settings={blockSettings}
         targetPrefix="deficiencies"
         title={siteLayout.blockLabels.site_deficiencies || "Deficiencies"}
@@ -4948,7 +4990,9 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
         </div>
       ) : null}
 
-      {siteLayout.items.map(renderLayoutItem)}
+      <div className="template-runtime-section-grid">
+        {siteLayout.items.map(renderLayoutItem)}
+      </div>
 
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
@@ -4978,10 +5022,12 @@ function ActionItemRowsBlock({
   blockInvalid = false,
   blockType = "action_item_rows",
   invalidFields = new Set(),
+  layoutSettings = {},
   noItems = false,
   preview = false,
   registerValidationTarget,
   rows = [],
+  sectionId = "",
   settings,
   targetPrefix,
   title,
@@ -4999,7 +5045,11 @@ function ActionItemRowsBlock({
     blockInvalid ||
     invalidFields.has(targetPrefix) ||
     Array.from(invalidFields).some((field) => String(field).startsWith(`${targetPrefix}.`));
-  const sectionClass = blockIsInvalid ? "toolbox-section toolbox-section-invalid" : "toolbox-section";
+  const sectionClass = templateRuntimeSectionClassName(
+    sectionId || targetPrefix,
+    { settings: layoutSettings },
+    blockIsInvalid ? "toolbox-section-invalid" : "",
+  );
   const statusLabel = noItems ? "None" : `${listedCount} listed`;
 
   return (
@@ -9722,8 +9772,9 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
   return (
     <div className="template-runtime-form toolbox-talk-template-preview">
       {current.description ? <p className="muted">{current.description}</p> : null}
+      <div className="template-runtime-section-grid">
       {layout.headerFields.length ? (
-        <section className="toolbox-section">
+        <section className={templateRuntimeSectionClassName("toolbox_meeting_info", layout.meetingInfo)}>
           <div className="toolbox-section-heading">
             <h2>{layout.meetingInfo.title || "Meeting Info"}</h2>
             {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
@@ -9746,7 +9797,12 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
       ) : null}
 
       {enabled.has("toolbox_topics") ? (
-        <section className="toolbox-section">
+        <section
+          className={templateRuntimeSectionClassName(
+            "toolbox_topics",
+            { settings: layout.blockSettings.toolbox_topics },
+          )}
+        >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_topics || "Topics Discussed"}</h2>
             <span>Special block</span>
@@ -9784,11 +9840,11 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
 
       {enabled.has("toolbox_incident_review") ? (
         <section
-          className={
-            layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false
-              ? "toolbox-section"
-              : "toolbox-section collapsed"
-          }
+          className={templateRuntimeSectionClassName(
+            "toolbox_incident_review",
+            { settings: layout.blockSettings.toolbox_incident_review },
+            layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false ? "" : "collapsed",
+          )}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
@@ -9808,11 +9864,11 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
 
       {enabled.has("toolbox_safety_concerns") ? (
         <section
-          className={
-            layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false
-              ? "toolbox-section"
-              : "toolbox-section collapsed"
-          }
+          className={templateRuntimeSectionClassName(
+            "toolbox_safety_concerns",
+            { settings: layout.blockSettings.toolbox_safety_concerns },
+            layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false ? "" : "collapsed",
+          )}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
@@ -9830,7 +9886,12 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
       ) : null}
 
       {enabled.has("toolbox_attendance") ? (
-        <section className="toolbox-section">
+        <section
+          className={templateRuntimeSectionClassName(
+            "toolbox_attendance",
+            { settings: layout.blockSettings.toolbox_attendance },
+          )}
+        >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_attendance || "Attendance"}</h2>
             <span>Required</span>
@@ -9846,7 +9907,12 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
       ) : null}
 
       {enabled.has("toolbox_final_confirmation") ? (
-        <section className="toolbox-section">
+        <section
+          className={templateRuntimeSectionClassName(
+            "toolbox_final_confirmation",
+            { settings: layout.blockSettings.toolbox_final_confirmation },
+          )}
+        >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_final_confirmation || "Final Check"}</h2>
             <span>Completed by presenter</span>
@@ -9857,6 +9923,7 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
           </label>
         </section>
       ) : null}
+      </div>
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
           answers={answers}
@@ -9880,7 +9947,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
   const renderHeaderPreview = () => {
     if (!layout.headerFields.length) return null;
     return (
-      <section className="toolbox-section">
+      <section className={templateRuntimeSectionClassName("site_inspection_header", layout.inspectionInfo)}>
         <div className="toolbox-section-heading">
           <h2>{layout.inspectionInfo.title || "Inspection Info"}</h2>
           {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
@@ -9906,7 +9973,10 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
   const renderObservationPreview = (section) => {
     const collapsed = section.defaultCollapsed !== false && !(section.fields || []).some((field) => field.required);
     return (
-      <section className={collapsed ? "toolbox-section collapsed" : "toolbox-section"} key={section.id}>
+      <section
+        className={templateRuntimeSectionClassName(section.id, section, collapsed ? "collapsed" : "")}
+        key={section.id}
+      >
         <div className="toolbox-section-heading">
           <h2>{section.title || "Observations"}</h2>
           <button type="button">{collapsed ? `Add ${String(section.title || "observations").toLowerCase()}` : "Hide"}</button>
@@ -9941,9 +10011,11 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
     return (
       <ActionItemRowsBlock
         blockType="site_deficiencies"
+        layoutSettings={layout.blockSettings.site_deficiencies}
         noItems={false}
         preview
         rows={[createEmptyActionItemRow()]}
+        sectionId="site_deficiencies"
         settings={settings}
         targetPrefix="preview.site_deficiencies"
         title={layout.blockLabels.site_deficiencies || "Deficiencies"}
@@ -9963,7 +10035,9 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
   return (
     <div className="template-runtime-form site-inspection-template-preview">
       {current.description ? <p className="muted">{current.description}</p> : null}
-      {layout.items.map(renderItem)}
+      <div className="template-runtime-section-grid">
+        {layout.items.map(renderItem)}
+      </div>
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
           answers={answers}
@@ -13867,6 +13941,7 @@ function createDefaultSiteInspectionLayout() {
     title: field.sectionTitle,
     description: "",
     defaultCollapsed: field.defaultCollapsed !== false,
+    settings: {},
     fields: [
       {
         ...field,
@@ -14022,6 +14097,7 @@ function getSiteInspectionLayout(schema) {
         description: section.description || "",
         defaultCollapsed: defaultCollapsed !== false,
         fields: observationFields,
+        settings: sectionSettings,
       };
       layout.observationSections.push(observationSection);
       layout.items.push({
@@ -14372,7 +14448,11 @@ function getToolboxTalkLayout(schema) {
   layout.headerFields = layout.headerFields.filter(
     (field, index, fields) => fields.findIndex((item) => item.key === field.key) === index,
   );
-  layout.blockSettings.toolbox_topics = getToolboxTopicSettings(layout.blockSettings.toolbox_topics);
+  const topicBlockSettings = layout.blockSettings.toolbox_topics || {};
+  layout.blockSettings.toolbox_topics = {
+    ...topicBlockSettings,
+    ...getToolboxTopicSettings(topicBlockSettings),
+  };
   const incidentSettings = layout.blockSettings.toolbox_incident_review || {};
   layout.blockSettings.toolbox_incident_review = {
     ...incidentSettings,
@@ -14755,6 +14835,15 @@ function normalizeTemplateLayoutWidth(settings = {}) {
 function templateLayoutWidthClass(block) {
   const width = normalizeTemplateLayoutWidth(block?.settings);
   return width ? `template-width-${width}` : "";
+}
+
+function templateRuntimeSectionClassName(sectionId, block, ...classes) {
+  return [
+    "toolbox-section",
+    sectionId ? `template-section-${slugifyTemplateId(sectionId)}` : "",
+    templateLayoutWidthClass(block),
+    ...classes,
+  ].filter(Boolean).join(" ");
 }
 
 function normalizeTemplateChoiceDisplay(field) {

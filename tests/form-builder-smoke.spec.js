@@ -90,6 +90,7 @@ const salusToolboxTalkSchema = readMigrationSchema("021_salus_toolbox_talk_templ
 const legacyBuildingBlockMigration = "023_legacy_building_block_templates.sql";
 const speedFanInspectionSchema = readMigrationSchema(legacyBuildingBlockMigration, "speed_fan_schema");
 const hoistCompetencyObservationSchema = readMigrationSchema(legacyBuildingBlockMigration, "hoist_schema");
+const fallProtectionSchema = readMigrationSchema("024_fall_protection_template.sql");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -147,6 +148,83 @@ const toolboxAttendanceSchema = {
           id: "attendance_block",
           type: "toolbox_attendance",
           label: "Attendance",
+        },
+      ],
+    },
+  ],
+};
+
+const toolboxHalfWidthSchema = {
+  schemaVersion: 1,
+  formType: "toolbox_talk",
+  title: "Toolbox Width Smoke",
+  description: "Toolbox width smoke template.",
+  sections: [
+    {
+      id: "meeting_info",
+      title: "Meeting Info",
+      description: "Half-width meeting info.",
+      settings: {
+        layout: { width: "half" },
+      },
+      fields: [
+        {
+          id: "project",
+          type: "short_text",
+          label: "Project Name",
+          required: true,
+          remember: true,
+          settings: { toolboxHeaderField: "projectName" },
+        },
+        {
+          id: "date",
+          type: "date",
+          label: "Date",
+          required: true,
+          settings: { toolboxHeaderField: "date" },
+        },
+      ],
+    },
+    {
+      id: "topics",
+      title: "Topics Discussed",
+      description: "Half-width topic picker.",
+      settings: {
+        layout: { width: "half" },
+      },
+      fields: [
+        {
+          id: "topics_block",
+          type: "toolbox_topics",
+          label: "Topics Discussed",
+          settings: {
+            showCommon: true,
+            showSearch: false,
+            enabledCategoryIds: ["general_conditions"],
+            commonTopicLabels: ["Housekeeping / clean-up"],
+          },
+        },
+      ],
+    },
+    {
+      id: "attendance",
+      title: "Attendance",
+      fields: [
+        {
+          id: "attendance_block",
+          type: "toolbox_attendance",
+          label: "Attendance",
+        },
+      ],
+    },
+    {
+      id: "final_check",
+      title: "Final Check",
+      fields: [
+        {
+          id: "final_block",
+          type: "toolbox_final_confirmation",
+          label: "Final Check",
         },
       ],
     },
@@ -901,6 +979,18 @@ async function expectLocatorBefore(firstLocator, secondLocator) {
   expect(isBefore).toBe(true);
 }
 
+async function expectSectionsShareRow(firstLocator, secondLocator) {
+  const [firstBox, secondBox] = await Promise.all([
+    firstLocator.boundingBox(),
+    secondLocator.boundingBox(),
+  ]);
+  expect(firstBox).not.toBeNull();
+  expect(secondBox).not.toBeNull();
+  expect(Math.abs(firstBox.y - secondBox.y)).toBeLessThan(8);
+  expect(firstBox.width).toBeLessThan(700);
+  expect(secondBox.width).toBeLessThan(700);
+}
+
 const newWorkerOrientationViewports = [
   { name: "mobile", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
@@ -1049,6 +1139,28 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await expect(page.getByText("Photo attachments").first()).toBeVisible();
   await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
   await expect(page.getByText("Signature is required.")).toBeVisible();
+});
+
+test("custom Toolbox Talk section widths render in preview and worker form", async ({ page }) => {
+  const row = template("toolbox_width_smoke", "Toolbox Width Smoke", toolboxHalfWidthSchema);
+  await mockApis(page, [row]);
+
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Toolbox Width Smoke" })).toBeVisible();
+  await openPreview(page);
+  const previewMeeting = page.locator(".template-v3-preview-page .template-section-toolbox_meeting_info");
+  const previewTopics = page.locator(".template-v3-preview-page .template-section-toolbox_topics");
+  await expect(previewMeeting).toHaveClass(/template-width-half/);
+  await expect(previewTopics).toHaveClass(/template-width-half/);
+  await expectSectionsShareRow(previewMeeting, previewTopics);
+
+  await page.goto("/forms/toolbox_width_smoke");
+  const workerMeeting = page.locator(".template-section-toolbox_meeting_info");
+  const workerTopics = page.locator(".template-section-toolbox_topics");
+  await expect(workerMeeting).toHaveClass(/template-width-half/);
+  await expect(workerTopics).toHaveClass(/template-width-half/);
+  await expectSectionsShareRow(workerMeeting, workerTopics);
 });
 
 test("Toolbox Talk attendance splits comma-separated names", async ({ page }) => {
@@ -1787,6 +1899,77 @@ test("Hoist Competency Observation worker form submits conditional employer and 
   await expect.poll(() => submissions.length).toBe(1);
   expect(submissions[0].formData.answers.hoist_employer_observed).toBe("TK Elevators");
   expect(submissions[0].formData.answers.hoist_evaluation_outcome).toBe("Competent - Approved to operate");
+});
+
+test("Fall Protection Form migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "fall_protection_form",
+    "Fall Protection Form",
+    fallProtectionSchema,
+    { displayOrder: 80 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Fall Protection Form" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Fall Protection Form" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Equipment Inspected" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card")).toContainText("Radio buttons");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Fall Protection Form" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Fall Protection Equipment Inspection Checklist and Log" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Equipment Information" })).toBeVisible();
+  await expect(preview.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toBeVisible();
+  await expect(preview.getByText("11-06 Harness Inspection")).toHaveCount(0);
+  await preview.getByRole("radio", { name: "Full Body Harness" }).click();
+  await expect(preview.getByText("11-06 Harness Inspection")).toBeVisible();
+  await expect(preview.getByText("Manufacturer Label")).toBeVisible();
+  await expect(preview.getByText("Webbing defects")).toBeVisible();
+  await expect(preview.getByText("11-09 SRL Inspection")).toHaveCount(0);
+  await expect(preview.getByText("Inspector's Signature")).toBeVisible();
+  await expect(preview.locator(".template-signature-canvas")).toBeVisible();
+});
+
+test("Fall Protection Form worker form honors conditional sections and image-only uploads", async ({ page }) => {
+  const row = template("fall_protection_form", "Fall Protection Form", fallProtectionSchema);
+  await mockApis(page, [row]);
+
+  await page.goto("/forms/fall_protection_form");
+  await expect(page.getByRole("heading", { name: "Fall Protection Form" })).toBeVisible();
+  await expect(page.getByText("11-06 Harness Inspection")).toHaveCount(0);
+  await page.getByRole("button", { name: "Submit Fall Protection Form" }).click();
+  await expect(page.getByText("Equipment Inspected is required.")).toBeVisible();
+
+  await page.getByRole("radio", { name: "Full Body Harness" }).click();
+  await expect(page.getByText("11-06 Harness Inspection")).toBeVisible();
+  await expect(page.getByText("11-09 SRL Inspection")).toHaveCount(0);
+
+  const upload = page.locator('input[type="file"][aria-label^="Add images of Make"]');
+  await upload.setInputFiles({
+    name: "fall-report.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.4 smoke"),
+  });
+  await expect(page.getByText(/Use JPG, PNG, WEBP, HEIC files/)).toBeVisible();
+  await upload.setInputFiles({
+    name: "harness-label.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("jpg"),
+  });
+  await expect(page.getByText("harness-label.jpg")).toBeVisible();
+
+  await page.getByRole("button", { name: "Submit Fall Protection Form" }).click();
+  await expect(page.getByText("Inspector's Signature is required.")).toBeVisible();
 });
 
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
