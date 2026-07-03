@@ -1996,7 +1996,7 @@ test("Daily Safety Inspection migration opens as a hidden editable draft", async
   await expect(preview.getByText("Check all items that are compliant OR not applicable")).toBeVisible();
   await expect(preview.getByText("Safety Concerns Raised", { exact: true }).first()).toBeVisible();
   await expect(preview.getByText("Observed Act / Condition")).toBeVisible();
-  await expect(preview.getByText("Signatures")).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Signatures", exact: true })).toBeVisible();
   await expect(preview.getByText("Scaffold Inspection")).toHaveCount(0);
 
   await preview.locator(".template-field-daily_access_items").getByLabel("Scaffold").check();
