@@ -4845,9 +4845,24 @@ p {
   padding: 0 10px;
 }
 
+.staff-accounts-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.staff-accounts-table td,
+.staff-accounts-table th {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .staff-accounts-table-actions th:last-child,
 .staff-accounts-table-actions td:last-child {
+  width: 292px;
   min-width: 292px;
+  overflow: visible;
 }
 
 .staff-accounts-table-actions .table-action-row {

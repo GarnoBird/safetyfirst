@@ -10452,7 +10452,6 @@ function StaffUsersTable({
             {showEmail ? <th>Email</th> : null}
             <th>Role</th>
             <th>Status</th>
-            <th>Last login</th>
             {canManage ? <th>Actions</th> : null}
           </tr>
         </thead>
@@ -10464,7 +10463,6 @@ function StaffUsersTable({
               {showEmail ? <td data-label="Email"><a href={`mailto:${user.email}`}>{user.email}</a></td> : null}
               <td data-label="Role"><StatusPill value={roleLabel(user.role)} /></td>
               <td data-label="Status"><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
-              <td data-label="Last login">{user.last_login_at ? formatDateTime(user.last_login_at) : "Never"}</td>
               {canManage ? (
                 <td data-label="Actions">
                   <div className="table-action-row">
