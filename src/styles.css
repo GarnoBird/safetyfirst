@@ -4112,7 +4112,7 @@ p {
 
 .template-card-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   min-width: 0;
   align-content: start;
@@ -4149,21 +4149,21 @@ p {
 .template-card {
   position: relative;
   display: grid;
-  gap: 5px;
+  gap: 3px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 108px;
+  min-height: 86px;
   justify-items: start;
   border: 1px solid #d9e3de;
   border-radius: 8px;
-  padding: 14px;
+  padding: 10px 12px;
   text-align: left;
   background: #fff;
 }
 
 .template-card.has-drag-handle {
-  padding-right: 58px;
+  padding-right: 50px;
 }
 
 .template-card.active {
@@ -4181,7 +4181,7 @@ p {
 }
 
 .template-card.archived {
-  min-height: 92px;
+  min-height: 78px;
   border-style: dashed;
   opacity: 0.86;
   background: #fafcfb;
@@ -4189,7 +4189,7 @@ p {
 
 .template-card-main {
   display: grid;
-  gap: 5px;
+  gap: 2px;
   justify-items: start;
   width: 100%;
   max-width: 100%;
@@ -4209,12 +4209,12 @@ p {
 
 .template-drag-handle {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 9px;
+  right: 9px;
   display: grid;
   place-items: center;
-  width: 38px;
-  min-height: 38px;
+  width: 34px;
+  min-height: 34px;
   border: 1px solid #cfe0d8;
   border-radius: 8px;
   padding: 0;
@@ -4229,8 +4229,8 @@ p {
 }
 
 .template-drag-handle svg {
-  width: 22px;
-  height: 22px;
+  width: 19px;
+  height: 19px;
   stroke: currentColor;
   stroke-width: 2.4;
   stroke-linecap: round;
@@ -4253,20 +4253,20 @@ p {
 }
 
 .template-card strong {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
 }
 
 .template-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
   width: 100%;
 }
 
 .template-card-actions button {
-  min-height: 34px;
-  padding: 0 10px;
-  font-size: 0.78rem;
+  min-height: 30px;
+  padding: 0 9px;
+  font-size: 0.76rem;
 }
 
 .template-archive-list {
