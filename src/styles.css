@@ -4386,6 +4386,24 @@ p {
   gap: 6px;
 }
 
+.template-v3-topic-textarea-field {
+  display: grid;
+  gap: 6px;
+}
+
+.template-v3-setting-label-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.template-v3-setting-label-row button {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+}
+
 .template-v3-side-card textarea {
   resize: vertical;
 }

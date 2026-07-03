@@ -655,10 +655,17 @@ test("Toolbox Talk topic category settings are visible as draft-only and respect
   const selectedBlock = page.locator(".template-v3-selected-block-card");
   await expect(selectedBlock.getByLabel("Noise, Vibration, Radiation and Temperature")).toBeChecked();
   await expect(selectedBlock.getByLabel("Rights and Responsibilities")).not.toBeChecked();
+  const commonTopicsInput = selectedBlock.getByLabel("Common topics");
+  await selectedBlock.getByRole("button", { name: "Clear" }).click();
+  await expect(commonTopicsInput).toHaveValue("");
+  await commonTopicsInput.fill("Exposure\nWHMIS");
+  await commonTopicsInput.fill("");
+  await expect(commonTopicsInput).toHaveValue("");
   await openPreview(page);
   const preview = page.locator(".template-v3-preview-page");
   await expect(preview.getByText("Noise, Vibration, Radiation and Temperature")).toBeVisible();
   await expect(preview.getByText("Rights and Responsibilities")).toHaveCount(0);
+  await expect(preview.locator(".toolbox-topic-panel").filter({ hasText: "Common" })).toHaveCount(0);
 
   await page.goto("/forms/toolbox_filtered_topics");
   await expect(page.getByText("Rights and Responsibilities")).toBeVisible();

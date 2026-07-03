@@ -9031,9 +9031,19 @@ function TemplateSchemaEditorV3({
                       />
                       <span>Show Search</span>
                     </label>
-                    <label>
-                      <span>Common topics</span>
+                    <div className="template-v3-topic-textarea-field">
+                      <div className="template-v3-setting-label-row">
+                        <span>Common topics</span>
+                        <button
+                          disabled={readOnly || !selectedToolboxTopicSettings.commonTopicLabels.length}
+                          type="button"
+                          onClick={() => updateSelectedFieldSettings({ commonTopicLabels: [] })}
+                        >
+                          Clear
+                        </button>
+                      </div>
                       <textarea
+                        aria-label="Common topics"
                         className="template-v3-topic-textarea"
                         disabled={readOnly}
                         rows="5"
@@ -9044,7 +9054,7 @@ function TemplateSchemaEditorV3({
                           })
                         }
                       />
-                    </label>
+                    </div>
                     <div className="template-v3-category-list">
                       <span>Visible topic categories</span>
                       {TOOLBOX_TALK_TOPIC_GROUPS.map((group) => (
