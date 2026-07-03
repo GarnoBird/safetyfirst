@@ -12,6 +12,16 @@ const STAFF_SORT_LABELS = {
   trade: "Trade",
 };
 
+const SUBMITTED_FORM_TRANSLATION_LANGUAGES = [
+  { code: "es", label: "Spanish" },
+  { code: "fr", label: "French" },
+  { code: "en", label: "English" },
+  { code: "ru", label: "Russian" },
+  { code: "ko", label: "Korean" },
+  { code: "tl", label: "Tagalog" },
+  { code: "hi", label: "Hindi" },
+];
+
 const STAFF_MOBILE_NAV_ITEMS = [
   { id: "home", label: "HOME", path: "/staff/home" },
   { id: "sign-ins-people", label: "ON SITE - PEOPLE", path: "/staff/sign-ins" },
@@ -5590,7 +5600,11 @@ function WorkerSubmissionReadOnlyView({ row }) {
         <TemplateSubmissionDetails data={row.form_data} row={row} />
       ) : null}
 
-      {files.length ? (
+      {isFileUploadSubmission(row) ? (
+        <SubmittedFilePackage files={files} row={row} />
+      ) : null}
+
+      {!isFileUploadSubmission(row) && files.length ? (
         <div className="submission-file-list">
           <h3>Files</h3>
           {files.map((file) => (
@@ -5608,6 +5622,7 @@ function WorkerSubmissionReadOnlyView({ row }) {
       {!isDigitalToolboxTalkSubmission(row) &&
       !isDigitalSiteInspectionSubmission(row) &&
       !isTemplateDigitalSubmission(row) &&
+      !isFileUploadSubmission(row) &&
       !files.length ? (
         <p className="empty-state">No additional form details were saved for this submission.</p>
       ) : null}
@@ -6731,6 +6746,8 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
   const [signDialogOpen, setSignDialogOpen] = useState(false);
+  const [translateDialogOpen, setTranslateDialogOpen] = useState(false);
+  const [translationInfo, setTranslationInfo] = useState(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [activeExport, setActiveExport] = useState("");
@@ -6832,6 +6849,12 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
     setSignDialogOpen(true);
   };
 
+  const restoreOriginalLanguage = async () => {
+    setTranslationInfo(null);
+    setExportStatus("Original language restored.");
+    await loadSubmission();
+  };
+
   if (!staff) return <StaffLoadingScreen />;
 
   return (
@@ -6858,7 +6881,7 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
               <ToolbarIcon type="edit" />
               <span>Edit</span>
             </button>
-            <button disabled title="Translate is not available yet." type="button">
+            <button disabled={!row || Boolean(activeExport)} type="button" onClick={() => setTranslateDialogOpen(true)}>
               <ToolbarIcon type="translate" />
               <span>Translate</span>
             </button>
@@ -6916,6 +6939,12 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
         </div>
 
         {exportStatus ? <p className="submitted-viewer-status-message">{exportStatus}</p> : null}
+        {translationInfo ? (
+          <div className="submitted-viewer-translation-status">
+            <span>Translated to {translationInfo.languageLabel}. Review carefully.</span>
+            <button type="button" onClick={restoreOriginalLanguage}>Show original</button>
+          </div>
+        ) : null}
         {message ? <p className="staff-message">{message}</p> : null}
         {loading ? <p className="empty-state">Loading submitted form...</p> : null}
         {!loading && row ? (
@@ -6938,6 +6967,17 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
           onSaved={setRow}
         />
       ) : null}
+      {translateDialogOpen && row ? (
+        <SubmissionTranslateDialog
+          exportSurfaceRef={exportSurfaceRef}
+          row={row}
+          onClose={() => setTranslateDialogOpen(false)}
+          onTranslated={(info) => {
+            setTranslationInfo(info);
+            setExportStatus(`Translated to ${info.languageLabel}.`);
+          }}
+        />
+      ) : null}
       {filePreview ? (
         <SubmissionFilePreviewDialog
           preview={filePreview}
@@ -6950,8 +6990,14 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
 
 function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessage = "", row }) {
   const files = row.files || [];
+  const isFileUpload = isFileUploadSubmission(row);
   return (
-    <div className="submission-export-surface submitted-form-document" ref={exportRef}>
+    <div
+      className={isFileUpload
+        ? "submission-export-surface submitted-form-document file-submission-document"
+        : "submission-export-surface submitted-form-document"}
+      ref={exportRef}
+    >
       <div className="submission-export-heading">
         <p>APPIA</p>
         <h2>{formTypeLabel(row.form_type)}</h2>
@@ -6969,7 +7015,15 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
         ) : null}
         {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
       </dl>
-      {isDigitalToolboxTalkSubmission(row) ? (
+      {isFileUpload ? (
+        <SubmittedFilePackage
+          filePreviewContext={filePreviewContext}
+          filePreviewMessage={filePreviewMessage}
+          files={files}
+          row={row}
+        />
+      ) : null}
+      {!isFileUpload && isDigitalToolboxTalkSubmission(row) ? (
         <ToolboxTalkSubmissionDetails
           data={row.form_data}
           filePreviewContext={filePreviewContext}
@@ -6977,7 +7031,7 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
           showActions={false}
         />
       ) : null}
-      {isDigitalSiteInspectionSubmission(row) ? (
+      {!isFileUpload && isDigitalSiteInspectionSubmission(row) ? (
         <SiteInspectionSubmissionDetails
           data={row.form_data}
           filePreviewContext={filePreviewContext}
@@ -6985,7 +7039,7 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
           showActions={false}
         />
       ) : null}
-      {isTemplateDigitalSubmission(row) ? (
+      {!isFileUpload && isTemplateDigitalSubmission(row) ? (
         <TemplateSubmissionDetails
           data={row.form_data}
           filePreviewContext={filePreviewContext}
@@ -7008,7 +7062,7 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
           ))}
         </div>
       ) : null}
-      {files.length ? (
+      {!isFileUpload && files.length ? (
         <div className="submission-file-list">
           <h3>Files</h3>
           {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
@@ -7032,6 +7086,75 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
       ) : null}
       <StaffSignoffSection signoffs={row.staff_signoffs} />
     </div>
+  );
+}
+
+function SubmittedFilePackage({ filePreviewContext, filePreviewMessage = "", files = [], row }) {
+  const totalSize = files.reduce((sum, file) => sum + Number(file?.size_bytes || 0), 0);
+  const canPreview = Boolean(filePreviewContext?.openFilePreview);
+
+  return (
+    <section className="submitted-file-package">
+      <div className="submitted-file-package-heading">
+        <div>
+          <p>Submitted file package</p>
+          <h3>{files.length ? `${files.length} uploaded ${files.length === 1 ? "file" : "files"}` : "No files uploaded"}</h3>
+          <span>{formTypeLabel(row.form_type)} was submitted as an uploaded attachment package.</span>
+        </div>
+        <div className="submitted-file-package-badges" aria-label="File package summary">
+          <span>{formatFileSize(totalSize)} total</span>
+          <span>{backupStatusLabel(row.one_drive_backup_status)}</span>
+        </div>
+      </div>
+      {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
+      {files.length ? (
+        <div className="submitted-file-card-grid">
+          {files.map((file) => {
+            const opening = filePreviewContext?.previewLoadingId === file.id;
+            const typeLabel = mediaUploadFileTypeLabel(file);
+            return (
+              <article className="submitted-file-card" key={file.id}>
+                <div className="submitted-file-card-icon" aria-hidden="true">
+                  {submittedFileTypeInitial(typeLabel)}
+                </div>
+                <div className="submitted-file-card-main">
+                  {canPreview ? (
+                    <button
+                      className="submitted-file-card-title"
+                      disabled={opening}
+                      type="button"
+                      onClick={() => filePreviewContext.openFilePreview(file)}
+                    >
+                      {opening ? "Opening..." : file.original_filename || "Attachment"}
+                    </button>
+                  ) : (
+                    <strong>{file.original_filename || "Attachment"}</strong>
+                  )}
+                  <span>{typeLabel} / {formatFileSize(file.size_bytes)}</span>
+                  <small>Backup: {backupStatusLabel(file.backup_status)}</small>
+                </div>
+                <div className="submitted-file-card-actions">
+                  {canPreview ? (
+                    <button
+                      disabled={opening}
+                      type="button"
+                      onClick={() => filePreviewContext.openFilePreview(file)}
+                    >
+                      {opening ? "Opening" : "Preview"}
+                    </button>
+                  ) : null}
+                  {file.one_drive_web_url ? (
+                    <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="empty-state">No attachment records were saved with this submission.</p>
+      )}
+    </section>
   );
 }
 
@@ -7123,6 +7246,98 @@ function SubmissionReviewSignDialog({ onClose, onSaved, row, staff }) {
             {saving ? "Signing..." : "Sign"}
           </button>
         </div>
+      </section>
+    </div>
+  );
+}
+
+function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, row }) {
+  const [targetLanguage, setTargetLanguage] = useState("");
+  const [translating, setTranslating] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const translate = async (event) => {
+    event.preventDefault();
+    if (!targetLanguage) {
+      setMessage("Choose a language.");
+      return;
+    }
+    const root = exportSurfaceRef.current;
+    const texts = collectSubmittedFormTranslationTexts(root);
+    if (!texts.length) {
+      setMessage("No form text was available to translate.");
+      return;
+    }
+
+    setTranslating(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}/translate`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ targetLanguage, texts }),
+        }),
+      );
+      const translations = normalizeSubmittedFormTranslations(payload.translations);
+      if (!translations.size) {
+        setMessage("No translated text was returned.");
+        return;
+      }
+      applySubmittedFormTranslations(root, translations);
+      onTranslated({
+        language: payload.language || targetLanguage,
+        languageLabel:
+          payload.languageLabel ||
+          SUBMITTED_FORM_TRANSLATION_LANGUAGES.find((item) => item.code === targetLanguage)?.label ||
+          targetLanguage,
+        translatedCount: translations.size,
+      });
+      onClose();
+    } catch (error) {
+      setMessage(error.message || "This form could not be translated.");
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop translate-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="AI Translation: Select Output Language"
+        className="staff-detail-dialog translate-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>AI Translation: Select Output Language</h2>
+            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+          </div>
+          <button aria-label="Close" type="button" onClick={onClose}>X</button>
+        </div>
+        <div className="translate-dialog-notice">
+          Notice: This is a beta feature. Accuracy may vary, so please review carefully.
+        </div>
+        <form className="translate-dialog-form" onSubmit={translate}>
+          <label className="field">
+            <span>Translate To</span>
+            <select value={targetLanguage} onChange={(event) => setTargetLanguage(event.target.value)}>
+              <option value="">Select language</option>
+              {SUBMITTED_FORM_TRANSLATION_LANGUAGES.map((language) => (
+                <option key={language.code} value={language.code}>{language.label}</option>
+              ))}
+            </select>
+          </label>
+          {message ? <p className="form-message error">{message}</p> : null}
+          <div className="translate-dialog-actions">
+            <button disabled={translating} type="button" onClick={onClose}>Cancel</button>
+            <button className="primary-button" disabled={!targetLanguage || translating} type="submit">
+              {translating ? "Translating..." : "Translate Form"}
+            </button>
+          </div>
+        </form>
       </section>
     </div>
   );
@@ -11814,6 +12029,14 @@ function OpsMetric({ label, value }) {
   );
 }
 
+function isInteractiveTableTarget(event) {
+  const target = event.target;
+  return (
+    target instanceof Element &&
+    Boolean(target.closest("a, button, input, label, select, summary, textarea, [role='button'], [data-row-action]"))
+  );
+}
+
 function FormSubmissionsTable({
   allVisibleSelected,
   canDelete,
@@ -11859,7 +12082,21 @@ function FormSubmissionsTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              aria-label={`Open ${formTypeLabel(row.form_type)} submitted by ${row.worker_name} from ${row.company}`}
+              tabIndex={0}
+              onClick={(event) => {
+                if (isInteractiveTableTarget(event)) return;
+                onDetails(row);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                if (isInteractiveTableTarget(event)) return;
+                event.preventDefault();
+                onDetails(row);
+              }}
+            >
               {canDelete ? (
                 <td className="select-column">
                   <input
@@ -15948,6 +16185,13 @@ function mediaUploadFileTypeLabel(file) {
   return "File";
 }
 
+function submittedFileTypeInitial(typeLabel) {
+  if (typeLabel === "Image") return "IMG";
+  if (typeLabel === "PDF") return "PDF";
+  if (typeLabel === "Excel") return "XLS";
+  return "FILE";
+}
+
 function slugifyTopic(value) {
   return String(value || "")
     .toLowerCase()
@@ -16101,6 +16345,74 @@ function normalizeStaffSignoffsForDisplay(value) {
 
 function submissionReviewStatus(row) {
   return normalizeStaffSignoffsForDisplay(row?.staff_signoffs).length ? "Reviewed" : "Pending review";
+}
+
+function isFileUploadSubmission(row) {
+  return row?.submission_mode === "submit_file";
+}
+
+function collectSubmittedFormTranslationTexts(root) {
+  return collectSubmittedFormTextNodes(root)
+    .map((node) => normalizeSubmittedFormText(node.nodeValue))
+    .filter(Boolean)
+    .filter((text, index, values) => values.indexOf(text) === index);
+}
+
+function applySubmittedFormTranslations(root, translations) {
+  collectSubmittedFormTextNodes(root).forEach((node) => {
+    const source = normalizeSubmittedFormText(node.nodeValue);
+    const translated = translations.get(source);
+    if (!translated) return;
+    const raw = String(node.nodeValue || "");
+    const leading = raw.match(/^\s*/)?.[0] || "";
+    const trailing = raw.match(/\s*$/)?.[0] || "";
+    node.nodeValue = `${leading}${translated}${trailing}`;
+  });
+}
+
+function collectSubmittedFormTextNodes(root) {
+  if (!root || typeof document === "undefined") return [];
+  const nodes = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const text = normalizeSubmittedFormText(node.nodeValue);
+      if (!isSubmittedFormTranslatableText(text)) return NodeFilter.FILTER_REJECT;
+      const parent = node.parentElement;
+      if (!parent || parent.closest("button, svg, style, script, textarea, input, select, canvas, [data-translate-ignore]")) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  let node = walker.nextNode();
+  while (node) {
+    nodes.push(node);
+    node = walker.nextNode();
+  }
+  return nodes;
+}
+
+function normalizeSubmittedFormTranslations(value) {
+  const map = new Map();
+  if (!Array.isArray(value)) return map;
+  value.forEach((item) => {
+    const source = normalizeSubmittedFormText(item?.source);
+    const translated = String(item?.text || "").trim();
+    if (source && translated) map.set(source, translated);
+  });
+  return map;
+}
+
+function normalizeSubmittedFormText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function isSubmittedFormTranslatableText(text) {
+  if (!text || text.length < 2) return false;
+  if (!/[A-Za-zÀ-žА-Яа-я가-힣अ-ह]/.test(text)) return false;
+  if (/^[\d\s.,:;#/+()'"-]+$/.test(text)) return false;
+  return true;
 }
 
 function renderTemplateAnswerDisplay(field, value, filePreviewContext) {
@@ -16616,14 +16928,24 @@ function genericSubmissionFileName(row) {
 function buildGenericSubmissionHtml(row, options = {}) {
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = genericSubmissionTitle(row);
+  const formLabel = formTypeLabel(row?.form_type);
   const files = Array.isArray(row?.files) ? row.files : [];
-  const fileRows = files.length
-    ? files.map((file) => `
-        <div>
-          <dt>${escapeHtml(file.original_filename || "Attachment")}</dt>
-          <dd>${escapeHtml(formatFileSize(file.size_bytes))} / ${escapeHtml(backupStatusLabel(file.backup_status))}</dd>
-        </div>`).join("")
-    : definitionHtml("Files", "-");
+  const totalSize = files.reduce((sum, file) => sum + Number(file?.size_bytes || 0), 0);
+  const fileCards = files.length
+    ? files.map((file) => {
+        const typeLabel = mediaUploadFileTypeLabel(file);
+        return `
+          <article class="file-card">
+            <div class="file-icon">${escapeHtml(submittedFileTypeInitial(typeLabel))}</div>
+            <div>
+              <h3>${escapeHtml(file.original_filename || "Attachment")}</h3>
+              <p>${escapeHtml(typeLabel)} / ${escapeHtml(formatFileSize(file.size_bytes))}</p>
+              <small>Backup: ${escapeHtml(backupStatusLabel(file.backup_status))}</small>
+            </div>
+            ${file.one_drive_web_url ? `<a href="${escapeHtml(file.one_drive_web_url)}">Open backup</a>` : ""}
+          </article>`;
+      }).join("")
+    : `<p class="empty">No attachment records were saved with this submission.</p>`;
 
   return `<!doctype html>
 <html>
@@ -16635,17 +16957,30 @@ function buildGenericSubmissionHtml(row, options = {}) {
       :root { color: #17211f; font-family: Arial, Helvetica, sans-serif; }
       * { box-sizing: border-box; }
       body { margin: 0; background: #f4f7f6; color: #17211f; }
-      main { max-width: 840px; margin: 0 auto; padding: 28px; background: #fff; }
+      main { max-width: 920px; margin: 0 auto; padding: 34px; background: #fff; }
       header { display: grid; gap: 6px; border-bottom: 2px solid #173b38; padding-bottom: 16px; margin-bottom: 18px; }
       .brand { color: #173b38; font-size: 0.86rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
       h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
-      h2 { margin: 18px 0 10px; font-size: 1.2rem; }
+      h2 { margin: 0; font-size: 1.2rem; }
       p { margin: 0; }
       dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
       dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
       dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; }
+      .file-package { display: grid; gap: 16px; margin-top: 22px; border: 1px solid #d9e6e2; border-radius: 8px; padding: 18px; background: #f8fbfa; }
+      .file-package-heading { display: flex; gap: 14px; align-items: flex-start; justify-content: space-between; border-bottom: 1px solid #e2ebe7; padding-bottom: 14px; }
+      .file-package-heading p { color: #245f5b; font-size: 0.76rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+      .file-package-heading span { display: block; margin-top: 4px; color: #5f6f6b; font-weight: 750; }
+      .file-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+      .file-badges span { border: 1px solid #c9ddd7; border-radius: 999px; padding: 6px 10px; color: #245f5b; font-size: 0.78rem; font-weight: 900; background: #fff; white-space: nowrap; }
+      .file-card { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid #dce8e4; border-radius: 8px; padding: 12px; background: #fff; }
+      .file-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 8px; color: #245f5b; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.04em; background: #e9f4f1; }
+      .file-card h3 { margin: 0; overflow-wrap: anywhere; font-size: 1rem; }
+      .file-card p, .file-card small { display: block; margin-top: 3px; color: #5f6f6b; font-weight: 750; }
+      .file-card a { color: #245f5b; font-weight: 850; text-decoration: none; }
+      .empty { color: #5f6f6b; font-weight: 750; }
       .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
       .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      @media (max-width: 680px) { dl, .file-card { grid-template-columns: 1fr; } .file-package-heading { display: grid; } .file-badges { justify-content: flex-start; } }
       @page { size: letter portrait; margin: 0.3in; }
       @media print {
         body { background: #fff; }
@@ -16661,7 +16996,7 @@ function buildGenericSubmissionHtml(row, options = {}) {
       </div>
       <header>
         <p class="brand">APPIA</p>
-        <h1>${escapeHtml(title)}</h1>
+        <h1>${escapeHtml(formLabel)}</h1>
         <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
         ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
       </header>
@@ -16672,8 +17007,20 @@ function buildGenericSubmissionHtml(row, options = {}) {
         ${definitionHtml("Backup", backupStatusLabel(row?.one_drive_backup_status))}
         ${row?.notes ? definitionHtml("Notes", row.notes) : ""}
       </dl>
-      <h2>Files</h2>
-      <dl>${fileRows}</dl>
+      <section class="file-package">
+        <div class="file-package-heading">
+          <div>
+            <p>Submitted file package</p>
+            <h2>${files.length ? `${files.length} uploaded ${files.length === 1 ? "file" : "files"}` : "No files uploaded"}</h2>
+            <span>${escapeHtml(formLabel)} was submitted as an uploaded attachment package.</span>
+          </div>
+          <div class="file-badges">
+            <span>${escapeHtml(formatFileSize(totalSize))} total</span>
+            <span>${escapeHtml(backupStatusLabel(row?.one_drive_backup_status))}</span>
+          </div>
+        </div>
+        ${fileCards}
+      </section>
     </main>
     ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
   </body>

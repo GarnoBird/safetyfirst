@@ -561,7 +561,9 @@ async function mockApis(page, templates, options = {}) {
   const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   const emailRequests = [];
+  const translationRequests = [];
   submissions.emailRequests = emailRequests;
+  submissions.translationRequests = translationRequests;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
   let duplicateCount = 0;
@@ -836,6 +838,35 @@ async function mockApis(page, templates, options = {}) {
         fileName: requestRecord.fileName,
         recipientEmail: currentStaff.email,
         sizeBytes: Math.round((pdfDataUrl.length * 3) / 4),
+      });
+    }
+    if (
+      method === "POST" &&
+      staffSubmissionParts.length === 5 &&
+      staffSubmissionParts[0] === "api" &&
+      staffSubmissionParts[1] === "staff" &&
+      staffSubmissionParts[2] === "submissions" &&
+      staffSubmissionParts[4] === "translate"
+    ) {
+      const submissionId = staffSubmissionParts[3];
+      const row = staffSubmissions.find((item) => item.id === submissionId);
+      if (!row) return json({ error: "Not found" }, 404);
+      const body = JSON.parse(request.postData() || "{}");
+      const texts = Array.isArray(body.texts) ? body.texts.map((text) => String(text)) : [];
+      translationRequests.push({
+        submissionId,
+        targetLanguage: body.targetLanguage,
+        texts,
+      });
+      return json({
+        language: body.targetLanguage || "es",
+        languageLabel: "Spanish",
+        submissionId,
+        translatedCount: texts.length,
+        translations: texts.map((text) => ({
+          source: text,
+          text: text === "Custom Toolbox Project" ? "Proyecto de herramientas personalizado" : `[es] ${text}`,
+        })),
       });
     }
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
@@ -1398,19 +1429,39 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
 
   for (const { company, expectedText, id, sign } of viewerCases) {
     await page.goto("/staff/forms");
-    await page
-      .getByRole("row", { name: new RegExp(company) })
-      .getByRole("button", { name: "Details" })
-      .click();
+    await page.getByRole("row", { name: new RegExp(company) }).getByText(company, { exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/staff/forms/${id}$`));
     await expect(page.locator(".submitted-viewer-toolbar")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Review" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Review", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Edit" })).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Translate" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Translate" })).toBeEnabled();
     await expect(page.getByText(expectedText, { exact: true })).toBeVisible();
+    if (id === fileSubmission.id) {
+      await expect(page.locator(".submitted-file-package")).toBeVisible();
+      await expect(page.getByText("Submitted file package", { exact: true })).toBeVisible();
+      await expect(page.getByText("1 uploaded file", { exact: true })).toBeVisible();
+      await expect(page.getByText("Image / 1.0 MB", { exact: true })).toBeVisible();
+    }
 
     if (sign) {
-      await page.getByRole("button", { name: "Review" }).click();
+      await page.getByRole("button", { name: "Translate" }).click();
+      const translateDialog = page.getByRole("dialog", { name: "AI Translation: Select Output Language" });
+      await expect(translateDialog).toBeVisible();
+      await expect(translateDialog.getByText("Notice: This is a beta feature.")).toBeVisible();
+      await expect(translateDialog.getByRole("button", { name: "Translate Form" })).toBeDisabled();
+      await translateDialog.getByLabel("Translate To").selectOption("es");
+      await translateDialog.getByRole("button", { name: "Translate Form" }).click();
+      await expect(translateDialog).toHaveCount(0);
+      await expect(page.getByText("Proyecto de herramientas personalizado", { exact: true })).toBeVisible();
+      await expect(page.locator(".submitted-viewer-status-message")).toHaveText("Translated to Spanish.");
+      const translationRequest = mockState.translationRequests.at(-1);
+      expect(translationRequest).toMatchObject({
+        submissionId: id,
+        targetLanguage: "es",
+      });
+      expect(translationRequest.texts).toContain("Custom Toolbox Project");
+
+      await page.getByRole("button", { name: "Review", exact: true }).click();
       const signDialog = page.getByRole("dialog", { name: "Review & Sign Form" });
       await expect(signDialog).toBeVisible();
       await expect(signDialog.getByText("No staff sign-off recorded yet.")).toBeVisible();

@@ -98,6 +98,7 @@ import {
   createWorkerSignIn,
 } from "./_lib/signins.js";
 import { buildStaffTrends, updateCompanyMappings } from "./_lib/trends.js";
+import { translateSubmissionTexts } from "./_lib/translations.js";
 import {
   clearWorkerSessionCookie,
   createWorkerProfile,
@@ -774,6 +775,23 @@ async function handleStaffSubmissions(req, res, staff, parts) {
         fileName: result.fileName,
         recipientEmail: result.recipientEmail,
         sizeBytes: result.sizeBytes,
+      },
+    });
+    return sendJson(res, 200, result);
+  }
+  if (parts.length === 2 && parts[1] === "translate" && req.method === "POST") {
+    const result = await translateSubmissionTexts(staff, parts[0], await readJson(req));
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submission_translated",
+      targetType: "submission",
+      targetId: result.submissionId,
+      summary: `${staff.username} translated a submitted form.`,
+      metadata: {
+        language: result.language,
+        languageLabel: result.languageLabel,
+        translatedCount: result.translatedCount,
       },
     });
     return sendJson(res, 200, result);
