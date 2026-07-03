@@ -4110,6 +4110,14 @@ p {
   align-items: start;
 }
 
+.template-manager-grid.preview-expanded {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.template-manager-grid.preview-expanded .template-card-list {
+  display: none;
+}
+
 .template-card-list {
   display: grid;
   gap: 8px;

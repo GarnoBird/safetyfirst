@@ -6739,6 +6739,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
   const [draftSchema, setDraftSchema] = useState(null);
   const [previewAnswers, setPreviewAnswers] = useState({});
+  const [builderView, setBuilderView] = useState("editor");
   const [newFormName, setNewFormName] = useState("");
   const [newFormOpen, setNewFormOpen] = useState(false);
   const [archivedOpen, setArchivedOpen] = useState(false);
@@ -6777,6 +6778,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
   const canDragTemplateOrder = canManageTemplates && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const previewModeExpanded = selectedTemplate?.renderer_type === "template" && builderView === "preview";
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -7169,7 +7171,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   return (
     <StaffShell active="form-templates" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      <section className="template-manager-grid">
+      <section className={previewModeExpanded ? "template-manager-grid preview-expanded" : "template-manager-grid"}>
         <aside className="template-card-list" aria-label="Form templates">
           {canManageTemplates ? (
             <button
@@ -7394,6 +7396,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 onChange={selectedCanEdit ? setDraftSchema : () => {}}
                 onDuplicate={() => duplicateTemplate(selectedTemplate)}
                 onPreviewAnswersChange={setPreviewAnswers}
+                onViewChange={setBuilderView}
                 onPublish={publishDraft}
                 onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
                 onSave={saveDraft}
@@ -7963,6 +7966,7 @@ function TemplateSchemaEditorV3({
   onSave,
   onTemplateMetaChange,
   onToggleWorkerVisible,
+  onViewChange,
   previewAnswers = {},
   previewWorker,
   publishing,
@@ -8021,10 +8025,18 @@ function TemplateSchemaEditorV3({
   }, [readOnly]);
 
   useEffect(() => {
+    onViewChange?.(view);
+  }, [onViewChange, view]);
+
+  useEffect(() => {
     setSidebarFocus(activeSelection.kind === "header" ? "template" : "selected");
   }, [activeSelection.kind, activeSelection.sectionIndex, activeSelection.fieldIndex]);
 
   const updateSchema = (patch) => onChange({ ...current, ...patch });
+  const changeView = (nextView) => {
+    setView(nextView);
+    onViewChange?.(nextView);
+  };
   const updateSection = (sectionIndex, patch) => {
     if (!canEdit) return;
     onChange({
@@ -8132,7 +8144,7 @@ function TemplateSchemaEditorV3({
     nextSections.splice(sectionIndex, 1, driverSection, targetWithCondition);
     onChange({ ...current, sections: nextSections });
     setSelected({ kind: "section", sectionIndex: sectionIndex + 1 });
-    setView("editor");
+    changeView("editor");
   };
   const addVisibilityDriverForField = (sectionIndex, fieldIndex) => {
     if (!canEdit) return;
@@ -8166,11 +8178,11 @@ function TemplateSchemaEditorV3({
       }),
     });
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
-    setView("editor");
+    changeView("editor");
   };
   const selectBlock = (nextSelection) => {
     setSelected(nextSelection);
-    setView("editor");
+    changeView("editor");
   };
   const addSection = () => {
     if (!canEdit) return;
@@ -8220,7 +8232,7 @@ function TemplateSchemaEditorV3({
       ),
     });
     setSelected({ kind: "field", sectionIndex: safeSectionIndex, fieldIndex });
-    setView("editor");
+    changeView("editor");
     setFieldPickerOpen(false);
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
@@ -8395,7 +8407,7 @@ function TemplateSchemaEditorV3({
                   key={id}
                   type="button"
                   onClick={() => {
-                    setView(id);
+                    changeView(id);
                     if (id === "options") setSelected({ kind: "header" });
                   }}
                 >
@@ -8661,7 +8673,7 @@ function TemplateSchemaEditorV3({
                   </button>
                 </>
               ) : null}
-              <button type="button" onClick={() => setView("preview")}>Preview</button>
+              <button type="button" onClick={() => changeView("preview")}>Preview</button>
               {canDuplicate ? <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button> : null}
               {canEdit && onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
               {canEdit ? (
