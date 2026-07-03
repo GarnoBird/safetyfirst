@@ -14,7 +14,7 @@ declare
       "id": "fall_protection_log",
       "title": "Fall Protection Equipment Inspection Checklist and Log",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "fall_inspection_date",
@@ -66,7 +66,7 @@ declare
       "id": "fall_equipment_information",
       "title": "Equipment Information",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "fall_inspection_scope",
@@ -222,7 +222,7 @@ declare
       "title": "11-06 Harness Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_inspected", "operator": "equals", "value": "Full Body Harness" }
       },
       "fields": [
@@ -310,7 +310,7 @@ declare
       "title": "11-09 SRL Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_inspected", "operator": "equals", "value": "SRL - Type 1/2/3" }
       },
       "fields": [
@@ -420,7 +420,7 @@ declare
       "title": "11-11 Lanyard Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_inspected", "operator": "equals", "value": "Lanyard" }
       },
       "fields": [
@@ -508,7 +508,7 @@ declare
       "title": "11-12 Vertical Lifeline Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_inspected", "operator": "equals", "value": "Vertical Life Line" }
       },
       "fields": [
@@ -585,7 +585,7 @@ declare
       "title": "11-13 Rope Grab Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_inspected", "operator": "equals", "value": "Rope Grab" }
       },
       "fields": [
@@ -650,7 +650,7 @@ declare
       "id": "fall_signatures",
       "title": "Signatures",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "fall_general_notes",

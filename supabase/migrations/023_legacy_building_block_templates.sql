@@ -14,7 +14,7 @@ declare
       "id": "speed_fan_general_information",
       "title": "General Information",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "speed_fan_weather",
@@ -66,7 +66,7 @@ declare
       "id": "speed_fan_system_verification",
       "title": "Compliant/Meets the Standard",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "speed_fan_attention",
@@ -511,7 +511,7 @@ declare
       "id": "speed_fan_photos_signoff",
       "title": "Photos and Signoff",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "speed_fan_inspection_notes",
@@ -657,7 +657,7 @@ declare
       "id": "hoist_form_details",
       "title": "Form Details",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "hoist_intro",
@@ -728,7 +728,7 @@ declare
       "id": "hoist_pre_use_safety_check",
       "title": "Pre-Use and Safety Check",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "hoist_pre_use_heading",
@@ -780,7 +780,7 @@ declare
       "id": "hoist_operation_safety_awareness",
       "title": "Operation and Safety Awareness",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "hoist_operation_heading",
@@ -832,7 +832,7 @@ declare
       "id": "hoist_verbal_check",
       "title": "Verbal Check",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "hoist_verbal_heading",

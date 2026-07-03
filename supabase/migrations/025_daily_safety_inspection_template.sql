@@ -14,7 +14,7 @@ declare
       "id": "daily_work_area_inspection_report",
       "title": "Work Area Inspection Report",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_today_date",
@@ -125,7 +125,7 @@ declare
       "id": "daily_access_egress_inspection",
       "title": "Access Egress Inspection",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_site_access_clear",
@@ -233,7 +233,7 @@ declare
       "title": "Scaffold Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "daily_access_items", "operator": "contains", "value": "Scaffold" }
       },
       "fields": [
@@ -332,7 +332,7 @@ declare
       "title": "Para-Stair Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "daily_access_items", "operator": "contains", "value": "Para-Stairs" }
       },
       "fields": [
@@ -431,7 +431,7 @@ declare
       "title": "Temporary Alternate Stair Access Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "daily_access_items", "operator": "contains", "value": "Temporary Alternate Stair Access" }
       },
       "fields": [
@@ -519,7 +519,7 @@ declare
       "title": "Permanent Stairway Inspection",
       "description": "",
       "settings": {
-        "layout": { "width": "half" },
+        "layout": { "width": "full" },
         "visibility": { "enabled": true, "sourceFieldId": "daily_access_items", "operator": "contains", "value": "Permanent Stair Way" }
       },
       "fields": [
@@ -724,7 +724,7 @@ declare
       "id": "daily_safety_concerns_raised",
       "title": "Safety Concerns Raised",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_safety_concerns_today",
@@ -782,7 +782,7 @@ declare
       "id": "daily_observed_act_condition",
       "title": "Observed Act / Condition",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_observed_hazard_description",
@@ -812,7 +812,7 @@ declare
       "id": "daily_signatures",
       "title": "Signatures",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_inspector_name",
@@ -853,7 +853,7 @@ declare
       "id": "daily_safety_team_hazard_assessment",
       "title": "Safety Team Daily Hazard Assessment",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_task_initial_hazard_level",

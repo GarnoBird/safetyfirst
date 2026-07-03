@@ -14,7 +14,7 @@ declare
       "id": "daily_washroom_inspection_details",
       "title": "Daily Washroom Inspection",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_washroom_persons_inspecting",
@@ -55,7 +55,7 @@ declare
       "id": "daily_washroom_bathroom_inspection",
       "title": "Bathroom Inspection",
       "description": "",
-      "settings": { "layout": { "width": "half" } },
+      "settings": { "layout": { "width": "full" } },
       "fields": [
         {
           "id": "daily_washroom_flushables_1_2_3_status",
