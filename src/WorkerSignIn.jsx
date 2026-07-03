@@ -9771,51 +9771,72 @@ function TemplateRuntimeSections({
     onChange({ ...answers, [fieldId]: value });
   };
   const visibleSections = getVisibleTemplateSections({ ...schema, sections }, answers, worker);
+  const sectionHasInvalidField = (section) => {
+    const sectionFieldIds = new Set(
+      (section.fields || []).map((field) => String(field.id || "")).filter(Boolean),
+    );
+    return Array.from(invalidFields || []).some((fieldId) => {
+      const baseFieldId = String(fieldId || "").split(".")[0];
+      return sectionFieldIds.has(baseFieldId);
+    });
+  };
+  const registerSectionValidationTarget = (section) => (element) => {
+    if (!registerValidationTarget) return;
+    (section.fields || []).forEach((field) => {
+      if (!field.id) return;
+      registerValidationTarget(`${field.id}:section`)(element);
+    });
+  };
   return (
     <div className="template-runtime-section-grid">
-      {visibleSections.map((section) => (
-        <section
-          className={[
-            "toolbox-section",
-            section.id ? `template-section-${slugifyTemplateId(section.id)}` : "",
-            templateLayoutWidthClass(section),
-          ].filter(Boolean).join(" ")}
-          data-template-section-id={section.id || undefined}
-          key={section.id}
-        >
-          <div className="toolbox-section-heading">
-            <h2>{section.title}</h2>
-            {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
-          </div>
-          {section.description ? <p className="muted">{section.description}</p> : null}
-          <div className="toolbox-field-grid">
-            {section.fields.map((field) => (
-              <div
-                className={[
-                  "template-runtime-field-shell",
-                  field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
-                  field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
-                  templateLayoutWidthClass(field),
-                ].filter(Boolean).join(" ")}
-                data-template-field-id={field.id || undefined}
-                key={field.id}
-              >
-                <TemplateRuntimeField
-                  answers={answers}
-                  field={field}
-                  invalid={invalidFields.has(field.id)}
-                  invalidFields={invalidFields}
-                  registerValidationTarget={registerValidationTarget}
-                  targetRef={registerValidationTarget?.(field.id)}
-                  value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
-                  onUploadFile={onUploadFile}
-                  onChange={(value) => updateAnswer(field.id, value)}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
+      {visibleSections.map((section) => {
+        const invalidSection = sectionHasInvalidField(section);
+        return (
+          <section
+            className={[
+              "toolbox-section",
+              invalidSection ? "toolbox-section-invalid" : "",
+              section.id ? `template-section-${slugifyTemplateId(section.id)}` : "",
+              templateLayoutWidthClass(section),
+            ].filter(Boolean).join(" ")}
+            data-template-section-id={section.id || undefined}
+            key={section.id}
+            ref={registerSectionValidationTarget(section)}
+          >
+            <div className="toolbox-section-heading">
+              <h2>{section.title}</h2>
+              {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
+            </div>
+            {section.description ? <p className="muted">{section.description}</p> : null}
+            <div className="toolbox-field-grid">
+              {section.fields.map((field) => (
+                <div
+                  className={[
+                    "template-runtime-field-shell",
+                    field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
+                    field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
+                    templateLayoutWidthClass(field),
+                  ].filter(Boolean).join(" ")}
+                  data-template-field-id={field.id || undefined}
+                  key={field.id}
+                >
+                  <TemplateRuntimeField
+                    answers={answers}
+                    field={field}
+                    invalid={invalidFields.has(field.id)}
+                    invalidFields={invalidFields}
+                    registerValidationTarget={registerValidationTarget}
+                    targetRef={registerValidationTarget?.(field.id)}
+                    value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
+                    onUploadFile={onUploadFile}
+                    onChange={(value) => updateAnswer(field.id, value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -14289,14 +14310,32 @@ function toolboxValidationMessage(field, layout = null) {
 }
 
 function scrollToToolboxValidationTarget(targets, field) {
-  const target = targets?.[field];
+  const fieldKey = String(field || "");
+  const baseFieldKey = fieldKey.split(".")[0];
+  const sectionTarget =
+    targets?.[`${fieldKey}:section`] ||
+    (baseFieldKey && baseFieldKey !== fieldKey ? targets?.[`${baseFieldKey}:section`] : null);
+  const fieldTarget =
+    targets?.[fieldKey] ||
+    (baseFieldKey && baseFieldKey !== fieldKey ? targets?.[baseFieldKey] : null);
+  const target = sectionTarget || fieldTarget;
   if (!target) return;
   window.requestAnimationFrame(() => {
     target.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (typeof target.focus === "function" && target.matches?.("input, textarea, button")) {
-      target.focus({ preventScroll: true });
+    const focusTarget = getFocusableValidationTarget(fieldTarget || target);
+    if (focusTarget) {
+      focusTarget.focus({ preventScroll: true });
     }
   });
+}
+
+function getFocusableValidationTarget(target) {
+  if (!target) return null;
+  const selector = "input:not([type='hidden']):not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled])";
+  if (typeof target.focus === "function" && target.matches?.(selector)) {
+    return target;
+  }
+  return target.querySelector?.(`[aria-invalid="true"], ${selector}`) || null;
 }
 
 function cleanToolboxIncidentReviewForSubmit(incidentReview, settings) {

@@ -77,6 +77,7 @@ function readMigrationSchema(filename) {
 }
 
 const newWorkerOrientationSchema = readMigrationSchema("019_new_worker_orientation_template.sql");
+const salusToolboxTalkSchema = readMigrationSchema("021_salus_toolbox_talk_template.sql");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -852,6 +853,23 @@ async function expectNewWorkerOrientationUploadButtonReadable(page) {
   expect(uploadButtonTextColors).toContain("rgb(255, 255, 255)");
 }
 
+async function expectNewWorkerOrientationSubmitButtonReasonable(page) {
+  const buttonBox = await page
+    .locator(".template-worker-form-new_worker_orientation .toolbox-submit-actions .primary-button")
+    .evaluate((button) => {
+      const box = button.getBoundingClientRect();
+      return {
+        height: Math.round(box.height),
+        viewportWidth: window.innerWidth,
+        width: Math.round(box.width),
+      };
+    });
+  expect(buttonBox.height).toBeLessThanOrEqual(56);
+  if (buttonBox.viewportWidth > 820) {
+    expect(buttonBox.width).toBeLessThanOrEqual(380);
+  }
+}
+
 test("custom Toolbox Talk preview and worker form render added drawn signatures", async ({ page }) => {
   const row = template("toolbox_talk_copy", "Toolbox Talk copy", toolboxSignatureSchema);
   await mockApis(page, [row]);
@@ -1403,6 +1421,84 @@ test("New Worker Orientation migration opens as a draft hidden V3 template", asy
   await expect(preview.getByLabel("Supervisor's acknowledgement: (To be completed by supervisor)")).toBeVisible();
 });
 
+test("Salus Toolbox Talk migration opens as hidden draft and runs as a Toolbox form", async ({ page }) => {
+  const draftRow = draftTemplate(
+    "salus_toolbox_talk",
+    "Salus Toolbox Talk",
+    salusToolboxTalkSchema,
+    { displayOrder: 50 },
+  );
+  await mockApis(page, [draftRow]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Salus Toolbox Talk" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Salus Toolbox Talk" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Basic Personal Protective Equipment" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card")).toContainText("Multi-select chips");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Salus Toolbox Talk" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Topics Discussed" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Review Notes" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Safety Concerns Brought up by Workers" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Attendance" })).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Presenter/Supervisor Confirmation" })).toBeVisible();
+  await expect(preview.getByText("Basic Personal Protective Equipment")).toBeVisible();
+  await expect(preview.getByText("Specialized Personal Protective Equipment")).toBeVisible();
+  await expect(preview.getByText("Attach Documents or Photos")).toBeVisible();
+  await expect(preview.getByText(/JPG, PNG, WEBP, HEIC, PDF/)).toBeVisible();
+
+  const liveRow = template("salus_toolbox_talk", "Salus Toolbox Talk", salusToolboxTalkSchema);
+  const submissions = await mockApis(page, [liveRow]);
+  await page.goto("/forms/salus_toolbox_talk");
+  await expect(page.getByRole("heading", { name: "Salus Toolbox Talk" })).toBeVisible();
+  await page.getByRole("textbox", { name: "Supervisor", exact: true }).fill("Bob");
+  await page.getByRole("button", { name: "Housekeeping / clean-up" }).first().click();
+  const attendanceInput = page.getByPlaceholder("Worker name or comma-separated names");
+  await attendanceInput.fill("Billy Bob Thornton, Chris Jones");
+  await attendanceInput.press("Enter");
+  await page.getByLabel("I confirm the listed workers participated in this toolbox talk.").check();
+  await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
+  await expect(page.getByText("Basic Personal Protective Equipment is required.")).toBeVisible();
+
+  await page.getByLabel("CSA Approved Hard Hats - visual inspection").check();
+  await page.getByLabel(/Respiratory Equipment - visual inspection/).check();
+  await page.locator('input[type="file"][aria-label="Attach Documents or Photos"]').setInputFiles({
+    name: "talk-photo.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("jpg"),
+  });
+  await expect(page.getByText("talk-photo.jpg")).toBeVisible();
+  await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.kind).toBe("toolbox_talk_v1");
+  expect(submissions[0].formData.attendance).toEqual([
+    { name: "Billy Bob Thornton" },
+    { name: "Chris Jones" },
+  ]);
+  expect(submissions[0].formData.answers.salus_basic_ppe).toEqual([
+    "CSA Approved Hard Hats - visual inspection",
+  ]);
+  expect(submissions[0].formData.answers.salus_specialized_ppe).toEqual([
+    "Respiratory Equipment - visual inspection and confirm formal monthly inspection (on separate form)",
+  ]);
+  expect(submissions[0].formData.answers.salus_attach_documents_photos).toEqual([
+    expect.objectContaining({
+      originalFilename: "talk-photo.jpg",
+      mimeType: "image/jpeg",
+    }),
+  ]);
+});
+
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
   test.slow();
   const row = template(
@@ -1422,6 +1518,7 @@ test("New Worker Orientation worker form visual smoke captures polished states",
     await expectNoStretchedNewWorkerOrientationSections(page);
     await expectAlignedNewWorkerOrientationChoiceRows(page);
     await expectNewWorkerOrientationUploadButtonReadable(page);
+    await expectNewWorkerOrientationSubmitButtonReasonable(page);
     await captureNewWorkerOrientationScreenshot(page, `${viewport.name}-initial`);
   }
 
@@ -1443,13 +1540,24 @@ test("New Worker Orientation worker form visual smoke captures polished states",
   await expectNoClippedNewWorkerOrientationChoices(page);
   await expectNoStretchedNewWorkerOrientationSections(page);
   await expectAlignedNewWorkerOrientationChoiceRows(page);
+  await expectNewWorkerOrientationSubmitButtonReasonable(page);
   await captureNewWorkerOrientationScreenshot(page, "desktop-conditional-signature");
 
   await page.getByRole("button", { name: "Submit New Worker Orientation" }).click();
   await expect(page.getByText("Orientation # is required.")).toBeVisible();
+  const orientationSection = page.locator(".template-section-new_worker_orientation");
+  await expect(orientationSection).toHaveClass(/toolbox-section-invalid/);
+  await expect(page.getByLabel("Orientation #")).toBeFocused();
+  await expect
+    .poll(async () => orientationSection.evaluate((section) => {
+      const rect = section.getBoundingClientRect();
+      return rect.top >= -80 && rect.top <= window.innerHeight * 0.35;
+    }))
+    .toBe(true);
   await expectNoClippedNewWorkerOrientationChoices(page);
   await expectNoStretchedNewWorkerOrientationSections(page);
   await expectAlignedNewWorkerOrientationChoiceRows(page);
+  await expectNewWorkerOrientationSubmitButtonReasonable(page);
   await captureNewWorkerOrientationScreenshot(page, "desktop-validation");
 });
 
