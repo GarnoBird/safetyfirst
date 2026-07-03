@@ -1498,6 +1498,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
       submissionId: id,
     });
     expect(emailRequest.fileName).toMatch(/\.pdf$/);
+    expect(emailRequest.pdfDataUrl.length).toBeLessThan(4 * 1024 * 1024);
     expect(Buffer.from(emailRequest.pdfDataUrl.split(",")[1], "base64").subarray(0, 4).toString()).toBe("%PDF");
 
     const popupPromise = page
