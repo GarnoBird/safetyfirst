@@ -4462,7 +4462,43 @@ p {
 }
 
 .template-v3-side-card {
+  position: relative;
   padding: 14px;
+}
+
+.template-v3-template-options-card.has-lock-button {
+  padding-top: 54px;
+}
+
+.template-lock-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-height: 40px;
+  border: 1px solid #cfe0d8;
+  border-radius: 8px;
+  padding: 0;
+  color: #245f5b;
+  background: #f8fcfa;
+}
+
+.template-lock-button.locked {
+  color: #6f4b10;
+  background: #fff8e6;
+  border-color: #e4c98f;
+}
+
+.template-lock-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .template-v3-sidebar {
@@ -5634,6 +5670,20 @@ p {
   padding: 18px;
   background: #fff;
   box-shadow: 0 24px 60px rgba(17, 23, 21, 0.22);
+}
+
+.template-unlock-dialog {
+  width: min(100%, 500px);
+}
+
+.template-unlock-form {
+  display: grid;
+  gap: 12px;
+}
+
+.template-unlock-form label {
+  display: grid;
+  gap: 6px;
 }
 
 .action-item-detail-dialog {

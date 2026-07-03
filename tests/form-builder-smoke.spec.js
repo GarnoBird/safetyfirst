@@ -38,7 +38,11 @@ function template(formType, label, schema, overrides = {}) {
     active: true,
     worker_visible: true,
     archived_at: null,
+    locked_at: null,
+    locked_by_staff_id: null,
     display_order: overrides.displayOrder || 10,
+    created_by_staff_id: overrides.created_by_staff_id === undefined ? staff.id : overrides.created_by_staff_id,
+    updated_by_staff_id: overrides.updated_by_staff_id === undefined ? staff.id : overrides.updated_by_staff_id,
     draftVersion: null,
     publishedVersion,
     versions: [publishedVersion],
@@ -61,7 +65,11 @@ function draftTemplate(formType, label, schema, overrides = {}) {
     active: true,
     worker_visible: false,
     archived_at: null,
+    locked_at: null,
+    locked_by_staff_id: null,
     display_order: overrides.displayOrder || 40,
+    created_by_staff_id: overrides.created_by_staff_id === undefined ? staff.id : overrides.created_by_staff_id,
+    updated_by_staff_id: overrides.updated_by_staff_id === undefined ? staff.id : overrides.updated_by_staff_id,
     draftVersion,
     publishedVersion: null,
     versions: [draftVersion],
@@ -69,15 +77,19 @@ function draftTemplate(formType, label, schema, overrides = {}) {
   };
 }
 
-function readMigrationSchema(filename) {
+function readMigrationSchema(filename, tag = "schema") {
   const sql = fs.readFileSync(new URL(`../supabase/migrations/${filename}`, import.meta.url), "utf8");
-  const match = sql.match(/\$schema\$\s*([\s\S]*?)\s*\$schema\$::jsonb/);
-  if (!match) throw new Error(`Could not find schema block in ${filename}`);
+  const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = sql.match(new RegExp(`\\$${escapedTag}\\$\\s*([\\s\\S]*?)\\s*\\$${escapedTag}\\$::jsonb`));
+  if (!match) throw new Error(`Could not find ${tag} block in ${filename}`);
   return JSON.parse(match[1]);
 }
 
 const newWorkerOrientationSchema = readMigrationSchema("019_new_worker_orientation_template.sql");
 const salusToolboxTalkSchema = readMigrationSchema("021_salus_toolbox_talk_template.sql");
+const legacyBuildingBlockMigration = "023_legacy_building_block_templates.sql";
+const speedFanInspectionSchema = readMigrationSchema(legacyBuildingBlockMigration, "speed_fan_schema");
+const hoistCompetencyObservationSchema = readMigrationSchema(legacyBuildingBlockMigration, "hoist_schema");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -454,12 +466,32 @@ const legacyStyleSchema = {
 };
 
 async function mockApis(page, templates, options = {}) {
-  const templatesByType = new Map(templates.map((row) => [row.form_type, row]));
+  let templateRows = templates.map((row) => structuredClone(row));
+  const currentStaff = options.staff || staff;
+  const unlockPassword = options.unlockPassword || "letmein";
   const staffSubmissions = options.staffSubmissions || [];
   const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
+  let duplicateCount = 0;
+  const protectedFormTypes = new Set(["toolbox_talk", "site_inspection", "daily_hazard_assessment"]);
+  const findTemplate = (formType) => templateRows.find((row) => row.form_type === formType);
+  const canManageTemplate = (row) =>
+    ["owner", "admin"].includes(currentStaff.role) ||
+    Boolean(row?.created_by_staff_id && row.created_by_staff_id === currentStaff.id);
+  const replaceTemplate = (updated) => {
+    templateRows = templateRows.map((row) => (row.form_type === updated.form_type ? updated : row));
+    return updated;
+  };
+  const jsonTemplate = (row) => structuredClone(row);
+  const assertTemplateMutationAllowed = (row) => {
+    if (!row) return { error: "Not found", status: 404 };
+    if (protectedFormTypes.has(row.form_type)) return { error: "Default forms are protected.", status: 400 };
+    if (!canManageTemplate(row)) return { error: "You can only manage form templates you created.", status: 403 };
+    if (row.locked_at) return { error: "This form template is locked. Unlock it to edit.", status: 423 };
+    return null;
+  };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -472,7 +504,7 @@ async function mockApis(page, templates, options = {}) {
         body: JSON.stringify(body),
       });
 
-    if (path === "/api/auth/me") return json({ staff });
+    if (path === "/api/auth/me") return json({ staff: currentStaff });
     if (path === "/api/auth/worker-me") return json({ worker });
     if (path === "/api/worker-signins" && method === "POST") {
       const body = JSON.parse(request.postData() || "{}");
@@ -524,7 +556,117 @@ async function mockApis(page, templates, options = {}) {
     if (path.startsWith("/api/mock-upload/") && method === "PUT") {
       return route.fulfill({ status: 200, body: "" });
     }
-    if (path === "/api/staff/form-templates" && method === "GET") return json({ rows: templates });
+    if (path === "/api/staff/form-templates" && method === "GET") {
+      return json({ rows: templateRows.map(jsonTemplate) });
+    }
+    if (path === "/api/staff/form-templates/archived" && method === "DELETE") {
+      const deletable = templateRows.filter(
+        (row) => row.archived_at && !protectedFormTypes.has(row.form_type) && canManageTemplate(row),
+      );
+      const deletedTypes = new Set(deletable.map((row) => row.form_type));
+      templateRows = templateRows.filter((row) => !deletedTypes.has(row.form_type));
+      return json({
+        deleted: deletable.length,
+        rows: deletable.map((row) => ({ form_type: row.form_type, label: row.label })),
+      });
+    }
+    const templateParts = path.split("/").filter(Boolean);
+    if (
+      templateParts[0] === "api" &&
+      templateParts[1] === "staff" &&
+      templateParts[2] === "form-templates" &&
+      templateParts.length >= 4
+    ) {
+      const formType = decodeURIComponent(templateParts[3]);
+      const row = findTemplate(formType);
+      if (!row) return json({ error: "Not found" }, 404);
+      const action = templateParts[4] || "";
+      if (!action && method === "PATCH") {
+        const body = JSON.parse(request.postData() || "{}");
+        const problem = assertTemplateMutationAllowed(row);
+        if (problem) return json({ error: problem.error }, problem.status);
+        const updated = {
+          ...row,
+          label: body.label ?? body.name ?? body.title ?? row.label,
+          description: body.description ?? row.description,
+          active: body.active === undefined ? row.active : Boolean(body.active),
+          worker_visible: body.workerVisible === undefined && body.worker_visible === undefined
+            ? row.worker_visible
+            : Boolean(body.workerVisible ?? body.worker_visible),
+          display_order: body.displayOrder ?? body.display_order ?? row.display_order,
+          archived_at: body.archived === undefined ? row.archived_at : body.archived ? "2026-07-03T19:00:00.000Z" : null,
+          updated_by_staff_id: currentStaff.id,
+        };
+        if (updated.archived_at) {
+          updated.active = false;
+          updated.worker_visible = false;
+        }
+        return json({ template: jsonTemplate(replaceTemplate(updated)) });
+      }
+      if (action === "lock" && method === "POST") {
+        if (protectedFormTypes.has(row.form_type)) return json({ error: "Default forms are protected." }, 400);
+        if (!canManageTemplate(row)) return json({ error: "You can only manage form templates you created." }, 403);
+        const updated = replaceTemplate({
+          ...row,
+          locked_at: row.locked_at || "2026-07-03T19:00:00.000Z",
+          locked_by_staff_id: currentStaff.id,
+          updated_by_staff_id: currentStaff.id,
+        });
+        return json({ template: jsonTemplate(updated) });
+      }
+      if (action === "unlock" && method === "POST") {
+        const body = JSON.parse(request.postData() || "{}");
+        if (protectedFormTypes.has(row.form_type)) return json({ error: "Default forms are protected." }, 400);
+        if (!canManageTemplate(row)) return json({ error: "You can only manage form templates you created." }, 403);
+        if (body.password !== unlockPassword) return json({ error: "Invalid password." }, 401);
+        const updated = replaceTemplate({
+          ...row,
+          locked_at: null,
+          locked_by_staff_id: null,
+          updated_by_staff_id: currentStaff.id,
+        });
+        return json({ template: jsonTemplate(updated) });
+      }
+      if (action === "duplicate" && method === "POST") {
+        duplicateCount += 1;
+        const sourceVersion = row.draftVersion || row.publishedVersion || row.versions?.[0] || version(row.form_type, {});
+        const nextFormType = `${row.form_type}_copy_${duplicateCount}`;
+        const label = `${row.label} copy`;
+        const draftVersion = {
+          ...structuredClone(sourceVersion),
+          id: `${nextFormType}-version-1`,
+          form_type: nextFormType,
+          version_number: 1,
+          status: "draft",
+          published_at: null,
+        };
+        draftVersion.schema = {
+          ...(draftVersion.schema || {}),
+          formType: nextFormType,
+          title: label,
+          description: draftVersion.schema?.description ?? row.description ?? "",
+        };
+        const copy = {
+          ...structuredClone(row),
+          id: `${nextFormType}-template`,
+          form_type: nextFormType,
+          label,
+          active: true,
+          worker_visible: false,
+          archived_at: null,
+          locked_at: null,
+          locked_by_staff_id: null,
+          display_order: Math.max(10, ...templateRows.map((item) => Number(item.display_order || 0))) + 10,
+          created_by_staff_id: currentStaff.id,
+          updated_by_staff_id: currentStaff.id,
+          draftVersion,
+          publishedVersion: null,
+          versions: [draftVersion],
+        };
+        templateRows = [copy, ...templateRows];
+        return json({ template: jsonTemplate(copy) }, 201);
+      }
+    }
     if (path === "/api/staff/submissions" && method === "GET") {
       return json({
         rows: staffSubmissions,
@@ -546,7 +688,7 @@ async function mockApis(page, templates, options = {}) {
     }
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
       const formType = decodeURIComponent(path.split("/").at(-2));
-      const row = templatesByType.get(formType);
+      const row = findTemplate(formType);
       return row ? json({ template: row }) : json({ error: "Not found" }, 404);
     }
     if (path === "/api/worker/submissions/file-upload-url" && method === "POST") {
@@ -1513,6 +1655,140 @@ test("Salus Toolbox Talk migration opens as hidden draft and runs as a Toolbox f
   ]);
 });
 
+test("Speed Fan Inspection migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "speed_fan_inspection",
+    "Speed Fan Inspection",
+    speedFanInspectionSchema,
+    { displayOrder: 60 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Speed Fan Inspection" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Speed Fan Inspection" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Add Photo" })
+    .getByRole("button")
+    .first()
+    .click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByText("Accepted uploads")).toBeVisible();
+  await expect(selectedBlock.getByLabel("Images")).toBeChecked();
+  await expect(selectedBlock.getByLabel("PDF")).not.toBeChecked();
+  await expect(selectedBlock.getByLabel("Excel")).not.toBeChecked();
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Speed Fan Inspection" })).toBeVisible();
+  await expect(preview.getByText("Weather Conditions/Temperature")).toBeVisible();
+  await expect(preview.getByText("SYSTEM VERIFICATION")).toBeVisible();
+  await expect(preview.getByText("Verify all anchors are snug")).toBeVisible();
+  await expect(preview.getByText("General Safety")).toBeVisible();
+  await expect(preview.getByText("Fall Protection", { exact: true })).toBeVisible();
+  await expect(preview.getByText("Unsafe Act / Condition")).toBeVisible();
+  await expect(preview.getByText("Safety Concerns Raised", { exact: true })).toBeVisible();
+  await expect(preview.getByText("Add Photo")).toBeVisible();
+  await expect(preview.getByText("JPG, PNG, WEBP, HEIC / 5 files max / 50 MiB each")).toBeVisible();
+  await expect(preview.getByText("Inspector Signatures")).toBeVisible();
+  await expect(preview.locator(".template-signature-canvas")).toBeVisible();
+});
+
+test("Speed Fan Inspection worker form honors image-only uploads and required fields", async ({ page }) => {
+  const row = template("speed_fan_inspection", "Speed Fan Inspection", speedFanInspectionSchema);
+  await mockApis(page, [row]);
+
+  await page.goto("/forms/speed_fan_inspection");
+  await expect(page.getByRole("heading", { name: "Speed Fan Inspection" })).toBeVisible();
+  await expect(page.getByText("SYSTEM VERIFICATION")).toBeVisible();
+  await page.locator('input[type="file"][aria-label="Add Photo"]').setInputFiles({
+    name: "speed-report.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.4 smoke"),
+  });
+  await expect(page.getByText(/Use JPG, PNG, WEBP, HEIC files/)).toBeVisible();
+  await page.locator('input[type="file"][aria-label="Add Photo"]').setInputFiles({
+    name: "speed-photo.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("jpg"),
+  });
+  await expect(page.getByText("speed-photo.jpg")).toBeVisible();
+  await page.getByRole("button", { name: "Submit Speed Fan Inspection" }).click();
+  await expect(page.getByText("Location: Include Level, Residential or Office, etc. is required.")).toBeVisible();
+  await page.getByLabel("Location: Include Level, Residential or Office, etc.").fill("Level 3");
+  await page.getByRole("button", { name: "Submit Speed Fan Inspection" }).click();
+  await expect(page.getByText("SYSTEM VERIFICATION is required.")).toBeVisible();
+  await page.getByLabel("Verify all anchors are snug, in good condition and free from tampering.").check();
+  await page.getByRole("button", { name: "Submit Speed Fan Inspection" }).click();
+  await expect(page.getByText("Inspector Signatures is required.")).toBeVisible();
+});
+
+test("Hoist Competency Observation migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "hoist_competency_observation",
+    "Hoist Competency Observation",
+    hoistCompetencyObservationSchema,
+    { displayOrder: 70 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Hoist Competency Observation" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Hoist Competency Observation" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Hoist Competency Observation" })).toBeVisible();
+  await expect(preview.getByText("The competency observation form is one method")).toBeVisible();
+  await expect(preview.getByText("Is this an Appia worker?")).toBeVisible();
+  await expect(preview.getByText("Employer of worker observed")).toHaveCount(0);
+  const appiaWorker = preview
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Is this an Appia worker?" });
+  await appiaWorker.getByRole("radio", { name: "No" }).click();
+  await expect(preview.getByLabel("Employer of worker observed")).toBeVisible();
+  await expect(preview.getByText("Performs pre-use inspection")).toBeVisible();
+  await expect(preview.getByText("What is the hoist rated capacity?")).toBeVisible();
+  await expect(preview.getByText("Evaluation Outcome")).toBeVisible();
+  await expect(preview.getByText("Operator Signature")).toBeVisible();
+  await expect(preview.getByText("Evaluator Signature")).toBeVisible();
+  await expect(preview.locator(".template-signature-canvas")).toHaveCount(2);
+});
+
+test("Hoist Competency Observation worker form submits conditional employer and outcome", async ({ page }) => {
+  const row = template(
+    "hoist_competency_observation",
+    "Hoist Competency Observation",
+    hoistCompetencyObservationSchema,
+  );
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/hoist_competency_observation");
+  await expect(page.getByRole("heading", { name: "Hoist Competency Observation" })).toBeVisible();
+  const appiaWorker = page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Is this an Appia worker?" });
+  await appiaWorker.getByRole("radio", { name: "No" }).click();
+  await page.getByRole("button", { name: "Submit Hoist Competency Observation" }).click();
+  await expect(page.getByText("Employer of worker observed is required.")).toBeVisible();
+  await page.getByLabel("Employer of worker observed").fill("TK Elevators");
+  await page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Evaluation Outcome" })
+    .getByRole("radio", { name: "Competent - Approved to operate" })
+    .click();
+  await page.getByRole("button", { name: "Submit Hoist Competency Observation" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.hoist_employer_observed).toBe("TK Elevators");
+  expect(submissions[0].formData.answers.hoist_evaluation_outcome).toBe("Competent - Approved to operate");
+});
+
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
   test.slow();
   const row = template(
@@ -1659,6 +1935,142 @@ test("conditional visibility helper creates a driver when none exists", async ({
   await expect(preview.getByLabel("Target question")).toBeVisible();
 });
 
+test("editable templates can be locked, duplicated while locked, and unlocked with a password", async ({ page }) => {
+  const lockSchema = {
+    ...toolboxSignatureSchema,
+    formType: "editable_lock_smoke",
+    title: "Editable Lock Smoke",
+  };
+  const row = template("editable_lock_smoke", "Editable Lock Smoke", lockSchema);
+  await mockApis(page, [row], { unlockPassword: "correct-password" });
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("button", { name: "Lock Editable Lock Smoke" })).toBeVisible();
+  await page.getByRole("button", { name: "Lock Editable Lock Smoke" }).click();
+  await expect(page.getByText("Template locked.")).toBeVisible();
+  await expect(page.locator(".template-v3-template-options-card")).toContainText("Locked");
+  await expect(page.locator(".template-v3-toolbar-actions")).toContainText("Locked. Unlock to edit.");
+  await expect(page.getByRole("button", { name: "Save draft", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Publish", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Archive form", exact: true })).toHaveCount(0);
+  await expect(page.locator(".template-v3-template-options-card").getByLabel("Form name")).toBeDisabled();
+
+  await page.locator(".template-v3-actions").getByRole("button", { name: "Duplicate" }).click();
+  await expect(page.getByRole("heading", { name: "Editable Lock Smoke copy" })).toBeVisible();
+  await expect(page.locator(".template-v3-template-options-card")).not.toContainText("Locked");
+  await expect(page.getByRole("button", { name: "Lock Editable Lock Smoke copy" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Show all forms" }).click();
+  await page.locator(".template-card").filter({ hasText: "Editable Lock Smoke" }).nth(1).getByRole("button").first().click();
+  await page.getByRole("button", { name: "Unlock Editable Lock Smoke" }).click();
+  const dialog = page.getByRole("dialog", { name: "Unlock form template" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel("Password").fill("wrong-password");
+  await dialog.getByRole("button", { name: "Unlock" }).click();
+  await expect(dialog.getByText("Invalid password.")).toBeVisible();
+  await dialog.getByLabel("Password").fill("correct-password");
+  await dialog.getByRole("button", { name: "Unlock" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByText("Template unlocked.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Lock Editable Lock Smoke" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save draft", exact: true }).first()).toBeVisible();
+  await expect(page.locator(".template-v3-template-options-card").getByLabel("Form name")).toBeEnabled();
+});
+
+test("regular staff can archive and purge only templates they created", async ({ page }) => {
+  const regularStaff = {
+    ...staff,
+    id: "regular-staff",
+    role: "staff",
+    username: "regular",
+    email: "regular@example.com",
+  };
+  const ownSchema = { ...toolboxSignatureSchema, formType: "regular_owned", title: "Regular Owned" };
+  const otherSchema = { ...toolboxSignatureSchema, formType: "other_active", title: "Other Active" };
+  const archivedSchema = { ...toolboxSignatureSchema, formType: "other_archived", title: "Other Archived" };
+  const ownRow = template("regular_owned", "Regular Owned", ownSchema, {
+    created_by_staff_id: regularStaff.id,
+    displayOrder: 1,
+  });
+  const otherActive = template("other_active", "Other Active", otherSchema, {
+    created_by_staff_id: "other-staff",
+    displayOrder: 2,
+  });
+  const otherArchived = template("other_archived", "Other Archived", archivedSchema, {
+    active: false,
+    worker_visible: false,
+    archived_at: "2026-07-02T19:00:00.000Z",
+    created_by_staff_id: "other-staff",
+    displayOrder: 3,
+  });
+  await mockApis(page, [ownRow, otherActive, otherArchived], { staff: regularStaff });
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Regular Owned" })).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archive form" }).click();
+  await expect(page.getByText("Template archived.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Other Active" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Archive form", exact: true })).toHaveCount(0);
+
+  await page.locator(".template-archive-toggle").click();
+  page.once("dialog", (dialog) => {
+    expect(dialog.message()).toContain("Delete 1 archived form template");
+    return dialog.accept();
+  });
+  await page.getByRole("button", { name: "Delete archived" }).click();
+  await expect(page.getByText("Deleted 1 archived form template.")).toBeVisible();
+  await page.locator(".template-archive-toggle").click();
+  await expect(page.locator(".template-archive-items")).toContainText("Other Archived");
+  await expect(page.locator(".template-archive-items")).not.toContainText("Regular Owned");
+  await expect(page.getByRole("button", { name: "Delete archived" })).toBeDisabled();
+});
+
+test("admin can archive and purge non-protected templates while protected defaults stay protected", async ({ page }) => {
+  const adminStaff = {
+    ...staff,
+    id: "admin-staff",
+    role: "admin",
+    username: "admin",
+    email: "admin@example.com",
+  };
+  const adminSchema = { ...toolboxSignatureSchema, formType: "admin_other", title: "Admin Other" };
+  const protectedSchema = { ...toolboxSignatureSchema, formType: "toolbox_talk", title: "Toolbox Talk" };
+  const adminOther = template("admin_other", "Admin Other", adminSchema, {
+    created_by_staff_id: "other-staff",
+    displayOrder: 1,
+  });
+  const protectedArchived = template("toolbox_talk", "Toolbox Talk", protectedSchema, {
+    active: false,
+    worker_visible: false,
+    archived_at: "2026-07-02T19:00:00.000Z",
+    created_by_staff_id: null,
+    displayOrder: 2,
+    versionNumber: 4,
+  });
+  await mockApis(page, [adminOther, protectedArchived], { staff: adminStaff });
+
+  await page.goto("/staff/form-templates");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archive form" }).click();
+  await expect(page.getByText("Template archived.")).toBeVisible();
+  await page.locator(".template-archive-toggle").click();
+  page.once("dialog", (dialog) => {
+    expect(dialog.message()).toContain("Delete 1 archived form template");
+    return dialog.accept();
+  });
+  await page.getByRole("button", { name: "Delete archived" }).click();
+  await expect(page.getByText("Deleted 1 archived form template.")).toBeVisible();
+  await page.locator(".template-archive-toggle").click();
+  await page.locator(".template-archive-items").getByRole("button", { name: /Toolbox Talk/ }).click();
+  await expect(page.getByText("Protected default. Duplicate to edit.").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Lock Toolbox Talk/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Unlock Toolbox Talk/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Archive form", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Restore archived", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Delete archived" })).toBeDisabled();
+});
+
 test("protected default templates open in the V3 shell without edit actions", async ({ page }) => {
   const row = template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, { versionNumber: 4 });
   await mockApis(page, [row]);
@@ -1667,6 +2079,8 @@ test("protected default templates open in the V3 shell without edit actions", as
   await expect(page.getByText("Protected default. Duplicate to edit.").first()).toBeVisible();
   await expect(page.locator(".template-v3-workspace")).toBeVisible();
   await expect(page.getByRole("button", { name: "Duplicate" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Lock Toolbox Talk/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Unlock Toolbox Talk/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Save draft", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Publish", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Restore previous", exact: true })).toHaveCount(0);

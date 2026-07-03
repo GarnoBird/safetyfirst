@@ -46,9 +46,11 @@ import {
   getPublishedWorkerFormTemplate,
   listFormTemplates,
   listWorkerVisibleFormTemplates,
+  lockFormTemplate,
   publishFormTemplateDraft,
   restoreFormTemplateVersion,
   saveFormTemplateDraft,
+  unlockFormTemplate,
   updateFormTemplate,
 } from "./_lib/form-templates.js";
 import {
@@ -973,6 +975,48 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
       metadata: { sourceFormType: parts[0], formType: template.form_type, label: template.label },
     });
     return sendJson(res, 201, { template });
+  }
+  if (parts.length === 2 && parts[1] === "lock" && req.method === "POST") {
+    const template = await lockFormTemplate(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "form_template_locked",
+      targetType: "form_template",
+      targetId: template.form_type,
+      summary: `${staff.username} locked a form template.`,
+      metadata: { formType: template.form_type, label: template.label },
+    });
+    return sendJson(res, 200, { template });
+  }
+  if (parts.length === 2 && parts[1] === "unlock" && req.method === "POST") {
+    const body = await readJson(req);
+    try {
+      const template = await unlockFormTemplate(parts[0], body, staff);
+      await recordAuditEvent({
+        req,
+        staff,
+        action: "form_template_unlocked",
+        targetType: "form_template",
+        targetId: template.form_type,
+        summary: `${staff.username} unlocked a form template.`,
+        metadata: { formType: template.form_type, label: template.label },
+      });
+      return sendJson(res, 200, { template });
+    } catch (error) {
+      if (error.statusCode === 401) {
+        await recordAuditEvent({
+          req,
+          staff,
+          action: "form_template_unlock_failed",
+          targetType: "form_template",
+          targetId: parts[0],
+          summary: `${staff.username} failed to unlock a form template.`,
+          metadata: { formType: parts[0], reason: "invalid_password" },
+        });
+      }
+      throw error;
+    }
   }
   if (parts.length === 2 && parts[1] === "publish" && req.method === "POST") {
     const published = await publishFormTemplateDraft(parts[0], staff);

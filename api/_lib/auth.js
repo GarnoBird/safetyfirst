@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
-import { parseCookies, serializeCookie } from "./http.js";
+import { createClient } from "@supabase/supabase-js";
+import { getRequiredEnv, parseCookies, serializeCookie } from "./http.js";
 import {
   getSupabaseAuthClient,
   getSupabaseServiceClient,
@@ -141,6 +142,46 @@ export async function loginStaff(username, password) {
   );
 
   return updated;
+}
+
+export async function verifyStaffPassword(staff, password) {
+  if (!staff?.email || !staff?.auth_user_id) {
+    const error = new Error("Staff login required.");
+    error.statusCode = 401;
+    throw error;
+  }
+  if (!password) {
+    const error = new Error("Password is required.");
+    error.statusCode = 400;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  const authClient = createClient(
+    getRequiredEnv("SUPABASE_URL"),
+    process.env.SUPABASE_ANON_KEY || getRequiredEnv("SUPABASE_SERVICE_ROLE_KEY"),
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    },
+  );
+  const authResult = await authClient.auth.signInWithPassword({
+    email: staff.email,
+    password,
+  });
+  await authClient.auth.signOut().catch(() => {});
+
+  if (authResult.error || authResult.data?.user?.id !== staff.auth_user_id) {
+    const error = new Error("Invalid password.");
+    error.statusCode = 401;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  return true;
 }
 
 export async function getStaffFromRequest(req) {

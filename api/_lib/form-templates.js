@@ -2,6 +2,7 @@ import {
   getSupabaseServiceClient,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { verifyStaffPassword } from "./auth.js";
 import { getVancouverDate } from "./date.js";
 
 export const CUSTOM_FORM_TYPES = [
@@ -53,7 +54,7 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
 ]);
 
 const TEMPLATE_SELECT =
-  "id, form_type, label, description, renderer_type, active, worker_visible, display_order, archived_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
+  "id, form_type, label, description, renderer_type, active, worker_visible, display_order, archived_at, locked_at, locked_by_staff_id, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
 const VERSION_SELECT =
   "id, template_id, form_type, version_number, status, schema, notes, created_by_staff_id, updated_by_staff_id, published_by_staff_id, created_at, updated_at, published_at";
 const MAX_SECTIONS = 20;
@@ -308,7 +309,9 @@ export async function deleteArchivedFormTemplates(staff) {
     return { deleted: 0, rows: [] };
   }
 
-  const deletableTemplates = archivedTemplates.filter((template) => !isLockedDefaultTemplate(template));
+  const deletableTemplates = archivedTemplates.filter((template) =>
+    !isLockedDefaultTemplate(template) && canManageTemplate(template, staff)
+  );
   if (!deletableTemplates.length) {
     return { deleted: 0, rows: [] };
   }
@@ -331,13 +334,64 @@ export async function deleteArchivedFormTemplates(staff) {
   };
 }
 
+export async function lockFormTemplate(formType, staff) {
+  const template = await getTemplateByType(cleanFormType(formType));
+  assertTemplateEditable(template);
+  assertTemplateManageable(template, staff);
+  if (template.locked_at) return getFormTemplate(template.form_type);
+
+  const updated = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .update({
+        locked_at: new Date().toISOString(),
+        locked_by_staff_id: staff.id,
+        updated_by_staff_id: staff.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", template.id)
+      .select(TEMPLATE_SELECT)
+      .single(),
+    "Form template could not be locked.",
+  );
+  return getFormTemplate(updated.form_type);
+}
+
+export async function unlockFormTemplate(formType, body, staff) {
+  const template = await getTemplateByType(cleanFormType(formType));
+  assertTemplateEditable(template);
+  assertTemplateManageable(template, staff);
+  await verifyStaffPassword(staff, body?.password);
+  if (!template.locked_at) return getFormTemplate(template.form_type);
+
+  const updated = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_templates")
+      .update({
+        locked_at: null,
+        locked_by_staff_id: null,
+        updated_by_staff_id: staff.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", template.id)
+      .select(TEMPLATE_SELECT)
+      .single(),
+    "Form template could not be unlocked.",
+  );
+  return getFormTemplate(updated.form_type);
+}
+
 export async function updateFormTemplate(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
   const bodyKeys = Object.keys(body || {});
   const updatesDisplayOrderOnly =
     bodyKeys.length > 0 &&
     bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
-  if (!updatesDisplayOrderOnly) assertTemplateEditable(template);
+  if (updatesDisplayOrderOnly) {
+    assertAdminOrOwner(staff);
+  } else {
+    assertTemplateMutable(template, staff);
+  }
   const patch = {
     updated_by_staff_id: staff.id,
     updated_at: new Date().toISOString(),
@@ -393,7 +447,7 @@ export async function updateFormTemplate(formType, body, staff) {
 
 export async function saveFormTemplateDraft(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateEditable(template);
+  assertTemplateMutable(template, staff);
   const cleanedSchema = cleanTemplateSchema(body?.schema, {
     fallbackTitle: template.label,
     formType: template.form_type,
@@ -442,7 +496,7 @@ export async function saveFormTemplateDraft(formType, body, staff) {
 
 export async function publishFormTemplateDraft(formType, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateEditable(template);
+  assertTemplateMutable(template, staff);
   const draft = await getDraftVersion(template.id);
   if (!draft) throwNotFound("No draft exists for this form.");
   const cleanedSchema = cleanTemplateSchema(draft.schema, {
@@ -485,7 +539,7 @@ export async function publishFormTemplateDraft(formType, staff) {
 
 export async function restoreFormTemplateVersion(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateEditable(template);
+  assertTemplateMutable(template, staff);
   const sourceId = cleanUuid(body?.versionId || body?.version_id, "Version id is not valid.");
   const source = throwIfSupabaseError(
     await getSupabaseServiceClient()
@@ -1223,6 +1277,29 @@ function isLockedDefaultTemplate(templateOrType) {
   return LOCKED_DEFAULT_FORM_TYPES.includes(formType);
 }
 
+function isAdminOrOwner(staff) {
+  return ["owner", "admin"].includes(staff?.role);
+}
+
+function canManageTemplate(template, staff) {
+  if (isAdminOrOwner(staff)) return true;
+  return Boolean(
+    staff?.id &&
+    template?.created_by_staff_id &&
+    template.created_by_staff_id === staff.id,
+  );
+}
+
+function assertAdminOrOwner(staff) {
+  if (isAdminOrOwner(staff)) return;
+  throwForbidden("Only Admin or Owner can change form template order.");
+}
+
+function assertTemplateManageable(template, staff) {
+  if (canManageTemplate(template, staff)) return;
+  throwForbidden("You can only manage form templates you created.");
+}
+
 function assertTemplateRendererEditable(template) {
   if (template.renderer_type !== "template") {
     throwBadRequest("This form uses a special mobile renderer. Editable fields will be added in a later phase.");
@@ -1234,6 +1311,17 @@ function assertTemplateEditable(template) {
   if (isLockedDefaultTemplate(template)) {
     throwBadRequest("Default forms are protected. Duplicate this form to make an editable copy.");
   }
+}
+
+function assertTemplateUnlocked(template) {
+  if (!template.locked_at) return;
+  throwLocked("This form template is locked. Unlock it to edit.");
+}
+
+function assertTemplateMutable(template, staff) {
+  assertTemplateEditable(template);
+  assertTemplateManageable(template, staff);
+  assertTemplateUnlocked(template);
 }
 
 function createDefaultSchemaForTemplate(template) {
@@ -1326,6 +1414,20 @@ function cleanUuid(value, message) {
 function throwBadRequest(message) {
   const error = new Error(message);
   error.statusCode = 400;
+  throw error;
+}
+
+function throwForbidden(message) {
+  const error = new Error(message);
+  error.statusCode = 403;
+  error.exposeMessage = true;
+  throw error;
+}
+
+function throwLocked(message) {
+  const error = new Error(message);
+  error.statusCode = 423;
+  error.exposeMessage = true;
   throw error;
 }
 

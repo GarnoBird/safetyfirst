@@ -6701,6 +6701,30 @@ function isLockedDefaultFormTemplate(templateOrType) {
   return LOCKED_DEFAULT_FORM_TYPES.has(formType);
 }
 
+function isLockedFormTemplate(template) {
+  return Boolean(template?.locked_at);
+}
+
+function canManageFormTemplate(template, staff) {
+  if (!template || !staff) return false;
+  if (isAdminOrOwner(staff)) return true;
+  return Boolean(template.created_by_staff_id && template.created_by_staff_id === staff.id);
+}
+
+function canPurgeFormTemplate(template, staff) {
+  return Boolean(
+    template?.archived_at &&
+    !isLockedDefaultFormTemplate(template) &&
+    canManageFormTemplate(template, staff),
+  );
+}
+
+function templateAccessLabel(template) {
+  if (isLockedDefaultFormTemplate(template)) return "Protected default";
+  if (template?.renderer_type !== "template") return "Special renderer";
+  return "Editable";
+}
+
 function syncSchemaMeta(schema, patch) {
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return schema;
   if (!patchHasKey(patch, "label") && !patchHasKey(patch, "description")) return schema;
@@ -6752,17 +6776,36 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState("");
+  const [unlockingTemplate, setUnlockingTemplate] = useState(null);
   const templateCardRefs = useRef(new Map());
   const dragStateRef = useRef({ formType: "", moved: false, latestOrder: null });
 
   const currentTemplates = useMemo(() => rows.filter((row) => !row.archived_at), [rows]);
   const archivedTemplates = useMemo(() => rows.filter((row) => row.archived_at), [rows]);
+  const archivedPurgeableTemplates = useMemo(
+    () => archivedTemplates.filter((template) => canPurgeFormTemplate(template, staff)),
+    [archivedTemplates, staff],
+  );
   const selectedTemplate = useMemo(
     () => rows.find((row) => row.form_type === selectedFormType) || currentTemplates[0] || archivedTemplates[0] || null,
     [archivedTemplates, currentTemplates, rows, selectedFormType],
   );
   const selectedIsLockedDefault = isLockedDefaultFormTemplate(selectedTemplate);
-  const selectedCanEdit = canManageTemplates && !selectedIsLockedDefault;
+  const selectedIsLocked = isLockedFormTemplate(selectedTemplate);
+  const selectedCanManage = canManageFormTemplate(selectedTemplate, staff);
+  const selectedCanEdit = Boolean(
+    canManageTemplates &&
+    selectedCanManage &&
+    selectedTemplate?.renderer_type === "template" &&
+    !selectedIsLockedDefault &&
+    !selectedIsLocked,
+  );
+  const selectedCanArchive = Boolean(
+    selectedCanManage &&
+    selectedTemplate?.renderer_type === "template" &&
+    !selectedIsLockedDefault &&
+    !selectedIsLocked,
+  );
   const selectedSchema = selectedIsLockedDefault
     ? selectedTemplate?.publishedVersion?.schema || selectedTemplate?.draftVersion?.schema || null
     : selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
@@ -6777,7 +6820,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
-  const canDragTemplateOrder = canManageTemplates && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const canDragTemplateOrder = isAdminOrOwner(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -6864,9 +6907,61 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     }
   };
 
+  const replaceTemplateRow = (template) => {
+    if (!template?.form_type) return;
+    setRows((current) => current.map((row) => (row.form_type === template.form_type ? template : row)));
+  };
+
+  const lockTemplate = async (template = selectedTemplate) => {
+    if (!template || template.renderer_type !== "template") return;
+    if (!canManageFormTemplate(template, staff) || isLockedDefaultFormTemplate(template)) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${template.form_type}/lock`, {
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+      replaceTemplateRow(payload.template);
+      setMessage("Template locked.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const unlockTemplate = async (password) => {
+    const template = unlockingTemplate || selectedTemplate;
+    if (!template || template.renderer_type !== "template") return;
+    if (!canManageFormTemplate(template, staff) || isLockedDefaultFormTemplate(template)) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/form-templates/${template.form_type}/unlock`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ password }),
+        }),
+      );
+      replaceTemplateRow(payload.template);
+      setUnlockingTemplate(null);
+      setMessage("Template unlocked.");
+    } catch (error) {
+      setMessage(error.message);
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const deleteArchivedTemplates = async () => {
-    if (!canManageTemplates || !archivedTemplates.length) return;
-    const count = archivedTemplates.length;
+    if (!canManageTemplates || !archivedPurgeableTemplates.length) return;
+    const count = archivedPurgeableTemplates.length;
     if (!window.confirm(`Delete ${count} archived form template${count === 1 ? "" : "s"}? This cannot be undone.`)) {
       return;
     }
@@ -6900,6 +6995,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const updateTemplateMeta = async (patch) => {
     if (!canManageTemplates) return;
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    if (!canManageFormTemplate(selectedTemplate, staff)) return;
+    if (selectedTemplate.locked_at) {
+      setMessage("Locked. Unlock to edit.");
+      return;
+    }
     setSaving(true);
     setMessage("");
     try {
@@ -6937,7 +7037,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const saveTemplateOrder = async (order) => {
-    if (!canManageTemplates) return;
+    if (!isAdminOrOwner(staff)) return;
     if (!order?.length) return;
     setReordering(true);
     setMessage("");
@@ -7053,6 +7153,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   }, [selectedFormType, selectedSchema]);
 
   const saveTemplateMetaForSchema = async (schema) => {
+    if (!selectedCanEdit) return null;
     const nextTitle = String(schema?.title || "").trim();
     const nextDescription = String(schema?.description || "");
     const patch = {};
@@ -7072,6 +7173,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
   const saveDraft = async () => {
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    if (!selectedCanEdit) return;
     setSaving(true);
     setMessage("");
     try {
@@ -7106,6 +7208,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
   const publishDraft = async () => {
     if (!selectedTemplate || selectedTemplate.renderer_type !== "template") return;
+    if (!selectedCanEdit) return;
     setPublishing(true);
     setMessage("");
     try {
@@ -7138,6 +7241,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 
   const restoreVersion = async (version) => {
     if (!selectedTemplate || !version) return;
+    if (!selectedCanEdit) return;
     setSaving(true);
     setMessage("");
     try {
@@ -7268,12 +7372,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 }}
               >
                 <span>
-                  {isLockedDefaultFormTemplate(template)
-                    ? "Protected default"
-                    : template.renderer_type === "template" ? "Editable" : "Special renderer"}
+                  {templateAccessLabel(template)}
                 </span>
                 <strong>{template.label}</strong>
                 {template.draftVersion && !isLockedDefaultFormTemplate(template) ? <small>Draft ready</small> : null}
+                {isLockedFormTemplate(template) && !isLockedDefaultFormTemplate(template) ? <small>Locked</small> : null}
                 <small>
                   {template.archived_at
                     ? "Archived"
@@ -7318,7 +7421,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               {canManageTemplates ? (
                 <button
                   className="danger-button"
-                  disabled={saving}
+                  disabled={saving || !archivedPurgeableTemplates.length}
                   type="button"
                   onClick={deleteArchivedTemplates}
                 >
@@ -7335,12 +7438,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       onClick={() => setSelectedFormType(template.form_type)}
                     >
                       <span>
-                        {isLockedDefaultFormTemplate(template)
-                          ? "Protected default"
-                          : template.renderer_type === "template" ? "Editable" : "Special renderer"}
+                        {templateAccessLabel(template)}
                       </span>
                       <strong>{template.label}</strong>
                       {template.draftVersion && !isLockedDefaultFormTemplate(template) ? <small>Draft ready</small> : null}
+                      {isLockedFormTemplate(template) && !isLockedDefaultFormTemplate(template) ? <small>Locked</small> : null}
                       <small>Archived</small>
                     </button>
                   ))}
@@ -7386,7 +7488,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                         </button>
                       ) : null}
                     </>
-                  ) : canManageTemplates ? (
+                  ) : selectedCanEdit ? (
                     <>
                       {previousVersions.length ? (
                         <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
@@ -7400,6 +7502,10 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                         {publishing ? "Publishing..." : "Publish"}
                       </button>
                     </>
+                  ) : selectedIsLocked ? (
+                    <span className="muted">Locked. Unlock to edit.</span>
+                  ) : selectedCanManage ? (
+                    <span className="muted">View only</span>
                   ) : (
                     <span className="muted">View only</span>
                   )}
@@ -7409,14 +7515,29 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               <TemplateSchemaEditorV3
                 active={Boolean(selectedTemplate.active)}
                 archived={Boolean(selectedTemplate.archived_at)}
+                canArchive={selectedCanArchive}
                 canDuplicate={canManageTemplates && selectedTemplate.renderer_type === "template"}
+                canLockToggle={Boolean(
+                  selectedCanManage &&
+                  selectedTemplate.renderer_type === "template" &&
+                  !selectedIsLockedDefault &&
+                  !selectedTemplate.archived_at
+                )}
                 hasPublishedVersion={Boolean(selectedTemplate.publishedVersion)}
+                locked={selectedIsLocked}
                 lockedDefault={selectedIsLockedDefault}
                 onArchiveToggle={(archived) =>
                   updateTemplateMeta(archived ? { archived: true } : { archived: false, active: true })
                 }
                 onChange={selectedCanEdit ? setDraftSchema : () => {}}
                 onDuplicate={() => duplicateTemplate(selectedTemplate)}
+                onLockToggle={() => {
+                  if (selectedIsLocked) {
+                    setUnlockingTemplate(selectedTemplate);
+                  } else {
+                    lockTemplate(selectedTemplate);
+                  }
+                }}
                 onPreviewAnswersChange={setPreviewAnswers}
                 onPublish={publishDraft}
                 onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
@@ -7438,6 +7559,14 @@ export function StaffFormTemplatesPage({ navigateTo }) {
           )}
         </section>
       </section>
+      {unlockingTemplate ? (
+        <TemplateUnlockDialog
+          saving={saving}
+          template={unlockingTemplate}
+          onClose={() => setUnlockingTemplate(null)}
+          onUnlock={unlockTemplate}
+        />
+      ) : null}
     </StaffShell>
   );
 }
@@ -7975,12 +8104,16 @@ export function StaffActionItemsPage({ navigateTo }) {
 function TemplateSchemaEditorV3({
   active,
   archived,
+  canArchive = false,
   canDuplicate = true,
+  canLockToggle = false,
   hasPublishedVersion,
+  locked = false,
   lockedDefault = false,
   onArchiveToggle,
   onChange,
   onDuplicate,
+  onLockToggle,
   onPreviewAnswersChange,
   onPublish,
   onRestorePrevious,
@@ -8032,9 +8165,15 @@ function TemplateSchemaEditorV3({
   const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
   const hasUnpublishedDraft = Boolean(
     !lockedDefault &&
+    !locked &&
     selectedTemplate?.draftVersion &&
     selectedTemplate?.publishedVersion,
   );
+  const readOnlyNote = locked
+    ? "Locked. Unlock to edit."
+    : lockedDefault
+      ? "Protected default. Duplicate to edit."
+      : "View only.";
 
   useEffect(() => {
     setOptionDraft("");
@@ -8438,7 +8577,7 @@ function TemplateSchemaEditorV3({
                 </>
               ) : (
                 <span className="template-v3-protected-note">
-                  {lockedDefault ? "Protected default. Duplicate to edit." : "View only."}
+                  {readOnlyNote}
                 </span>
               )}
             </div>
@@ -8604,13 +8743,44 @@ function TemplateSchemaEditorV3({
           aria-label="Builder V3 settings"
         >
           <section
-            className="template-v3-side-card template-v3-template-options-card"
+            className={[
+              "template-v3-side-card template-v3-template-options-card",
+              canLockToggle ? "has-lock-button" : "",
+            ].filter(Boolean).join(" ")}
             onClick={() => setSidebarFocus("template")}
             onFocusCapture={() => handleSidebarCardFocus("template")}
             onPointerCancel={handleSidebarCardPointerEnd}
             onPointerDown={() => handleSidebarCardPointerDown("template")}
             onPointerUp={handleSidebarCardPointerEnd}
           >
+            {canLockToggle ? (
+              <button
+                aria-label={locked ? `Unlock ${selectedTemplate.label}` : `Lock ${selectedTemplate.label}`}
+                className={locked ? "template-lock-button locked" : "template-lock-button"}
+                disabled={saving}
+                title={locked ? "Unlock" : "Lock"}
+                type="button"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onLockToggle?.();
+                }}
+              >
+                {locked ? (
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M7 11V8a5 5 0 0 1 9.4-2.4" />
+                    <path d="M6 11h12v9H6z" />
+                    <path d="M12 15v2" />
+                  </svg>
+                ) : (
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                    <path d="M6 11h12v9H6z" />
+                    <path d="M12 15v2" />
+                  </svg>
+                )}
+              </button>
+            ) : null}
             <div className="template-v3-side-heading">
               <span>Options</span>
               <h2>Template</h2>
@@ -8659,7 +8829,7 @@ function TemplateSchemaEditorV3({
             <div className="template-v3-status-grid">
               <span>{hasPublishedVersion ? "Published" : "Draft only"}</span>
               <span>{workerVisible ? "Visible" : "Hidden"}</span>
-              <span>{lockedDefault ? "Protected" : archived ? "Archived" : active ? "Active" : "Inactive"}</span>
+              <span>{locked ? "Locked" : lockedDefault ? "Protected" : archived ? "Archived" : active ? "Active" : "Inactive"}</span>
             </div>
             {hasUnpublishedDraft ? (
               <p className="template-v3-draft-live-note">
@@ -8678,7 +8848,7 @@ function TemplateSchemaEditorV3({
               <button type="button" onClick={() => changeView("preview")}>Preview</button>
               {canDuplicate ? <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button> : null}
               {canEdit && onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
-              {canEdit ? (
+              {canArchive ? (
                 <button
                   className={archived ? "" : "danger-button"}
                   type="button"
@@ -8696,7 +8866,9 @@ function TemplateSchemaEditorV3({
             </div>
             {readOnly ? (
               <p className="template-v3-help-text">
-                {lockedDefault
+                {locked
+                  ? "Locked. Unlock to edit."
+                  : lockedDefault
                   ? "This default form is protected. Duplicate it to make an editable copy."
                   : "You can preview this template, but cannot edit it with your current access."}
               </p>
@@ -8726,7 +8898,9 @@ function TemplateSchemaEditorV3({
             {activeSelection.kind === "header" ? (
               <p className="template-v3-help-text">
                 {readOnly
-                  ? lockedDefault
+                  ? locked
+                    ? "Locked. Select a section or field to inspect it, or unlock the template to edit."
+                    : lockedDefault
                     ? "This default form is protected. Select a section or field to inspect it, or duplicate the form to edit."
                     : "Select a section or field to inspect it."
                   : "Select a section or field on the canvas to edit its block settings."}
@@ -9320,6 +9494,65 @@ function TemplateSchemaEditorV3({
           </section>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function TemplateUnlockDialog({ onClose, onUnlock, saving, template }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setError("");
+    try {
+      await onUnlock(password);
+      setPassword("");
+    } catch (unlockError) {
+      setError(unlockError.message);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Unlock form template"
+        className="staff-detail-dialog template-unlock-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>Unlock Template</h2>
+            <p>{template?.label || "Form template"}</p>
+          </div>
+          <button aria-label="Close" type="button" onClick={onClose}>X</button>
+        </div>
+        <p className="template-v3-help-text">
+          Unlocking allows editing again and is recorded in the audit log. Deletion and permanent purge remain the irreversible actions.
+        </p>
+        {error ? <p className="form-message error">{error}</p> : null}
+        <form className="template-unlock-form" onSubmit={submit}>
+          <label>
+            <span>Password</span>
+            <input
+              autoComplete="current-password"
+              autoFocus
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </label>
+          <div className="staff-card-actions">
+            <button disabled={saving} type="button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="primary-button" disabled={saving || !password} type="submit">
+              {saving ? "Unlocking..." : "Unlock"}
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }
