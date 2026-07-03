@@ -1113,12 +1113,25 @@ export function WorkerSignInPage() {
     if (!enabled) setGroupNames([]);
   };
 
-  const addGroupName = (value) => {
-    const name = value.trim();
-    if (!name) return false;
-    setGroupNames((current) => [...current, name]);
+  const addGroupNames = (value) => {
+    const names = normalizeGroupNameEntries([value]);
+    if (!names.length) return false;
+    setGroupNames((current) => [...current, ...names]);
     setGroupNameDraft("");
     return true;
+  };
+
+  const updateGroupNameDraft = (value) => {
+    if (!value.includes(",")) {
+      setGroupNameDraft(value);
+      return;
+    }
+    const parts = value.split(",");
+    const completedNames = normalizeGroupNameEntries(parts.slice(0, -1));
+    if (completedNames.length) {
+      setGroupNames((current) => [...current, ...completedNames]);
+    }
+    setGroupNameDraft((parts[parts.length - 1] || "").trimStart());
   };
 
   const removeGroupName = (indexToRemove) => {
@@ -1130,7 +1143,7 @@ export function WorkerSignInPage() {
   const handleGroupNameKeyDown = (event) => {
     if (event.key !== "Enter") return;
     event.preventDefault();
-    addGroupName(groupNameDraft);
+    addGroupNames(groupNameDraft);
   };
 
   const submitSignIn = async (event) => {
@@ -1149,7 +1162,7 @@ export function WorkerSignInPage() {
     }
 
     const names = groupMode
-      ? [...groupNames, groupNameDraft.trim()].filter(Boolean)
+      ? normalizeGroupNameEntries([...groupNames, groupNameDraft])
       : [form.name.trim()].filter(Boolean);
     if (!names.length) {
       setSubmitting(false);
@@ -1245,9 +1258,9 @@ export function WorkerSignInPage() {
                       required={groupNames.length === 0}
                       autoComplete="off"
                       aria-label="Worker name"
-                      placeholder="Type name, press enter"
+                      placeholder="Type name, press enter or comma"
                       value={groupNameDraft}
-                      onChange={(event) => setGroupNameDraft(event.target.value)}
+                      onChange={(event) => updateGroupNameDraft(event.target.value)}
                       onKeyDown={handleGroupNameKeyDown}
                     />
                   </div>
@@ -12480,6 +12493,16 @@ function writeRememberedWorkerGroup(signIns) {
 function clearRememberedWorkerGroup() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(WORKER_REMEMBER_GROUP_STORAGE);
+}
+
+function normalizeGroupNameEntries(entries) {
+  return entries
+    .flatMap((entry) =>
+      String(entry || "")
+        .split(",")
+        .map((name) => name.trim()),
+    )
+    .filter(Boolean);
 }
 
 function normalizeRememberedWorkerGroup(payload) {
