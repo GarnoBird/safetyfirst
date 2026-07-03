@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const staff = {
@@ -44,6 +45,38 @@ function template(formType, label, schema, overrides = {}) {
     ...overrides,
   };
 }
+
+function draftTemplate(formType, label, schema, overrides = {}) {
+  const draftVersion = {
+    ...version(formType, schema, overrides.versionNumber || 1),
+    status: "draft",
+    published_at: null,
+  };
+  return {
+    id: `${formType}-template`,
+    form_type: formType,
+    label,
+    description: schema.description || "",
+    renderer_type: "template",
+    active: true,
+    worker_visible: false,
+    archived_at: null,
+    display_order: overrides.displayOrder || 40,
+    draftVersion,
+    publishedVersion: null,
+    versions: [draftVersion],
+    ...overrides,
+  };
+}
+
+function readMigrationSchema(filename) {
+  const sql = fs.readFileSync(new URL(`../supabase/migrations/${filename}`, import.meta.url), "utf8");
+  const match = sql.match(/\$schema\$\s*([\s\S]*?)\s*\$schema\$::jsonb/);
+  if (!match) throw new Error(`Could not find schema block in ${filename}`);
+  return JSON.parse(match[1]);
+}
+
+const newWorkerOrientationSchema = readMigrationSchema("019_new_worker_orientation_template.sql");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -141,6 +174,50 @@ const toolboxCompositeSchema = {
       ],
     },
   ],
+};
+
+const toolboxFilteredTopicsSchema = {
+  schemaVersion: 1,
+  formType: "toolbox_talk",
+  title: "Toolbox Filtered Topics Smoke",
+  description: "Toolbox filtered topic settings template.",
+  sections: [
+    {
+      id: "topics",
+      title: "Topics Discussed",
+      description: "Filtered topic picker.",
+      fields: [
+        {
+          id: "topics_block",
+          type: "toolbox_topics",
+          label: "Topics Discussed",
+          settings: {
+            showCommon: true,
+            showSearch: true,
+            commonTopicLabels: ["Exposure", "WHMIS"],
+            enabledCategoryIds: ["noise_vibration_temperature"],
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const toolboxNoTopicCategoriesSchema = {
+  ...toolboxFilteredTopicsSchema,
+  title: "Toolbox No Topic Categories Smoke",
+  description: "Toolbox topic picker with no built-in categories.",
+  sections: toolboxFilteredTopicsSchema.sections.map((section) => ({
+    ...section,
+    fields: section.fields.map((field) => ({
+      ...field,
+      settings: {
+        ...field.settings,
+        commonTopicLabels: [],
+        enabledCategoryIds: [],
+      },
+    })),
+  })),
 };
 
 const siteSignatureSchema = {
@@ -262,6 +339,88 @@ const advancedSettingsSchema = {
             mediaUpload: {
               acceptedKinds: ["image"],
             },
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const noDriverVisibilitySchema = {
+  schemaVersion: 1,
+  formType: "no_driver_visibility_smoke",
+  title: "No Driver Visibility Smoke",
+  description: "Visibility helper smoke template.",
+  sections: [
+    {
+      id: "target_section",
+      title: "Target Section",
+      description: "",
+      fields: [
+        { id: "target_question", type: "short_text", label: "Target question" },
+      ],
+    },
+  ],
+};
+
+const legacyStyleSchema = {
+  schemaVersion: 1,
+  formType: "legacy_style_smoke",
+  title: "Legacy Style Smoke",
+  description: "Legacy orientation layout capabilities.",
+  sections: [
+    {
+      id: "policy",
+      title: "Policy Review",
+      description: "Two-column section.",
+      settings: { layout: { width: "half" } },
+      fields: [
+        {
+          id: "policy_text",
+          type: "instructions",
+          label: "Review each section before starting work.\nFollow all company safety requirements.",
+          settings: {
+            instructionStyle: "policy",
+            layout: { width: "full" },
+          },
+        },
+        {
+          id: "acknowledgement",
+          type: "dropdown",
+          label: "Do you understand the policy?",
+          options: ["Yes", "No", "N/A"],
+          settings: {
+            choiceDisplay: "radio",
+            optionPreset: "yes_no_na",
+            layout: { width: "half" },
+          },
+        },
+        {
+          id: "training_topics",
+          type: "multi_select",
+          label: "Training topics completed",
+          options: ["WHMIS", "Fall protection", "Mobile equipment"],
+          settings: {
+            choiceDisplay: "checklist",
+            layout: { width: "half" },
+          },
+        },
+        {
+          id: "years_experience",
+          type: "number",
+          label: "Years experience",
+          settings: {
+            numberMode: "integer",
+            layout: { width: "third" },
+          },
+        },
+        {
+          id: "muster_station",
+          type: "short_text",
+          label: "Muster Station",
+          settings: {
+            defaultValue: "Northeast corner of site",
+            layout: { width: "half" },
           },
         },
       ],
@@ -434,6 +593,91 @@ test("Toolbox Talk review notes and safety concerns use editable subfields", asy
   ]);
 });
 
+test("Toolbox Talk topic category settings are visible as draft-only and respected by worker forms", async ({ page }) => {
+  const publishedVersion = version("toolbox_filtered_topics", {
+    ...toolboxFilteredTopicsSchema,
+    sections: toolboxFilteredTopicsSchema.sections.map((section) => ({
+      ...section,
+      fields: section.fields.map((field) => ({
+        ...field,
+        settings: {
+          ...field.settings,
+          enabledCategoryIds: [
+            "rights_responsibilities",
+            "general_conditions",
+            "noise_vibration_temperature",
+          ],
+        },
+      })),
+    })),
+  }, 3);
+  const draftVersion = {
+    ...version("toolbox_filtered_topics", toolboxFilteredTopicsSchema, 4),
+    status: "draft",
+    published_at: null,
+  };
+  const row = {
+    id: "toolbox_filtered_topics-template",
+    form_type: "toolbox_filtered_topics",
+    label: "Toolbox Filtered Topics",
+    description: toolboxFilteredTopicsSchema.description,
+    renderer_type: "template",
+    active: true,
+    worker_visible: true,
+    archived_at: null,
+    display_order: 10,
+    draftVersion,
+    publishedVersion,
+    versions: [draftVersion, publishedVersion],
+  };
+  const liveRow = template(
+    "toolbox_filtered_topics_live",
+    "Toolbox Filtered Topics Live",
+    toolboxFilteredTopicsSchema,
+    { displayOrder: 11 },
+  );
+  const noCategoriesRow = template(
+    "toolbox_no_topic_categories",
+    "Toolbox No Topic Categories",
+    toolboxNoTopicCategoriesSchema,
+    { displayOrder: 12 },
+  );
+  await mockApis(page, [row, liveRow, noCategoriesRow]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByText("Draft changes are not live yet.")).toBeVisible();
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Topics Discussed" })
+    .getByRole("button")
+    .first()
+    .click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByLabel("Noise, Vibration, Radiation and Temperature")).toBeChecked();
+  await expect(selectedBlock.getByLabel("Rights and Responsibilities")).not.toBeChecked();
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByText("Noise, Vibration, Radiation and Temperature")).toBeVisible();
+  await expect(preview.getByText("Rights and Responsibilities")).toHaveCount(0);
+
+  await page.goto("/forms/toolbox_filtered_topics");
+  await expect(page.getByText("Rights and Responsibilities")).toBeVisible();
+
+  await page.goto("/forms/toolbox_filtered_topics_live");
+  await expect(page.getByText("Noise, Vibration, Radiation and Temperature")).toBeVisible();
+  await expect(page.getByText("Rights and Responsibilities")).toHaveCount(0);
+  await expect(page.getByText("WHMIS")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Exposure" }).first()).toBeVisible();
+
+  await page.goto("/forms/toolbox_no_topic_categories");
+  await expect(page.getByText("Rights and Responsibilities")).toHaveCount(0);
+  await expect(page.getByText("General Conditions")).toHaveCount(0);
+  await expect(page.getByText("Noise, Vibration, Radiation and Temperature")).toHaveCount(0);
+  await expect(page.getByText("WHMIS")).toHaveCount(0);
+  await expect(page.getByText("Exposure")).toHaveCount(0);
+  await expect(page.getByText("No topics match that search.")).toBeVisible();
+});
+
 test("custom Site Inspection preview and worker form render added drawn signatures", async ({ page }) => {
   const row = template("site_inspection_copy", "Site Inspection copy", siteSignatureSchema);
   await mockApis(page, [row]);
@@ -543,6 +787,103 @@ test("generic V3 preview renders all normal field types and action item rows", a
   ]);
 });
 
+test("legacy-style layout, choice displays, instruction styles, and integer numbers work", async ({ page }) => {
+  const row = template("legacy_style_smoke", "Legacy Style Smoke", legacyStyleSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await page.locator(".template-v3-section").filter({ hasText: "Policy Review" }).getByRole("button").first().click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByLabel("Section width")).toHaveValue("half");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Review each section" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByLabel("Field width")).toHaveValue("full");
+  await expect(selectedBlock.getByLabel("Instruction style")).toHaveValue("policy");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Do you understand the policy?" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByLabel("Display style")).toHaveValue("radio");
+  await expect(selectedBlock.getByLabel("Option preset")).toHaveValue("yes_no_na");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Training topics completed" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByLabel("Display style")).toHaveValue("checklist");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Years experience" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByLabel("Number type")).toHaveValue("integer");
+  await page.locator(".template-v3-field-card").filter({ hasText: "Muster Station" }).getByRole("button").first().click();
+  await expect(selectedBlock.getByLabel("Static default")).toHaveValue("Northeast corner of site");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.locator(".template-instructions-policy")).toContainText("Review each section");
+  await expect(preview.getByRole("radio", { name: "Yes" })).toBeVisible();
+  await expect(preview.getByLabel("WHMIS")).toBeVisible();
+  await expect(preview.getByLabel("Years experience")).toBeVisible();
+  await expect(preview.getByLabel("Muster Station")).toHaveValue("Northeast corner of site");
+
+  await page.goto("/forms/legacy_style_smoke");
+  const radioGroup = page.locator(".template-radio-choice-field").filter({ hasText: "Do you understand the policy?" });
+  await radioGroup.getByRole("radio", { name: "Yes" }).click();
+  await page.getByLabel("WHMIS").check();
+  await page.getByLabel("Mobile equipment").check();
+  await page.getByLabel("Years experience").fill("4");
+  await page.getByRole("button", { name: "Submit Legacy Style Smoke" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.acknowledgement).toBe("Yes");
+  expect(submissions[0].formData.answers.training_topics).toEqual(["WHMIS", "Mobile equipment"]);
+  expect(submissions[0].formData.answers.years_experience).toBe(4);
+  expect(submissions[0].formData.answers.muster_station).toBe("Northeast corner of site");
+});
+
+test("New Worker Orientation migration opens as a draft hidden V3 template", async ({ page }) => {
+  const row = draftTemplate(
+    "new_worker_orientation",
+    "New Worker Orientation",
+    newWorkerOrientationSchema,
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "New Worker Orientation" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "New Worker Orientation" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Paper Orientation Images" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(selectedBlock.getByText("Accepted uploads")).toBeVisible();
+  await expect(selectedBlock.getByLabel("Images")).toBeChecked();
+  await expect(selectedBlock.getByLabel("PDF")).not.toBeChecked();
+  await expect(selectedBlock.getByLabel("Excel")).not.toBeChecked();
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "NEW WORKER ORIENTATION", exact: true })).toBeVisible();
+  await expect(preview.getByLabel("Worker Name")).toHaveValue(staff.username);
+  await expect(preview.getByLabel("Telephone Number")).toHaveValue("");
+  await expect(preview.getByLabel("Muster Station")).toHaveValue("Northeast corner of site @ Skyline Drive (green sign)");
+  await expect(preview.getByText("JPG, PNG, WEBP, HEIC / 5 files max / 50 MiB each").first()).toBeVisible();
+  await expect(preview.getByText("Worker's name (hidden)")).toHaveCount(0);
+  await expect(preview.getByText("Date of orientation by employer")).toHaveCount(0);
+
+  const employerOrientation = preview
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Have you received a New or Young Worker Orientation" });
+  await employerOrientation.getByRole("radio", { name: "Yes" }).click();
+  await expect(preview.getByLabel("Date of orientation by employer")).toBeVisible();
+  await employerOrientation.getByRole("radio", { name: "No" }).click();
+  await expect
+    .poll(() =>
+      preview.locator("input").evaluateAll(
+        (inputs, expected) => inputs.some((input) => input.value === expected),
+        "My Foreman/Supervisor will provide one before I begin work",
+      ),
+    )
+    .toBe(true);
+  await expect(preview.getByText("Supervisor's acknowledgement")).toBeVisible();
+  await expect(preview.getByLabel("Supervisor's acknowledgement: (To be completed by supervisor)")).toBeVisible();
+});
+
 test("conditional visibility, hidden worker variables, and image-only media settings work", async ({ page }) => {
   const row = template("advanced_settings_smoke", "Advanced Settings Smoke", advancedSettingsSchema);
   const submissions = await mockApis(page, [row]);
@@ -560,6 +901,9 @@ test("conditional visibility, hidden worker variables, and image-only media sett
   await expect(selectedBlock.getByLabel("Images")).toBeChecked();
   await expect(selectedBlock.getByLabel("PDF")).not.toBeChecked();
   await expect(selectedBlock.getByLabel("Excel")).not.toBeChecked();
+  await selectedBlock.getByLabel("Conditional visibility").check();
+  await expect(selectedBlock.getByLabel("Conditional visibility")).toBeChecked();
+  await expect(selectedBlock.getByLabel("When field")).toHaveValue("needs_training");
 
   await openPreview(page);
   await expect(page.getByText("Training details")).toHaveCount(0);
@@ -599,6 +943,29 @@ test("conditional visibility, hidden worker variables, and image-only media sett
       mimeType: "image/jpeg",
     }),
   ]);
+});
+
+test("conditional visibility helper creates a driver when none exists", async ({ page }) => {
+  const row = template("no_driver_visibility_smoke", "No Driver Visibility Smoke", noDriverVisibilitySchema);
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await page.locator(".template-v3-section").filter({ hasText: "Target Section" }).getByRole("button").first().click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByText("No driver field yet")).toBeVisible();
+  await expect(selectedBlock.getByText("Short answers cannot drive conditions.")).toBeVisible();
+  await selectedBlock.getByRole("button", { name: "Add Yes / No driver" }).click();
+  await expect(selectedBlock.getByLabel("Conditional visibility")).toBeChecked();
+  await expect(selectedBlock.getByLabel("When field")).toHaveValue(/visibility_driver_/);
+  await expect(page.locator(".template-v3-section").filter({ hasText: "Visibility" })).toBeVisible();
+  await expect(page.locator(".template-v3-field-card").filter({ hasText: "Show Target Section?" })).toBeVisible();
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByText("Show Target Section?")).toBeVisible();
+  await expect(preview.getByText("Target question")).toHaveCount(0);
+  await preview.getByRole("button", { name: "Yes" }).click();
+  await expect(preview.getByLabel("Target question")).toBeVisible();
 });
 
 test("protected default templates open in the V3 shell without edit actions", async ({ page }) => {

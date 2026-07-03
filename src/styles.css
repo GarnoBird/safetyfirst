@@ -3022,8 +3022,16 @@ p {
   gap: 18px;
 }
 
+.template-runtime-section-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+
 .toolbox-section {
   display: grid;
+  grid-column: 1 / -1;
   gap: 12px;
   min-width: 0;
   max-width: 100%;
@@ -3075,12 +3083,38 @@ p {
 .toolbox-field-grid,
 .toolbox-repeat-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
 }
 
+.toolbox-field-grid > *,
+.toolbox-repeat-row > * {
+  grid-column: span 6;
+}
+
 .toolbox-field-grid.compact {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.toolbox-field-grid.compact > * {
+  grid-column: span 4;
+}
+
+.template-width-full {
+  grid-column: 1 / -1;
+}
+
+.template-width-half {
+  grid-column: span 6;
+}
+
+.template-width-third {
+  grid-column: span 4;
+}
+
+.template-runtime-field-shell {
+  display: grid;
+  min-width: 0;
 }
 
 .toolbox-topic-list,
@@ -3680,7 +3714,85 @@ p {
   padding: 10px;
   color: #4b5e5a;
   font-weight: 750;
+  white-space: pre-wrap;
   background: #f2f8f5;
+}
+
+.template-instructions-heading {
+  border-color: transparent;
+  padding: 4px 0;
+  color: #17211f;
+  font-size: 1.08rem;
+  font-weight: 950;
+  background: transparent;
+}
+
+.template-instructions-notice {
+  border-color: #aacdc4;
+  color: #245f5b;
+  background: #eef8f4;
+}
+
+.template-instructions-warning {
+  border-color: #dcae7c;
+  color: #6f420f;
+  background: #fff8ed;
+}
+
+.template-instructions-policy {
+  border-left: 4px solid #245f5b;
+  color: #233330;
+  line-height: 1.45;
+  background: #fff;
+}
+
+.template-radio-choice-field,
+.template-checklist-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.template-radio-choice-field > span,
+.template-checklist-field > span {
+  font-weight: 850;
+}
+
+.template-radio-choice-list,
+.template-checklist-options {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.template-radio-choice-list {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.template-radio-choice-list button {
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.template-radio-choice-list button.active {
+  border-color: #245f5b;
+  color: #fff;
+  background: #245f5b;
+}
+
+.template-checklist-options {
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+
+.template-radio-choice-field > small,
+.template-checklist-field > small {
+  color: var(--muted);
+  font-weight: 750;
 }
 
 .template-special-block-runtime {
@@ -4249,6 +4361,16 @@ p {
   background: #e8f5ef;
 }
 
+.template-v3-draft-live-note {
+  margin: 0;
+  border: 1px solid #e4c98f;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #6f4b10;
+  background: #fff8e6;
+  font-weight: 850;
+}
+
 .template-v3-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4428,6 +4550,30 @@ p {
 
 .template-conditional-settings .template-v3-two-column {
   grid-template-columns: 1fr;
+}
+
+.template-conditional-empty {
+  display: grid;
+  gap: 10px;
+  border: 1px dashed #aacdc4;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f5fbf8;
+}
+
+.template-conditional-empty > div {
+  display: grid;
+  gap: 4px;
+}
+
+.template-conditional-empty strong {
+  font-size: 0.95rem;
+}
+
+.template-conditional-empty small {
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.35;
 }
 
 .template-v3-help-text.compact {
@@ -5931,6 +6077,23 @@ p {
   .template-v3-two-column,
   .template-submission-detail .staff-detail-list {
     grid-template-columns: 1fr;
+  }
+
+  .template-runtime-section-grid,
+  .toolbox-field-grid,
+  .toolbox-field-grid.compact,
+  .toolbox-repeat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .template-runtime-section-grid > *,
+  .toolbox-field-grid > *,
+  .toolbox-field-grid.compact > *,
+  .toolbox-repeat-row > *,
+  .template-width-full,
+  .template-width-half,
+  .template-width-third {
+    grid-column: 1 / -1;
   }
 
   .site-inspection-form,

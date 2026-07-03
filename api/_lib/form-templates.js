@@ -678,7 +678,8 @@ export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = 
 
 function cleanTemplateField(field, sectionIndex, fieldIndex) {
   const type = TEMPLATE_FIELD_TYPES.includes(field?.type) ? field.type : "short_text";
-  const label = cleanString(field?.label, MAX_TEXT) || `Field ${fieldIndex + 1}`;
+  const labelMax = type === "instructions" ? MAX_LONG_TEXT : MAX_TEXT;
+  const label = cleanString(field?.label, labelMax) || `Field ${fieldIndex + 1}`;
   const options = ["dropdown", "multi_select"].includes(type)
     ? cleanOptions(field?.options)
     : [];
@@ -929,6 +930,9 @@ function cleanAnswer(field, raw) {
     if (raw === "" || raw === null || raw === undefined) return "";
     const number = Number(raw);
     if (!Number.isFinite(number)) throwBadRequest(`${field.label} must be a number.`);
+    if (getSettingValue(field.settings, "numberMode") === "integer" && !Number.isInteger(number)) {
+      throwBadRequest(`${field.label} must be a whole number.`);
+    }
     return number;
   }
   if (field.type === "date") {
@@ -1055,6 +1059,20 @@ function defaultForField(field, worker) {
   if (field.default === "worker_username") return worker?.username || worker?.user_name || "";
   if (field.default === "worker_company") return worker?.company || "";
   if (field.default === "worker_address") return worker?.address || worker?.street_address || "";
+  const staticDefault = cleanString(
+    getSettingValue(field.settings, "defaultValue"),
+    field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT,
+  );
+  if (staticDefault) {
+    if (field.type === "yes_no") {
+      const value = staticDefault.toLowerCase();
+      return ["yes", "no"].includes(value) ? value : "";
+    }
+    if (field.type === "dropdown") {
+      return field.options.includes(staticDefault) ? staticDefault : "";
+    }
+    if (["short_text", "long_text", "number", "date", "time"].includes(field.type)) return staticDefault;
+  }
   if (field.type === "media_upload") return [];
   if (field.type === "boolean" || field.type === "toggle") return false;
   return "";

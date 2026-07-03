@@ -154,6 +154,39 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "action_item_rows", label: "Action item rows" },
 ];
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
+const TEMPLATE_LAYOUT_WIDTH_OPTIONS = [
+  { id: "", label: "Default" },
+  { id: "full", label: "Full width" },
+  { id: "half", label: "Half width" },
+  { id: "third", label: "Third width" },
+];
+const TEMPLATE_INSTRUCTION_STYLE_OPTIONS = [
+  { id: "plain", label: "Plain" },
+  { id: "heading", label: "Heading" },
+  { id: "notice", label: "Notice" },
+  { id: "warning", label: "Warning" },
+  { id: "policy", label: "Policy" },
+];
+const TEMPLATE_NUMBER_MODE_OPTIONS = [
+  { id: "decimal", label: "Decimal" },
+  { id: "integer", label: "Whole number only" },
+];
+const TEMPLATE_DROPDOWN_DISPLAY_OPTIONS = [
+  { id: "dropdown", label: "Dropdown" },
+  { id: "radio", label: "Radio buttons" },
+];
+const TEMPLATE_MULTI_SELECT_DISPLAY_OPTIONS = [
+  { id: "chips", label: "Chips" },
+  { id: "checklist", label: "Checklist" },
+];
+const TEMPLATE_OPTION_PRESETS = [
+  { id: "", label: "Custom options", options: null },
+  { id: "yes_no", label: "Yes / No", options: ["Yes", "No"] },
+  { id: "yes_no_na", label: "Yes / No / N/A", options: ["Yes", "No", "N/A"] },
+  { id: "training_status", label: "Training status", options: ["Current", "Required", "N/A"] },
+  { id: "certification_status", label: "Certification status", options: ["Provided", "Will provide", "Not required"] },
+  { id: "understood_ack", label: "Acknowledgement", options: ["I understand", "I need clarification", "N/A"] },
+];
 const TEMPLATE_DEFAULT_VALUE_OPTIONS = [
   { id: "", label: "Blank" },
   { id: "worker_name", label: "Worker name" },
@@ -244,7 +277,9 @@ const TEMPLATE_V3_FIELD_GROUPS = [
     label: "Choices",
     fields: [
       { type: "dropdown", title: "Dropdown", hint: "Choose one option", icon: "V", label: "", options: ["Option 1", "Option 2"] },
+      { type: "dropdown", title: "Radio group", hint: "Visible one-choice list", icon: "O", label: "", options: ["Yes", "No"], settings: { choiceDisplay: "radio", optionPreset: "yes_no" } },
       { type: "multi_select", title: "Multi-select chips", hint: "Choose multiple options", icon: "+", label: "", options: ["Option 1", "Option 2"] },
+      { type: "multi_select", title: "Checklist", hint: "Visible multi-choice list", icon: "Chk", label: "", options: ["Option 1", "Option 2"], settings: { choiceDisplay: "checklist" } },
     ],
   },
   {
@@ -7933,6 +7968,11 @@ function TemplateSchemaEditorV3({
   const canToggleVisibility = canEdit && hasPublishedVersion && active && !archived && !saving;
   const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
   const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
+  const hasUnpublishedDraft = Boolean(
+    !lockedDefault &&
+    selectedTemplate?.draftVersion &&
+    selectedTemplate?.publishedVersion,
+  );
 
   useEffect(() => {
     setOptionDraft("");
@@ -7991,6 +8031,104 @@ function TemplateSchemaEditorV3({
         ...patch,
       },
     });
+  };
+  const updateSectionLayoutWidth = (sectionIndex, width) => {
+    const section = current.sections[sectionIndex] || {};
+    const layout = getTemplateSettingValue(section.settings, "layout");
+    updateSectionSettings(sectionIndex, {
+      layout: {
+        ...(layout && typeof layout === "object" && !Array.isArray(layout) ? layout : {}),
+        width,
+      },
+    });
+  };
+  const updateSelectedFieldLayoutWidth = (width) => {
+    const layout = getTemplateSettingValue(selectedField?.settings, "layout");
+    updateSelectedFieldSettings({
+      layout: {
+        ...(layout && typeof layout === "object" && !Array.isArray(layout) ? layout : {}),
+        width,
+      },
+    });
+  };
+  const applyOptionPresetToSelectedField = (presetId) => {
+    if (!selectedField || !TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type)) return;
+    const preset = TEMPLATE_OPTION_PRESETS.find((item) => item.id === presetId) || TEMPLATE_OPTION_PRESETS[0];
+    updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+      options: preset.options ? preset.options : selectedField.options,
+      settings: {
+        ...normalizeTemplateSettings(selectedField.settings),
+        optionPreset: preset.id,
+      },
+    });
+  };
+  const addVisibilityDriverForSection = (sectionIndex) => {
+    if (!canEdit) return;
+    const targetSection = current.sections[sectionIndex];
+    if (!targetSection) return;
+    const driverId = `visibility_driver_${Date.now()}`;
+    const driverSection = createTemplateSection(sectionIndex + 1, {
+      title: "Visibility",
+      description: "",
+    });
+    driverSection.id = `${driverSection.id}_${Date.now()}`;
+    driverSection.fields = [
+      createTemplateField(1, "yes_no", {
+        id: driverId,
+        label: `Show ${targetSection.title || "this section"}?`,
+      }),
+    ];
+    const nextSections = [...current.sections];
+    const targetWithCondition = {
+      ...targetSection,
+      settings: {
+        ...normalizeTemplateSettings(targetSection.settings),
+        visibility: {
+          enabled: true,
+          sourceFieldId: driverId,
+          operator: "equals",
+          value: "yes",
+        },
+      },
+    };
+    nextSections.splice(sectionIndex, 1, driverSection, targetWithCondition);
+    onChange({ ...current, sections: nextSections });
+    setSelected({ kind: "section", sectionIndex: sectionIndex + 1 });
+    setView("editor");
+  };
+  const addVisibilityDriverForField = (sectionIndex, fieldIndex) => {
+    if (!canEdit) return;
+    const section = current.sections[sectionIndex];
+    const targetField = section?.fields?.[fieldIndex];
+    if (!section || !targetField) return;
+    const driverId = `visibility_driver_${Date.now()}`;
+    const driverField = createTemplateField(fieldIndex + 1, "yes_no", {
+      id: driverId,
+      label: `Show ${targetField.label || "this field"}?`,
+    });
+    const targetWithCondition = normalizeTemplateField({
+      ...targetField,
+      settings: {
+        ...normalizeTemplateSettings(targetField.settings),
+        visibility: {
+          enabled: true,
+          sourceFieldId: driverId,
+          operator: "equals",
+          value: "yes",
+        },
+      },
+    });
+    onChange({
+      ...current,
+      sections: current.sections.map((item, index) => {
+        if (index !== sectionIndex) return item;
+        const fields = [...item.fields];
+        fields.splice(fieldIndex, 1, driverField, targetWithCondition);
+        return { ...item, fields };
+      }),
+    });
+    setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + 1 });
+    setView("editor");
   };
   const selectBlock = (nextSelection) => {
     setSelected(nextSelection);
@@ -8471,6 +8609,11 @@ function TemplateSchemaEditorV3({
               <span>{workerVisible ? "Visible" : "Hidden"}</span>
               <span>{lockedDefault ? "Protected" : archived ? "Archived" : active ? "Active" : "Inactive"}</span>
             </div>
+            {hasUnpublishedDraft ? (
+              <p className="template-v3-draft-live-note">
+                Draft changes are not live yet. The Worker URL still shows published v{selectedTemplate.publishedVersion?.version_number || "-"} until you publish.
+              </p>
+            ) : null}
             <div className="template-v3-actions">
               {canEdit ? (
                 <>
@@ -8557,6 +8700,18 @@ function TemplateSchemaEditorV3({
                     onChange={(event) => updateSection(activeSelection.sectionIndex, { description: event.target.value })}
                   />
                 </label>
+                <label>
+                  <span>Section width</span>
+                  <select
+                    disabled={readOnly}
+                    value={normalizeTemplateLayoutWidth(selectedSection.settings)}
+                    onChange={(event) => updateSectionLayoutWidth(activeSelection.sectionIndex, event.target.value)}
+                  >
+                    {TEMPLATE_LAYOUT_WIDTH_OPTIONS.map((option) => (
+                      <option key={option.id} value={option.id}>{option.label}</option>
+                    ))}
+                  </select>
+                </label>
                 <label className="settings-checkbox compact">
                   <input
                     checked={Boolean(getTemplateSettingValue(selectedSection.settings, "defaultCollapsed"))}
@@ -8575,6 +8730,7 @@ function TemplateSchemaEditorV3({
                   disabled={readOnly}
                   schema={current}
                   settings={selectedSection.settings}
+                  onCreateDriver={() => addVisibilityDriverForSection(activeSelection.sectionIndex)}
                   onChange={(visibility) =>
                     updateSectionSettings(activeSelection.sectionIndex, { visibility })
                   }
@@ -8600,15 +8756,28 @@ function TemplateSchemaEditorV3({
                         ? "Block label"
                         : "Question label"}
                   </span>
-                  <input
-                    disabled={readOnly}
-                    value={selectedField.label || ""}
-                    onChange={(event) =>
-                      updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
-                        label: event.target.value,
-                      })
-                    }
-                  />
+                  {selectedField.type === "instructions" ? (
+                    <textarea
+                      disabled={readOnly}
+                      rows="6"
+                      value={selectedField.label || ""}
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                          label: event.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    <input
+                      disabled={readOnly}
+                      value={selectedField.label || ""}
+                      onChange={(event) =>
+                        updateField(activeSelection.sectionIndex, activeSelection.fieldIndex, {
+                          label: event.target.value,
+                        })
+                      }
+                    />
+                  )}
                 </label>
                 {selectedField.type !== "instructions" ? (
                   <label>
@@ -8622,11 +8791,52 @@ function TemplateSchemaEditorV3({
                     />
                   </label>
                 ) : null}
+                <label>
+                  <span>Field width</span>
+                  <select
+                    disabled={readOnly}
+                    value={normalizeTemplateLayoutWidth(selectedField.settings)}
+                    onChange={(event) => updateSelectedFieldLayoutWidth(event.target.value)}
+                  >
+                    {TEMPLATE_LAYOUT_WIDTH_OPTIONS.map((option) => (
+                      <option key={option.id} value={option.id}>{option.label}</option>
+                    ))}
+                  </select>
+                </label>
+                {selectedField.type === "instructions" ? (
+                  <label>
+                    <span>Instruction style</span>
+                    <select
+                      disabled={readOnly}
+                      value={normalizeTemplateInstructionStyle(selectedField)}
+                      onChange={(event) => updateSelectedFieldSettings({ instructionStyle: event.target.value })}
+                    >
+                      {TEMPLATE_INSTRUCTION_STYLE_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>{option.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+                {selectedField.type === "number" ? (
+                  <label>
+                    <span>Number type</span>
+                    <select
+                      disabled={readOnly}
+                      value={normalizeTemplateNumberMode(selectedField)}
+                      onChange={(event) => updateSelectedFieldSettings({ numberMode: event.target.value })}
+                    >
+                      {TEMPLATE_NUMBER_MODE_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>{option.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
                 <TemplateVisibilitySettingsEditor
                   disabled={readOnly}
                   excludeFieldId={selectedField.id}
                   schema={current}
                   settings={selectedField.settings}
+                  onCreateDriver={() => addVisibilityDriverForField(activeSelection.sectionIndex, activeSelection.fieldIndex)}
                   onChange={(visibility) => updateSelectedFieldSettings({ visibility })}
                 />
                 {selectedActionItemRowsSettings ? (
@@ -8849,7 +9059,7 @@ function TemplateSchemaEditorV3({
                                 ? [...currentIds, group.id]
                                 : currentIds.filter((id) => id !== group.id);
                               updateSelectedFieldSettings({
-                                enabledCategoryIds: nextIds.length ? nextIds : currentIds,
+                                enabledCategoryIds: nextIds,
                               });
                             }}
                           />
@@ -8902,6 +9112,33 @@ function TemplateSchemaEditorV3({
                 ) : null}
                 {TEMPLATE_OPTION_FIELD_TYPES.has(selectedField.type) ? (
                   <div className="template-options-builder">
+                    <label>
+                      <span>Display style</span>
+                      <select
+                        disabled={readOnly}
+                        value={normalizeTemplateChoiceDisplay(selectedField)}
+                        onChange={(event) => updateSelectedFieldSettings({ choiceDisplay: event.target.value })}
+                      >
+                        {(selectedField.type === "dropdown"
+                          ? TEMPLATE_DROPDOWN_DISPLAY_OPTIONS
+                          : TEMPLATE_MULTI_SELECT_DISPLAY_OPTIONS
+                        ).map((option) => (
+                          <option key={option.id} value={option.id}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span>Option preset</span>
+                      <select
+                        disabled={readOnly}
+                        value={normalizeTemplateOptionPreset(selectedField)}
+                        onChange={(event) => applyOptionPresetToSelectedField(event.target.value)}
+                      >
+                        {TEMPLATE_OPTION_PRESETS.map((preset) => (
+                          <option key={preset.id} value={preset.id}>{preset.label}</option>
+                        ))}
+                      </select>
+                    </label>
                     <span>Options</span>
                     <div className="template-option-chip-row">
                       {(selectedField.options || []).map((option) => (
@@ -8965,6 +9202,17 @@ function TemplateSchemaEditorV3({
                     </select>
                   </label>
                 ) : null}
+                {!selectedFieldIsNonAnswer && templateSupportsStaticDefault(selectedField) ? (
+                  <label>
+                    <span>Static default</span>
+                    <input
+                      disabled={readOnly || Boolean(selectedField.default)}
+                      placeholder={selectedField.default ? "Using selected worker/date default" : "Optional prefilled value"}
+                      value={templateStaticDefaultValue(selectedField)}
+                      onChange={(event) => updateSelectedFieldSettings({ defaultValue: event.target.value })}
+                    />
+                  </label>
+                ) : null}
               </div>
             ) : null}
           </section>
@@ -9017,6 +9265,7 @@ function TemplateSchemaEditorV3({
 function TemplateVisibilitySettingsEditor({
   disabled = false,
   excludeFieldId = "",
+  onCreateDriver,
   onChange,
   schema,
   settings,
@@ -9030,6 +9279,13 @@ function TemplateVisibilitySettingsEditor({
   const valueOptions = templateVisibilitySourceValueOptions(sourceField);
   const updateVisibility = (patch) => {
     const next = { ...visibility, ...patch };
+    if (patch.enabled === true && !next.sourceFieldId && sourceFields.length) {
+      const nextSource = sourceFields[0];
+      const nextOptions = templateVisibilitySourceValueOptions(nextSource);
+      next.sourceFieldId = nextSource.id;
+      next.operator = nextSource.type === "multi_select" ? "contains" : "equals";
+      next.value = nextOptions[0]?.value ?? "";
+    }
     if (patch.sourceFieldId) {
       const nextSource = sourceFields.find((field) => field.id === patch.sourceFieldId);
       const nextOptions = templateVisibilitySourceValueOptions(nextSource);
@@ -9046,18 +9302,30 @@ function TemplateVisibilitySettingsEditor({
 
   return (
     <div className="template-conditional-settings">
-      <label className={sourceFields.length ? "settings-checkbox compact" : "settings-checkbox compact disabled"}>
-        <input
-          checked={visibility.enabled}
-          disabled={disabled || !sourceFields.length}
-          type="checkbox"
-          onChange={(event) => updateVisibility({ enabled: event.target.checked })}
-        />
-        <span>
-          Conditional visibility
-          <small>Show this only when another answer matches.</small>
-        </span>
-      </label>
+      {sourceFields.length ? (
+        <label className="settings-checkbox compact">
+          <input
+            checked={visibility.enabled}
+            disabled={disabled}
+            type="checkbox"
+            onChange={(event) => updateVisibility({ enabled: event.target.checked })}
+          />
+          <span>
+            Conditional visibility
+            <small>Show this only when another answer matches.</small>
+          </span>
+        </label>
+      ) : (
+        <div className="template-conditional-empty">
+          <div>
+            <strong>No driver field yet</strong>
+            <small>Conditions need a Yes / No, Boolean, Toggle, Checkbox, Dropdown, or Multi-select answer. Short answers cannot drive conditions.</small>
+          </div>
+          <button disabled={disabled || typeof onCreateDriver !== "function"} type="button" onClick={onCreateDriver}>
+            Add Yes / No driver
+          </button>
+        </div>
+      )}
       {visibility.enabled ? (
         <div className="template-v3-two-column">
           <label>
@@ -9098,9 +9366,6 @@ function TemplateVisibilitySettingsEditor({
             </select>
           </label>
         </div>
-      ) : null}
-      {!sourceFields.length ? (
-        <p className="template-v3-help-text compact">Add a Yes / No, Boolean, Toggle, Checkbox, Dropdown, or Multi-select field to use conditions.</p>
       ) : null}
     </div>
   );
@@ -9459,9 +9724,12 @@ function TemplateRuntimeSections({
   };
   const visibleSections = getVisibleTemplateSections({ ...schema, sections }, answers, worker);
   return (
-    <>
+    <div className="template-runtime-section-grid">
       {visibleSections.map((section) => (
-        <section className="toolbox-section" key={section.id}>
+        <section
+          className={["toolbox-section", templateLayoutWidthClass(section)].filter(Boolean).join(" ")}
+          key={section.id}
+        >
           <div className="toolbox-section-heading">
             <h2>{section.title}</h2>
             {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
@@ -9469,23 +9737,27 @@ function TemplateRuntimeSections({
           {section.description ? <p className="muted">{section.description}</p> : null}
           <div className="toolbox-field-grid">
             {section.fields.map((field) => (
-              <TemplateRuntimeField
-                answers={answers}
-                field={field}
-                invalid={invalidFields.has(field.id)}
-                invalidFields={invalidFields}
+              <div
+                className={["template-runtime-field-shell", templateLayoutWidthClass(field)].filter(Boolean).join(" ")}
                 key={field.id}
-                registerValidationTarget={registerValidationTarget}
-                targetRef={registerValidationTarget?.(field.id)}
-                value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
-                onUploadFile={onUploadFile}
-                onChange={(value) => updateAnswer(field.id, value)}
-              />
+              >
+                <TemplateRuntimeField
+                  answers={answers}
+                  field={field}
+                  invalid={invalidFields.has(field.id)}
+                  invalidFields={invalidFields}
+                  registerValidationTarget={registerValidationTarget}
+                  targetRef={registerValidationTarget?.(field.id)}
+                  value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
+                  onUploadFile={onUploadFile}
+                  onChange={(value) => updateAnswer(field.id, value)}
+                />
+              </div>
             ))}
           </div>
         </section>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -9500,7 +9772,11 @@ function TemplateRuntimeField({
   onUploadFile,
 }) {
   if (field.type === "instructions") {
-    return <p className="template-instructions">{field.label}</p>;
+    return (
+      <p className={["template-instructions", templateInstructionStyleClass(field)].join(" ")}>
+        {field.label}
+      </p>
+    );
   }
   if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
     const block = normalizeActionItemBlockValue(value);
@@ -9579,13 +9855,15 @@ function TemplateRuntimeField({
     );
   }
   if (field.type === "number") {
+    const numberMode = normalizeTemplateNumberMode(field);
     return (
       <label className={labelClass} ref={targetRef}>
         <span>{field.label}</span>
         <input
           aria-invalid={invalid ? "true" : undefined}
-          inputMode="decimal"
+          inputMode={numberMode === "integer" ? "numeric" : "decimal"}
           placeholder={field.helperText || ""}
+          step={numberMode === "integer" ? "1" : "any"}
           type="number"
           value={value ?? ""}
           onChange={(event) => onChange(event.target.value)}
@@ -9662,6 +9940,28 @@ function TemplateRuntimeField({
     );
   }
   if (field.type === "dropdown") {
+    if (normalizeTemplateChoiceDisplay(field) === "radio") {
+      return (
+        <div className={`template-radio-choice-field ${labelClass}`} ref={targetRef}>
+          <span>{field.label}</span>
+          <div className="template-radio-choice-list" role="radiogroup" aria-label={field.label}>
+            {(field.options || []).map((option) => (
+              <button
+                aria-checked={value === option}
+                className={value === option ? "active" : ""}
+                key={option}
+                role="radio"
+                type="button"
+                onClick={() => onChange(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          {field.helperText ? <small>{field.helperText}</small> : null}
+        </div>
+      );
+    }
     return (
       <label className={labelClass} ref={targetRef}>
         <span>{field.label}</span>
@@ -9680,6 +9980,30 @@ function TemplateRuntimeField({
   }
   if (field.type === "multi_select") {
     const values = Array.isArray(value) ? value : [];
+    if (normalizeTemplateChoiceDisplay(field) === "checklist") {
+      return (
+        <div className={`template-checklist-field ${labelClass}`} ref={targetRef}>
+          <span>{field.label}</span>
+          <div className="template-checklist-options">
+            {(field.options || []).map((option) => (
+              <label className="settings-checkbox compact" key={option}>
+                <input
+                  checked={values.includes(option)}
+                  type="checkbox"
+                  onChange={(event) =>
+                    onChange(event.target.checked
+                      ? [...values, option]
+                      : values.filter((item) => item !== option))
+                  }
+                />
+                <span>{option}</span>
+              </label>
+            ))}
+          </div>
+          {field.helperText ? <small>{field.helperText}</small> : null}
+        </div>
+      );
+    }
     return (
       <div className={`template-multi-select ${labelClass}`} ref={targetRef}>
         <span>{field.label}</span>
@@ -13536,10 +13860,12 @@ function createDefaultToolboxTalkLayout() {
 function getToolboxTopicSettings(settings = {}) {
   const enabledCategorySetting = getTemplateSettingValue(settings, "enabledCategoryIds");
   const commonTopicSetting = getTemplateSettingValue(settings, "commonTopicLabels");
-  const enabledCategoryIds = Array.isArray(enabledCategorySetting)
+  const hasExplicitCategorySetting = Array.isArray(enabledCategorySetting);
+  const hasExplicitCommonTopicSetting = Array.isArray(commonTopicSetting);
+  const enabledCategoryIds = hasExplicitCategorySetting
     ? enabledCategorySetting.filter((id) => TOOLBOX_TALK_TOPIC_GROUP_IDS.includes(id))
     : TOOLBOX_TALK_TOPIC_GROUP_IDS;
-  const commonTopicLabels = Array.isArray(commonTopicSetting)
+  const commonTopicLabels = hasExplicitCommonTopicSetting
     ? commonTopicSetting
         .map((label) => String(label || "").trim())
         .filter(Boolean)
@@ -13548,8 +13874,8 @@ function getToolboxTopicSettings(settings = {}) {
   return {
     showCommon: getTemplateSettingValue(settings, "showCommon") !== false,
     showSearch: getTemplateSettingValue(settings, "showSearch") !== false,
-    enabledCategoryIds: enabledCategoryIds.length ? enabledCategoryIds : TOOLBOX_TALK_TOPIC_GROUP_IDS,
-    commonTopicLabels: commonTopicLabels.length ? commonTopicLabels : TOOLBOX_TALK_QUICK_TOPIC_LABELS,
+    enabledCategoryIds: hasExplicitCategorySetting ? enabledCategoryIds : TOOLBOX_TALK_TOPIC_GROUP_IDS,
+    commonTopicLabels: hasExplicitCommonTopicSetting ? commonTopicLabels : TOOLBOX_TALK_QUICK_TOPIC_LABELS,
   };
 }
 
@@ -13898,7 +14224,7 @@ function cleanToolboxTalkClientForm(
 }
 
 function getEnabledToolboxTopicGroups(enabledCategoryIds = TOOLBOX_TALK_TOPIC_GROUP_IDS) {
-  const ids = Array.isArray(enabledCategoryIds) && enabledCategoryIds.length
+  const ids = Array.isArray(enabledCategoryIds)
     ? enabledCategoryIds
     : TOOLBOX_TALK_TOPIC_GROUP_IDS;
   const enabled = new Set(ids);
@@ -13995,6 +14321,71 @@ function getTemplateSettingValue(settings, key) {
     return source[normalizedKey];
   }
   return undefined;
+}
+
+function normalizeTemplateLayoutWidth(settings = {}) {
+  const source = getTemplateSettingValue(settings, "layout");
+  const layout = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const value = String(layout.width || getTemplateSettingValue(settings, "width") || "").trim();
+  return TEMPLATE_LAYOUT_WIDTH_OPTIONS.some((option) => option.id === value) ? value : "";
+}
+
+function templateLayoutWidthClass(block) {
+  const width = normalizeTemplateLayoutWidth(block?.settings);
+  return width ? `template-width-${width}` : "";
+}
+
+function normalizeTemplateChoiceDisplay(field) {
+  const value = String(getTemplateSettingValue(field?.settings, "choiceDisplay") || "").trim();
+  if (field?.type === "dropdown") {
+    return TEMPLATE_DROPDOWN_DISPLAY_OPTIONS.some((option) => option.id === value) ? value : "dropdown";
+  }
+  if (field?.type === "multi_select") {
+    return TEMPLATE_MULTI_SELECT_DISPLAY_OPTIONS.some((option) => option.id === value) ? value : "chips";
+  }
+  return "";
+}
+
+function normalizeTemplateInstructionStyle(field) {
+  const value = String(getTemplateSettingValue(field?.settings, "instructionStyle") || "").trim();
+  return TEMPLATE_INSTRUCTION_STYLE_OPTIONS.some((option) => option.id === value) ? value : "plain";
+}
+
+function templateInstructionStyleClass(field) {
+  return `template-instructions-${normalizeTemplateInstructionStyle(field)}`;
+}
+
+function normalizeTemplateNumberMode(field) {
+  const value = String(getTemplateSettingValue(field?.settings, "numberMode") || "").trim();
+  return TEMPLATE_NUMBER_MODE_OPTIONS.some((option) => option.id === value) ? value : "decimal";
+}
+
+function templateSupportsStaticDefault(field) {
+  return ["short_text", "long_text", "number", "date", "time", "yes_no", "dropdown"].includes(field?.type);
+}
+
+function templateStaticDefaultValue(field) {
+  const value = getTemplateSettingValue(field?.settings, "defaultValue");
+  if (value === null || value === undefined) return "";
+  return String(value);
+}
+
+function normalizeTemplateStaticDefaultForField(field, value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  if (field?.type === "yes_no") {
+    const normalized = text.toLowerCase();
+    return ["yes", "no"].includes(normalized) ? normalized : "";
+  }
+  if (field?.type === "dropdown") {
+    return (field.options || []).includes(text) ? text : "";
+  }
+  return text;
+}
+
+function normalizeTemplateOptionPreset(field) {
+  const value = String(getTemplateSettingValue(field?.settings, "optionPreset") || "").trim();
+  return TEMPLATE_OPTION_PRESETS.some((preset) => preset.id === value) ? value : "";
 }
 
 function normalizeTemplateVisibilitySettings(settings = {}) {
@@ -14386,6 +14777,8 @@ function templateFieldDefaultValue(field, worker, schema) {
   if (field.remember && remembered[field.id]) return remembered[field.id];
   const workerDefault = templateWorkerDefaultValue(field.default, worker);
   if (workerDefault) return workerDefault;
+  const staticDefault = normalizeTemplateStaticDefaultForField(field, templateStaticDefaultValue(field));
+  if (staticDefault !== "") return staticDefault;
   if (field.type === "multi_select") return [];
   if (field.type === "media_upload") return [];
   if (field.type === "boolean" || field.type === "toggle") return false;
@@ -14503,7 +14896,13 @@ function cleanTemplateAnswerForSubmit(field, value) {
   if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
   if (field.type === "media_upload") return normalizeMediaUploadAnswer(value);
   if (field.type === "signature") return cleanSignatureDataUrl(value);
-  if (field.type === "number") return value === "" || value === null || value === undefined ? "" : value;
+  if (field.type === "number") {
+    if (value === "" || value === null || value === undefined) return "";
+    const number = Number(value);
+    if (!Number.isFinite(number)) return value;
+    if (normalizeTemplateNumberMode(field) === "integer" && !Number.isInteger(number)) return value;
+    return number;
+  }
   return typeof value === "string" ? value.trim() : value || "";
 }
 
