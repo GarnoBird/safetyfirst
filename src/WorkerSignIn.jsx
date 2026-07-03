@@ -4011,9 +4011,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
   const enabledBlockSet = useMemo(() => new Set(enabledBlocks), [enabledBlocks]);
   const attendeeNames = useMemo(
     () =>
-      (Array.isArray(form.attendance) ? form.attendance : [])
-        .map((row) => String(row?.name || "").trim())
-        .filter(Boolean),
+      normalizeToolboxAttendanceRows(form.attendance).map((row) => row.name),
     [form.attendance],
   );
   const missingFieldKeys = useMemo(
@@ -4175,16 +4173,16 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     }));
   };
 
-  const addAttendeeName = (name) => {
-    const trimmed = String(name || "").trim();
-    if (!trimmed) return;
-    setForm((current) => addAttendeeNameToToolboxForm(current, trimmed));
+  const addAttendeeNames = (value) => {
+    const names = splitToolboxAttendeeNames(value);
+    if (!names.length) return;
+    setForm((current) => addAttendeeNameToToolboxForm(current, names));
   };
 
   const submitAttendeeName = () => {
-    const trimmed = attendeeNameInput.trim();
-    if (!trimmed) return;
-    addAttendeeName(trimmed);
+    const names = splitToolboxAttendeeNames(attendeeNameInput);
+    if (!names.length) return;
+    addAttendeeNames(names);
     setAttendeeNameInput("");
     setError("");
   };
@@ -4215,9 +4213,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
   const removeAttendee = (index) => {
     setForm((current) => ({
       ...current,
-      attendance: (Array.isArray(current.attendance) ? current.attendance : [])
-        .map((row) => ({ name: String(row?.name || "").trim() }))
-        .filter((row) => row.name)
+      attendance: normalizeToolboxAttendanceRows(current.attendance)
         .filter((_, rowIndex) => rowIndex !== index),
     }));
   };
@@ -4234,7 +4230,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
 
   const submitForm = async (event) => {
     event.preventDefault();
-    const formForSubmit = attendeeNameInput.trim()
+    const formForSubmit = splitToolboxAttendeeNames(attendeeNameInput).length
       ? addAttendeeNameToToolboxForm(form, attendeeNameInput)
       : form;
     if (formForSubmit !== form) {
@@ -4498,7 +4494,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
             aria-invalid={attendanceInvalid ? "true" : undefined}
             autoCapitalize="words"
             enterKeyHint="done"
-            placeholder="Worker name"
+            placeholder="Worker name or comma-separated names"
             value={attendeeNameInput}
             onChange={(event) => setAttendeeNameInput(event.target.value)}
             onKeyDown={handleAttendeeNameKeyDown}
@@ -13265,7 +13261,7 @@ function rememberToolboxTalkRecents(form) {
       12,
     ),
     attendeeNames: mergeRecentValues(
-      form.attendance.map((row) => row.name),
+      normalizeToolboxAttendanceRows(form.attendance).map((row) => row.name),
       current.attendeeNames,
       40,
     ),
@@ -13810,17 +13806,52 @@ function mergeRecentValues(nextValues, currentValues, limit) {
     .slice(0, limit);
 }
 
+function splitToolboxAttendeeNames(value) {
+  const values = Array.isArray(value)
+    ? value
+    : String(value || "").split(/[,\n]+/);
+  const seen = new Set();
+  return values
+    .map((name) => String(name || "").trim())
+    .filter(Boolean)
+    .filter((name) => {
+      const key = name.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function normalizeToolboxAttendanceRows(rows) {
+  const seen = new Set();
+  return (Array.isArray(rows) ? rows : [])
+    .flatMap((row) => splitToolboxAttendeeNames(row?.name))
+    .filter((name) => {
+      const key = name.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((name) => ({ name }));
+}
+
 function addAttendeeNameToToolboxForm(form, name) {
-  const trimmed = String(name || "").trim();
-  if (!trimmed) return form;
+  const names = splitToolboxAttendeeNames(name);
+  if (!names.length) return form;
   const attendance = (Array.isArray(form.attendance) ? form.attendance : [])
-    .map((row) => ({ name: String(row?.name || "").trim() }))
-    .filter((row) => row.name);
-  const existing = attendance.some((row) => row.name.toLowerCase() === trimmed.toLowerCase());
-  if (existing) return form;
+    .flatMap((row) => splitToolboxAttendeeNames(row?.name))
+    .map((value) => ({ name: value }));
+  const existing = new Set(attendance.map((row) => row.name.toLowerCase()));
+  const nextNames = names.filter((value) => !existing.has(value.toLowerCase()));
+  if (!nextNames.length && attendance.length === (Array.isArray(form.attendance) ? form.attendance.length : 0)) {
+    return form;
+  }
   return {
     ...form,
-    attendance: [...attendance, { name: trimmed }],
+    attendance: normalizeToolboxAttendanceRows([
+      ...attendance,
+      ...nextNames.map((value) => ({ name: value })),
+    ]),
   };
 }
 
@@ -14090,7 +14121,7 @@ function getToolboxTalkMissingFields(
   const header = form?.header || {};
   const confirmation = form?.confirmation || {};
   const topics = form?.topics || {};
-  const attendance = Array.isArray(form?.attendance) ? form.attendance : [];
+  const attendance = normalizeToolboxAttendanceRows(form?.attendance);
   const missing = [];
 
   const headerFields = Array.isArray(layout.headerFields) ? layout.headerFields : [];
@@ -14219,9 +14250,7 @@ function cleanToolboxTalkClientForm(
     safetyConcerns: form.safetyConcerns
       .map((row) => cleanToolboxSafetyConcernForSubmit(row, safetyConcernSettings))
       .filter((row) => row.concern || row.actionToTake || row.dateTaken),
-    attendance: form.attendance
-      .map((row) => ({ name: row.name.trim() }))
-      .filter((row) => row.name),
+    attendance: normalizeToolboxAttendanceRows(form.attendance),
     additionalComments: form.additionalComments.trim(),
     confirmation: {
       name: form.confirmation.name.trim(),

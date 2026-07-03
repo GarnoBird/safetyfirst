@@ -2237,9 +2237,7 @@ function cleanToolboxTalkFormData(
     cleanToolboxSafetyConcern(row, config.blockSettings?.toolbox_safety_concerns),
   ).filter((row) => row.concern || row.actionToTake || row.dateTaken);
 
-  const attendance = cleanRows(value.attendance, (row) => ({
-    name: cleanText(row?.name, MAX_FORM_TEXT_LENGTH),
-  })).filter((row) => row.name);
+  const attendance = cleanToolboxAttendanceRows(value.attendance);
   if (enabled.has("toolbox_attendance") && !attendance.length) {
     throwBadRequest("Add at least one attendee.");
   }
@@ -2445,6 +2443,28 @@ function normalizeActionItemRowsSettings(settings = {}) {
 function cleanRows(value, cleaner) {
   const rows = Array.isArray(value) ? value : [];
   return rows.slice(0, MAX_TOOLBOX_ROWS).map(cleaner);
+}
+
+function splitToolboxAttendeeNames(value) {
+  return String(value || "")
+    .split(/[,\n]+/)
+    .map((name) => cleanText(name, MAX_FORM_TEXT_LENGTH))
+    .filter(Boolean);
+}
+
+function cleanToolboxAttendanceRows(value) {
+  const seen = new Set();
+  const rows = Array.isArray(value) ? value : [];
+  return rows
+    .flatMap((row) => splitToolboxAttendeeNames(row?.name))
+    .filter((name) => {
+      const key = name.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_TOOLBOX_ROWS)
+    .map((name) => ({ name }));
 }
 
 function requireText(value, label) {

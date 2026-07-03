@@ -116,6 +116,27 @@ const toolboxSignatureSchema = {
   sections: [requiredSignatureSection, optionalMediaSection],
 };
 
+const toolboxAttendanceSchema = {
+  schemaVersion: 1,
+  formType: "toolbox_talk",
+  title: "Toolbox Attendance Smoke",
+  description: "Toolbox attendance smoke template.",
+  sections: [
+    {
+      id: "attendance",
+      title: "Attendance",
+      description: "Typed worker names.",
+      fields: [
+        {
+          id: "attendance_block",
+          type: "toolbox_attendance",
+          label: "Attendance",
+        },
+      ],
+    },
+  ],
+};
+
 const toolboxCompositeSchema = {
   schemaVersion: 1,
   formType: "toolbox_talk",
@@ -536,6 +557,30 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await expect(page.getByText("Photo attachments").first()).toBeVisible();
   await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
   await expect(page.getByText("Signature is required.")).toBeVisible();
+});
+
+test("Toolbox Talk attendance splits comma-separated names", async ({ page }) => {
+  const row = template("toolbox_attendance_smoke", "Toolbox Attendance", toolboxAttendanceSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/toolbox_attendance_smoke");
+  const attendanceInput = page.getByPlaceholder("Worker name or comma-separated names");
+  await attendanceInput.fill("Billy Bob Thornton, Chris Jones");
+  await attendanceInput.press("Enter");
+  await expect(page.getByRole("button", { name: "Remove Billy Bob Thornton" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Chris Jones" })).toBeVisible();
+  await expect(page.getByText("2 listed")).toBeVisible();
+  await attendanceInput.fill("Chris Jones, Will Davis");
+  await attendanceInput.press("Enter");
+  await expect(page.getByText("3 listed")).toBeVisible();
+  await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.attendance).toEqual([
+    { name: "Billy Bob Thornton" },
+    { name: "Chris Jones" },
+    { name: "Will Davis" },
+  ]);
 });
 
 test("Toolbox Talk review notes and safety concerns use editable subfields", async ({ page }) => {
