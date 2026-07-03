@@ -91,6 +91,7 @@ const legacyBuildingBlockMigration = "023_legacy_building_block_templates.sql";
 const speedFanInspectionSchema = readMigrationSchema(legacyBuildingBlockMigration, "speed_fan_schema");
 const hoistCompetencyObservationSchema = readMigrationSchema(legacyBuildingBlockMigration, "hoist_schema");
 const fallProtectionSchema = readMigrationSchema("024_fall_protection_template.sql");
+const dailySafetyInspectionSchema = readMigrationSchema("025_daily_safety_inspection_template.sql");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -1970,6 +1971,74 @@ test("Fall Protection Form worker form honors conditional sections and image-onl
 
   await page.getByRole("button", { name: "Submit Fall Protection Form" }).click();
   await expect(page.getByText("Inspector's Signature is required.")).toBeVisible();
+});
+
+test("Daily Safety Inspection migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "daily_safety_inspection",
+    "Daily Safety Inspection",
+    dailySafetyInspectionSchema,
+    { displayOrder: 90 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Daily Safety Inspection" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Daily Safety Inspection" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Daily Safety Inspection" })).toBeVisible();
+  await expect(preview.getByText("Work Area Inspection Report")).toBeVisible();
+  await expect(preview.getByText("Access Egress Inspection")).toBeVisible();
+  await expect(preview.getByText("Check all items that are compliant OR not applicable")).toBeVisible();
+  await expect(preview.getByText("Safety Concerns Raised", { exact: true }).first()).toBeVisible();
+  await expect(preview.getByText("Observed Act / Condition")).toBeVisible();
+  await expect(preview.getByText("Signatures")).toBeVisible();
+  await expect(preview.getByText("Scaffold Inspection")).toHaveCount(0);
+
+  await preview.locator(".template-field-daily_access_items").getByLabel("Scaffold").check();
+  await expect(preview.getByText("Scaffold Inspection")).toBeVisible();
+  await expect(preview.getByText("Para-Stair Inspection")).toHaveCount(0);
+  await preview.locator(".template-field-daily_access_items").getByLabel("Para-Stairs").check();
+  await expect(preview.getByText("Para-Stair Inspection")).toBeVisible();
+  await expect(preview.getByText("No safety concerns raised today.")).toBeVisible();
+  await expect(preview.getByText("Add Photo")).toBeVisible();
+  await expect(preview.getByText(/JPG, PNG, WEBP, HEIC/)).toBeVisible();
+  await expect(preview.getByText("Inspector Signatures")).toBeVisible();
+  await expect(preview.locator(".template-signature-canvas")).toHaveCount(2);
+});
+
+test("Daily Safety Inspection worker form honors conditional sections, image-only uploads, and required signatures", async ({ page }) => {
+  const row = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema);
+  await mockApis(page, [row]);
+
+  await page.goto("/forms/daily_safety_inspection");
+  await expect(page.getByRole("heading", { name: "Daily Safety Inspection" })).toBeVisible();
+  await expect(page.getByText("Scaffold Inspection")).toHaveCount(0);
+  await page.locator(".template-field-daily_access_items").getByLabel("Scaffold").check();
+  await expect(page.getByText("Scaffold Inspection")).toBeVisible();
+
+  const upload = page.locator('input[type="file"][aria-label="Add Photo"]');
+  await upload.setInputFiles({
+    name: "daily-report.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.4 smoke"),
+  });
+  await expect(page.getByText(/Use JPG, PNG, WEBP, HEIC files/)).toBeVisible();
+  await upload.setInputFiles({
+    name: "daily-photo.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("jpg"),
+  });
+  await expect(page.getByText("daily-photo.jpg")).toBeVisible();
+
+  await page.getByLabel("No safety concerns raised today.").check();
+  await page.getByRole("button", { name: "Submit Daily Safety Inspection" }).click();
+  await expect(page.getByText("Inspector Signatures is required.")).toBeVisible();
+  await expect(page.locator(".template-section-daily_signatures")).toHaveClass(/toolbox-section-invalid/);
 });
 
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
