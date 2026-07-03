@@ -4104,17 +4104,19 @@ p {
 }
 
 .template-manager-grid {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
 
-.template-manager-grid.preview-expanded {
+.template-manager-grid.menu-hidden {
   grid-template-columns: minmax(0, 1fr);
+  padding-left: 54px;
 }
 
-.template-manager-grid.preview-expanded .template-card-list {
+.template-manager-grid.menu-hidden .template-card-list {
   display: none;
 }
 
@@ -4126,8 +4128,71 @@ p {
   align-content: start;
 }
 
+.template-list-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 8px;
+  align-items: stretch;
+}
+
 .template-new-button {
   width: 100%;
+}
+
+.template-list-toggle,
+.template-list-restore {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #cfe0d8;
+  border-radius: 8px;
+  color: #245f5b;
+  background: #f8fcfa;
+}
+
+.template-list-toggle {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+.template-list-restore {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  grid-auto-flow: row;
+  gap: 3px;
+  width: 44px;
+  min-height: 88px;
+  padding: 8px 4px;
+  font-size: 0.7rem;
+  font-weight: 850;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.template-list-toggle:hover,
+.template-list-restore:hover,
+.template-list-toggle:focus-visible,
+.template-list-restore:focus-visible {
+  border-color: #245f5b;
+  background: #eef8f5;
+}
+
+.template-list-toggle svg,
+.template-list-restore svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.template-list-restore svg {
+  transform: rotate(90deg);
 }
 
 .template-new-form {

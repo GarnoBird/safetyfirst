@@ -6739,7 +6739,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
   const [draftSchema, setDraftSchema] = useState(null);
   const [previewAnswers, setPreviewAnswers] = useState({});
-  const [builderView, setBuilderView] = useState("editor");
+  const [templateListHidden, setTemplateListHidden] = useState(false);
   const [newFormName, setNewFormName] = useState("");
   const [newFormOpen, setNewFormOpen] = useState(false);
   const [archivedOpen, setArchivedOpen] = useState(false);
@@ -6778,7 +6778,6 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
   const canDragTemplateOrder = canManageTemplates && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
-  const previewModeExpanded = selectedTemplate?.renderer_type === "template" && builderView === "preview";
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -7171,20 +7170,49 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   return (
     <StaffShell active="form-templates" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      <section className={previewModeExpanded ? "template-manager-grid preview-expanded" : "template-manager-grid"}>
+      <section className={templateListHidden ? "template-manager-grid menu-hidden" : "template-manager-grid"}>
+        {templateListHidden ? (
+          <button
+            aria-label="Show form template list"
+            className="template-list-restore"
+            title="Show template list"
+            type="button"
+            onClick={() => setTemplateListHidden(false)}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M5 5h14v14H5zM10 5v14M13 9l3 3-3 3" />
+            </svg>
+            <span>Templates</span>
+          </button>
+        ) : null}
         <aside className="template-card-list" aria-label="Form templates">
-          {canManageTemplates ? (
+          <div className="template-list-toolbar">
+            {canManageTemplates ? (
+              <button
+                className="primary-button template-new-button"
+                type="button"
+                onClick={() => {
+                  setFocusedTemplateType("");
+                  setNewFormOpen((current) => !current);
+                }}
+              >
+                New Form
+              </button>
+            ) : (
+              <span aria-hidden="true" />
+            )}
             <button
-              className="primary-button template-new-button"
+              aria-label="Hide form template list"
+              className="template-list-toggle"
+              title="Hide template list"
               type="button"
-              onClick={() => {
-                setFocusedTemplateType("");
-                setNewFormOpen((current) => !current);
-              }}
+              onClick={() => setTemplateListHidden(true)}
             >
-              New Form
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M5 5h14v14H5zM10 5v14M17 9l-3 3 3 3" />
+              </svg>
             </button>
-          ) : null}
+          </div>
           {newFormOpen ? (
             <form className="template-new-form" onSubmit={createTemplate}>
               <label>
@@ -7245,10 +7273,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                     : template.renderer_type === "template" ? "Editable" : "Special renderer"}
                 </span>
                 <strong>{template.label}</strong>
-                <small>
-                  Published v{template.publishedVersion?.version_number || "-"}
-                  {template.draftVersion && !isLockedDefaultFormTemplate(template) ? " / Draft ready" : ""}
-                </small>
+                {template.draftVersion && !isLockedDefaultFormTemplate(template) ? <small>Draft ready</small> : null}
                 <small>
                   {template.archived_at
                     ? "Archived"
@@ -7315,10 +7340,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                           : template.renderer_type === "template" ? "Editable" : "Special renderer"}
                       </span>
                       <strong>{template.label}</strong>
-                      <small>
-                        Published v{template.publishedVersion?.version_number || "-"}
-                        {template.draftVersion && !isLockedDefaultFormTemplate(template) ? " / Draft ready" : ""}
-                      </small>
+                      {template.draftVersion && !isLockedDefaultFormTemplate(template) ? <small>Draft ready</small> : null}
                       <small>Archived</small>
                     </button>
                   ))}
@@ -7396,7 +7418,6 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 onChange={selectedCanEdit ? setDraftSchema : () => {}}
                 onDuplicate={() => duplicateTemplate(selectedTemplate)}
                 onPreviewAnswersChange={setPreviewAnswers}
-                onViewChange={setBuilderView}
                 onPublish={publishDraft}
                 onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
                 onSave={saveDraft}
@@ -7966,7 +7987,6 @@ function TemplateSchemaEditorV3({
   onSave,
   onTemplateMetaChange,
   onToggleWorkerVisible,
-  onViewChange,
   previewAnswers = {},
   previewWorker,
   publishing,
@@ -8025,17 +8045,12 @@ function TemplateSchemaEditorV3({
   }, [readOnly]);
 
   useEffect(() => {
-    onViewChange?.(view);
-  }, [onViewChange, view]);
-
-  useEffect(() => {
     setSidebarFocus(activeSelection.kind === "header" ? "template" : "selected");
   }, [activeSelection.kind, activeSelection.sectionIndex, activeSelection.fieldIndex]);
 
   const updateSchema = (patch) => onChange({ ...current, ...patch });
   const changeView = (nextView) => {
     setView(nextView);
-    onViewChange?.(nextView);
   };
   const updateSection = (sectionIndex, patch) => {
     if (!canEdit) return;

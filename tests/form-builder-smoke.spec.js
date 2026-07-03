@@ -874,6 +874,7 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   const row = template("toolbox_talk_copy", "Toolbox Talk copy", toolboxSignatureSchema);
   await mockApis(page, [row]);
 
+  await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto("/staff/form-templates");
   await expect(page.getByRole("heading", { name: "Toolbox Talk Smoke" })).toBeVisible();
   await page.locator(".template-v3-field-card").filter({ hasText: "Signature" }).getByRole("button").first().click();
@@ -884,13 +885,19 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await page.locator(".template-v3-selected-block-card input").first().click();
   await expectCardAbove(page, ".template-v3-selected-block-card", ".template-v3-template-options-card");
   await openPreview(page);
-  await expect(page.locator(".template-manager-grid")).toHaveClass(/preview-expanded/);
-  await expect(page.locator(".template-card-list")).toBeHidden();
+  await expect(page.locator(".template-manager-grid")).not.toHaveClass(/menu-hidden/);
+  await expect(page.locator(".template-card-list")).toBeVisible();
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
   await expect(page.getByText("Signature", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Photo attachments").first()).toBeVisible();
+  await page.getByRole("button", { name: "Hide form template list" }).click();
+  await expect(page.locator(".template-manager-grid")).toHaveClass(/menu-hidden/);
+  await expect(page.locator(".template-card-list")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Show form template list" })).toBeVisible();
+  await page.getByRole("button", { name: "Show form template list" }).click();
+  await expect(page.locator(".template-manager-grid")).not.toHaveClass(/menu-hidden/);
+  await expect(page.locator(".template-card-list")).toBeVisible();
   await page.locator(".template-v3-tabs").getByRole("button", { name: "Editor" }).click();
-  await expect(page.locator(".template-manager-grid")).not.toHaveClass(/preview-expanded/);
   await expect(page.locator(".template-card-list")).toBeVisible();
 
   await page.goto("/forms/toolbox_talk_copy");
