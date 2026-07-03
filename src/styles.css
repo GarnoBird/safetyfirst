@@ -3026,6 +3026,7 @@ p {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 14px;
+  align-items: start;
   min-width: 0;
 }
 
@@ -3033,6 +3034,7 @@ p {
   display: grid;
   grid-column: 1 / -1;
   gap: 12px;
+  align-self: start;
   min-width: 0;
   max-width: 100%;
   border: 1px solid #d9e3de;
@@ -3771,9 +3773,15 @@ p {
 
 .template-radio-choice-list button {
   justify-content: center;
+  min-width: 0;
   min-height: 42px;
-  padding: 0 12px;
+  height: auto;
+  padding: 9px 12px;
   background: #fff;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  white-space: normal;
 }
 
 .template-radio-choice-list button.active {
@@ -3793,6 +3801,239 @@ p {
 .template-checklist-field > small {
   color: var(--muted);
   font-weight: 750;
+}
+
+.form-platform-shell-new_worker_orientation {
+  width: min(100%, 1040px);
+}
+
+.form-submit-panel-new_worker_orientation {
+  padding: 16px;
+}
+
+.template-worker-form-new_worker_orientation {
+  gap: 16px;
+}
+
+.template-worker-form-new_worker_orientation .template-runtime-form,
+.template-worker-form-new_worker_orientation .template-runtime-section-grid {
+  gap: 12px;
+}
+
+.template-worker-form-new_worker_orientation .toolbox-section {
+  gap: 14px;
+  border-color: #dfe8e4;
+  padding: 16px;
+  background: #fff;
+}
+
+.template-worker-form-new_worker_orientation .toolbox-section-heading {
+  align-items: flex-start;
+  border-bottom: 1px solid #edf2f0;
+  padding-bottom: 8px;
+}
+
+.template-worker-form-new_worker_orientation .toolbox-section-heading h2 {
+  color: #17211f;
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.template-worker-form-new_worker_orientation .toolbox-field-grid {
+  gap: 12px;
+  align-items: start;
+}
+
+.template-worker-form-new_worker_orientation label {
+  gap: 7px;
+}
+
+.template-worker-form-new_worker_orientation label > span,
+.template-worker-form-new_worker_orientation .template-multi-select > span,
+.template-worker-form-new_worker_orientation .template-signature-field > span,
+.template-worker-form-new_worker_orientation .template-media-upload-heading span {
+  color: #52625e;
+  font-size: 0.88rem;
+  font-weight: 780;
+  line-height: 1.3;
+}
+
+.template-worker-form-new_worker_orientation input:not([type="checkbox"]),
+.template-worker-form-new_worker_orientation select,
+.template-worker-form-new_worker_orientation textarea {
+  min-height: 46px;
+  border-color: #d8e3df;
+  padding: 10px 11px;
+  font-size: 1rem;
+  line-height: 1.25;
+  background: #fff;
+}
+
+.worker-form .template-worker-form-new_worker_orientation label > span,
+.worker-form .template-worker-form-new_worker_orientation .template-multi-select > span,
+.worker-form .template-worker-form-new_worker_orientation .template-signature-field > span,
+.worker-form .template-worker-form-new_worker_orientation .template-media-upload-heading span {
+  color: #52625e;
+  font-size: 0.88rem;
+  font-weight: 780;
+  line-height: 1.3;
+}
+
+.worker-form .template-worker-form-new_worker_orientation input:not([type="checkbox"]),
+.worker-form .template-worker-form-new_worker_orientation select,
+.worker-form .template-worker-form-new_worker_orientation textarea {
+  min-height: 46px;
+  padding: 10px 11px;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.template-worker-form-new_worker_orientation textarea {
+  min-height: 108px;
+}
+
+.template-worker-form-new_worker_orientation .template-instructions {
+  border-color: #dfe8e4;
+  padding: 11px 12px;
+  color: #2d3b38;
+  font-size: 0.94rem;
+  font-weight: 620;
+  line-height: 1.5;
+  background: #fbfdfc;
+}
+
+.template-worker-form-new_worker_orientation .template-instructions-heading {
+  border-color: transparent;
+  padding: 2px 0;
+  color: #17211f;
+  font-size: 0.98rem;
+  font-weight: 850;
+  background: transparent;
+}
+
+.template-worker-form-new_worker_orientation .template-instructions-policy {
+  border-left-width: 3px;
+  padding-left: 14px;
+  white-space: pre-wrap;
+}
+
+.template-worker-form-new_worker_orientation .template-radio-choice-field,
+.template-worker-form-new_worker_orientation .template-checklist-field,
+.template-worker-form-new_worker_orientation .template-multi-select {
+  gap: 9px;
+}
+
+.template-worker-form-new_worker_orientation .template-radio-choice-field > span,
+.template-worker-form-new_worker_orientation .template-checklist-field > span {
+  color: #17211f;
+  font-size: 0.96rem;
+  font-weight: 780;
+  line-height: 1.35;
+}
+
+.template-worker-form-new_worker_orientation .template-radio-choice-list {
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.template-worker-form-new_worker_orientation .template-radio-choice-list button {
+  min-height: 44px;
+  border-color: #d5e2de;
+  padding: 10px 12px;
+  color: #17211f;
+  font-size: 0.98rem;
+  font-weight: 760;
+  background: #fff;
+}
+
+.template-worker-form-new_worker_orientation .template-radio-choice-list button.active {
+  border-color: #245f5b;
+  color: #fff;
+  background: #245f5b;
+}
+
+.template-worker-form-new_worker_orientation .template-checklist-options,
+.template-worker-form-new_worker_orientation .template-media-upload-field,
+.template-worker-form-new_worker_orientation .template-signature-pad {
+  border-color: #d8e3df;
+  background: #fbfdfc;
+}
+
+.template-worker-form-new_worker_orientation .template-media-upload-field,
+.template-worker-form-new_worker_orientation .template-signature-pad {
+  padding: 12px;
+}
+
+.template-worker-form-new_worker_orientation .template-media-upload-drop {
+  border-color: #c5dcd5;
+  background: #f7faf9;
+}
+
+.template-worker-form-new_worker_orientation .template-field-type-signature {
+  grid-column: span 6;
+}
+
+.template-worker-form-new_worker_orientation .template-signature-canvas {
+  height: 154px;
+  border-color: #c5dcd5;
+  background: #fff;
+}
+
+.template-worker-form-new_worker_orientation .template-signature-toolbar {
+  align-items: flex-start;
+}
+
+.template-worker-form-new_worker_orientation .template-signature-toolbar small {
+  max-width: 34ch;
+  color: #5f716d;
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.template-worker-form-new_worker_orientation .template-signature-toolbar button {
+  min-height: 36px;
+  color: #17211f;
+  background: #fff;
+}
+
+.template-worker-form-new_worker_orientation .template-toggle-field,
+.template-worker-form-new_worker_orientation .template-boolean-field,
+.template-worker-form-new_worker_orientation .toolbox-confirmation {
+  border-color: #d8e3df;
+  background: #fbfdfc;
+}
+
+@media (max-width: 1050px) {
+  .form-platform-shell-new_worker_orientation {
+    width: min(100%, 760px);
+  }
+
+  .template-worker-form-new_worker_orientation .template-width-half,
+  .template-worker-form-new_worker_orientation .template-width-third,
+  .template-worker-form-new_worker_orientation .template-runtime-section-grid > .template-width-half,
+  .template-worker-form-new_worker_orientation .template-runtime-section-grid > .template-width-third {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 820px) {
+  .form-submit-panel-new_worker_orientation {
+    padding: 14px;
+  }
+
+  .template-worker-form-new_worker_orientation .toolbox-section {
+    padding: 14px;
+  }
+
+  .template-worker-form-new_worker_orientation .template-radio-choice-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .template-worker-form-new_worker_orientation .template-signature-canvas {
+    height: 140px;
+  }
 }
 
 .template-special-block-runtime {

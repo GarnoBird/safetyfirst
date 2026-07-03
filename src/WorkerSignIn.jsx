@@ -3507,6 +3507,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const [status, setStatus] = useState({ type: "", message: "", date: "" });
   const scannedCopyInputRef = useRef(null);
   const submitted = status.type === "success" || status.type === "queued";
+  const formTypeClass = slugifyTemplateId(formType);
 
   useEffect(() => {
     let active = true;
@@ -3730,7 +3731,12 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
   return (
     <main className="public-page form-platform-page">
-      <section className="form-platform-shell">
+      <section
+        className={[
+          "form-platform-shell",
+          formTypeClass ? `form-platform-shell-${formTypeClass}` : "",
+        ].filter(Boolean).join(" ")}
+      >
         <input
           ref={scannedCopyInputRef}
           accept={SCANNED_COPY_ACCEPT}
@@ -3755,7 +3761,12 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         ) : null}
 
         {formError ? <p className="form-message error">{formError}</p> : null}
-        <div className={submitted ? "worker-form submitted form-submit-panel" : "worker-form form-submit-panel"}>
+        <div
+          className={[
+            submitted ? "worker-form submitted form-submit-panel" : "worker-form form-submit-panel",
+            formTypeClass ? `form-submit-panel-${formTypeClass}` : "",
+          ].filter(Boolean).join(" ")}
+        >
           {submitted ? (
             <div className="worker-thank-you" role="status">
               <h1>Thank You</h1>
@@ -5168,6 +5179,7 @@ function TemplateDrivenWorkerForm({
   const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
   const [error, setError] = useState("");
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const formTypeClass = slugifyTemplateId(formType);
 
   const schema = useMemo(
     () => ({
@@ -5276,7 +5288,17 @@ function TemplateDrivenWorkerForm({
           Submit scanned copy
         </button>
       </div>
-      <form className="submission-form toolbox-talk-form template-worker-form" noValidate onSubmit={submitForm}>
+      <form
+        className={[
+          "submission-form",
+          "toolbox-talk-form",
+          "template-worker-form",
+          formTypeClass ? `template-worker-form-${formTypeClass}` : "",
+        ].filter(Boolean).join(" ")}
+        data-form-type={formTypeClass || undefined}
+        noValidate
+        onSubmit={submitForm}
+      >
         {draftRestored || draftSavedAt ? (
           <div className="offline-draft-status">
             <div>
@@ -9744,7 +9766,11 @@ function TemplateRuntimeSections({
           <div className="toolbox-field-grid">
             {section.fields.map((field) => (
               <div
-                className={["template-runtime-field-shell", templateLayoutWidthClass(field)].filter(Boolean).join(" ")}
+                className={[
+                  "template-runtime-field-shell",
+                  field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
+                  templateLayoutWidthClass(field),
+                ].filter(Boolean).join(" ")}
                 key={field.id}
               >
                 <TemplateRuntimeField
@@ -9846,6 +9872,22 @@ function TemplateRuntimeField({
     );
   }
   const labelClass = invalid ? "toolbox-field-invalid" : "";
+  if (isPhoneLikeTemplateField(field)) {
+    return (
+      <label className={labelClass} ref={targetRef}>
+        <span>{field.label}</span>
+        <input
+          aria-invalid={invalid ? "true" : undefined}
+          autoComplete="tel"
+          inputMode="tel"
+          placeholder={field.helperText || ""}
+          type="tel"
+          value={value || ""}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    );
+  }
   if (field.type === "long_text") {
     return (
       <label className={labelClass} ref={targetRef}>
@@ -14399,6 +14441,18 @@ function normalizeTemplateNumberMode(field) {
   return TEMPLATE_NUMBER_MODE_OPTIONS.some((option) => option.id === value) ? value : "decimal";
 }
 
+function isPhoneLikeTemplateField(field) {
+  if (!["short_text", "number"].includes(field?.type)) return false;
+  const signal = [
+    field.id,
+    field.label,
+    field.default,
+    getTemplateSettingValue(field.settings, "defaultValue"),
+  ].filter(Boolean).join(" ").toLowerCase();
+  return /(^|[^a-z])(phone|telephone|mobile|cell|tel)([^a-z]|$)/.test(signal) ||
+    signal.includes("worker_phone");
+}
+
 function templateSupportsStaticDefault(field) {
   return ["short_text", "long_text", "number", "date", "time", "yes_no", "dropdown"].includes(field?.type);
 }
@@ -14935,6 +14989,9 @@ function cleanTemplateAnswerForSubmit(field, value) {
   if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
   if (field.type === "media_upload") return normalizeMediaUploadAnswer(value);
   if (field.type === "signature") return cleanSignatureDataUrl(value);
+  if (isPhoneLikeTemplateField(field)) {
+    return typeof value === "string" ? value.trim() : value || "";
+  }
   if (field.type === "number") {
     if (value === "" || value === null || value === undefined) return "";
     const number = Number(value);

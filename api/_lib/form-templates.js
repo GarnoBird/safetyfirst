@@ -927,6 +927,7 @@ function cleanTemplateAnswers(schema, value, worker) {
 
 function cleanAnswer(field, raw) {
   if (field.type === "number") {
+    if (isPhoneLikeTemplateField(field)) return cleanString(raw, MAX_TEXT);
     if (raw === "" || raw === null || raw === undefined) return "";
     const number = Number(raw);
     if (!Number.isFinite(number)) throwBadRequest(`${field.label} must be a number.`);
@@ -1049,6 +1050,18 @@ function mediaUploadFileExtension(name) {
   const value = cleanString(name, MAX_TEXT).toLowerCase();
   const index = value.lastIndexOf(".");
   return index >= 0 ? value.slice(index) : "";
+}
+
+function isPhoneLikeTemplateField(field) {
+  if (!["short_text", "number"].includes(field?.type)) return false;
+  const signal = [
+    field.id,
+    field.label,
+    field.default,
+    getSettingValue(field.settings, "defaultValue"),
+  ].filter(Boolean).join(" ").toLowerCase();
+  return /(^|[^a-z])(phone|telephone|mobile|cell|tel)([^a-z]|$)/.test(signal) ||
+    signal.includes("worker_phone");
 }
 
 function defaultForField(field, worker) {

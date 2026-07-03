@@ -534,6 +534,59 @@ async function expectLocatorBefore(firstLocator, secondLocator) {
   expect(isBefore).toBe(true);
 }
 
+const newWorkerOrientationViewports = [
+  { name: "mobile", width: 390, height: 844 },
+  { name: "tablet", width: 820, height: 1180 },
+  { name: "desktop", width: 1440, height: 1000 },
+  { name: "wide-desktop", width: 1920, height: 1200 },
+];
+
+async function captureNewWorkerOrientationScreenshot(page, name) {
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: `test-results/new-worker-orientation-${name}.png`,
+  });
+}
+
+async function expectNoClippedNewWorkerOrientationChoices(page) {
+  const clippedLabels = await page
+    .locator(".template-worker-form-new_worker_orientation .template-radio-choice-list button")
+    .evaluateAll((buttons) =>
+      buttons
+        .filter((button) =>
+          button.scrollWidth > button.clientWidth + 1 ||
+          button.scrollHeight > button.clientHeight + 1)
+        .map((button) => button.textContent?.trim()),
+    );
+  expect(clippedLabels).toEqual([]);
+}
+
+async function expectNoStretchedNewWorkerOrientationSections(page) {
+  const stretchedSections = await page
+    .locator(".template-worker-form-new_worker_orientation .toolbox-section")
+    .evaluateAll((sections) =>
+      sections
+        .map((section) => {
+          const visibleChildren = Array.from(section.children).filter((child) => {
+            const box = child.getBoundingClientRect();
+            return window.getComputedStyle(child).display !== "none" && box.height > 0;
+          });
+          const lastChild = visibleChildren.at(-1);
+          if (!lastChild) return null;
+          const sectionBox = section.getBoundingClientRect();
+          const lastChildBox = lastChild.getBoundingClientRect();
+          return {
+            title: section.querySelector("h2")?.textContent?.trim() || "Untitled section",
+            bottomGap: Math.round(sectionBox.bottom - lastChildBox.bottom),
+          };
+        })
+        .filter(Boolean)
+        .filter((section) => section.bottomGap > 28),
+    );
+  expect(stretchedSections).toEqual([]);
+}
+
 test("custom Toolbox Talk preview and worker form render added drawn signatures", async ({ page }) => {
   const row = template("toolbox_talk_copy", "Toolbox Talk copy", toolboxSignatureSchema);
   await mockApis(page, [row]);
@@ -913,6 +966,9 @@ test("New Worker Orientation migration opens as a draft hidden V3 template", asy
   await expect(preview.getByRole("heading", { name: "NEW WORKER ORIENTATION", exact: true })).toBeVisible();
   await expect(preview.getByLabel("Worker Name")).toHaveValue(staff.username);
   await expect(preview.getByLabel("Telephone Number")).toHaveValue("");
+  await expect(preview.getByLabel("Telephone Number")).toHaveAttribute("type", "tel");
+  await expect(preview.getByLabel("Supervisor Telephone")).toHaveAttribute("type", "tel");
+  await expect(preview.getByLabel("Phone", { exact: true })).toHaveAttribute("type", "tel");
   await expect(preview.getByLabel("Muster Station")).toHaveValue("Northeast corner of site @ Skyline Drive (green sign)");
   await expect(preview.getByText("JPG, PNG, WEBP, HEIC / 5 files max / 50 MiB each").first()).toBeVisible();
   await expect(preview.getByText("Worker's name (hidden)")).toHaveCount(0);
@@ -934,6 +990,52 @@ test("New Worker Orientation migration opens as a draft hidden V3 template", asy
     .toBe(true);
   await expect(preview.getByText("Supervisor's acknowledgement")).toBeVisible();
   await expect(preview.getByLabel("Supervisor's acknowledgement: (To be completed by supervisor)")).toBeVisible();
+});
+
+test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
+  test.slow();
+  const row = template(
+    "new_worker_orientation",
+    "New Worker Orientation",
+    newWorkerOrientationSchema,
+  );
+  await mockApis(page, [row]);
+
+  for (const viewport of newWorkerOrientationViewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/forms/new_worker_orientation");
+    await expect(page.locator(".template-worker-form-new_worker_orientation")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "NEW WORKER ORIENTATION", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "TRAFFIC CONTROL", exact: true })).toBeVisible();
+    await expectNoClippedNewWorkerOrientationChoices(page);
+    await expectNoStretchedNewWorkerOrientationSections(page);
+    await captureNewWorkerOrientationScreenshot(page, `${viewport.name}-initial`);
+  }
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/forms/new_worker_orientation");
+  await page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Will you be doing traffic control on our site?" })
+    .getByRole("radio", { name: "Yes" })
+    .click();
+  await page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "Have you received a New or Young Worker Orientation" })
+    .getByRole("radio", { name: "No" })
+    .click();
+  const supervisorSignature = page.getByLabel("Supervisor's acknowledgement: (To be completed by supervisor)");
+  await expect(supervisorSignature).toBeVisible();
+  await supervisorSignature.scrollIntoViewIfNeeded();
+  await expectNoClippedNewWorkerOrientationChoices(page);
+  await expectNoStretchedNewWorkerOrientationSections(page);
+  await captureNewWorkerOrientationScreenshot(page, "desktop-conditional-signature");
+
+  await page.getByRole("button", { name: "Submit New Worker Orientation" }).click();
+  await expect(page.getByText("Orientation # is required.")).toBeVisible();
+  await expectNoClippedNewWorkerOrientationChoices(page);
+  await expectNoStretchedNewWorkerOrientationSections(page);
+  await captureNewWorkerOrientationScreenshot(page, "desktop-validation");
 });
 
 test("conditional visibility, hidden worker variables, and image-only media settings work", async ({ page }) => {
