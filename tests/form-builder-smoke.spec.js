@@ -774,38 +774,6 @@ async function mockApis(page, templates, options = {}) {
       const row = staffSubmissions.find((item) => item.id === submissionId);
       return row ? json({ submission: row }) : json({ error: "Not found" }, 404);
     }
-    if (
-      method === "POST" &&
-      staffSubmissionParts.length === 5 &&
-      staffSubmissionParts[0] === "api" &&
-      staffSubmissionParts[1] === "staff" &&
-      staffSubmissionParts[2] === "submissions" &&
-      staffSubmissionParts[4] === "signoffs"
-    ) {
-      const submissionId = staffSubmissionParts[3];
-      const index = staffSubmissions.findIndex((item) => item.id === submissionId);
-      if (index < 0) return json({ error: "Not found" }, 404);
-      const body = JSON.parse(request.postData() || "{}");
-      if (!String(body.signatureDataUrl || "").startsWith("data:image/png;base64,")) {
-        return json({ error: "Staff signature is required." }, 400);
-      }
-      const signoff = {
-        id: `staff-signoff-${(staffSubmissions[index].staff_signoffs || []).length + 1}`,
-        staff_id: currentStaff.id,
-        staff_name: currentStaff.display_name || currentStaff.username,
-        staff_username: currentStaff.username,
-        signature_data_url: body.signatureDataUrl,
-        comments: String(body.comments || ""),
-        signed_at: "2026-07-03T20:45:00.000Z",
-      };
-      staffSubmissions[index] = {
-        ...staffSubmissions[index],
-        staff_signoffs: [...(staffSubmissions[index].staff_signoffs || []), signoff],
-        staff_reviewed_at: signoff.signed_at,
-        staff_reviewed_by_staff_id: currentStaff.id,
-      };
-      return json({ submission: staffSubmissions[index] });
-    }
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
       const formType = decodeURIComponent(path.split("/").at(-2));
       const row = findTemplate(formType);
@@ -990,28 +958,12 @@ function fileSubmissionRow({
 
 async function expectNonEmptyDownload(page, buttonName, extension) {
   const downloadPromise = page.waitForEvent("download");
-  const button = page.getByRole("button", { name: buttonName, exact: true });
-  if (await button.count()) {
-    await button.click();
-  } else {
-    await page.getByRole("menuitem", { name: buttonName, exact: true }).click();
-  }
+  await page.getByRole("button", { name: buttonName, exact: true }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(new RegExp(`\\.${extension}$`));
   const path = await download.path();
   expect(path).toBeTruthy();
   expect(fs.statSync(path).size).toBeGreaterThan(100);
-}
-
-async function drawSignatureOnCanvas(page, canvasLocator) {
-  await canvasLocator.scrollIntoViewIfNeeded();
-  const box = await canvasLocator.boundingBox();
-  expect(box).toBeTruthy();
-  await page.mouse.move(box.x + 24, box.y + box.height * 0.55);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.38, { steps: 6 });
-  await page.mouse.move(box.x + box.width * 0.68, box.y + box.height * 0.58, { steps: 6 });
-  await page.mouse.up();
 }
 
 async function openPreview(page) {
@@ -1061,14 +1013,6 @@ async function captureNewWorkerOrientationScreenshot(page, name) {
     animations: "disabled",
     fullPage: true,
     path: `test-results/new-worker-orientation-${name}.png`,
-  });
-}
-
-async function captureSubmittedViewerScreenshot(page, name) {
-  await page.screenshot({
-    animations: "disabled",
-    fullPage: true,
-    path: `test-results/submitted-form-viewer-${name}.png`,
   });
 }
 
@@ -1317,7 +1261,7 @@ test("worker group sign-in reuses duplicate open rows after refresh", async ({ p
   expect(staffNames).toEqual(["Chris", "Jerry", "David zocks"]);
 });
 
-test("submitted forms open in a routed viewer, sign off, export, and print without a blank popup", async ({ page }) => {
+test("submitted Toolbox forms export PDF, PNG, and print without a blank popup", async ({ page }) => {
   test.slow();
   const standardSubmission = toolboxSubmissionRow({
     id: "standard-toolbox-submission",
@@ -1365,109 +1309,38 @@ test("submitted forms open in a routed viewer, sign off, export, and print witho
   await page.goto("/staff/forms");
   await expect(page.getByText("3 form submissions")).toBeVisible();
 
-  const viewerCases = [
-    { company: "Birding Scopes", expectedText: "Dinner-Photo-3.png", id: fileSubmission.id },
-    { company: "CustomCo", expectedText: "Custom Toolbox Project", id: customSubmission.id, sign: true },
-    { company: "StandardCo", expectedText: "Standard Toolbox Project", id: standardSubmission.id },
-  ];
-
-  for (const { company, expectedText, id, sign } of viewerCases) {
-    await page.goto("/staff/forms");
+  for (const { company, expectedText } of [
+    { company: "Birding Scopes", expectedText: "Dinner-Photo-3.png" },
+    { company: "CustomCo", expectedText: "Custom Toolbox Project" },
+    { company: "StandardCo", expectedText: "Standard Toolbox Project" },
+  ]) {
     await page
       .getByRole("row", { name: new RegExp(company) })
       .getByRole("button", { name: "Details" })
       .click();
-    await expect(page).toHaveURL(new RegExp(`/staff/forms/${id}$`));
-    await expect(page.locator(".submitted-viewer-toolbar")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Review" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Edit" })).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Translate" })).toBeDisabled();
-    await expect(page.getByText(expectedText, { exact: true })).toBeVisible();
+    const dialog = page.getByRole("dialog", { name: "Submission details" });
+    await expect(dialog.getByRole("button", { name: "PDF", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "PNG", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Print", exact: true })).toBeVisible();
+    await expect(dialog.getByText(expectedText, { exact: true })).toBeVisible();
 
-    if (sign) {
-      await page.getByRole("button", { name: "Review" }).click();
-      const signDialog = page.getByRole("dialog", { name: "Review & Sign Form" });
-      await expect(signDialog).toBeVisible();
-      await expect(signDialog.getByText("No staff sign-off recorded yet.")).toBeVisible();
-      await drawSignatureOnCanvas(page, signDialog.locator("canvas"));
-      await signDialog.getByLabel("Comments").fill("Looks complete.");
-      await signDialog.getByRole("button", { name: "Sign", exact: true }).click();
-      await expect(signDialog).toHaveCount(0);
-      await expect(page.getByText("Looks complete.")).toBeVisible();
-      await expect(page.locator(".submitted-viewer-status")).toHaveText("Reviewed");
-
-      await page.getByRole("button", { name: "More submitted form actions" }).click();
-      await page.getByRole("menuitem", { name: "Sign" }).click();
-      const signDialogFromMenu = page.getByRole("dialog", { name: "Review & Sign Form" });
-      await expect(signDialogFromMenu).toBeVisible();
-      await expect(signDialogFromMenu.getByText("Looks complete.")).toBeVisible();
-      await signDialogFromMenu.getByRole("button", { name: "Cancel" }).click();
-    }
-
-    await page.getByRole("button", { name: "Download" }).click();
     await expectNonEmptyDownload(page, "PDF", "pdf");
-    await expect(page.getByText("PDF saved.")).toBeVisible();
-
-    await page.getByRole("button", { name: "Download" }).click();
+    await expect(dialog.getByText("PDF saved.")).toBeVisible();
     await expectNonEmptyDownload(page, "PNG", "png");
-    await expect(page.getByText("PNG saved.")).toBeVisible();
+    await expect(dialog.getByText("PNG saved.")).toBeVisible();
 
     const popupPromise = page
       .waitForEvent("popup", { timeout: 1000 })
       .then(() => true)
       .catch(() => false);
-    await page.getByRole("button", { name: "More submitted form actions" }).click();
-    await expect(page.getByRole("menuitem", { name: "Email" })).toBeDisabled();
-    await page.getByRole("menuitem", { name: "Print" }).click();
-    await expect(page.getByText("Print dialog opened.")).toBeVisible();
+    await dialog.getByRole("button", { name: "Print" }).click();
+    await expect(dialog.getByText("Print dialog opened.")).toBeVisible();
     expect(await popupPromise).toBe(false);
+
+    await dialog.getByRole("button", { name: "Close" }).click();
   }
 
   expect(pageErrors).toEqual([]);
-});
-
-test("submitted form viewer visual smoke captures page and sign modal", async ({ page }) => {
-  test.slow();
-  const reviewedSubmission = toolboxSubmissionRow({
-    id: "reviewed-toolbox-submission",
-    formType: "toolbox_talk",
-    projectName: "Reviewed Toolbox Project",
-    company: "ReviewCo",
-    workerName: "Review Worker",
-  });
-  reviewedSubmission.staff_signoffs = [
-    {
-      id: "existing-staff-signoff",
-      staff_id: staff.id,
-      staff_name: staff.display_name,
-      staff_username: staff.username,
-      signature_data_url: smokeSignatureDataUrl,
-      comments: "Reviewed before visual smoke.",
-      signed_at: "2026-07-03T20:20:00.000Z",
-    },
-  ];
-  reviewedSubmission.staff_reviewed_at = "2026-07-03T20:20:00.000Z";
-  reviewedSubmission.staff_reviewed_by_staff_id = staff.id;
-
-  await mockApis(
-    page,
-    [template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, { displayOrder: 1 })],
-    { staffSubmissions: [reviewedSubmission] },
-  );
-
-  for (const viewport of newWorkerOrientationViewports) {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await page.goto(`/staff/forms/${reviewedSubmission.id}`);
-    await expect(page.locator(".submitted-viewer-toolbar")).toBeVisible();
-    await expect(page.locator(".submitted-form-document")).toContainText("Reviewed Toolbox Project");
-    await expect(page.getByText("Reviewed before visual smoke.")).toBeVisible();
-    await captureSubmittedViewerScreenshot(page, `${viewport.name}-page`);
-
-    await page.getByRole("button", { name: "Review" }).click();
-    await expect(page.getByRole("dialog", { name: "Review & Sign Form" })).toBeVisible();
-    await captureSubmittedViewerScreenshot(page, `${viewport.name}-sign-modal`);
-    await page.getByRole("button", { name: "Cancel" }).click();
-  }
 });
 
 test("Toolbox Talk review notes and safety concerns use editable subfields", async ({ page }) => {
