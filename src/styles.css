@@ -3954,6 +3954,22 @@ p {
   background: #245f5b;
 }
 
+.template-worker-form-new_worker_orientation .template-section-7_training_and_certifications .toolbox-field-grid,
+.template-worker-form-new_worker_orientation .template-section-8_medical_information_optional_kept_confidential_and_only_provided_to_ems_if_nee .toolbox-field-grid {
+  align-items: stretch;
+}
+
+.template-worker-form-new_worker_orientation .template-section-7_training_and_certifications .template-field-type-dropdown,
+.template-worker-form-new_worker_orientation .template-section-8_medical_information_optional_kept_confidential_and_only_provided_to_ems_if_nee .template-field-type-dropdown {
+  align-self: stretch;
+}
+
+.template-worker-form-new_worker_orientation .template-section-7_training_and_certifications .template-radio-choice-field,
+.template-worker-form-new_worker_orientation .template-section-8_medical_information_optional_kept_confidential_and_only_provided_to_ems_if_nee .template-radio-choice-field {
+  height: 100%;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
 .template-worker-form-new_worker_orientation .template-checklist-options,
 .template-worker-form-new_worker_orientation .template-media-upload-field,
 .template-worker-form-new_worker_orientation .template-signature-pad {
@@ -3969,6 +3985,11 @@ p {
 .template-worker-form-new_worker_orientation .template-media-upload-drop {
   border-color: #c5dcd5;
   background: #f7faf9;
+}
+
+.worker-form .template-worker-form-new_worker_orientation .template-media-upload-select span,
+.template-worker-form-new_worker_orientation .template-media-upload-select span {
+  color: #fff;
 }
 
 .template-worker-form-new_worker_orientation .template-field-type-signature {

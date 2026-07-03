@@ -455,8 +455,10 @@ const legacyStyleSchema = {
 async function mockApis(page, templates, options = {}) {
   const templatesByType = new Map(templates.map((row) => [row.form_type, row]));
   const staffSubmissions = options.staffSubmissions || [];
+  const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   let uploadCount = 0;
+  let workerSignInCount = workerSignIns.length;
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -471,6 +473,53 @@ async function mockApis(page, templates, options = {}) {
 
     if (path === "/api/auth/me") return json({ staff });
     if (path === "/api/auth/worker-me") return json({ worker });
+    if (path === "/api/worker-signins" && method === "POST") {
+      const body = JSON.parse(request.postData() || "{}");
+      const signInDate = "2026-07-03";
+      const normalizedName = normalizeMockSignInIdentity(body.name);
+      const normalizedCompany = normalizeMockSignInIdentity(body.company);
+      const existing = workerSignIns.find(
+        (row) =>
+          row.sign_in_date_vancouver === signInDate &&
+          !row.signed_out_at &&
+          normalizeMockSignInIdentity(row.name) === normalizedName &&
+          normalizeMockSignInIdentity(row.company) === normalizedCompany,
+      );
+      if (existing) return json({ signIn: existing, created: false }, 200);
+      workerSignInCount += 1;
+      const signIn = {
+        id: `worker-signin-${workerSignInCount}`,
+        name: String(body.name || "").trim(),
+        phone: String(body.phone || "").trim(),
+        trade: String(body.trade || "").trim(),
+        company: String(body.company || "").trim(),
+        signed_in_at: `2026-07-03T16:${String(workerSignInCount).padStart(2, "0")}:00.000Z`,
+        signed_out_at: null,
+        sign_in_date_vancouver: signInDate,
+        sign_out_date_vancouver: null,
+      };
+      workerSignIns.push(signIn);
+      return json({ signIn, created: true }, 201);
+    }
+    if (path === "/api/staff/signins" && method === "GET") {
+      const date = url.searchParams.get("date") || "2026-07-03";
+      const sort = url.searchParams.get("sort") || "signed_in_at";
+      const dir = url.searchParams.get("dir") === "desc" ? "desc" : "asc";
+      const group = url.searchParams.get("group") || "none";
+      const rows = sortMockSignIns(
+        workerSignIns.filter((row) => row.sign_in_date_vancouver === date),
+        sort,
+        dir,
+      );
+      return json({
+        date,
+        sort,
+        dir,
+        group,
+        rows,
+        groups: mockSignInGroups(rows, group),
+      });
+    }
     if (path.startsWith("/api/mock-upload/") && method === "PUT") {
       return route.fulfill({ status: 200, body: "" });
     }
@@ -532,6 +581,33 @@ async function mockApis(page, templates, options = {}) {
     return json({});
   });
   return submissions;
+}
+
+function normalizeMockSignInIdentity(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function sortMockSignIns(rows, sort, dir) {
+  const ascending = dir !== "desc";
+  return [...rows].sort((a, b) => {
+    const left = String(a[sort] || "");
+    const right = String(b[sort] || "");
+    return ascending ? left.localeCompare(right) : right.localeCompare(left);
+  });
+}
+
+function mockSignInGroups(rows, group) {
+  if (group !== "company" && group !== "trade") return [];
+  const groups = new Map();
+  rows.forEach((row) => {
+    const label = row[group] || "Unassigned";
+    groups.set(label, [...(groups.get(label) || []), row]);
+  });
+  return [...groups.entries()].map(([label, items]) => ({
+    label,
+    count: items.length,
+    items,
+  }));
 }
 
 function toolboxSubmissionRow({
@@ -607,6 +683,45 @@ function toolboxSubmissionRow({
       answers,
       actionItemBlocks,
     },
+  };
+}
+
+function fileSubmissionRow({
+  company = "Birding Scopes",
+  formType = "toolbox_talk_copy_2",
+  id,
+  workerName = "Leanne Bird",
+  fileName = "Dinner-Photo-3.png",
+}) {
+  return {
+    id,
+    form_type: formType,
+    worker_name: workerName,
+    worker_phone: "6049025665",
+    worker_username: "lbird",
+    company,
+    submitted_at: "2026-07-03T16:52:00.000Z",
+    submitted_date_vancouver: "2026-07-03",
+    submission_mode: "submit_file",
+    one_drive_backup_status: "pending",
+    backup_error: "",
+    one_drive_web_url: "",
+    notes: "",
+    files: [
+      {
+        id: `${id}-file`,
+        submission_id: id,
+        bucket: "safety-form-submissions",
+        storage_path: `worker-smoke/${fileName}`,
+        original_filename: fileName,
+        mime_type: "image/png",
+        size_bytes: 1024 * 1024,
+        backup_status: "pending",
+      },
+    ],
+    action_items: [],
+    form_schema_snapshot: null,
+    form_data: null,
   };
 }
 
@@ -696,6 +811,47 @@ async function expectNoStretchedNewWorkerOrientationSections(page) {
   expect(stretchedSections).toEqual([]);
 }
 
+async function expectAlignedNewWorkerOrientationChoiceRows(page) {
+  const alignmentIssues = await page
+    .locator([
+      ".template-worker-form-new_worker_orientation .template-section-7_training_and_certifications",
+      ".template-worker-form-new_worker_orientation .template-section-8_medical_information_optional_kept_confidential_and_only_provided_to_ems_if_nee",
+    ].join(", "))
+    .evaluateAll((sections) =>
+      sections.flatMap((section) => {
+        const rows = new Map();
+        Array.from(section.querySelectorAll(".template-runtime-field-shell"))
+          .filter((field) => field.querySelector(".template-radio-choice-list"))
+          .forEach((field) => {
+            const fieldTop = Math.round(field.getBoundingClientRect().top);
+            const choiceTop = Math.round(field.querySelector(".template-radio-choice-list").getBoundingClientRect().top);
+            const row = rows.get(fieldTop) || [];
+            row.push({
+              label: field.textContent?.trim().replace(/\s+/g, " ").slice(0, 80),
+              choiceTop,
+            });
+            rows.set(fieldTop, row);
+          });
+        return Array.from(rows.values())
+          .filter((row) => row.length > 1)
+          .map((row) => ({
+            section: section.querySelector("h2")?.textContent?.trim() || "Untitled section",
+            row,
+            spread: Math.max(...row.map((item) => item.choiceTop)) - Math.min(...row.map((item) => item.choiceTop)),
+          }))
+          .filter((row) => row.spread > 2);
+      }),
+    );
+  expect(alignmentIssues).toEqual([]);
+}
+
+async function expectNewWorkerOrientationUploadButtonReadable(page) {
+  const uploadButtonTextColors = await page
+    .locator(".template-worker-form-new_worker_orientation .template-media-upload-select span")
+    .evaluateAll((buttons) => buttons.map((button) => window.getComputedStyle(button).color));
+  expect(uploadButtonTextColors).toContain("rgb(255, 255, 255)");
+}
+
 test("custom Toolbox Talk preview and worker form render added drawn signatures", async ({ page }) => {
   const row = template("toolbox_talk_copy", "Toolbox Talk copy", toolboxSignatureSchema);
   await mockApis(page, [row]);
@@ -745,6 +901,70 @@ test("Toolbox Talk attendance splits comma-separated names", async ({ page }) =>
   ]);
 });
 
+test("worker group sign-in reuses duplicate open rows after refresh", async ({ page }) => {
+  const workerSignIns = [];
+  await mockApis(page, [], { workerSignIns });
+  const signInResponses = [];
+  page.on("response", async (response) => {
+    if (
+      response.url().includes("/api/worker-signins") &&
+      response.request().method() === "POST"
+    ) {
+      signInResponses.push(await response.json());
+    }
+  });
+
+  await page.goto("/worker-sign-in");
+  await page.getByRole("button", { name: "Group" }).click();
+  await page.getByLabel("Phone").fill("6043548262");
+  await page.getByLabel("Company Name").selectOption("TK Elevators");
+  await page.getByLabel("Worker name").fill("Chris, Jerry, Chris,");
+  await expect(page.getByRole("button", { name: "Remove Chris" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Remove Jerry" })).toHaveCount(1);
+  await page.getByLabel("Remember me").check();
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByText("2 sign-ins submitted (2 new)")).toBeVisible();
+  await expect.poll(() => workerSignIns.map((row) => row.name)).toEqual(["Chris", "Jerry"]);
+
+  await page.reload();
+  await expect(page.getByLabel("Worker name")).toBeVisible();
+  await page.getByLabel("Worker name").fill(" chris , JERRY , David zocks,");
+  await expect(page.getByRole("button", { name: "Remove Chris" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Remove Jerry" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Remove David zocks" })).toHaveCount(1);
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByText("3 sign-ins submitted (1 new, 2 already signed in)")).toBeVisible();
+  await expect.poll(() => signInResponses.map((payload) => payload.created)).toEqual([
+    true,
+    true,
+    false,
+    false,
+    true,
+  ]);
+  await expect.poll(() => workerSignIns.map((row) => row.name)).toEqual([
+    "Chris",
+    "Jerry",
+    "David zocks",
+  ]);
+
+  const rememberedGroup = await page.evaluate(() =>
+    JSON.parse(window.localStorage.getItem("sf_worker_group_signins") || "{}"),
+  );
+  expect(rememberedGroup.signIns.map((row) => row.name)).toEqual([
+    "Chris",
+    "Jerry",
+    "David zocks",
+  ]);
+  expect(new Set(rememberedGroup.signIns.map((row) => row.id)).size).toBe(3);
+
+  await page.goto("/staff/sign-ins?date=2026-07-03&group=company&company=TK%20Elevators");
+  await expect(page.locator(".desktop-signin-group").filter({ hasText: "TK Elevators" })).toBeVisible();
+  const staffNames = await page
+    .locator(".desktop-signin-group .staff-table tbody tr td:first-child")
+    .evaluateAll((cells) => cells.map((cell) => cell.textContent.trim()));
+  expect(staffNames).toEqual(["Chris", "Jerry", "David zocks"]);
+});
+
 test("submitted Toolbox forms export PDF, PNG, and print without a blank popup", async ({ page }) => {
   test.slow();
   const standardSubmission = toolboxSubmissionRow({
@@ -773,6 +993,10 @@ test("submitted Toolbox forms export PDF, PNG, and print without a blank popup",
       signature: smokeSignatureDataUrl,
     },
   });
+  const fileSubmission = fileSubmissionRow({
+    id: "file-toolbox-submission",
+    formType: "toolbox_talk_copy_2",
+  });
   await mockApis(
     page,
     [
@@ -781,15 +1005,16 @@ test("submitted Toolbox forms export PDF, PNG, and print without a blank popup",
         displayOrder: 2,
       }),
     ],
-    { staffSubmissions: [customSubmission, standardSubmission] },
+    { staffSubmissions: [fileSubmission, customSubmission, standardSubmission] },
   );
   const pageErrors = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
 
   await page.goto("/staff/forms");
-  await expect(page.getByText("2 form submissions")).toBeVisible();
+  await expect(page.getByText("3 form submissions")).toBeVisible();
 
   for (const { company, expectedText } of [
+    { company: "Birding Scopes", expectedText: "Dinner-Photo-3.png" },
     { company: "CustomCo", expectedText: "Custom Toolbox Project" },
     { company: "StandardCo", expectedText: "Standard Toolbox Project" },
   ]) {
@@ -798,9 +1023,9 @@ test("submitted Toolbox forms export PDF, PNG, and print without a blank popup",
       .getByRole("button", { name: "Details" })
       .click();
     const dialog = page.getByRole("dialog", { name: "Submission details" });
-    await expect(dialog.getByRole("button", { name: "PDF" })).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "PNG" })).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "Print" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "PDF", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "PNG", exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Print", exact: true })).toBeVisible();
     await expect(dialog.getByText(expectedText, { exact: true })).toBeVisible();
 
     await expectNonEmptyDownload(page, "PDF", "pdf");
@@ -1195,6 +1420,8 @@ test("New Worker Orientation worker form visual smoke captures polished states",
     await expect(page.getByRole("heading", { name: "TRAFFIC CONTROL", exact: true })).toBeVisible();
     await expectNoClippedNewWorkerOrientationChoices(page);
     await expectNoStretchedNewWorkerOrientationSections(page);
+    await expectAlignedNewWorkerOrientationChoiceRows(page);
+    await expectNewWorkerOrientationUploadButtonReadable(page);
     await captureNewWorkerOrientationScreenshot(page, `${viewport.name}-initial`);
   }
 
@@ -1215,12 +1442,14 @@ test("New Worker Orientation worker form visual smoke captures polished states",
   await supervisorSignature.scrollIntoViewIfNeeded();
   await expectNoClippedNewWorkerOrientationChoices(page);
   await expectNoStretchedNewWorkerOrientationSections(page);
+  await expectAlignedNewWorkerOrientationChoiceRows(page);
   await captureNewWorkerOrientationScreenshot(page, "desktop-conditional-signature");
 
   await page.getByRole("button", { name: "Submit New Worker Orientation" }).click();
   await expect(page.getByText("Orientation # is required.")).toBeVisible();
   await expectNoClippedNewWorkerOrientationChoices(page);
   await expectNoStretchedNewWorkerOrientationSections(page);
+  await expectAlignedNewWorkerOrientationChoiceRows(page);
   await captureNewWorkerOrientationScreenshot(page, "desktop-validation");
 });
 

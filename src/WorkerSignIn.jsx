@@ -1135,6 +1135,10 @@ export function WorkerSignInPage() {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const submitted = status.type === "success";
+  const displayGroupNames = useMemo(
+    () => normalizeGroupNameEntries(groupNames),
+    [groupNames],
+  );
 
   const rememberProfile = (
     nextForm = form,
@@ -1197,7 +1201,7 @@ export function WorkerSignInPage() {
     const names = normalizeGroupNameEntries([value]);
     if (!names.length) return false;
     setGroupNames((current) => {
-      const nextNames = [...current, ...names];
+      const nextNames = normalizeGroupNameEntries([...current, ...names]);
       if (rememberMe) rememberProfile(form, groupMode, nextNames);
       return nextNames;
     });
@@ -1216,7 +1220,7 @@ export function WorkerSignInPage() {
     const nextDraft = (parts[parts.length - 1] || "").trimStart();
     if (completedNames.length) {
       setGroupNames((current) => {
-        const nextNames = [...current, ...completedNames];
+        const nextNames = normalizeGroupNameEntries([...current, ...completedNames]);
         if (rememberMe) rememberProfile(form, groupMode, [...nextNames, nextDraft]);
         return nextNames;
       });
@@ -1228,7 +1232,9 @@ export function WorkerSignInPage() {
 
   const removeGroupName = (indexToRemove) => {
     setGroupNames((current) => {
-      const nextNames = current.filter((_, index) => index !== indexToRemove);
+      const nextNames = normalizeGroupNameEntries(current).filter(
+        (_, index) => index !== indexToRemove,
+      );
       if (rememberMe) rememberProfile(form, groupMode, [...nextNames, groupNameDraft]);
       return nextNames;
     });
@@ -1265,7 +1271,9 @@ export function WorkerSignInPage() {
     }
 
     const phone = formatPhoneNumber(form.phone);
-    const createdSignIns = [];
+    const submittedSignIns = [];
+    let createdCount = 0;
+    let reusedCount = 0;
 
     try {
       for (const name of names) {
@@ -1283,13 +1291,19 @@ export function WorkerSignInPage() {
         if (!response.ok) {
           throw new Error(responsePayload.error || "Sign-in failed.");
         }
-        createdSignIns.push(responsePayload.signIn);
+        if (!responsePayload.signIn) throw new Error("Sign-in failed.");
+        submittedSignIns.push(responsePayload.signIn);
+        if (responsePayload.created === false) {
+          reusedCount += 1;
+        } else {
+          createdCount += 1;
+        }
       }
 
       if (rememberMe) {
         rememberProfile(form, groupMode, groupMode ? names : []);
-        if (createdSignIns.length > 1) {
-          writeRememberedWorkerGroup(createdSignIns);
+        if (submittedSignIns.length > 1) {
+          writeRememberedWorkerGroup(submittedSignIns);
         } else {
           clearRememberedWorkerGroup();
         }
@@ -1300,17 +1314,21 @@ export function WorkerSignInPage() {
       }
       setGroupNames([]);
       setGroupNameDraft("");
+      const statusParts = [];
+      if (createdCount) statusParts.push(`${createdCount} new`);
+      if (reusedCount) statusParts.push(`${reusedCount} already signed in`);
+      const statusSuffix = statusParts.length ? ` (${statusParts.join(", ")})` : "";
       setStatus({
         type: "success",
-        message: `${names.length === 1 ? "Sign-in" : `${names.length} sign-ins`} submitted - ${formatShortDate(
-          createdSignIns[createdSignIns.length - 1],
+        message: `${names.length === 1 ? "Sign-in" : `${names.length} sign-ins`} submitted${statusSuffix} - ${formatShortDate(
+          submittedSignIns[submittedSignIns.length - 1],
           "sign_in_date_vancouver",
           "signed_in_at",
         )}`,
       });
     } catch (error) {
-      const partialMessage = createdSignIns.length
-        ? `${createdSignIns.length} sign-ins were saved before this error. `
+      const partialMessage = submittedSignIns.length
+        ? `${submittedSignIns.length} sign-ins were saved or already open before this error. `
         : "";
       setStatus({ type: "error", message: `${partialMessage}${error.message}` });
     } finally {
@@ -1336,7 +1354,7 @@ export function WorkerSignInPage() {
                 <span>Name</span>
                 {groupMode ? (
                   <div className="group-name-entry">
-                    {groupNames.map((name, index) => (
+                    {displayGroupNames.map((name, index) => (
                       <button
                         aria-label={`Remove ${name}`}
                         className="group-name-chip"
@@ -1349,7 +1367,7 @@ export function WorkerSignInPage() {
                       </button>
                     ))}
                     <input
-                      required={groupNames.length === 0}
+                      required={displayGroupNames.length === 0}
                       autoComplete="off"
                       aria-label="Worker name"
                       placeholder="Type name, press enter or comma"
@@ -9757,7 +9775,12 @@ function TemplateRuntimeSections({
     <div className="template-runtime-section-grid">
       {visibleSections.map((section) => (
         <section
-          className={["toolbox-section", templateLayoutWidthClass(section)].filter(Boolean).join(" ")}
+          className={[
+            "toolbox-section",
+            section.id ? `template-section-${slugifyTemplateId(section.id)}` : "",
+            templateLayoutWidthClass(section),
+          ].filter(Boolean).join(" ")}
+          data-template-section-id={section.id || undefined}
           key={section.id}
         >
           <div className="toolbox-section-heading">
@@ -9770,9 +9793,11 @@ function TemplateRuntimeSections({
               <div
                 className={[
                   "template-runtime-field-shell",
+                  field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
                   field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
                   templateLayoutWidthClass(field),
                 ].filter(Boolean).join(" ")}
+                data-template-field-id={field.id || undefined}
                 key={field.id}
               >
                 <TemplateRuntimeField
@@ -11154,14 +11179,12 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
             <p>{row.worker_name} / {row.company}</p>
           </div>
           <div className="dialog-heading-actions">
-            {digitalFormData ? (
-              <DigitalFormActions
-                className="digital-form-actions dialog-digital-form-actions"
-                data={digitalFormData}
-                exportRef={exportSurfaceRef}
-                row={row}
-              />
-            ) : null}
+            <DigitalFormActions
+              className="digital-form-actions dialog-digital-form-actions"
+              data={digitalFormData}
+              exportRef={exportSurfaceRef}
+              row={row}
+            />
             <button aria-label="Close" type="button" onClick={onClose}>X</button>
           </div>
         </div>
@@ -13170,13 +13193,23 @@ function clearRememberedWorkerGroup() {
 }
 
 function normalizeGroupNameEntries(entries) {
+  const seen = new Set();
   return entries
     .flatMap((entry) =>
       String(entry || "")
         .split(",")
         .map((name) => name.trim()),
     )
-    .filter(Boolean);
+    .filter((name) => {
+      const key = normalizeWorkerSignInIdentity(name);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function normalizeWorkerSignInIdentity(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
 function normalizeRememberedWorkerGroup(payload) {
@@ -15676,13 +15709,15 @@ function printHtmlInHiddenFrame(html) {
 function digitalFormTitle(row, data) {
   if (data?.kind === "template_submission_v1") return digitalTemplateFormTitle(row, data);
   if (data?.kind === "site_inspection_v1") return digitalSiteInspectionTitle(row, data);
-  return digitalToolboxTalkTitle(row, data);
+  if (data?.kind === "toolbox_talk_v1") return digitalToolboxTalkTitle(row, data);
+  return genericSubmissionTitle(row);
 }
 
 function digitalFormFileName(row, data) {
   if (data?.kind === "template_submission_v1") return digitalTemplateFormFileName(row, data);
   if (data?.kind === "site_inspection_v1") return digitalSiteInspectionFileName(row, data);
-  return digitalToolboxTalkFileName(row, data);
+  if (data?.kind === "toolbox_talk_v1") return digitalToolboxTalkFileName(row, data);
+  return genericSubmissionFileName(row);
 }
 
 function digitalFormExportFileName(row, data, extension) {
@@ -15692,7 +15727,87 @@ function digitalFormExportFileName(row, data, extension) {
 function buildDigitalFormHtml(row, data, options = {}) {
   if (data?.kind === "template_submission_v1") return buildDigitalTemplateFormHtml(row, data, options);
   if (data?.kind === "site_inspection_v1") return buildDigitalSiteInspectionHtml(row, data, options);
-  return buildDigitalToolboxTalkHtml(row, data, options);
+  if (data?.kind === "toolbox_talk_v1") return buildDigitalToolboxTalkHtml(row, data, options);
+  return buildGenericSubmissionHtml(row, options);
+}
+
+function genericSubmissionTitle(row) {
+  const date = row?.submitted_date_vancouver
+    ? formatDateString(row.submitted_date_vancouver)
+    : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
+  return `${formTypeLabel(row?.form_type)} - ${row?.company || "Company"} - ${date}`;
+}
+
+function genericSubmissionFileName(row) {
+  const rawDate = row?.submitted_date_vancouver || todayInVancouver();
+  return `${slugifyFilePart(row?.company || "company")}-${slugifyFilePart(formTypeLabel(row?.form_type))}-${slugifyFilePart(rawDate)}.html`;
+}
+
+function buildGenericSubmissionHtml(row, options = {}) {
+  const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
+  const title = genericSubmissionTitle(row);
+  const files = Array.isArray(row?.files) ? row.files : [];
+  const fileRows = files.length
+    ? files.map((file) => `
+        <div>
+          <dt>${escapeHtml(file.original_filename || "Attachment")}</dt>
+          <dd>${escapeHtml(formatFileSize(file.size_bytes))} / ${escapeHtml(backupStatusLabel(file.backup_status))}</dd>
+        </div>`).join("")
+    : definitionHtml("Files", "-");
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      :root { color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f4f7f6; color: #17211f; }
+      main { max-width: 840px; margin: 0 auto; padding: 28px; background: #fff; }
+      header { display: grid; gap: 6px; border-bottom: 2px solid #173b38; padding-bottom: 16px; margin-bottom: 18px; }
+      .brand { color: #173b38; font-size: 0.86rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: 2rem; line-height: 1.1; }
+      h2 { margin: 18px 0 10px; font-size: 1.2rem; }
+      p { margin: 0; }
+      dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
+      dt { color: #5f6f6b; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+      dd { margin: 3px 0 0; font-weight: 750; overflow-wrap: anywhere; }
+      .print-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+      .print-actions button { min-height: 40px; border: 1px solid #cbded7; border-radius: 8px; padding: 0 14px; background: #fff; font: inherit; font-weight: 750; }
+      @page { size: letter portrait; margin: 0.3in; }
+      @media print {
+        body { background: #fff; }
+        main { max-width: none; padding: 0; }
+        .print-actions { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="print-actions">
+        <button onclick="window.print()">Print</button>
+      </div>
+      <header>
+        <p class="brand">APPIA</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
+        ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
+      </header>
+      <dl>
+        ${definitionHtml("Phone", row?.worker_phone || "-")}
+        ${definitionHtml("Username", row?.worker_username || "-")}
+        ${definitionHtml("Mode", submissionModeLabel(row?.submission_mode))}
+        ${definitionHtml("Backup", backupStatusLabel(row?.one_drive_backup_status))}
+        ${row?.notes ? definitionHtml("Notes", row.notes) : ""}
+      </dl>
+      <h2>Files</h2>
+      <dl>${fileRows}</dl>
+    </main>
+    ${options.autoPrint ? "<script>window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });</script>" : ""}
+  </body>
+</html>`;
 }
 
 function downloadBlob(blob, fileName) {

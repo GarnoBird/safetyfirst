@@ -39,20 +39,74 @@ export function cleanSignInInput(body) {
 export async function createWorkerSignIn(body) {
   const cleaned = cleanSignInInput(body);
   const now = new Date();
+  const signInDate = getVancouverDate(now);
+  const existingSignIn = await findOpenWorkerSignInByIdentity({
+    date: signInDate,
+    name: cleaned.name,
+    company: cleaned.company,
+  });
+  if (existingSignIn) return { signIn: existingSignIn, created: false };
+
   const row = {
     ...cleaned,
     signed_in_at: now.toISOString(),
-    sign_in_date_vancouver: getVancouverDate(now),
+    sign_in_date_vancouver: signInDate,
   };
 
-  return throwIfSupabaseError(
+  const result = await getSupabaseServiceClient()
+    .from("worker_signins")
+    .insert(row)
+    .select(WORKER_SIGNIN_SELECT)
+    .single();
+
+  if (!result.error) return { signIn: result.data, created: true };
+
+  if (isOpenWorkerSignInDedupeConflict(result.error)) {
+    const racedSignIn = await findOpenWorkerSignInByIdentity({
+      date: signInDate,
+      name: cleaned.name,
+      company: cleaned.company,
+    });
+    if (racedSignIn) return { signIn: racedSignIn, created: false };
+  }
+
+  return {
+    signIn: throwIfSupabaseError(result, "Worker sign-in could not be saved."),
+    created: true,
+  };
+}
+
+export function normalizeWorkerSignInIdentity(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+async function findOpenWorkerSignInByIdentity({ date, name, company }) {
+  const normalizedName = normalizeWorkerSignInIdentity(name);
+  const normalizedCompany = normalizeWorkerSignInIdentity(company);
+  if (!date || !normalizedName || !normalizedCompany) return null;
+
+  const rows = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("worker_signins")
-      .insert(row)
       .select(WORKER_SIGNIN_SELECT)
-      .single(),
-    "Worker sign-in could not be saved.",
+      .eq("sign_in_date_vancouver", date)
+      .is("signed_out_at", null)
+      .order("signed_in_at", { ascending: true })
+      .order("id", { ascending: true }),
+    "Worker sign-in could not be loaded.",
   );
+
+  return (
+    rows.find(
+      (row) =>
+        normalizeWorkerSignInIdentity(row.name) === normalizedName &&
+        normalizeWorkerSignInIdentity(row.company) === normalizedCompany,
+    ) || null
+  );
+}
+
+function isOpenWorkerSignInDedupeConflict(error) {
+  return error?.code === "23505";
 }
 
 export function setWorkerSignInCookie(res, signInId) {

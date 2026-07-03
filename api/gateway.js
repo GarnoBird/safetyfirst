@@ -1033,9 +1033,9 @@ async function handleWorker(req, res, parts) {
 
 async function handleWorkerSignIns(req, res) {
   if (req.method !== "POST") return sendMethodNotAllowed(res, ["POST"]);
-  const signIn = await createWorkerSignIn(await readJson(req));
+  const { signIn, created } = await createWorkerSignIn(await readJson(req));
   setWorkerSignInCookie(res, signIn.id);
-  return sendJson(res, 201, { signIn });
+  return sendJson(res, created ? 201 : 200, { signIn, created });
 }
 
 async function handleWorkerSignOut(req, res) {
