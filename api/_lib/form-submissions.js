@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { Resend } from "resend";
 import {
   createDraftActionItemsFromSiteInspection,
   createDraftActionItemsFromTemplateActionRows,
@@ -17,6 +18,7 @@ import {
   getPublishedWorkerFormTemplate,
   validateTemplateSubmissionFormData,
 } from "./form-templates.js";
+import { getRequiredEnv } from "./http.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
 import { isOneDriveBackupEnabled } from "./settings.js";
 import {
@@ -38,6 +40,8 @@ const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 const MAX_FORM_TEXT_LENGTH = 600;
 const MAX_FORM_LONG_TEXT_LENGTH = 4000;
 const MAX_STAFF_SIGNATURE_DATA_URL_LENGTH = 750000;
+const MAX_SUBMISSION_EMAIL_PDF_BYTES = 18 * 1024 * 1024;
+const STAFF_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STAFF_SIGNATURE_DATA_URL_PATTERN = /^data:image\/png;base64,[A-Za-z0-9+/=]+$/;
 const MAX_TOOLBOX_TOPICS = 80;
 const MAX_TOOLBOX_ROWS = 80;
@@ -776,6 +780,40 @@ export async function appendStaffSubmissionSignoff(staff, submissionId, body = {
     if (!isSupabaseMissingRelationError(error)) throw error;
     return appendFallbackStaffSubmissionSignoff(staff, id, signoff);
   }
+}
+
+export async function emailStaffSubmissionPdf(staff, submissionId, body = {}) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  const recipientEmail = cleanStaffEmail(staff?.email);
+  const submission = await getSubmissionById(id, { includeDeleted: true });
+  const attachment = cleanSubmissionEmailPdfAttachment(body, submission);
+  assertSubmissionEmailConfig();
+
+  const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
+  const from = getRequiredEnv("REPORT_FROM_EMAIL");
+  const subject = `${submissionEmailTitle(submission)} PDF`;
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [recipientEmail],
+    subject,
+    html: submissionPdfEmailHtml(submission, staff),
+    attachments: [
+      {
+        filename: attachment.fileName,
+        content: attachment.content,
+        contentType: "application/pdf",
+      },
+    ],
+  });
+
+  if (error) throw createSubmissionEmailSendError(error);
+
+  return {
+    emailId: data?.id || null,
+    fileName: attachment.fileName,
+    recipientEmail,
+    sizeBytes: attachment.sizeBytes,
+  };
 }
 
 export async function retrySubmissionBackup(id) {
@@ -2570,6 +2608,14 @@ function cleanText(value, maxLength) {
   return String(value || "").trim().slice(0, maxLength);
 }
 
+function cleanStaffEmail(value) {
+  const email = cleanText(value, 320).toLowerCase();
+  if (!email || !STAFF_EMAIL_PATTERN.test(email)) {
+    throwBadRequest("Your staff account does not have a valid email address.");
+  }
+  return email;
+}
+
 function cleanStaffSignatureDataUrl(value) {
   const signature = String(value || "").trim();
   if (!signature) throwBadRequest("Staff signature is required.");
@@ -2580,6 +2626,116 @@ function cleanStaffSignatureDataUrl(value) {
     throwBadRequest("Staff signature must be a valid PNG signature.");
   }
   return signature;
+}
+
+function cleanSubmissionEmailPdfAttachment(body, submission) {
+  const raw = String(
+    body.pdfDataUrl ||
+      body.pdf_data_url ||
+      body.pdfBase64 ||
+      body.pdf_base64 ||
+      "",
+  ).trim();
+  if (!raw) throwBadRequest("Form PDF is required.");
+
+  const base64 = raw
+    .replace(/^data:application\/pdf(?:;charset=[^;]+)?;base64,/i, "")
+    .replace(/\s+/g, "");
+  if (!base64 || !/^[A-Za-z0-9+/=]+$/.test(base64)) {
+    throwBadRequest("Form PDF must be a valid base64 PDF.");
+  }
+
+  const buffer = Buffer.from(base64, "base64");
+  if (buffer.length < 20 || buffer.subarray(0, 4).toString("utf8") !== "%PDF") {
+    throwBadRequest("Form PDF must be a valid PDF file.");
+  }
+  if (buffer.length > MAX_SUBMISSION_EMAIL_PDF_BYTES) {
+    throwBadRequest("Form PDF is too large to email.");
+  }
+
+  const requestedName = cleanText(body.fileName || body.filename, 180);
+  const fallbackName = `${sanitizeStorageFilename(submissionEmailTitle(submission))}.pdf`;
+  const fileName = sanitizeStorageFilename(requestedName || fallbackName).replace(/\.pdf$/i, "") + ".pdf";
+  return {
+    content: buffer.toString("base64"),
+    fileName,
+    sizeBytes: buffer.length,
+  };
+}
+
+function assertSubmissionEmailConfig() {
+  const missing = ["RESEND_API_KEY", "REPORT_FROM_EMAIL"].filter((name) => !process.env[name]);
+  if (!missing.length) return;
+
+  const error = new Error(`Email is not configured yet. Missing: ${missing.join(", ")}.`);
+  error.statusCode = 503;
+  error.exposeMessage = true;
+  throw error;
+}
+
+function createSubmissionEmailSendError(providerError) {
+  const providerMessage = cleanText(providerError?.message || "", 280);
+  const message = providerMessage
+    ? `Form email could not be sent. Email provider said: ${providerMessage}`
+    : "Form email could not be sent.";
+
+  console.error("Submitted form email send failed", {
+    providerName: providerError?.name,
+    providerStatusCode: providerError?.statusCode,
+    providerMessage,
+  });
+
+  const error = new Error(message);
+  error.statusCode = 502;
+  error.exposeMessage = true;
+  error.cause = providerError;
+  return error;
+}
+
+function submissionEmailTitle(submission) {
+  const schemaTitle = cleanText(
+    submission?.form_schema_snapshot?.title ||
+      submission?.form_data?.schemaSnapshot?.title ||
+      "",
+    MAX_FORM_TEXT_LENGTH,
+  );
+  const formTitle = schemaTitle || humanizeFormType(submission?.form_type);
+  return [formTitle || "Submitted Form", submission?.worker_name, submission?.company]
+    .filter(Boolean)
+    .map((part) => cleanText(part, 120))
+    .join(" - ");
+}
+
+function humanizeFormType(value) {
+  return cleanText(value, 120)
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function submissionPdfEmailHtml(submission, staff) {
+  const title = submissionEmailTitle(submission);
+  const submitted = cleanText(submission?.submitted_at || "", 80);
+  const reviewer = cleanText(staff?.display_name || staff?.username || "Staff", MAX_FORM_TEXT_LENGTH);
+  return `
+    <p>${escapeEmailHtml(reviewer)},</p>
+    <p>The submitted form PDF is attached.</p>
+    <dl>
+      <dt>Form</dt><dd>${escapeEmailHtml(title)}</dd>
+      <dt>Worker</dt><dd>${escapeEmailHtml(submission?.worker_name || "-")}</dd>
+      <dt>Company</dt><dd>${escapeEmailHtml(submission?.company || "-")}</dd>
+      ${submitted ? `<dt>Submitted</dt><dd>${escapeEmailHtml(submitted)}</dd>` : ""}
+    </dl>
+  `;
+}
+
+function escapeEmailHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function cleanDate(value, label) {

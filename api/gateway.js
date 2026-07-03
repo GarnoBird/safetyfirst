@@ -32,6 +32,7 @@ import {
   deleteStaffSubmissions,
   createWorkerSubmission,
   deleteWorkerSubmission,
+  emailStaffSubmissionPdf,
   getSubmissionById,
   listStaffSubmissions,
   listWorkerSubmissions,
@@ -759,6 +760,23 @@ async function handleStaffSubmissions(req, res, staff, parts) {
       },
     });
     return sendJson(res, 200, { submission });
+  }
+  if (parts.length === 2 && parts[1] === "email" && req.method === "POST") {
+    const result = await emailStaffSubmissionPdf(staff, parts[0], await readJson(req));
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submission_pdf_emailed",
+      targetType: "submission",
+      targetId: parts[0],
+      summary: `${staff.username} emailed a submitted form PDF.`,
+      metadata: {
+        fileName: result.fileName,
+        recipientEmail: result.recipientEmail,
+        sizeBytes: result.sizeBytes,
+      },
+    });
+    return sendJson(res, 200, result);
   }
   if (parts.length === 1 && req.method === "DELETE") {
     requireStaffRole(staff, ["owner", "admin"]);

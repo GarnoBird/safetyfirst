@@ -6811,6 +6811,22 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
     }
   };
 
+  const emailFormPdf = async () => {
+    if (!row) return;
+    setActiveExport("email");
+    setExportStatus("");
+    setMoreOpen(false);
+    setDownloadOpen(false);
+    try {
+      const result = await emailDigitalFormPdf(row, digitalFormData, exportSurfaceRef);
+      setExportStatus(`PDF emailed to ${result.recipientEmail || staff.email}.`);
+    } catch (error) {
+      setExportStatus(error.message || "This form could not be emailed.");
+    } finally {
+      setActiveExport("");
+    }
+  };
+
   const openSignDialog = () => {
     setMoreOpen(false);
     setSignDialogOpen(true);
@@ -6889,9 +6905,9 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
                     <ToolbarIcon type="print" />
                     <span>{activeExport === "print" ? "Opening..." : "Print"}</span>
                   </button>
-                  <button disabled role="menuitem" title="Email is not available yet." type="button">
+                  <button disabled={activeExport === "email"} role="menuitem" type="button" onClick={emailFormPdf}>
                     <ToolbarIcon type="email" />
-                    <span>Email</span>
+                    <span>{activeExport === "email" ? "Emailing..." : "Email"}</span>
                   </button>
                 </div>
               ) : null}
@@ -16332,6 +16348,26 @@ async function downloadDigitalFormPng(row, data, exportTarget) {
 }
 
 async function downloadDigitalFormPdf(row, data, exportTarget) {
+  const { pdf } = await createDigitalFormPdf(row, data, exportTarget);
+  pdf.save(digitalFormExportFileName(row, data, "pdf"));
+}
+
+async function emailDigitalFormPdf(row, data, exportTarget) {
+  const { fileName, pdf } = await createDigitalFormPdf(row, data, exportTarget);
+  const pdfBlob = pdf.output("blob");
+  const pdfDataUrl = await blobToDataUrl(pdfBlob);
+  return await readApiJson(
+    await fetch(`/api/staff/submissions/${row.id}/email`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ fileName, pdfDataUrl }),
+    }),
+  );
+}
+
+async function createDigitalFormPdf(row, data, exportTarget) {
+  let builtPdf = null;
   await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
     const canvas = await captureDigitalFormElement(element);
     const imageData = canvas.toDataURL("image/png");
@@ -16352,14 +16388,29 @@ async function downloadDigitalFormPdf(row, data, exportTarget) {
       offset += printableHeight;
     }
 
-    pdf.save(digitalFormExportFileName(row, data, "pdf"));
+    builtPdf = pdf;
   });
+
+  if (!builtPdf) throw new Error("This form PDF could not be created.");
+  return {
+    fileName: digitalFormExportFileName(row, data, "pdf"),
+    pdf: builtPdf,
+  };
 }
 
 async function printDigitalForm(row, data, exportTarget) {
   await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
     const html = buildDigitalFormPrintHtmlFromElement(row, data, element);
     await printHtmlInHiddenFrame(html);
+  });
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result || "")), { once: true });
+    reader.addEventListener("error", () => reject(reader.error || new Error("The PDF could not be read.")), { once: true });
+    reader.readAsDataURL(blob);
   });
 }
 
