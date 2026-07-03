@@ -1,4 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 
 const STAFF_SORT_LABELS = {
@@ -11105,6 +11107,7 @@ function FormSubmissionsTable({
 
 function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingId, row }) {
   const files = row.files || [];
+  const exportSurfaceRef = useRef(null);
   const [filePreview, setFilePreview] = useState(null);
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
@@ -11155,85 +11158,93 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
               <DigitalFormActions
                 className="digital-form-actions dialog-digital-form-actions"
                 data={digitalFormData}
+                exportRef={exportSurfaceRef}
                 row={row}
               />
             ) : null}
             <button aria-label="Close" type="button" onClick={onClose}>X</button>
           </div>
         </div>
-        <dl className="staff-detail-list">
-          <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
-          <div><dt>Phone</dt><dd>{row.worker_phone}</dd></div>
-          <div><dt>Username</dt><dd>{row.worker_username}</dd></div>
-          <div><dt>Mode</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
-          <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
-          {row.backup_error ? <div><dt>Backup error</dt><dd>{row.backup_error}</dd></div> : null}
-          {row.one_drive_web_url ? (
-            <div><dt>OneDrive</dt><dd><a href={row.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a></dd></div>
+        <div className="submission-export-surface" ref={exportSurfaceRef}>
+          <div className="submission-export-heading">
+            <p>APPIA</p>
+            <h2>{formTypeLabel(row.form_type)}</h2>
+            <strong>{row.worker_name} / {row.company}</strong>
+          </div>
+          <dl className="staff-detail-list">
+            <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+            <div><dt>Phone</dt><dd>{row.worker_phone}</dd></div>
+            <div><dt>Username</dt><dd>{row.worker_username}</dd></div>
+            <div><dt>Mode</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
+            <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
+            {row.backup_error ? <div><dt>Backup error</dt><dd>{row.backup_error}</dd></div> : null}
+            {row.one_drive_web_url ? (
+              <div><dt>OneDrive</dt><dd><a href={row.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a></dd></div>
+            ) : null}
+            {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
+          </dl>
+          {isDigitalToolboxTalkSubmission(row) ? (
+            <ToolboxTalkSubmissionDetails
+              data={row.form_data}
+              filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+              row={row}
+              showActions={false}
+            />
           ) : null}
-          {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
-        </dl>
-        {isDigitalToolboxTalkSubmission(row) ? (
-          <ToolboxTalkSubmissionDetails
-            data={row.form_data}
-            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
-            row={row}
-            showActions={false}
-          />
-        ) : null}
-        {isDigitalSiteInspectionSubmission(row) ? (
-          <SiteInspectionSubmissionDetails
-            data={row.form_data}
-            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
-            row={row}
-            showActions={false}
-          />
-        ) : null}
-        {isTemplateDigitalSubmission(row) ? (
-          <TemplateSubmissionDetails
-            data={row.form_data}
-            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
-            row={row}
-            showActions={false}
-          />
-        ) : null}
-        {row.action_items?.length ? (
-          <div className="submission-action-items">
-            <h3>Linked Action Items</h3>
-            {row.action_items.map((item) => (
-              <div className="submission-action-item-row" key={item.id}>
-                <div>
-                  <strong>{item.title || item.description || "Action item"}</strong>
-                  <span>{item.assigned_to || item.suggested_assignee || "Unassigned"}</span>
+          {isDigitalSiteInspectionSubmission(row) ? (
+            <SiteInspectionSubmissionDetails
+              data={row.form_data}
+              filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+              row={row}
+              showActions={false}
+            />
+          ) : null}
+          {isTemplateDigitalSubmission(row) ? (
+            <TemplateSubmissionDetails
+              data={row.form_data}
+              filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+              row={row}
+              showActions={false}
+            />
+          ) : null}
+          {row.action_items?.length ? (
+            <div className="submission-action-items">
+              <h3>Linked Action Items</h3>
+              {row.action_items.map((item) => (
+                <div className="submission-action-item-row" key={item.id}>
+                  <div>
+                    <strong>{item.title || item.description || "Action item"}</strong>
+                    <span>{item.assigned_to || item.suggested_assignee || "Unassigned"}</span>
+                  </div>
+                  <StatusPill value={actionItemStatusLabel(item.status)} />
+                  <StatusPill value={priorityLabel(item.priority)} />
                 </div>
-                <StatusPill value={actionItemStatusLabel(item.status)} />
-                <StatusPill value={priorityLabel(item.priority)} />
-              </div>
-            ))}
-          </div>
-        ) : null}
-        {files.length ? (
-          <div className="submission-file-list">
-            <h3>Files</h3>
-            {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
-            {files.map((file) => (
-              <div className="submission-file-row" key={file.id}>
-                <button
-                  className="submission-file-name-button"
-                  disabled={previewLoadingId === file.id}
-                  type="button"
-                  onClick={() => openFilePreview(file)}
-                >
-                  {previewLoadingId === file.id ? "Opening..." : file.original_filename}
-                </button>
-                <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
-                {file.one_drive_web_url ? (
-                  <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open</a>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : null}
+              ))}
+            </div>
+          ) : null}
+          {files.length ? (
+            <div className="submission-file-list">
+              <h3>Files</h3>
+              {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
+              {files.map((file) => (
+                <div className="submission-file-row" key={file.id}>
+                  <button
+                    className="submission-file-name-button"
+                    disabled={previewLoadingId === file.id}
+                    type="button"
+                    onClick={() => openFilePreview(file)}
+                  >
+                    {previewLoadingId === file.id ? "Opening..." : file.original_filename}
+                  </button>
+                  <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
+                  {file.one_drive_web_url ? (
+                    <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open</a>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
         {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
           <button
             className="primary-button"
@@ -11603,34 +11614,45 @@ function TemplateSubmissionDetails({ data, filePreviewContext, row, showActions 
   );
 }
 
-function DigitalFormActions({ className = "digital-form-actions", data, row }) {
-  const [saveStatus, setSaveStatus] = useState("");
-  const [saving, setSaving] = useState(false);
+function DigitalFormActions({ className = "digital-form-actions", data, exportRef, row }) {
+  const [exportStatus, setExportStatus] = useState("");
+  const [activeExport, setActiveExport] = useState("");
 
-  const saveForm = async () => {
-    setSaving(true);
-    setSaveStatus("");
+  const runExport = async (type) => {
+    setActiveExport(type);
+    setExportStatus("");
     try {
-      const shared = await shareOrSaveDigitalForm(row, data);
-      if (!shared) setSaveStatus("Saved as an HTML file.");
+      if (type === "pdf") {
+        await downloadDigitalFormPdf(row, data, exportRef);
+        setExportStatus("PDF saved.");
+      } else if (type === "png") {
+        await downloadDigitalFormPng(row, data, exportRef);
+        setExportStatus("PNG saved.");
+      } else {
+        await printDigitalForm(row, data, exportRef);
+        setExportStatus("Print dialog opened.");
+      }
     } catch (error) {
       if (error.name !== "AbortError") {
-        setSaveStatus(error.message || "This form could not be saved.");
+        setExportStatus(error.message || "This form could not be exported.");
       }
     } finally {
-      setSaving(false);
+      setActiveExport("");
     }
   };
 
   return (
     <div className={className}>
-      <button disabled={saving} type="button" onClick={saveForm}>
-        {saving ? "Opening..." : "Save"}
+      <button disabled={Boolean(activeExport)} type="button" onClick={() => runExport("pdf")}>
+        {activeExport === "pdf" ? "Saving..." : "PDF"}
       </button>
-      <button type="button" onClick={() => printDigitalForm(row, data)}>
-        Print
+      <button disabled={Boolean(activeExport)} type="button" onClick={() => runExport("png")}>
+        {activeExport === "png" ? "Saving..." : "PNG"}
       </button>
-      {saveStatus ? <p>{saveStatus}</p> : null}
+      <button disabled={Boolean(activeExport)} type="button" onClick={() => runExport("print")}>
+        {activeExport === "print" ? "Opening..." : "Print"}
+      </button>
+      {exportStatus ? <p>{exportStatus}</p> : null}
     </div>
   );
 }
@@ -15449,36 +15471,206 @@ function printSubmissionAttachment(preview) {
   printWindow.focus();
 }
 
-async function shareOrSaveDigitalForm(row, data) {
-  const fileName = digitalFormFileName(row, data);
-  const html = buildDigitalFormHtml(row, data);
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-
-  if (navigator.share && typeof File !== "undefined") {
-    const file = new File([blob], fileName, { type: "text/html" });
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: digitalFormTitle(row, data),
-      });
-      return true;
-    }
-  }
-
-  downloadBlob(blob, fileName);
-  return false;
+async function downloadDigitalFormPng(row, data, exportTarget) {
+  await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
+    const canvas = await captureDigitalFormElement(element);
+    const blob = await canvasToBlob(canvas, "image/png");
+    downloadBlob(blob, digitalFormExportFileName(row, data, "png"));
+  });
 }
 
-function printDigitalForm(row, data) {
-  const printWindow = window.open("", "_blank", "width=900,height=1100");
-  const html = buildDigitalFormHtml(row, data, { autoPrint: true });
-  if (!printWindow) {
-    downloadBlob(new Blob([html], { type: "text/html;charset=utf-8" }), digitalFormFileName(row, data));
-    return;
+async function downloadDigitalFormPdf(row, data, exportTarget) {
+  await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
+    const canvas = await captureDigitalFormElement(element);
+    const imageData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 28;
+    const imageWidth = pageWidth - margin * 2;
+    const imageHeight = (canvas.height * imageWidth) / canvas.width;
+    const printableHeight = pageHeight - margin * 2;
+    let remainingHeight = imageHeight;
+    let offset = 0;
+
+    while (remainingHeight > 0) {
+      if (offset > 0) pdf.addPage();
+      pdf.addImage(imageData, "PNG", margin, margin - offset, imageWidth, imageHeight);
+      remainingHeight -= printableHeight;
+      offset += printableHeight;
+    }
+
+    pdf.save(digitalFormExportFileName(row, data, "pdf"));
+  });
+}
+
+async function printDigitalForm(row, data, exportTarget) {
+  await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
+    const html = buildDigitalFormPrintHtmlFromElement(row, data, element);
+    await printHtmlInHiddenFrame(html);
+  });
+}
+
+async function withDigitalFormExportElement(row, data, exportTarget, callback) {
+  const existingElement = exportTarget?.current || exportTarget;
+  if (existingElement) return await callback(existingElement);
+
+  const temporary = createTemporaryDigitalFormExportElement(row, data);
+  try {
+    return await callback(temporary.element);
+  } finally {
+    temporary.cleanup();
   }
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
+}
+
+function createTemporaryDigitalFormExportElement(row, data) {
+  const html = buildDigitalFormHtml(row, data);
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  const wrapper = document.createElement("div");
+  wrapper.className = "digital-export-temporary-root";
+  wrapper.setAttribute("aria-hidden", "true");
+  wrapper.style.position = "absolute";
+  wrapper.style.left = "-10000px";
+  wrapper.style.top = "0";
+  wrapper.style.width = "980px";
+  wrapper.style.background = "#fff";
+  parsed.querySelectorAll("style").forEach((style) => {
+    wrapper.appendChild(style.cloneNode(true));
+  });
+  const element = parsed.querySelector("main") || parsed.body;
+  const clone = element.cloneNode(true);
+  clone.querySelectorAll(".print-actions").forEach((node) => node.remove());
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+  return {
+    element: clone,
+    cleanup: () => wrapper.remove(),
+  };
+}
+
+async function captureDigitalFormElement(element) {
+  if (!element) throw new Error("This form could not be prepared for export.");
+  await document.fonts?.ready;
+  await waitForExportImages(element);
+  const previousWidth = element.style.width;
+  if (!previousWidth && element.scrollWidth < 760) {
+    element.style.width = "760px";
+  }
+  try {
+    return await html2canvas(element, {
+      backgroundColor: "#ffffff",
+      logging: false,
+      scale: Math.min(2, window.devicePixelRatio || 1.5),
+      useCORS: true,
+      windowHeight: element.scrollHeight,
+      windowWidth: element.scrollWidth,
+    });
+  } finally {
+    element.style.width = previousWidth;
+  }
+}
+
+function waitForExportImages(element) {
+  const images = [...element.querySelectorAll("img")];
+  return Promise.all(
+    images.map((image) => {
+      if (image.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      });
+    }),
+  );
+}
+
+function canvasToBlob(canvas, type) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("This form image could not be created."));
+    }, type);
+  });
+}
+
+function buildDigitalFormPrintHtmlFromElement(row, data, element) {
+  const clone = element.cloneNode(true);
+  clone.querySelectorAll("button").forEach((button) => {
+    const span = document.createElement("span");
+    span.className = button.className;
+    span.textContent = button.textContent || "";
+    button.replaceWith(span);
+  });
+  const styles = [...document.querySelectorAll('style, link[rel="stylesheet"]')]
+    .map((node) => node.outerHTML)
+    .join("\n");
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(digitalFormTitle(row, data))}</title>
+    ${styles}
+    <style>
+      body { margin: 0; background: #fff; color: #17211f; }
+      .submission-export-surface { max-width: none; padding: 18px; background: #fff; }
+      .toolbox-detail { margin-top: 12px; }
+      @page { size: letter portrait; margin: 0.28in; }
+      @media print {
+        body { background: #fff; }
+        .submission-export-surface { padding: 0; }
+        .submission-file-name-button { border: 0; padding: 0; background: transparent; color: #17211f; }
+      }
+    </style>
+  </head>
+  <body>
+    ${clone.outerHTML}
+  </body>
+</html>`;
+}
+
+function printHtmlInHiddenFrame(html) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement("iframe");
+    let settled = false;
+    const cleanup = () => {
+      window.setTimeout(() => iframe.remove(), 1500);
+    };
+    iframe.title = "Submitted form print";
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    iframe.style.opacity = "0";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      iframe.remove();
+      reject(new Error("The print frame could not be opened."));
+      return;
+    }
+    doc.open();
+    doc.write(html);
+    doc.close();
+    window.setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        if (!settled) {
+          settled = true;
+          resolve();
+        }
+        cleanup();
+      } catch (error) {
+        if (!settled) {
+          settled = true;
+          reject(error);
+        }
+        cleanup();
+      }
+    }, 650);
+  });
 }
 
 function digitalFormTitle(row, data) {
@@ -15491,6 +15683,10 @@ function digitalFormFileName(row, data) {
   if (data?.kind === "template_submission_v1") return digitalTemplateFormFileName(row, data);
   if (data?.kind === "site_inspection_v1") return digitalSiteInspectionFileName(row, data);
   return digitalToolboxTalkFileName(row, data);
+}
+
+function digitalFormExportFileName(row, data, extension) {
+  return digitalFormFileName(row, data).replace(/\.html$/i, `.${extension}`);
 }
 
 function buildDigitalFormHtml(row, data, options = {}) {

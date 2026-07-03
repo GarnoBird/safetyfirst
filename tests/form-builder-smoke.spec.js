@@ -116,6 +116,9 @@ const toolboxSignatureSchema = {
   sections: [requiredSignatureSection, optionalMediaSection],
 };
 
+const smokeSignatureDataUrl =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
 const toolboxAttendanceSchema = {
   schemaVersion: 1,
   formType: "toolbox_talk",
@@ -449,8 +452,9 @@ const legacyStyleSchema = {
   ],
 };
 
-async function mockApis(page, templates) {
+async function mockApis(page, templates, options = {}) {
   const templatesByType = new Map(templates.map((row) => [row.form_type, row]));
+  const staffSubmissions = options.staffSubmissions || [];
   const submissions = [];
   let uploadCount = 0;
   await page.route("**/api/**", async (route) => {
@@ -471,6 +475,25 @@ async function mockApis(page, templates) {
       return route.fulfill({ status: 200, body: "" });
     }
     if (path === "/api/staff/form-templates" && method === "GET") return json({ rows: templates });
+    if (path === "/api/staff/submissions" && method === "GET") {
+      return json({
+        rows: staffSubmissions,
+        sort: url.searchParams.get("sort") || "submitted_at",
+        dir: url.searchParams.get("dir") || "desc",
+      });
+    }
+    const staffSubmissionParts = path.split("/").filter(Boolean);
+    if (
+      method === "GET" &&
+      staffSubmissionParts.length === 4 &&
+      staffSubmissionParts[0] === "api" &&
+      staffSubmissionParts[1] === "staff" &&
+      staffSubmissionParts[2] === "submissions"
+    ) {
+      const submissionId = staffSubmissionParts.at(-1);
+      const row = staffSubmissions.find((item) => item.id === submissionId);
+      return row ? json({ submission: row }) : json({ error: "Not found" }, 404);
+    }
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
       const formType = decodeURIComponent(path.split("/").at(-2));
       const row = templatesByType.get(formType);
@@ -509,6 +532,92 @@ async function mockApis(page, templates) {
     return json({});
   });
   return submissions;
+}
+
+function toolboxSubmissionRow({
+  company = "GarnoCo",
+  formType = "toolbox_talk",
+  id,
+  projectName,
+  schemaSnapshot,
+  workerName = "Garnet Bird",
+  answers = {},
+  actionItemBlocks = {},
+}) {
+  return {
+    id,
+    form_type: formType,
+    worker_name: workerName,
+    worker_phone: "604.354.8262",
+    worker_username: "gbird",
+    company,
+    submitted_at: "2026-07-02T19:07:00.000Z",
+    submitted_date_vancouver: "2026-07-02",
+    submission_mode: "fill_form",
+    one_drive_backup_status: "pending",
+    backup_error: "",
+    one_drive_web_url: "",
+    notes: `${projectName} / Topics: Housekeeping / 2 attendees`,
+    files: [],
+    action_items: [],
+    form_schema_snapshot: schemaSnapshot || null,
+    form_data: {
+      kind: "toolbox_talk_v1",
+      schemaSnapshot: schemaSnapshot || null,
+      header: {
+        projectName,
+        address: "557 Example Ave",
+        date: "2026-07-02",
+        time: "19:06",
+        presenter: "Garnet Bird",
+        supervisor: "Bob",
+      },
+      topics: {
+        selected: [
+          {
+            categoryId: "general_conditions",
+            categoryLabel: "General Conditions",
+            topicId: "housekeeping",
+            label: "Housekeeping / clean-up",
+          },
+        ],
+        other: "",
+      },
+      incidentReview: {
+        firstAidCount: "0",
+        medicalAidCount: "0",
+        nearMissReviewed: "no",
+        nearMissDescription: "",
+        lessonsLearned: "Keep access clear.",
+      },
+      safetyConcerns: [
+        {
+          concern: "Loose cords",
+          actionToTake: "Move cords to wall",
+          dateTaken: "2026-07-02",
+        },
+      ],
+      attendance: [{ name: "Garnet Bird" }, { name: "Bob Smith" }],
+      additionalComments: "Export smoke comments.",
+      confirmation: {
+        name: "Garnet Bird",
+        date: "2026-07-02",
+        confirmed: true,
+      },
+      answers,
+      actionItemBlocks,
+    },
+  };
+}
+
+async function expectNonEmptyDownload(page, buttonName, extension) {
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: buttonName, exact: true }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(new RegExp(`\\.${extension}$`));
+  const path = await download.path();
+  expect(path).toBeTruthy();
+  expect(fs.statSync(path).size).toBeGreaterThan(100);
 }
 
 async function openPreview(page) {
@@ -634,6 +743,83 @@ test("Toolbox Talk attendance splits comma-separated names", async ({ page }) =>
     { name: "Chris Jones" },
     { name: "Will Davis" },
   ]);
+});
+
+test("submitted Toolbox forms export PDF, PNG, and print without a blank popup", async ({ page }) => {
+  test.slow();
+  const standardSubmission = toolboxSubmissionRow({
+    id: "standard-toolbox-submission",
+    formType: "toolbox_talk",
+    projectName: "Standard Toolbox Project",
+    company: "StandardCo",
+    workerName: "Standard Worker",
+  });
+  const customSubmission = toolboxSubmissionRow({
+    id: "custom-toolbox-submission",
+    formType: "toolbox_talk_copy_2",
+    projectName: "Custom Toolbox Project",
+    company: "CustomCo",
+    workerName: "Custom Worker",
+    schemaSnapshot: toolboxSignatureSchema,
+    answers: {
+      media_upload: [
+        {
+          storagePath: "worker-smoke/custom-photo.jpg",
+          originalFilename: "custom-photo.jpg",
+          mimeType: "image/jpeg",
+          sizeBytes: 1234,
+        },
+      ],
+      signature: smokeSignatureDataUrl,
+    },
+  });
+  await mockApis(
+    page,
+    [
+      template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, { displayOrder: 1 }),
+      template("toolbox_talk_copy_2", "Toolbox Talk Copy 2", toolboxSignatureSchema, {
+        displayOrder: 2,
+      }),
+    ],
+    { staffSubmissions: [customSubmission, standardSubmission] },
+  );
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.goto("/staff/forms");
+  await expect(page.getByText("2 form submissions")).toBeVisible();
+
+  for (const { company, expectedText } of [
+    { company: "CustomCo", expectedText: "Custom Toolbox Project" },
+    { company: "StandardCo", expectedText: "Standard Toolbox Project" },
+  ]) {
+    await page
+      .getByRole("row", { name: new RegExp(company) })
+      .getByRole("button", { name: "Details" })
+      .click();
+    const dialog = page.getByRole("dialog", { name: "Submission details" });
+    await expect(dialog.getByRole("button", { name: "PDF" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "PNG" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Print" })).toBeVisible();
+    await expect(dialog.getByText(expectedText, { exact: true })).toBeVisible();
+
+    await expectNonEmptyDownload(page, "PDF", "pdf");
+    await expect(dialog.getByText("PDF saved.")).toBeVisible();
+    await expectNonEmptyDownload(page, "PNG", "png");
+    await expect(dialog.getByText("PNG saved.")).toBeVisible();
+
+    const popupPromise = page
+      .waitForEvent("popup", { timeout: 1000 })
+      .then(() => true)
+      .catch(() => false);
+    await dialog.getByRole("button", { name: "Print" }).click();
+    await expect(dialog.getByText("Print dialog opened.")).toBeVisible();
+    expect(await popupPromise).toBe(false);
+
+    await dialog.getByRole("button", { name: "Close" }).click();
+  }
+
+  expect(pageErrors).toEqual([]);
 });
 
 test("Toolbox Talk review notes and safety concerns use editable subfields", async ({ page }) => {
