@@ -468,7 +468,6 @@ async function handleStaffWorkers(req, res, staff, parts = []) {
     return sendJson(res, 200, { rows });
   }
   if (req.method === "POST") {
-    requireStaffRole(staff, ["owner", "admin"]);
     const body = await readJson(req);
     const worker = await createWorkerProfile(body, staff.id);
     await recordAuditEvent({

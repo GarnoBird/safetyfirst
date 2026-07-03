@@ -5471,6 +5471,7 @@ function WorkerSubmissionReadOnlyView({ row }) {
 export function StaffWorkersPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const canManageWorkers = ["owner", "admin"].includes(staff?.role);
+  const canCreateWorkers = Boolean(staff);
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(EMPTY_STAFF_WORKER_FORM);
   const [editingId, setEditingId] = useState("");
@@ -5548,6 +5549,7 @@ export function StaffWorkersPage({ navigateTo }) {
   };
 
   const startEdit = (worker) => {
+    if (!canManageWorkers) return;
     setEditingId(worker.id);
     setForm({
       name: worker.name || "",
@@ -5566,6 +5568,10 @@ export function StaffWorkersPage({ navigateTo }) {
 
   const saveWorker = async (event) => {
     event.preventDefault();
+    if (editingId && !canManageWorkers) {
+      setMessage("Only admins can edit worker accounts.");
+      return;
+    }
     setSaving(true);
     setMessage("");
     try {
@@ -5632,8 +5638,8 @@ export function StaffWorkersPage({ navigateTo }) {
   return (
     <StaffShell active="workers" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      <section className={canManageWorkers ? "staff-form-admin-grid" : "staff-form-admin-grid view-only"}>
-        {canManageWorkers ? (
+      <section className={canCreateWorkers ? "staff-form-admin-grid" : "staff-form-admin-grid view-only"}>
+        {canCreateWorkers ? (
           <form className="staff-admin-form" onSubmit={saveWorker}>
             <h2>{editingId ? "Edit worker" : "Create worker"}</h2>
             <label className="field">
