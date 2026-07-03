@@ -22,6 +22,9 @@ export const TEMPLATE_FIELD_TYPES = [
   "date",
   "time",
   "yes_no",
+  "boolean",
+  "toggle",
+  "media_upload",
   "dropdown",
   "multi_select",
   "checkbox",
@@ -59,6 +62,20 @@ const MAX_TEXT = 600;
 const MAX_LONG_TEXT = 4000;
 const MAX_SIGNATURE_DATA_URL = 750000;
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
+const MAX_MEDIA_UPLOAD_FILES = 5;
+const MAX_MEDIA_UPLOAD_FILE_BYTES = 50 * 1024 * 1024;
+const MEDIA_UPLOAD_EXTENSIONS = {
+  ".jpg": ["image/jpeg"],
+  ".jpeg": ["image/jpeg"],
+  ".png": ["image/png"],
+  ".webp": ["image/webp"],
+  ".heic": ["image/heic", "image/heif"],
+  ".heif": ["image/heic", "image/heif"],
+  ".pdf": ["application/pdf"],
+  ".xls": ["application/vnd.ms-excel"],
+  ".xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+};
+const GENERIC_MEDIA_MIME_TYPES = ["", "application/octet-stream"];
 const MAX_SETTINGS_KEYS = 80;
 const MAX_SETTINGS_DEPTH = 5;
 const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["action_item_rows"]);
@@ -551,6 +568,26 @@ export function cleanTemplateSubmissionFieldsForSchema(schema, rawFormData, work
   };
 }
 
+export function collectTemplateMediaUploadFiles(formData) {
+  const schema = cleanTemplateSchema(formData?.schemaSnapshot || {}, {
+    fallbackTitle: formData?.templateTitle || formData?.formType || "Form",
+    formType: formData?.formType || "",
+    allowEmpty: true,
+  });
+  const answers = formData?.answers && typeof formData.answers === "object" && !Array.isArray(formData.answers)
+    ? formData.answers
+    : {};
+  return collectTemplateFields(schema)
+    .filter((field) => field.type === "media_upload")
+    .flatMap((field) =>
+      cleanMediaUploadAnswer(answers[field.id], field.label).map((file) => ({
+        ...file,
+        fieldId: field.id,
+        fieldLabel: field.label,
+      })),
+    );
+}
+
 export function buildTemplateSubmissionNotes(formType, formData) {
   const schema = formData?.schemaSnapshot || {};
   const answers = formData?.answers || {};
@@ -803,6 +840,9 @@ function cleanAnswer(field, raw) {
     if (!["yes", "no"].includes(value)) throwBadRequest(`${field.label} must be yes or no.`);
     return value;
   }
+  if (field.type === "boolean" || field.type === "toggle") {
+    return cleanBooleanAnswer(raw, field.label);
+  }
   if (field.type === "checkbox") {
     return raw === true;
   }
@@ -822,19 +862,85 @@ function cleanAnswer(field, raw) {
       .filter((item) => allowed.has(item))
       .slice(0, MAX_OPTIONS);
   }
+  if (field.type === "media_upload") return cleanMediaUploadAnswer(raw, field.label);
   if (field.type === "signature") return cleanSignatureDataUrl(raw, field.label);
   const max = field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT;
   return cleanString(raw, max);
 }
 
 function isEmptyAnswer(field, value) {
+  if (field.type === "boolean" || field.type === "toggle") return false;
   if (field.type === "checkbox") return value !== true;
   if (field.type === "multi_select") return !value.length;
+  if (field.type === "media_upload") return !Array.isArray(value) || !value.length;
   return value === "" || value === null || value === undefined;
+}
+
+function cleanBooleanAnswer(raw, label) {
+  if (raw === true || raw === false) return raw;
+  const value = cleanString(raw, 20).toLowerCase();
+  if (!value) return false;
+  if (["true", "yes", "1", "on"].includes(value)) return true;
+  if (["false", "no", "0", "off"].includes(value)) return false;
+  throwBadRequest(`${label} must be true or false.`);
+}
+
+function cleanMediaUploadAnswer(raw, label) {
+  const source = Array.isArray(raw)
+    ? raw
+    : Array.isArray(raw?.files)
+      ? raw.files
+      : [];
+  if (source.length > MAX_MEDIA_UPLOAD_FILES) {
+    throwBadRequest(`${label} allows ${MAX_MEDIA_UPLOAD_FILES} files or fewer.`);
+  }
+  return source.map((file) => cleanMediaUploadFile(file, label));
+}
+
+function cleanMediaUploadFile(file, label) {
+  const source = file && typeof file === "object" && !Array.isArray(file) ? file : {};
+  const originalFilename = cleanString(source.originalFilename || source.original_filename || source.name, MAX_TEXT);
+  const storagePath = cleanString(source.storagePath || source.storage_path, 1000);
+  const extension = mediaUploadFileExtension(originalFilename);
+  const allowedMimeTypes = MEDIA_UPLOAD_EXTENSIONS[extension] || [];
+  const rawMimeType = cleanString(source.mimeType || source.mime_type || source.type, 160).toLowerCase();
+  const mimeType = GENERIC_MEDIA_MIME_TYPES.includes(rawMimeType)
+    ? allowedMimeTypes[0] || "application/octet-stream"
+    : rawMimeType;
+  const sizeBytes = Number(source.sizeBytes || source.size_bytes || source.size || 0);
+  if (!originalFilename || !storagePath) {
+    throwBadRequest(`${label} upload metadata is incomplete.`);
+  }
+  if (!allowedMimeTypes.length) {
+    throwBadRequest(`${label} only accepts JPG, PNG, WEBP, HEIC, PDF, XLS, or XLSX files.`);
+  }
+  if (!allowedMimeTypes.includes(mimeType)) {
+    throwBadRequest(`${label} file extension and file type do not match.`);
+  }
+  if (!Number.isFinite(sizeBytes) || sizeBytes < 1) {
+    throwBadRequest(`${label} file size is required.`);
+  }
+  if (sizeBytes > MAX_MEDIA_UPLOAD_FILE_BYTES) {
+    throwBadRequest(`${label} files must be 50 MiB or smaller.`);
+  }
+  return {
+    storagePath,
+    originalFilename,
+    mimeType,
+    sizeBytes,
+  };
+}
+
+function mediaUploadFileExtension(name) {
+  const value = cleanString(name, MAX_TEXT).toLowerCase();
+  const index = value.lastIndexOf(".");
+  return index >= 0 ? value.slice(index) : "";
 }
 
 function defaultForField(field, worker) {
   if (field.default === "worker_name") return worker?.name || "";
+  if (field.type === "media_upload") return [];
+  if (field.type === "boolean" || field.type === "toggle") return false;
   return "";
 }
 
@@ -986,6 +1092,12 @@ function createDefaultSchemaForTemplate(template) {
 
 function formatAnswerForNotes(field, value) {
   if (field.type === "checkbox") return value ? "Yes" : "";
+  if (field.type === "boolean" || field.type === "toggle") return value ? "Yes" : "No";
+  if (field.type === "media_upload") {
+    const files = Array.isArray(value) ? value : [];
+    if (!files.length) return "";
+    return `${files.length} file${files.length === 1 ? "" : "s"}`;
+  }
   if (field.type === "signature") return cleanSignatureDataUrl(value, field.label) ? "Signed" : "";
   if (field.type === "multi_select") return Array.isArray(value) ? value.slice(0, 3).join(", ") : "";
   if (field.type === "yes_no") return value === "yes" ? "Yes" : value === "no" ? "No" : "";

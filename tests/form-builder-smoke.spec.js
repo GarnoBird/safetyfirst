@@ -60,12 +60,27 @@ const requiredSignatureSection = {
   ],
 };
 
+const optionalMediaSection = {
+  id: "media_section",
+  title: "Media Section",
+  description: "",
+  fields: [
+    {
+      id: "media_upload",
+      type: "media_upload",
+      label: "Photo attachments",
+      required: false,
+      helperText: "",
+    },
+  ],
+};
+
 const toolboxSignatureSchema = {
   schemaVersion: 1,
   formType: "toolbox_talk",
   title: "Toolbox Talk Smoke",
   description: "Toolbox smoke template.",
-  sections: [requiredSignatureSection],
+  sections: [requiredSignatureSection, optionalMediaSection],
 };
 
 const toolboxCompositeSchema = {
@@ -141,6 +156,7 @@ const siteSignatureSchema = {
       fields: [{ id: "site_deficiencies", type: "site_deficiencies", label: "Deficiencies" }],
     },
     requiredSignatureSection,
+    optionalMediaSection,
   ],
 };
 
@@ -161,6 +177,11 @@ const genericAllFieldsSchema = {
         { id: "date", type: "date", label: "Date" },
         { id: "time", type: "time", label: "Time" },
         { id: "yes_no", type: "yes_no", label: "Yes No" },
+        { id: "boolean_false", type: "boolean", label: "Boolean false", required: true },
+        { id: "boolean_true", type: "boolean", label: "Boolean true", required: true },
+        { id: "toggle_false", type: "toggle", label: "Toggle false", required: true },
+        { id: "toggle_true", type: "toggle", label: "Toggle true", required: true },
+        { id: "media_required", type: "media_upload", label: "Required media", required: true },
         { id: "dropdown", type: "dropdown", label: "Dropdown", options: ["One", "Two"] },
         { id: "multi", type: "multi_select", label: "Multi Select", options: ["A", "B"] },
         { id: "checkbox", type: "checkbox", label: "Checkbox confirmation" },
@@ -174,6 +195,7 @@ const genericAllFieldsSchema = {
 async function mockApis(page, templates) {
   const templatesByType = new Map(templates.map((row) => [row.form_type, row]));
   const submissions = [];
+  let uploadCount = 0;
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -188,11 +210,35 @@ async function mockApis(page, templates) {
 
     if (path === "/api/auth/me") return json({ staff });
     if (path === "/api/auth/worker-me") return json({ worker });
+    if (path.startsWith("/api/mock-upload/") && method === "PUT") {
+      return route.fulfill({ status: 200, body: "" });
+    }
     if (path === "/api/staff/form-templates" && method === "GET") return json({ rows: templates });
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
       const formType = decodeURIComponent(path.split("/").at(-2));
       const row = templatesByType.get(formType);
       return row ? json({ template: row }) : json({ error: "Not found" }, 404);
+    }
+    if (path === "/api/worker/submissions/file-upload-url" && method === "POST") {
+      const body = JSON.parse(request.postData() || "{}");
+      const file = body.file || {};
+      uploadCount += 1;
+      const safeName = String(file.originalFilename || `upload-${uploadCount}`)
+        .replace(/[^a-z0-9._-]+/gi, "-")
+        .toLowerCase();
+      const storagePath = `${worker.id}/smoke-${uploadCount}-${safeName}`;
+      return json({
+        upload: {
+          bucket: "safety-form-submissions",
+          storagePath,
+          signedUrl: `${url.origin}/api/mock-upload/${encodeURIComponent(storagePath)}`,
+          file: {
+            originalFilename: file.originalFilename,
+            mimeType: file.mimeType,
+            sizeBytes: file.sizeBytes,
+          },
+        },
+      });
     }
     if (path === "/api/worker/submissions" && method === "POST") {
       submissions.push(JSON.parse(request.postData() || "{}"));
@@ -247,9 +293,11 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await openPreview(page);
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
   await expect(page.getByText("Signature", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Photo attachments").first()).toBeVisible();
 
   await page.goto("/forms/toolbox_talk_copy");
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
+  await expect(page.getByText("Photo attachments").first()).toBeVisible();
   await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
   await expect(page.getByText("Signature is required.")).toBeVisible();
 });
@@ -318,17 +366,27 @@ test("custom Site Inspection preview and worker form render added drawn signatur
   await openPreview(page);
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
   await expect(page.getByText("Deficiencies").first()).toBeVisible();
+  await expect(page.getByText("Photo attachments").first()).toBeVisible();
 
   await page.goto("/forms/site_inspection_copy");
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
   await expect(page.getByText("Suggested due date").first()).toBeVisible();
+  await expect(page.getByText("Photo attachments").first()).toBeVisible();
 });
 
 test("generic V3 preview renders all normal field types and action item rows", async ({ page }) => {
   const row = template("generic_smoke", "Generic Smoke", genericAllFieldsSchema);
-  await mockApis(page, [row]);
+  const submissions = await mockApis(page, [row]);
 
   await page.goto("/staff/form-templates");
+  await page.getByRole("button", { name: "New Field +" }).first().click();
+  const newFieldDialog = page.getByRole("dialog", { name: "New field" });
+  await newFieldDialog.getByRole("button", { name: "Basics" }).click();
+  await expect(newFieldDialog.getByRole("button", { name: /Boolean/ })).toBeVisible();
+  await expect(newFieldDialog.getByRole("button", { name: /Toggle/ })).toBeVisible();
+  await newFieldDialog.getByRole("button", { name: "Media" }).click();
+  await expect(newFieldDialog.getByRole("button", { name: /Media upload/ })).toBeVisible();
+  await page.getByRole("button", { name: "Close new field picker" }).click();
   await openPreview(page);
 
   for (const label of [
@@ -338,6 +396,11 @@ test("generic V3 preview renders all normal field types and action item rows", a
     "Date",
     "Time",
     "Yes No",
+    "Boolean false",
+    "Boolean true",
+    "Toggle false",
+    "Toggle true",
+    "Required media",
     "Dropdown",
     "Multi Select",
     "Checkbox confirmation",
@@ -348,6 +411,59 @@ test("generic V3 preview renders all normal field types and action item rows", a
     await expect(page.getByText(label).first()).toBeVisible();
   }
   await expect(page.locator(".template-signature-canvas")).toBeVisible();
+
+  await page.goto("/forms/generic_smoke");
+  await page.getByRole("button", { name: "Submit Generic Smoke" }).click();
+  await expect(page.getByText("Required media is required.")).toBeVisible();
+  await page.locator('input[type="file"][aria-label="Required media"]').setInputFiles([
+    {
+      name: "photo.jpg",
+      mimeType: "image/jpeg",
+      buffer: Buffer.from("jpg"),
+    },
+    {
+      name: "report.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("%PDF-1.4 smoke"),
+    },
+    {
+      name: "metrics.xlsx",
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      buffer: Buffer.from("xlsx"),
+    },
+  ]);
+  await expect(page.getByText("photo.jpg")).toBeVisible();
+  await expect(page.getByText("report.pdf")).toBeVisible();
+  await expect(page.getByText("metrics.xlsx")).toBeVisible();
+  await expect(page.getByLabel("Boolean false")).not.toBeChecked();
+  await expect(page.getByLabel("Toggle false")).not.toBeChecked();
+  await page.getByLabel("Boolean true").check();
+  await page.getByLabel("Toggle true").check();
+  await page.getByLabel("No action items needed.").check();
+  await page.getByRole("button", { name: "Submit Generic Smoke" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.boolean_false).toBe(false);
+  expect(submissions[0].formData.answers.boolean_true).toBe(true);
+  expect(submissions[0].formData.answers.toggle_false).toBe(false);
+  expect(submissions[0].formData.answers.toggle_true).toBe(true);
+  expect(submissions[0].formData.answers.media_required).toEqual([
+    expect.objectContaining({
+      storagePath: expect.stringContaining(`${worker.id}/smoke-`),
+      originalFilename: "photo.jpg",
+      mimeType: "image/jpeg",
+      sizeBytes: 3,
+    }),
+    expect.objectContaining({
+      storagePath: expect.stringContaining(`${worker.id}/smoke-`),
+      originalFilename: "report.pdf",
+      mimeType: "application/pdf",
+    }),
+    expect.objectContaining({
+      storagePath: expect.stringContaining(`${worker.id}/smoke-`),
+      originalFilename: "metrics.xlsx",
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+  ]);
 });
 
 test("protected default templates open in the V3 shell without edit actions", async ({ page }) => {

@@ -13,6 +13,7 @@ import {
 import {
   buildTemplateSubmissionNotes,
   cleanTemplateSubmissionFieldsForSchema,
+  collectTemplateMediaUploadFiles,
   getPublishedWorkerFormTemplate,
   validateTemplateSubmissionFormData,
 } from "./form-templates.js";
@@ -264,6 +265,48 @@ async function markUploadAttached(storagePath, submissionId) {
   }
 }
 
+function cleanSubmissionFilesForBody({ body, formData, submissionMode, workerId }) {
+  const files = [];
+  if (submissionMode === "submit_file") {
+    files.push(cleanSubmittedFile(body?.file, workerId));
+  }
+  if (
+    submissionMode === "fill_form" &&
+    ["template_submission_v1", "toolbox_talk_v1", "site_inspection_v1"].includes(formData?.kind)
+  ) {
+    collectTemplateMediaUploadFiles(formData).forEach((file) => {
+      files.push(cleanSubmittedFile(file, workerId));
+    });
+  }
+  const seen = new Set();
+  return files.filter((file) => {
+    if (seen.has(file.storagePath)) return false;
+    seen.add(file.storagePath);
+    return true;
+  });
+}
+
+function submissionFileRecord(submissionId, file, now = new Date()) {
+  return {
+    id: crypto.randomUUID(),
+    submission_id: submissionId,
+    bucket: SUBMISSION_BUCKET,
+    storage_path: file.storagePath,
+    original_filename: file.originalFilename,
+    mime_type: file.mimeType,
+    size_bytes: file.sizeBytes,
+    one_drive_item_id: null,
+    one_drive_item_name: null,
+    one_drive_web_url: null,
+    one_drive_path: null,
+    backup_status: "pending",
+    backup_attempted_at: null,
+    backup_error: null,
+    app_deleted_at: null,
+    created_at: now.toISOString(),
+  };
+}
+
 export async function createFileUploadTarget(worker, body) {
   const formType = await cleanWorkerFormType(body?.formType || body?.form_type);
   const file = cleanFileMetadata(body?.file || body);
@@ -308,6 +351,12 @@ export async function createWorkerSubmission(worker, body) {
     worker,
   );
   const formData = cleanedForm.formData;
+  const submittedFiles = cleanSubmissionFilesForBody({
+    body,
+    formData,
+    submissionMode,
+    workerId: worker.id,
+  });
   const notes = buildSubmissionNotes(formType, submissionMode, body?.notes, formData);
   const now = new Date();
 
@@ -348,12 +397,11 @@ export async function createWorkerSubmission(worker, body) {
     });
   }
 
-  if (submissionMode === "submit_file") {
-    const file = cleanSubmittedFile(body?.file, worker.id);
+  if (submittedFiles.length) {
     throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("submission_files")
-        .insert({
+        .insert(submittedFiles.map((file) => ({
           submission_id: inserted.id,
           bucket: SUBMISSION_BUCKET,
           storage_path: file.storagePath,
@@ -361,10 +409,10 @@ export async function createWorkerSubmission(worker, body) {
           mime_type: file.mimeType,
           size_bytes: file.sizeBytes,
           backup_status: "pending",
-        }),
+        }))),
       "Submission file could not be saved.",
     );
-    await markUploadAttached(file.storagePath, inserted.id);
+    await Promise.all(submittedFiles.map((file) => markUploadAttached(file.storagePath, inserted.id)));
   }
 
   if (submissionMode === "fill_form" && formData?.kind === "site_inspection_v1") {
@@ -1036,6 +1084,12 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
     worker,
   );
   const formData = nextCleanedForm.formData || {};
+  const submittedFiles = cleanSubmissionFilesForBody({
+    body,
+    formData,
+    submissionMode,
+    workerId: worker.id,
+  });
   const submission = {
     id: crypto.randomUUID(),
     worker_id: worker.id,
@@ -1063,28 +1117,8 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
     files: [],
   };
 
-  if (submissionMode === "submit_file") {
-    const file = cleanSubmittedFile(body?.file, worker.id);
-    submission.files = [
-      {
-        id: crypto.randomUUID(),
-        submission_id: submission.id,
-        bucket: SUBMISSION_BUCKET,
-        storage_path: file.storagePath,
-        original_filename: file.originalFilename,
-        mime_type: file.mimeType,
-        size_bytes: file.sizeBytes,
-        one_drive_item_id: null,
-        one_drive_item_name: null,
-        one_drive_web_url: null,
-        one_drive_path: null,
-        backup_status: "pending",
-        backup_attempted_at: null,
-        backup_error: null,
-        app_deleted_at: null,
-        created_at: now.toISOString(),
-      },
-    ];
+  if (submittedFiles.length) {
+    submission.files = submittedFiles.map((file) => submissionFileRecord(submission.id, file, now));
   }
 
   await saveFallbackSubmission(submission);

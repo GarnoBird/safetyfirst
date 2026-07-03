@@ -136,6 +136,9 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "date", label: "Date" },
   { id: "time", label: "Time" },
   { id: "yes_no", label: "Yes / No" },
+  { id: "boolean", label: "Boolean" },
+  { id: "toggle", label: "Toggle" },
+  { id: "media_upload", label: "Media upload" },
   { id: "dropdown", label: "Dropdown" },
   { id: "multi_select", label: "Multi-select chips" },
   { id: "checkbox", label: "Checkbox confirmation" },
@@ -179,7 +182,7 @@ const TEMPLATE_BLOCK_GROUPS = [
   },
   {
     title: "Fast inputs",
-    fields: ["date", "time", "number", "yes_no"],
+    fields: ["date", "time", "number", "yes_no", "boolean", "toggle", "media_upload"],
   },
   {
     title: "Choices",
@@ -198,8 +201,17 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       { type: "date", title: "Date", hint: "Date picker", icon: "D", label: "Date", default: "today" },
       { type: "time", title: "Time", hint: "Time picker", icon: "T", label: "Time", default: "now" },
       { type: "yes_no", title: "Yes / No", hint: "Two-choice answer", icon: "Y/N", label: "" },
+      { type: "boolean", title: "Boolean", hint: "Checked or not checked", icon: "B", label: "Boolean question" },
+      { type: "toggle", title: "Toggle", hint: "On / off switch", icon: "On", label: "Toggle setting" },
       { type: "checkbox", title: "Confirmation", hint: "Required acknowledgement", icon: "OK", label: "I confirm this information is correct." },
       { type: "signature", title: "Drawn signature", hint: "Finger or mouse signature", icon: "Sig", label: "Signature" },
+    ],
+  },
+  {
+    id: "media",
+    label: "Media",
+    fields: [
+      { type: "media_upload", title: "Media upload", hint: "Images, PDF, Excel", icon: "Up", label: "Media upload" },
     ],
   },
   {
@@ -455,6 +467,48 @@ const TEMPLATE_STARTER_TEMPLATES = [
   },
 ];
 const SCANNED_COPY_ACCEPT = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt";
+const MEDIA_UPLOAD_ACCEPT = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".heic",
+  ".heif",
+  ".pdf",
+  "application/pdf",
+  ".xls",
+  ".xlsx",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+].join(",");
+const MAX_MEDIA_UPLOAD_FILES = 5;
+const MAX_MEDIA_UPLOAD_FILE_BYTES = 50 * 1024 * 1024;
+const MEDIA_UPLOAD_ALLOWED_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".heic",
+  ".heif",
+  ".pdf",
+  ".xls",
+  ".xlsx",
+]);
+const MEDIA_UPLOAD_ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "application/pdf",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
 
 const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
 const SITE_INSPECTION_DEFAULTS_KEY = "sf_site_inspection_defaults";
@@ -3699,6 +3753,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     <ToolboxTalkDigitalForm
                       formType={formType}
                       formTemplate={formTemplate}
+                      onUploadFile={submitUpload}
                       submitting={submitting}
                       worker={worker}
                       onSubmit={submitToolboxTalkForm}
@@ -3718,6 +3773,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     <SiteInspectionDigitalForm
                       formType={formType}
                       formTemplate={formTemplate}
+                      onUploadFile={submitUpload}
                       submitting={submitting}
                       worker={worker}
                       onSubmit={submitSiteInspectionForm}
@@ -3728,6 +3784,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                     formType={formType}
                     formLabel={form.label}
                     openScannedCopyPicker={openScannedCopyPicker}
+                    onUploadFile={submitUpload}
                     submitting={submitting}
                     worker={worker}
                     onSubmit={submitTemplateForm}
@@ -3781,7 +3838,7 @@ function OfflineQueueBanner({ count, message, onSync, syncing }) {
   );
 }
 
-function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSubmit, submitting, worker }) {
+function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSubmit, onUploadFile, submitting, worker }) {
   const draftFormType = formType || formTemplate?.form_type || "toolbox_talk";
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, draftFormType, "fill_form"));
   const optionalLayoutAppliedRef = useRef(false);
@@ -4436,6 +4493,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
           schema={genericSchema}
           sections={genericSchema.sections}
           worker={worker}
+          onUploadFile={onUploadFile}
           onChange={updateGenericAnswers}
         />
       ) : null}
@@ -4451,7 +4509,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
   );
 }
 
-function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection", onSubmit, submitting, worker }) {
+function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection", onSubmit, onUploadFile, submitting, worker }) {
   const draftFormType = formType || formTemplate?.form_type || "site_inspection";
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, draftFormType, "fill_form"));
   const optionalLayoutAppliedRef = useRef(false);
@@ -4774,6 +4832,7 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
           schema={genericSchema}
           sections={genericSchema.sections}
           worker={worker}
+          onUploadFile={onUploadFile}
           onChange={updateGenericAnswers}
         />
       ) : null}
@@ -5000,6 +5059,7 @@ function TemplateDrivenWorkerForm({
   formLabel,
   formType,
   onSubmit,
+  onUploadFile,
   openScannedCopyPicker,
   submitting,
   worker,
@@ -5142,6 +5202,7 @@ function TemplateDrivenWorkerForm({
           schema={schema}
           worker={worker}
           registerValidationTarget={registerValidationTarget}
+          onUploadFile={onUploadFile}
           onChange={setAnswers}
         />
 
@@ -8745,7 +8806,7 @@ function TemplateSchemaEditorV3({
                     <span>Remember last value</span>
                   </label>
                 ) : null}
-                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "dropdown", "signature"].includes(selectedField.type) ? (
+                {!selectedFieldIsNonAnswer && !["multi_select", "checkbox", "yes_no", "boolean", "toggle", "media_upload", "dropdown", "signature"].includes(selectedField.type) ? (
                   <label>
                     <span>Default value</span>
                     <select
@@ -9100,6 +9161,7 @@ function TemplateFormFields({
   answers,
   invalidFields = new Set(),
   onChange,
+  onUploadFile,
   registerValidationTarget,
   schema,
   worker,
@@ -9115,6 +9177,7 @@ function TemplateFormFields({
         schema={current}
         sections={current.sections}
         worker={worker}
+        onUploadFile={onUploadFile}
         onChange={onChange}
       />
     </div>
@@ -9125,6 +9188,7 @@ function TemplateRuntimeSections({
   answers,
   invalidFields = new Set(),
   onChange,
+  onUploadFile,
   registerValidationTarget,
   schema,
   sections,
@@ -9153,6 +9217,7 @@ function TemplateRuntimeSections({
                 registerValidationTarget={registerValidationTarget}
                 targetRef={registerValidationTarget?.(field.id)}
                 value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
+                onUploadFile={onUploadFile}
                 onChange={(value) => updateAnswer(field.id, value)}
               />
             ))}
@@ -9163,7 +9228,16 @@ function TemplateRuntimeSections({
   );
 }
 
-function TemplateRuntimeField({ field, invalid, invalidFields = new Set(), registerValidationTarget, targetRef, value, onChange }) {
+function TemplateRuntimeField({
+  field,
+  invalid,
+  invalidFields = new Set(),
+  registerValidationTarget,
+  targetRef,
+  value,
+  onChange,
+  onUploadFile,
+}) {
   if (field.type === "instructions") {
     return <p className="template-instructions">{field.label}</p>;
   }
@@ -9290,6 +9364,42 @@ function TemplateRuntimeField({ field, invalid, invalidFields = new Set(), regis
       </div>
     );
   }
+  if (field.type === "boolean") {
+    return (
+      <label
+        className={invalid ? "template-boolean-field toolbox-field-invalid" : "template-boolean-field"}
+        ref={targetRef}
+      >
+        <span>{field.label}</span>
+        <input
+          checked={value === true}
+          type="checkbox"
+          onChange={(event) => onChange(event.target.checked)}
+        />
+      </label>
+    );
+  }
+  if (field.type === "toggle") {
+    return (
+      <label
+        className={invalid ? "template-toggle-field toolbox-field-invalid" : "template-toggle-field"}
+        ref={targetRef}
+      >
+        <span>{field.label}</span>
+        <span className="template-toggle-control">
+          <input
+            checked={value === true}
+            type="checkbox"
+            onChange={(event) => onChange(event.target.checked)}
+          />
+          <span aria-hidden="true" className="template-toggle-track">
+            <span className="template-toggle-thumb" />
+          </span>
+          <span className="template-toggle-state">{value === true ? "On" : "Off"}</span>
+        </span>
+      </label>
+    );
+  }
   if (field.type === "dropdown") {
     return (
       <label className={labelClass} ref={targetRef}>
@@ -9354,6 +9464,18 @@ function TemplateRuntimeField({ field, invalid, invalidFields = new Set(), regis
       />
     );
   }
+  if (field.type === "media_upload") {
+    return (
+      <MediaUploadRuntimeField
+        field={field}
+        invalid={invalid}
+        targetRef={targetRef}
+        value={value}
+        onChange={onChange}
+        onUploadFile={onUploadFile}
+      />
+    );
+  }
   return (
     <label className={labelClass} ref={targetRef}>
       <span>{field.label}</span>
@@ -9364,6 +9486,105 @@ function TemplateRuntimeField({ field, invalid, invalidFields = new Set(), regis
         onChange={(event) => onChange(event.target.value)}
       />
     </label>
+  );
+}
+
+function MediaUploadRuntimeField({ field, invalid, targetRef, value, onChange, onUploadFile }) {
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState("");
+  const files = normalizeMediaUploadAnswer(value);
+  const canUpload = typeof onUploadFile === "function";
+
+  const uploadFiles = async (event) => {
+    const selected = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (!selected.length) return;
+    if (!canUpload) {
+      setMessage("Uploads are available on worker forms.");
+      return;
+    }
+    const remaining = MAX_MEDIA_UPLOAD_FILES - files.length;
+    if (remaining <= 0) {
+      setMessage(`Remove a file before adding another. ${MAX_MEDIA_UPLOAD_FILES} files max.`);
+      return;
+    }
+    const rejected = selected.find((file) => mediaUploadLocalFileError(file));
+    if (rejected) {
+      setMessage(mediaUploadLocalFileError(rejected));
+      return;
+    }
+    const toUpload = selected.slice(0, remaining);
+    setMessage(selected.length > remaining ? `${MAX_MEDIA_UPLOAD_FILES} files max. Extra files were skipped.` : "");
+    setUploading(true);
+    try {
+      const uploaded = [];
+      for (const selectedFile of toUpload) {
+        const upload = await onUploadFile(selectedFile);
+        uploaded.push(cleanMediaUploadAnswerFile({
+          storagePath: upload?.storagePath,
+          originalFilename: selectedFile.name,
+          mimeType: selectedFile.type || upload?.file?.mimeType || "application/octet-stream",
+          sizeBytes: selectedFile.size,
+        }));
+      }
+      onChange([...files, ...uploaded].filter(Boolean).slice(0, MAX_MEDIA_UPLOAD_FILES));
+    } catch (error) {
+      setMessage(error.message || "File upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeFile = (index) => {
+    onChange(files.filter((_, fileIndex) => fileIndex !== index));
+    setMessage("");
+  };
+
+  return (
+    <div
+      className={invalid ? "template-media-upload-field toolbox-field-invalid" : "template-media-upload-field"}
+      ref={targetRef}
+    >
+      <div className="template-media-upload-heading">
+        <div>
+          <span>{field.label}</span>
+          {field.helperText ? <small>{field.helperText}</small> : null}
+        </div>
+        {field.required ? <strong>Required</strong> : null}
+      </div>
+      <div className="template-media-upload-drop">
+        <label className={uploading ? "template-media-upload-select disabled" : "template-media-upload-select"}>
+          <input
+            accept={MEDIA_UPLOAD_ACCEPT}
+            aria-label={field.label}
+            disabled={!canUpload || uploading || files.length >= MAX_MEDIA_UPLOAD_FILES}
+            multiple
+            type="file"
+            onChange={uploadFiles}
+          />
+          <span>{uploading ? "Uploading..." : files.length ? "Add files" : "Choose files"}</span>
+        </label>
+        <small>JPG, PNG, WEBP, HEIC, PDF, XLS, XLSX / {MAX_MEDIA_UPLOAD_FILES} files max / 50 MiB each</small>
+      </div>
+      {files.length ? (
+        <div className="template-media-file-list">
+          {files.map((file, index) => (
+            <div className="template-media-file-row" key={`${file.storagePath || file.originalFilename}-${index}`}>
+              <div>
+                <strong>{file.originalFilename || "Attachment"}</strong>
+                <small>{mediaUploadFileTypeLabel(file)} / {formatFileSize(file.sizeBytes)}</small>
+              </div>
+              <button type="button" onClick={() => removeFile(index)}>
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="template-media-empty">No files uploaded yet.</p>
+      )}
+      {message ? <p className="template-media-message">{message}</p> : null}
+    </div>
   );
 }
 
@@ -10237,6 +10458,13 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
   const [filePreview, setFilePreview] = useState(null);
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
+  const filesByStoragePath = useMemo(() => {
+    const map = new Map();
+    files.forEach((file) => {
+      if (file?.storage_path) map.set(file.storage_path, file);
+    });
+    return map;
+  }, [files]);
 
   const openFilePreview = async (file) => {
     setPreviewLoadingId(file.id);
@@ -10283,13 +10511,25 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
           {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
         </dl>
         {isDigitalToolboxTalkSubmission(row) ? (
-          <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
+          <ToolboxTalkSubmissionDetails
+            data={row.form_data}
+            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+            row={row}
+          />
         ) : null}
         {isDigitalSiteInspectionSubmission(row) ? (
-          <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
+          <SiteInspectionSubmissionDetails
+            data={row.form_data}
+            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+            row={row}
+          />
         ) : null}
         {isTemplateDigitalSubmission(row) ? (
-          <TemplateSubmissionDetails data={row.form_data} row={row} />
+          <TemplateSubmissionDetails
+            data={row.form_data}
+            filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+            row={row}
+          />
         ) : null}
         {row.action_items?.length ? (
           <div className="submission-action-items">
@@ -10424,7 +10664,7 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
   );
 }
 
-function ToolboxTalkSubmissionDetails({ data, row }) {
+function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row }) {
   const header = data.header || {};
   const incident = data.incidentReview || {};
   const selectedTopics = data.topics?.selected || [];
@@ -10552,6 +10792,7 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
       <CustomGenericSubmissionDetails
         actionItemBlocks={data.actionItemBlocks}
         answers={data.answers}
+        filePreviewContext={filePreviewContext}
         schema={getCustomGenericTemplateSchema(
           data?.schemaSnapshot || row?.form_schema_snapshot,
           isToolboxTalkConsumedTemplateField,
@@ -10572,7 +10813,7 @@ function ToolboxTalkSubmissionDetails({ data, row }) {
   );
 }
 
-function SiteInspectionSubmissionDetails({ data, row }) {
+function SiteInspectionSubmissionDetails({ data, filePreviewContext, row }) {
   const header = data.header || {};
   const observations = data.observations || {};
   const deficiencies = Array.isArray(data.deficiencies) ? data.deficiencies : [];
@@ -10651,6 +10892,7 @@ function SiteInspectionSubmissionDetails({ data, row }) {
       <CustomGenericSubmissionDetails
         actionItemBlocks={data.actionItemBlocks}
         answers={data.answers}
+        filePreviewContext={filePreviewContext}
         schema={getCustomGenericTemplateSchema(
           data?.schemaSnapshot || row?.form_schema_snapshot,
           isSiteInspectionConsumedTemplateField,
@@ -10671,7 +10913,7 @@ function SiteInspectionSubmissionDetails({ data, row }) {
   );
 }
 
-function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, schema }) {
+function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, filePreviewContext, schema }) {
   const normalized = normalizeClientTemplateSchema(schema);
   if (!normalized.sections.length) return null;
   return (
@@ -10686,7 +10928,7 @@ function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, s
               .map((field) => (
                 <div key={field.id}>
                   <dt>{field.label}</dt>
-                  <dd>{renderTemplateAnswerDisplay(field, answers?.[field.id])}</dd>
+                  <dd>{renderTemplateAnswerDisplay(field, answers?.[field.id], filePreviewContext)}</dd>
                 </div>
               ))}
           </dl>
@@ -10705,7 +10947,7 @@ function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, s
   );
 }
 
-function TemplateSubmissionDetails({ data, row }) {
+function TemplateSubmissionDetails({ data, filePreviewContext, row }) {
   const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
   const answers = data?.answers || {};
   const actionItemBlocks = data?.actionItemBlocks || {};
@@ -10739,7 +10981,7 @@ function TemplateSubmissionDetails({ data, row }) {
               .map((field) => (
                 <div key={field.id}>
                   <dt>{field.label}</dt>
-                  <dd>{renderTemplateAnswerDisplay(field, answers[field.id])}</dd>
+                  <dd>{renderTemplateAnswerDisplay(field, answers[field.id], filePreviewContext)}</dd>
                 </div>
               ))}
           </dl>
@@ -13513,6 +13755,9 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     date: "Date",
     time: "Time",
     yes_no: "Yes / No question",
+    boolean: "Boolean question",
+    toggle: "Toggle setting",
+    media_upload: "Media upload",
     dropdown: "Dropdown question",
     multi_select: "Multi-select question",
     checkbox: "Confirmation statement",
@@ -13626,6 +13871,9 @@ function templateFieldBuilderHint(type) {
     date: "Calendar field",
     time: "Time picker",
     yes_no: "Two-tap choice",
+    boolean: "Checked or not checked",
+    toggle: "On / off switch",
+    media_upload: "Images, PDF, Excel",
     dropdown: "One option",
     multi_select: "Many chips",
     checkbox: "Final confirmation",
@@ -13651,6 +13899,9 @@ function templateFieldBuilderIcon(type) {
     date: "D",
     time: "T",
     yes_no: "Y/N",
+    boolean: "B",
+    toggle: "On",
+    media_upload: "Up",
     dropdown: "V",
     multi_select: "+",
     checkbox: "OK",
@@ -13703,6 +13954,8 @@ function templateFieldDefaultValue(field, worker, schema) {
   if (field.default === "now") return timeInVancouver();
   if (field.default === "worker_name") return worker?.name || "";
   if (field.type === "multi_select") return [];
+  if (field.type === "media_upload") return [];
+  if (field.type === "boolean" || field.type === "toggle") return false;
   if (field.type === "checkbox") return false;
   return "";
 }
@@ -13809,16 +14062,20 @@ function cleanActionItemRowForSubmit(row, settings) {
 }
 
 function cleanTemplateAnswerForSubmit(field, value) {
+  if (field.type === "boolean" || field.type === "toggle") return value === true;
   if (field.type === "checkbox") return value === true;
   if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
+  if (field.type === "media_upload") return normalizeMediaUploadAnswer(value);
   if (field.type === "signature") return cleanSignatureDataUrl(value);
   if (field.type === "number") return value === "" || value === null || value === undefined ? "" : value;
   return typeof value === "string" ? value.trim() : value || "";
 }
 
 function isTemplateAnswerEmpty(field, value) {
+  if (field.type === "boolean" || field.type === "toggle") return false;
   if (field.type === "checkbox") return value !== true;
   if (field.type === "multi_select") return !Array.isArray(value) || value.length === 0;
+  if (field.type === "media_upload") return normalizeMediaUploadAnswer(value).length === 0;
   return value === "" || value === null || value === undefined;
 }
 
@@ -13834,6 +14091,65 @@ function isTemplateDraftMeaningful(schema, answers, worker) {
     if (value === undefined || value === defaultValue) return false;
     return !isTemplateAnswerEmpty(field, value);
   });
+}
+
+function normalizeMediaUploadAnswer(value) {
+  const source = Array.isArray(value)
+    ? value
+    : Array.isArray(value?.files)
+      ? value.files
+      : [];
+  return source
+    .map(cleanMediaUploadAnswerFile)
+    .filter(Boolean)
+    .slice(0, MAX_MEDIA_UPLOAD_FILES);
+}
+
+function cleanMediaUploadAnswerFile(file) {
+  if (!file || typeof file !== "object" || Array.isArray(file)) return null;
+  const originalFilename = String(file.originalFilename || file.original_filename || file.name || "").trim();
+  const storagePath = String(file.storagePath || file.storage_path || "").trim();
+  const mimeType = String(file.mimeType || file.mime_type || file.type || "").trim().toLowerCase();
+  const sizeBytes = Number(file.sizeBytes || file.size_bytes || file.size || 0);
+  if (!originalFilename || !storagePath) return null;
+  return {
+    storagePath,
+    originalFilename,
+    mimeType: mimeType || "application/octet-stream",
+    sizeBytes: Number.isFinite(sizeBytes) && sizeBytes > 0 ? sizeBytes : 0,
+  };
+}
+
+function mediaUploadLocalFileError(file) {
+  const name = String(file?.name || "");
+  const extension = mediaUploadFileExtension(name);
+  const mimeType = String(file?.type || "").toLowerCase();
+  if (!MEDIA_UPLOAD_ALLOWED_EXTENSIONS.has(extension)) {
+    return "Use JPG, PNG, WEBP, HEIC, PDF, XLS, or XLSX files.";
+  }
+  if (mimeType && mimeType !== "application/octet-stream" && !MEDIA_UPLOAD_ALLOWED_MIME_TYPES.has(mimeType)) {
+    return "File extension and file type do not match.";
+  }
+  if (!Number.isFinite(file?.size) || file.size < 1) return "File size is required.";
+  if (file.size > MAX_MEDIA_UPLOAD_FILE_BYTES) return "File must be 50 MiB or smaller.";
+  return "";
+}
+
+function mediaUploadFileExtension(name) {
+  const value = String(name || "").trim().toLowerCase();
+  const index = value.lastIndexOf(".");
+  return index >= 0 ? value.slice(index) : "";
+}
+
+function mediaUploadFileTypeLabel(file) {
+  const mimeType = String(file?.mimeType || file?.mime_type || "").toLowerCase();
+  const extension = mediaUploadFileExtension(file?.originalFilename || file?.original_filename || "");
+  if (mimeType.startsWith("image/") || [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"].includes(extension)) {
+    return "Image";
+  }
+  if (mimeType === "application/pdf" || extension === ".pdf") return "PDF";
+  if ([".xls", ".xlsx"].includes(extension)) return "Excel";
+  return "File";
 }
 
 function slugifyTopic(value) {
@@ -13962,7 +14278,7 @@ function isTemplateDigitalSubmission(row) {
   return row?.submission_mode === "fill_form" && row?.form_data?.kind === "template_submission_v1";
 }
 
-function renderTemplateAnswerDisplay(field, value) {
+function renderTemplateAnswerDisplay(field, value, filePreviewContext) {
   if (isTemplateNonAnswerField(field)) return "-";
   if (field.type === "signature") {
     const src = cleanSignatureDataUrl(value);
@@ -13973,6 +14289,32 @@ function renderTemplateAnswerDisplay(field, value) {
         src={src}
       />
     ) : "-";
+  }
+  if (field.type === "media_upload") {
+    const files = normalizeMediaUploadAnswer(value);
+    if (!files.length) return "-";
+    return (
+      <span className="toolbox-detail-chip-list inline media-answer-list">
+        {files.map((file, index) => {
+          const savedFile = filePreviewContext?.filesByStoragePath?.get(file.storagePath);
+          const label = file.originalFilename || savedFile?.original_filename || "Attachment";
+          if (savedFile && filePreviewContext?.openFilePreview) {
+            return (
+              <button
+                className="submission-file-name-button inline"
+                disabled={filePreviewContext.previewLoadingId === savedFile.id}
+                key={`${file.storagePath}-${index}`}
+                type="button"
+                onClick={() => filePreviewContext.openFilePreview(savedFile)}
+              >
+                {filePreviewContext.previewLoadingId === savedFile.id ? "Opening..." : label}
+              </button>
+            );
+          }
+          return <span key={`${file.storagePath || label}-${index}`}>{label}</span>;
+        })}
+      </span>
+    );
   }
   const display = formatTemplateAnswerDisplay(field, value);
   if (Array.isArray(display)) {
@@ -13990,8 +14332,12 @@ function renderTemplateAnswerDisplay(field, value) {
 
 function formatTemplateAnswerDisplay(field, value) {
   if (isTemplateNonAnswerField(field)) return "";
+  if (field.type === "boolean" || field.type === "toggle") return value ? "Yes" : "No";
   if (field.type === "checkbox") return value ? "Yes" : "No";
   if (field.type === "signature") return cleanSignatureDataUrl(value) ? "Signed" : "";
+  if (field.type === "media_upload") {
+    return normalizeMediaUploadAnswer(value).map((file) => file.originalFilename || "Attachment");
+  }
   if (field.type === "yes_no") {
     if (value === "yes") return "Yes";
     if (value === "no") return "No";
@@ -14345,6 +14691,12 @@ function templateAnswerSectionsHtml(schema, answers = {}, actionItemBlocks = {})
     const fields = (section.fields || []).filter((field) => !isTemplateNonAnswerField(field));
     const rows = fields.map((field) => {
       if (field.type === "signature") return signatureDefinitionHtml(field.label, answers[field.id]);
+      if (field.type === "media_upload") {
+        const value = normalizeMediaUploadAnswer(answers[field.id])
+          .map((file) => `${file.originalFilename || "Attachment"} (attached separately)`)
+          .join(", ");
+        return definitionHtml(field.label, value);
+      }
       const display = formatTemplateAnswerDisplay(field, answers[field.id]);
       const value = Array.isArray(display) ? display.join(", ") : display;
       return definitionHtml(field.label, value);
