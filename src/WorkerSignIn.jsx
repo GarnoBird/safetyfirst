@@ -283,15 +283,6 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       },
     ],
   },
-  {
-    id: "later",
-    label: "Coming Later",
-    fields: [
-      { title: "Media upload", hint: "Photo/PDF fields need backend support", icon: "M", disabled: true },
-      { title: "Editable table", hint: "Planned for a later schema version", icon: "Tbl", disabled: true },
-      { title: "Calculation", hint: "Planned for a later schema version", icon: "Calc", disabled: true },
-    ],
-  },
 ];
 const TEMPLATE_STARTER_TEMPLATES = [
   {
@@ -10458,6 +10449,10 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
   const [filePreview, setFilePreview] = useState(null);
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
+  const digitalFormData =
+    isDigitalToolboxTalkSubmission(row) || isDigitalSiteInspectionSubmission(row) || isTemplateDigitalSubmission(row)
+      ? row.form_data
+      : null;
   const filesByStoragePath = useMemo(() => {
     const map = new Map();
     files.forEach((file) => {
@@ -10496,7 +10491,16 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
             <h2>{formTypeLabel(row.form_type)}</h2>
             <p>{row.worker_name} / {row.company}</p>
           </div>
-          <button aria-label="Close" type="button" onClick={onClose}>X</button>
+          <div className="dialog-heading-actions">
+            {digitalFormData ? (
+              <DigitalFormActions
+                className="digital-form-actions dialog-digital-form-actions"
+                data={digitalFormData}
+                row={row}
+              />
+            ) : null}
+            <button aria-label="Close" type="button" onClick={onClose}>X</button>
+          </div>
         </div>
         <dl className="staff-detail-list">
           <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
@@ -10515,6 +10519,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
             data={row.form_data}
             filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
             row={row}
+            showActions={false}
           />
         ) : null}
         {isDigitalSiteInspectionSubmission(row) ? (
@@ -10522,6 +10527,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
             data={row.form_data}
             filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
             row={row}
+            showActions={false}
           />
         ) : null}
         {isTemplateDigitalSubmission(row) ? (
@@ -10529,6 +10535,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
             data={row.form_data}
             filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
             row={row}
+            showActions={false}
           />
         ) : null}
         {row.action_items?.length ? (
@@ -10664,7 +10671,7 @@ function SubmissionFilePreviewDialog({ onClose, preview }) {
   );
 }
 
-function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row }) {
+function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row, showActions = true }) {
   const header = data.header || {};
   const incident = data.incidentReview || {};
   const selectedTopics = data.topics?.selected || [];
@@ -10682,23 +10689,6 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row }) {
   );
   const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
   const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
-  const [saveStatus, setSaveStatus] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const saveForm = async () => {
-    setSaving(true);
-    setSaveStatus("");
-    try {
-      const shared = await shareOrSaveDigitalForm(row, data);
-      if (!shared) setSaveStatus("Saved as an HTML file.");
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSaveStatus(error.message || "This form could not be saved.");
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="toolbox-detail">
@@ -10800,40 +10790,15 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row }) {
         )}
       />
 
-      <div className="digital-form-actions">
-        <button disabled={saving} type="button" onClick={saveForm}>
-          {saving ? "Opening..." : "Save"}
-        </button>
-        <button type="button" onClick={() => printDigitalForm(row, data)}>
-          Print
-        </button>
-        {saveStatus ? <p>{saveStatus}</p> : null}
-      </div>
+      {showActions ? <DigitalFormActions data={data} row={row} /> : null}
     </div>
   );
 }
 
-function SiteInspectionSubmissionDetails({ data, filePreviewContext, row }) {
+function SiteInspectionSubmissionDetails({ data, filePreviewContext, row, showActions = true }) {
   const header = data.header || {};
   const observations = data.observations || {};
   const deficiencies = Array.isArray(data.deficiencies) ? data.deficiencies : [];
-  const [saveStatus, setSaveStatus] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const saveForm = async () => {
-    setSaving(true);
-    setSaveStatus("");
-    try {
-      const shared = await shareOrSaveDigitalForm(row, data);
-      if (!shared) setSaveStatus("Saved as an HTML file.");
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSaveStatus(error.message || "This form could not be saved.");
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="toolbox-detail site-inspection-detail">
@@ -10900,15 +10865,7 @@ function SiteInspectionSubmissionDetails({ data, filePreviewContext, row }) {
         )}
       />
 
-      <div className="digital-form-actions">
-        <button disabled={saving} type="button" onClick={saveForm}>
-          {saving ? "Opening..." : "Save"}
-        </button>
-        <button type="button" onClick={() => printDigitalForm(row, data)}>
-          Print
-        </button>
-        {saveStatus ? <p>{saveStatus}</p> : null}
-      </div>
+      {showActions ? <DigitalFormActions data={data} row={row} /> : null}
     </div>
   );
 }
@@ -10947,27 +10904,10 @@ function CustomGenericSubmissionDetails({ actionItemBlocks = {}, answers = {}, f
   );
 }
 
-function TemplateSubmissionDetails({ data, filePreviewContext, row }) {
+function TemplateSubmissionDetails({ data, filePreviewContext, row, showActions = true }) {
   const schema = normalizeClientTemplateSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
   const answers = data?.answers || {};
   const actionItemBlocks = data?.actionItemBlocks || {};
-  const [saveStatus, setSaveStatus] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const saveForm = async () => {
-    setSaving(true);
-    setSaveStatus("");
-    try {
-      const shared = await shareOrSaveDigitalForm(row, data);
-      if (!shared) setSaveStatus("Saved as an HTML file.");
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSaveStatus(error.message || "This form could not be saved.");
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="toolbox-detail template-submission-detail">
@@ -10997,15 +10937,39 @@ function TemplateSubmissionDetails({ data, filePreviewContext, row }) {
         </section>
       ))}
 
-      <div className="digital-form-actions">
-        <button disabled={saving} type="button" onClick={saveForm}>
-          {saving ? "Opening..." : "Save"}
-        </button>
-        <button type="button" onClick={() => printDigitalForm(row, data)}>
-          Print
-        </button>
-        {saveStatus ? <p>{saveStatus}</p> : null}
-      </div>
+      {showActions ? <DigitalFormActions data={data} row={row} /> : null}
+    </div>
+  );
+}
+
+function DigitalFormActions({ className = "digital-form-actions", data, row }) {
+  const [saveStatus, setSaveStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const saveForm = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const shared = await shareOrSaveDigitalForm(row, data);
+      if (!shared) setSaveStatus("Saved as an HTML file.");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSaveStatus(error.message || "This form could not be saved.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={className}>
+      <button disabled={saving} type="button" onClick={saveForm}>
+        {saving ? "Opening..." : "Save"}
+      </button>
+      <button type="button" onClick={() => printDigitalForm(row, data)}>
+        Print
+      </button>
+      {saveStatus ? <p>{saveStatus}</p> : null}
     </div>
   );
 }

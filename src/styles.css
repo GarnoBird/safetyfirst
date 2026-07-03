@@ -5138,6 +5138,19 @@ p {
   justify-content: space-between;
 }
 
+.dialog-heading > div:first-child {
+  min-width: 0;
+}
+
+.dialog-heading-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
 .dialog-heading h2 {
   font-size: 1.45rem;
 }
@@ -5206,6 +5219,18 @@ p {
   font-size: 0.88rem;
   font-weight: 750;
   text-align: right;
+}
+
+.dialog-digital-form-actions {
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.dialog-digital-form-actions p {
+  flex-basis: 100%;
+  font-size: 0.78rem;
 }
 
 .toolbox-detail section {
