@@ -4443,7 +4443,6 @@ p {
 .template-v3-sidebar,
 .template-v3-canvas,
 .template-v3-preview-page,
-.template-v3-options-page,
 .template-v3-side-card,
 .template-v3-inspector-body {
   display: grid;
@@ -4563,8 +4562,7 @@ p {
 .template-v3-section,
 .template-v3-field-card,
 .template-v3-empty-page,
-.template-v3-preview-page,
-.template-v3-options-page {
+.template-v3-preview-page {
   border: 1px solid #d9e3de;
   border-radius: 8px;
   background: #fff;
@@ -4572,8 +4570,7 @@ p {
 
 .template-v3-form-header,
 .template-v3-empty-page,
-.template-v3-preview-page,
-.template-v3-options-page {
+.template-v3-preview-page {
   padding: 16px;
 }
 
@@ -4596,7 +4593,6 @@ p {
 .template-v3-field-card span,
 .template-v3-side-heading span,
 .template-v3-page-header span,
-.template-v3-options-page > span,
 .template-v3-side-card label > span {
   color: #286f68;
   font-size: 0.74rem;
@@ -4610,7 +4606,6 @@ p {
 .template-v3-field-card small,
 .template-v3-help-text,
 .template-v3-worker-url,
-.template-v3-options-page p,
 .template-v3-empty-page p {
   color: var(--muted);
   font-weight: 800;
@@ -4626,8 +4621,6 @@ p {
 .template-v3-empty-page p,
 .template-v3-page-header h2,
 .template-v3-page-header p,
-.template-v3-options-page h2,
-.template-v3-options-page p,
 .template-v3-side-heading h2 {
   margin: 0;
 }
@@ -4693,8 +4686,7 @@ p {
   background: #fff;
 }
 
-.template-v3-preview-page,
-.template-v3-options-page {
+.template-v3-preview-page {
   align-content: start;
   min-height: 520px;
 }

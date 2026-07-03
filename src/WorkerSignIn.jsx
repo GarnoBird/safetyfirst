@@ -8414,17 +8414,13 @@ function TemplateSchemaEditorV3({
             <div className="template-v3-tabs" role="tablist" aria-label="Builder V3 views">
               {[
                 ["editor", "Editor"],
-                ["options", "Options"],
                 ["preview", "Preview"],
               ].map(([id, label]) => (
                 <button
                   className={view === id ? "active" : ""}
                   key={id}
                   type="button"
-                  onClick={() => {
-                    changeView(id);
-                    if (id === "options") setSelected({ kind: "header" });
-                  }}
+                  onClick={() => changeView(id)}
                 >
                   {label}
                 </button>
@@ -8485,15 +8481,6 @@ function TemplateSchemaEditorV3({
                   {canEdit ? <button type="button" onClick={() => setFieldPickerOpen(true)}>New Field +</button> : null}
                 </div>
               )}
-            </section>
-          ) : view === "options" ? (
-            <section className="template-v3-options-page">
-              <span>Options</span>
-              <h2>Template settings are on the right.</h2>
-              <p>Set the form name, description, worker visibility, and publishing actions from the options panel.</p>
-              <button type="button" onClick={() => setSelected({ kind: "header" })}>
-                Edit template options
-              </button>
             </section>
           ) : (
             <section className="template-v3-canvas" aria-label="Builder V3 canvas">

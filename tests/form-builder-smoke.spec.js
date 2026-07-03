@@ -877,6 +877,8 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto("/staff/form-templates");
   await expect(page.getByRole("heading", { name: "Toolbox Talk Smoke" })).toBeVisible();
+  await expect(page.locator(".template-v3-tabs").getByRole("button", { name: "Options" })).toHaveCount(0);
+  await expect(page.locator(".template-v3-template-options-card")).toContainText("Template");
   await page.locator(".template-v3-field-card").filter({ hasText: "Signature" }).getByRole("button").first().click();
   await expect(page.locator(".template-v3-selected-block-card")).toContainText("Selected Block");
   await expectCardAbove(page, ".template-v3-selected-block-card", ".template-v3-template-options-card");
