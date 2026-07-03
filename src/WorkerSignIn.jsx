@@ -1069,17 +1069,30 @@ export function WorkerSignInPage() {
     rememberedProfile || EMPTY_WORKER_SIGNIN_FORM,
   );
   const [rememberMe, setRememberMe] = useState(Boolean(rememberedProfile));
-  const [groupMode, setGroupMode] = useState(false);
-  const [groupNames, setGroupNames] = useState([]);
+  const [groupMode, setGroupMode] = useState(Boolean(rememberedProfile?.groupMode));
+  const [groupNames, setGroupNames] = useState(
+    rememberedProfile?.groupMode ? rememberedProfile.groupNames || [] : [],
+  );
   const [groupNameDraft, setGroupNameDraft] = useState("");
   const [status, setStatus] = useState({ type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const submitted = status.type === "success";
 
+  const rememberProfile = (
+    nextForm = form,
+    nextGroupMode = groupMode,
+    nextGroupNames = groupNames,
+  ) => {
+    writeRememberedWorkerProfile(nextForm, {
+      groupMode: nextGroupMode,
+      groupNames: nextGroupMode ? normalizeGroupNameEntries(nextGroupNames) : [],
+    });
+  };
+
   const updateField = (field, value) => {
     setForm((current) => {
       const nextForm = { ...current, [field]: value };
-      if (rememberMe) writeRememberedWorkerProfile(nextForm);
+      if (rememberMe) rememberProfile(nextForm);
       return nextForm;
     });
   };
@@ -1092,7 +1105,7 @@ export function WorkerSignInPage() {
         otherCompanyName:
           value === OTHER_COMPANY ? current.otherCompanyName : "",
       };
-      if (rememberMe) writeRememberedWorkerProfile(nextForm);
+      if (rememberMe) rememberProfile(nextForm);
       return nextForm;
     });
   };
@@ -1100,7 +1113,11 @@ export function WorkerSignInPage() {
   const updateRememberMe = (checked) => {
     setRememberMe(checked);
     if (checked) {
-      writeRememberedWorkerProfile(form);
+      rememberProfile(
+        form,
+        groupMode,
+        groupMode ? [...groupNames, groupNameDraft] : [],
+      );
       return;
     }
     clearRememberedWorkerProfile();
@@ -1110,13 +1127,22 @@ export function WorkerSignInPage() {
   const updateGroupMode = (enabled) => {
     setGroupMode(enabled);
     setGroupNameDraft("");
-    if (!enabled) setGroupNames([]);
+    if (rememberMe) {
+      rememberProfile(form, enabled, enabled ? groupNames : []);
+    }
+    if (!enabled) {
+      setGroupNames([]);
+    }
   };
 
   const addGroupNames = (value) => {
     const names = normalizeGroupNameEntries([value]);
     if (!names.length) return false;
-    setGroupNames((current) => [...current, ...names]);
+    setGroupNames((current) => {
+      const nextNames = [...current, ...names];
+      if (rememberMe) rememberProfile(form, groupMode, nextNames);
+      return nextNames;
+    });
     setGroupNameDraft("");
     return true;
   };
@@ -1124,20 +1150,30 @@ export function WorkerSignInPage() {
   const updateGroupNameDraft = (value) => {
     if (!value.includes(",")) {
       setGroupNameDraft(value);
+      if (rememberMe) rememberProfile(form, groupMode, [...groupNames, value]);
       return;
     }
     const parts = value.split(",");
     const completedNames = normalizeGroupNameEntries(parts.slice(0, -1));
+    const nextDraft = (parts[parts.length - 1] || "").trimStart();
     if (completedNames.length) {
-      setGroupNames((current) => [...current, ...completedNames]);
+      setGroupNames((current) => {
+        const nextNames = [...current, ...completedNames];
+        if (rememberMe) rememberProfile(form, groupMode, [...nextNames, nextDraft]);
+        return nextNames;
+      });
+    } else if (rememberMe) {
+      rememberProfile(form, groupMode, [...groupNames, nextDraft]);
     }
-    setGroupNameDraft((parts[parts.length - 1] || "").trimStart());
+    setGroupNameDraft(nextDraft);
   };
 
   const removeGroupName = (indexToRemove) => {
-    setGroupNames((current) =>
-      current.filter((_, index) => index !== indexToRemove),
-    );
+    setGroupNames((current) => {
+      const nextNames = current.filter((_, index) => index !== indexToRemove);
+      if (rememberMe) rememberProfile(form, groupMode, [...nextNames, groupNameDraft]);
+      return nextNames;
+    });
   };
 
   const handleGroupNameKeyDown = (event) => {
@@ -1193,7 +1229,7 @@ export function WorkerSignInPage() {
       }
 
       if (rememberMe) {
-        writeRememberedWorkerProfile(form);
+        rememberProfile(form, groupMode, groupMode ? names : []);
         if (createdSignIns.length > 1) {
           writeRememberedWorkerGroup(createdSignIns);
         } else {
@@ -12443,9 +12479,13 @@ function readRememberedWorkerProfile() {
   }
 }
 
-function writeRememberedWorkerProfile(form) {
+function writeRememberedWorkerProfile(form, options = {}) {
   if (typeof document === "undefined") return;
-  const profile = normalizeRememberedWorkerProfile(form);
+  const profile = normalizeRememberedWorkerProfile({
+    ...form,
+    groupMode: options.groupMode ?? form?.groupMode,
+    groupNames: options.groupNames ?? form?.groupNames,
+  });
   const attributes = [
     `${WORKER_REMEMBER_COOKIE}=${encodeURIComponent(JSON.stringify(profile))}`,
     `Max-Age=${WORKER_REMEMBER_COOKIE_MAX_AGE_SECONDS}`,
@@ -12531,6 +12571,15 @@ function normalizeRememberedWorkerGroup(payload) {
 }
 
 function normalizeRememberedWorkerProfile(profile) {
+  const name = String(profile?.name || "").trim();
+  const groupMode = Boolean(profile?.groupMode);
+  const rememberedGroupNames = groupMode
+    ? normalizeGroupNameEntries(
+        Array.isArray(profile?.groupNames) && profile.groupNames.length
+          ? profile.groupNames
+          : [name],
+      )
+    : [];
   const companyValue = String(
     profile?.companyName || profile?.company || profile?.trade || "",
   ).trim();
@@ -12546,10 +12595,12 @@ function normalizeRememberedWorkerProfile(profile) {
         : "";
 
   return {
-    name: String(profile?.name || "").trim(),
+    name: groupMode && rememberedGroupNames.length ? rememberedGroupNames[0] : name,
     phone: String(profile?.phone || "").trim(),
     companyName: rememberedCompany,
     otherCompanyName: rememberedOtherCompany,
+    groupMode,
+    groupNames: rememberedGroupNames,
   };
 }
 
