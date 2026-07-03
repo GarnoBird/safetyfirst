@@ -20,21 +20,7 @@ export async function buildSignInReport(date = getVancouverDate()) {
 
 export async function buildCompanySummaryReport(date = getVancouverDate()) {
   const signIns = await listSignIns({ date, sort: "company", dir: "asc" });
-  const companies = summarizeCompanies(signIns);
-  return {
-    date,
-    signIns,
-    companies,
-    totalCompanies: companies.length,
-    totalWorkers: signIns.length,
-    csv: companySummaryToCsv({ companies, date, totalWorkers: signIns.length }),
-    xml: companySummaryToXml({
-      companies,
-      date,
-      totalCompanies: companies.length,
-      totalWorkers: signIns.length,
-    }),
-  };
+  return buildCompanySummaryFromRows(date, signIns);
 }
 
 export function rowsToCsv(rows) {
@@ -137,12 +123,13 @@ export async function sendSignInReportEmail({
   const dashboardLink = appUrl
     ? `<p><a href="${escapeHtml(new URL("/staff/sign-ins", appUrl).href)}">Open staff sign-ins</a></p>`
     : "";
+  const companySummary = buildCompanySummaryFromRows(date, report.rows);
 
   const { data, error } = await resend.emails.send({
     from,
     to: recipientEmails,
     subject,
-    html: `<p>Attached are the worker sign-ins for ${escapeHtml(date)}.</p><p>Rows: ${report.rows.length}</p>${dashboardLink}`,
+    html: signInReportEmailHtml(report, companySummary, dashboardLink),
     attachments: reportAttachments(report, reportFormat),
   });
 
@@ -326,6 +313,24 @@ function reportAttachments(report, format) {
   return attachments;
 }
 
+function buildCompanySummaryFromRows(date, signIns) {
+  const companies = summarizeCompanies(signIns);
+  return {
+    date,
+    signIns,
+    companies,
+    totalCompanies: companies.length,
+    totalWorkers: signIns.length,
+    csv: companySummaryToCsv({ companies, date, totalWorkers: signIns.length }),
+    xml: companySummaryToXml({
+      companies,
+      date,
+      totalCompanies: companies.length,
+      totalWorkers: signIns.length,
+    }),
+  };
+}
+
 function summarizeCompanies(rows) {
   const companies = new Map();
   rows.forEach((row) => {
@@ -338,7 +343,26 @@ function summarizeCompanies(rows) {
     .sort((a, b) => b.workerCount - a.workerCount || a.company.localeCompare(b.company));
 }
 
+function signInReportEmailHtml(report, companySummary, dashboardLink) {
+  return `<div style="font-family:Inter,Arial,sans-serif;color:#17211f;line-height:1.45;">
+    <h1 style="margin:0 0 12px;font-size:22px;">Worker sign-ins - ${escapeHtml(report.date)}</h1>
+    <p style="margin:0 0 14px;">Attached are the worker sign-ins for ${escapeHtml(report.date)}.</p>
+    ${companySummaryStatsHtml(companySummary)}
+    <p style="margin-top:14px;color:#5e6d69;">Worker sign-in CSV and XML versions are attached.</p>
+    ${dashboardLink}
+  </div>`;
+}
+
 function companySummaryEmailHtml(report, dashboardLink) {
+  return `<div style="font-family:Inter,Arial,sans-serif;color:#17211f;line-height:1.45;">
+    <h1 style="margin:0 0 12px;font-size:22px;">Company summary - ${escapeHtml(report.date)}</h1>
+    ${companySummaryStatsHtml(report)}
+    <p style="margin-top:14px;color:#5e6d69;">CSV and XML versions are attached.</p>
+    ${dashboardLink}
+  </div>`;
+}
+
+function companySummaryStatsHtml(report) {
   const companyRows = report.companies
     .map(
       (row) => `<tr>
@@ -348,8 +372,7 @@ function companySummaryEmailHtml(report, dashboardLink) {
     )
     .join("");
 
-  return `<div style="font-family:Inter,Arial,sans-serif;color:#17211f;line-height:1.45;">
-    <h1 style="margin:0 0 12px;font-size:22px;">Company summary - ${escapeHtml(report.date)}</h1>
+  return `
     <div style="display:inline-block;margin:0 10px 14px 0;padding:10px 14px;border:1px solid #d9e3de;border-radius:8px;background:#f7faf9;">
       <div style="font-size:12px;color:#5e6d69;font-weight:700;text-transform:uppercase;">Total Companies on site</div>
       <div style="font-size:26px;font-weight:800;">${escapeHtml(report.totalCompanies)}</div>
@@ -366,10 +389,7 @@ function companySummaryEmailHtml(report, dashboardLink) {
         </tr>
       </thead>
       <tbody>${companyRows}</tbody>
-    </table>
-    <p style="margin-top:14px;color:#5e6d69;">CSV and XML versions are attached.</p>
-    ${dashboardLink}
-  </div>`;
+    </table>`;
 }
 
 export async function hasSentAutoReport(date) {
