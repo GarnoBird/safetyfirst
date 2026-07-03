@@ -37,6 +37,8 @@ export const SUBMISSION_MODES = ["submit_file", "fill_form"];
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 const MAX_FORM_TEXT_LENGTH = 600;
 const MAX_FORM_LONG_TEXT_LENGTH = 4000;
+const MAX_STAFF_SIGNATURE_DATA_URL_LENGTH = 750000;
+const STAFF_SIGNATURE_DATA_URL_PATTERN = /^data:image\/png;base64,[A-Za-z0-9+/=]+$/;
 const MAX_TOOLBOX_TOPICS = 80;
 const MAX_TOOLBOX_ROWS = 80;
 const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
@@ -203,12 +205,15 @@ const STAFF_SORT_FIELDS = [
 const FILE_SELECT =
   "id, submission_id, bucket, storage_path, original_filename, mime_type, size_bytes, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_status, backup_attempted_at, backup_error, app_deleted_at, created_at";
 const SUBMISSION_SELECT =
-  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, form_template_version_id, form_schema_snapshot, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
+  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, form_template_version_id, form_schema_snapshot, staff_signoffs, staff_reviewed_at, staff_reviewed_by_staff_id, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
 const SUBMISSION_WITH_FILES_SELECT = `${SUBMISSION_SELECT}, submission_files(${FILE_SELECT})`;
 
 export function publicSubmission(row) {
   return {
     ...row,
+    staff_signoffs: normalizeStaffSignoffs(row?.staff_signoffs),
+    staff_reviewed_at: row?.staff_reviewed_at || null,
+    staff_reviewed_by_staff_id: row?.staff_reviewed_by_staff_id || null,
     files: row.submission_files || row.files || [],
     submission_files: undefined,
   };
@@ -729,6 +734,50 @@ export async function createStaffSubmissionFileAccess(submissionId, fileId) {
   };
 }
 
+export async function appendStaffSubmissionSignoff(staff, submissionId, body = {}) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  const signature = cleanStaffSignatureDataUrl(
+    body.signatureDataUrl || body.signature_data_url || body.signature,
+  );
+  const comments = cleanText(body.comments || body.comment || "", MAX_FORM_LONG_TEXT_LENGTH);
+  const signedAt = new Date().toISOString();
+  const signoff = {
+    id: crypto.randomUUID(),
+    staff_id: staff?.id || null,
+    staff_name: cleanText(staff?.display_name || staff?.username || "Staff", MAX_FORM_TEXT_LENGTH),
+    staff_username: cleanText(staff?.username || "", MAX_FORM_TEXT_LENGTH),
+    signature_data_url: signature,
+    comments,
+    signed_at: signedAt,
+  };
+
+  let existing;
+  try {
+    existing = await getSubmissionById(id);
+    return publicSubmission(
+      throwIfSupabaseError(
+        await getSupabaseServiceClient()
+          .from("form_submissions")
+          .update({
+            staff_signoffs: [...normalizeStaffSignoffs(existing.staff_signoffs), signoff],
+            staff_reviewed_at: signedAt,
+            staff_reviewed_by_staff_id: staff?.id || null,
+          })
+          .eq("id", id)
+          .is("deleted_by_worker_at", null)
+          .is("deleted_by_staff_at", null)
+          .is("app_purged_at", null)
+          .select(SUBMISSION_WITH_FILES_SELECT)
+          .single(),
+        "Staff sign-off could not be saved.",
+      ),
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return appendFallbackStaffSubmissionSignoff(staff, id, signoff);
+  }
+}
+
 export async function retrySubmissionBackup(id) {
   const cleanId = cleanUuid(id, "Submission id is not valid.");
   try {
@@ -871,6 +920,9 @@ async function backupFilledSubmission(submission) {
           formData: submission.form_data || {},
           formTemplateVersionId: submission.form_template_version_id || null,
           formSchemaSnapshot: submission.form_schema_snapshot || {},
+          staffSignoffs: normalizeStaffSignoffs(submission.staff_signoffs),
+          staffReviewedAt: submission.staff_reviewed_at || null,
+          staffReviewedByStaffId: submission.staff_reviewed_by_staff_id || null,
           submittedAt: submission.submitted_at,
           submittedDate: submission.submitted_date_vancouver,
         },
@@ -1103,6 +1155,9 @@ async function createFallbackWorkerSubmission(worker, { body, formType, submissi
     form_data: formData,
     form_template_version_id: nextCleanedForm.formTemplateVersionId || null,
     form_schema_snapshot: nextCleanedForm.formSchemaSnapshot || {},
+    staff_signoffs: [],
+    staff_reviewed_at: null,
+    staff_reviewed_by_staff_id: null,
     submitted_at: now.toISOString(),
     submitted_date_vancouver: getVancouverDate(now),
     deleted_by_worker_at: null,
@@ -1215,6 +1270,19 @@ async function getFallbackSubmissionById(id, { includeDeleted = false } = {}) {
   return row;
 }
 
+async function appendFallbackStaffSubmissionSignoff(staff, id, signoff) {
+  const row = await getFallbackSubmissionById(id);
+  if (!row) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  row.staff_signoffs = [...normalizeStaffSignoffs(row.staff_signoffs), signoff];
+  row.staff_reviewed_at = signoff.signed_at;
+  row.staff_reviewed_by_staff_id = staff?.id || null;
+  return publicSubmission(await saveFallbackSubmission(row));
+}
+
 async function listFallbackSubmissions() {
   return (await listFallbackRecords("submission"))
     .map(normalizeFallbackSubmission)
@@ -1268,6 +1336,9 @@ async function backupFallbackSubmission(id) {
             formData: submission.form_data || {},
             formTemplateVersionId: submission.form_template_version_id || null,
             formSchemaSnapshot: submission.form_schema_snapshot || {},
+            staffSignoffs: normalizeStaffSignoffs(submission.staff_signoffs),
+            staffReviewedAt: submission.staff_reviewed_at || null,
+            staffReviewedByStaffId: submission.staff_reviewed_by_staff_id || null,
             submittedAt: submission.submitted_at,
             submittedDate: submission.submitted_date_vancouver,
           },
@@ -1472,11 +1543,33 @@ function normalizeFallbackSubmission(row) {
     form_data: row.form_data && typeof row.form_data === "object" ? row.form_data : {},
     form_template_version_id: row.form_template_version_id || null,
     form_schema_snapshot: row.form_schema_snapshot && typeof row.form_schema_snapshot === "object" ? row.form_schema_snapshot : {},
+    staff_signoffs: normalizeStaffSignoffs(row.staff_signoffs),
+    staff_reviewed_at: row.staff_reviewed_at || null,
+    staff_reviewed_by_staff_id: row.staff_reviewed_by_staff_id || null,
     deleted_by_staff_at: row.deleted_by_staff_at || null,
     deleted_by_staff_id: row.deleted_by_staff_id || null,
     files,
     submission_files: files,
   };
+}
+
+function normalizeStaffSignoffs(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      const signature = typeof item?.signature_data_url === "string" ? item.signature_data_url.trim() : "";
+      if (!STAFF_SIGNATURE_DATA_URL_PATTERN.test(signature)) return null;
+      return {
+        id: cleanText(item.id || crypto.randomUUID(), 80),
+        staff_id: item.staff_id || null,
+        staff_name: cleanText(item.staff_name || item.staff_username || "Staff", MAX_FORM_TEXT_LENGTH),
+        staff_username: cleanText(item.staff_username || "", MAX_FORM_TEXT_LENGTH),
+        signature_data_url: signature,
+        comments: cleanText(item.comments || "", MAX_FORM_LONG_TEXT_LENGTH),
+        signed_at: cleanText(item.signed_at || "", 40),
+      };
+    })
+    .filter(Boolean);
 }
 
 function compareFallbackSubmissions(a, b, sort, dir) {
@@ -2475,6 +2568,18 @@ function requireText(value, label) {
 
 function cleanText(value, maxLength) {
   return String(value || "").trim().slice(0, maxLength);
+}
+
+function cleanStaffSignatureDataUrl(value) {
+  const signature = String(value || "").trim();
+  if (!signature) throwBadRequest("Staff signature is required.");
+  if (
+    signature.length > MAX_STAFF_SIGNATURE_DATA_URL_LENGTH ||
+    !STAFF_SIGNATURE_DATA_URL_PATTERN.test(signature)
+  ) {
+    throwBadRequest("Staff signature must be a valid PNG signature.");
+  }
+  return signature;
 }
 
 function cleanDate(value, label) {

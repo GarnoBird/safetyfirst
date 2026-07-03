@@ -19,6 +19,7 @@ import {
   StaffAuditPage,
   StaffBackupsPage,
   StaffFormSubmissionsPage,
+  StaffSubmissionViewerPage,
   StaffFormTemplatesPage,
   StaffHealthPage,
   StaffActionItemsPage,
@@ -128,6 +129,10 @@ export default function App() {
 
   if (routePath === "/staff/forms") {
     return <StaffFormSubmissionsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath.startsWith("/staff/forms/")) {
+    return <StaffSubmissionViewerPage routePath={routePath} navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/form-templates") {

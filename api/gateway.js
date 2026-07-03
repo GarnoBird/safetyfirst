@@ -25,6 +25,7 @@ import { processStaffAutoReports } from "./_lib/auto-reports.js";
 import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
+  appendStaffSubmissionSignoff,
   createFileUploadTarget,
   createStaffSubmissionFileAccess,
   deleteStaffSubmission,
@@ -742,6 +743,22 @@ async function handleStaffSubmissions(req, res, staff, parts) {
   if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
     const access = await createStaffSubmissionFileAccess(parts[0], parts[2]);
     return sendJson(res, 200, access);
+  }
+  if (parts.length === 2 && parts[1] === "signoffs" && req.method === "POST") {
+    const submission = await appendStaffSubmissionSignoff(staff, parts[0], await readJson(req));
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submission_staff_signed",
+      targetType: "submission",
+      targetId: submission.id,
+      summary: `${staff.username} signed a submitted form.`,
+      metadata: {
+        formType: submission.form_type,
+        signoffCount: Array.isArray(submission.staff_signoffs) ? submission.staff_signoffs.length : 0,
+      },
+    });
+    return sendJson(res, 200, { submission });
   }
   if (parts.length === 1 && req.method === "DELETE") {
     requireStaffRole(staff, ["owner", "admin"]);

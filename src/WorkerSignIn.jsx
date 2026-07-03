@@ -6426,7 +6426,6 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [records, setRecords] = useState({ rows: [] });
   const [formOptions, setFormOptions] = useState(SAFETY_FORM_TYPES);
-  const [selected, setSelected] = useState(null);
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingId, setRetryingId] = useState("");
@@ -6550,7 +6549,6 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         rows: current.rows.filter((record) => record.id !== payload.id),
       }));
       setSelectedSubmissionIds((current) => current.filter((id) => id !== payload.id));
-      if (selected?.id === payload.id) setSelected(null);
       setMessage("Form submission deleted.");
     } catch (error) {
       setMessage(error.message);
@@ -6586,7 +6584,6 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         rows: current.rows.filter((row) => !deletedIds.has(row.id)),
       }));
       setSelectedSubmissionIds([]);
-      if (selected && deletedIds.has(selected.id)) setSelected(null);
       setMessage(
         payload.failed
           ? `Deleted ${payload.deleted} form submission${payload.deleted === 1 ? "" : "s"}. ${payload.failed} could not be deleted.`
@@ -6599,18 +6596,8 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     }
   };
 
-  const openDetails = async (row) => {
-    setSelected(row);
-    try {
-      const payload = await readApiJson(
-        await fetch(`/api/staff/submissions/${row.id}`, {
-          credentials: "include",
-        }),
-      );
-      setSelected(payload.submission);
-    } catch (error) {
-      setMessage(error.message);
-    }
+  const openDetails = (row) => {
+    navigateTo(`/staff/forms/${row.id}`);
   };
 
   if (!staff) return <StaffLoadingScreen />;
@@ -6729,16 +6716,446 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         />
       </section>
 
-      {selected ? (
-        <SubmissionDetailsDialog
-          canRetry={canDeleteSubmissions}
-          row={selected}
-          onClose={() => setSelected(null)}
-          onRetry={retryBackup}
-          retryingId={retryingId}
+    </StaffShell>
+  );
+}
+
+export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
+  const { staff } = useStaffSession(navigateTo);
+  const submissionId = routePath.split("/").filter(Boolean).pop();
+  const exportSurfaceRef = useRef(null);
+  const [row, setRow] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [filePreview, setFilePreview] = useState(null);
+  const [previewLoadingId, setPreviewLoadingId] = useState("");
+  const [filePreviewMessage, setFilePreviewMessage] = useState("");
+  const [signDialogOpen, setSignDialogOpen] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [activeExport, setActiveExport] = useState("");
+  const [exportStatus, setExportStatus] = useState("");
+
+  const files = row?.files || [];
+  const digitalFormData = digitalSubmissionData(row);
+  const filesByStoragePath = useMemo(() => {
+    const map = new Map();
+    files.forEach((file) => {
+      if (file?.storage_path) map.set(file.storage_path, file);
+    });
+    return map;
+  }, [files]);
+
+  const loadSubmission = async () => {
+    if (!submissionId) return;
+    setLoading(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${submissionId}`, {
+          credentials: "include",
+        }),
+      );
+      setRow(payload.submission);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadSubmission();
+  }, [staff, submissionId]);
+
+  const openFilePreview = async (file) => {
+    setPreviewLoadingId(file.id);
+    setFilePreviewMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}/files/${file.id}/url`, {
+          credentials: "include",
+        }),
+      );
+      setFilePreview(payload);
+    } catch (error) {
+      setFilePreviewMessage(error.message);
+    } finally {
+      setPreviewLoadingId("");
+    }
+  };
+
+  const runExport = async (type) => {
+    if (!row) return;
+    setActiveExport(type);
+    setExportStatus("");
+    setDownloadOpen(false);
+    setMoreOpen(false);
+    try {
+      if (type === "pdf") {
+        await downloadDigitalFormPdf(row, digitalFormData, exportSurfaceRef);
+        setExportStatus("PDF saved.");
+      } else if (type === "png") {
+        await downloadDigitalFormPng(row, digitalFormData, exportSurfaceRef);
+        setExportStatus("PNG saved.");
+      } else {
+        await printDigitalForm(row, digitalFormData, exportSurfaceRef);
+        setExportStatus("Print dialog opened.");
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setExportStatus(error.message || "This form could not be exported.");
+      }
+    } finally {
+      setActiveExport("");
+    }
+  };
+
+  const openSignDialog = () => {
+    setMoreOpen(false);
+    setSignDialogOpen(true);
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="forms" contentWide navigateTo={navigateTo} staff={staff}>
+      <section className="submitted-viewer-shell">
+        <div className="submitted-viewer-toolbar" aria-label="Submitted form actions">
+          <div className="submitted-viewer-toolbar-left">
+            <button className="submitted-viewer-back" type="button" onClick={() => navigateTo("/staff/forms")}>
+              <ToolbarIcon type="back" />
+              <span>Forms</span>
+            </button>
+            <div>
+              <h1>{row ? formTypeLabel(row.form_type) : "Submitted Form"}</h1>
+              <p>{row ? `${row.worker_name || "Worker"} / ${row.company || "Company"}` : "Loading..."}</p>
+            </div>
+            {row ? <span className="submitted-viewer-status">{submissionReviewStatus(row)}</span> : null}
+          </div>
+          <div className="submitted-viewer-toolbar-actions">
+            <button disabled={!row} type="button" onClick={openSignDialog}>
+              <ToolbarIcon type="review" />
+              <span>Review</span>
+            </button>
+            <button disabled title="Edit is not available yet." type="button">
+              <ToolbarIcon type="edit" />
+              <span>Edit</span>
+            </button>
+            <button disabled title="Translate is not available yet." type="button">
+              <ToolbarIcon type="translate" />
+              <span>Translate</span>
+            </button>
+            <div className="submitted-viewer-menu-wrap">
+              <button
+                aria-expanded={downloadOpen}
+                disabled={!row || Boolean(activeExport)}
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false);
+                  setDownloadOpen((open) => !open);
+                }}
+              >
+                <ToolbarIcon type="download" />
+                <span>{activeExport === "pdf" || activeExport === "png" ? "Saving..." : "Download"}</span>
+              </button>
+              {downloadOpen ? (
+                <div className="submitted-viewer-menu" role="menu">
+                  <button role="menuitem" type="button" onClick={() => runExport("pdf")}>PDF</button>
+                  <button role="menuitem" type="button" onClick={() => runExport("png")}>PNG</button>
+                </div>
+              ) : null}
+            </div>
+            <div className="submitted-viewer-menu-wrap">
+              <button
+                aria-expanded={moreOpen}
+                aria-label="More submitted form actions"
+                disabled={!row || Boolean(activeExport)}
+                type="button"
+                onClick={() => {
+                  setDownloadOpen(false);
+                  setMoreOpen((open) => !open);
+                }}
+              >
+                <ToolbarIcon type="more" />
+              </button>
+              {moreOpen ? (
+                <div className="submitted-viewer-menu right" role="menu">
+                  <button role="menuitem" type="button" onClick={openSignDialog}>
+                    <ToolbarIcon type="sign" />
+                    <span>Sign</span>
+                  </button>
+                  <button role="menuitem" type="button" onClick={() => runExport("print")}>
+                    <ToolbarIcon type="print" />
+                    <span>{activeExport === "print" ? "Opening..." : "Print"}</span>
+                  </button>
+                  <button disabled role="menuitem" title="Email is not available yet." type="button">
+                    <ToolbarIcon type="email" />
+                    <span>Email</span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {exportStatus ? <p className="submitted-viewer-status-message">{exportStatus}</p> : null}
+        {message ? <p className="staff-message">{message}</p> : null}
+        {loading ? <p className="empty-state">Loading submitted form...</p> : null}
+        {!loading && row ? (
+          <div className="submitted-viewer-stage">
+            <SubmittedFormDocument
+              exportRef={exportSurfaceRef}
+              filePreviewContext={{ filesByStoragePath, openFilePreview, previewLoadingId }}
+              filePreviewMessage={filePreviewMessage}
+              row={row}
+            />
+          </div>
+        ) : null}
+      </section>
+
+      {signDialogOpen && row ? (
+        <SubmissionReviewSignDialog
+          row={row}
+          staff={staff}
+          onClose={() => setSignDialogOpen(false)}
+          onSaved={setRow}
+        />
+      ) : null}
+      {filePreview ? (
+        <SubmissionFilePreviewDialog
+          preview={filePreview}
+          onClose={() => setFilePreview(null)}
         />
       ) : null}
     </StaffShell>
+  );
+}
+
+function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessage = "", row }) {
+  const files = row.files || [];
+  return (
+    <div className="submission-export-surface submitted-form-document" ref={exportRef}>
+      <div className="submission-export-heading">
+        <p>APPIA</p>
+        <h2>{formTypeLabel(row.form_type)}</h2>
+        <strong>{row.worker_name} / {row.company}</strong>
+      </div>
+      <dl className="staff-detail-list">
+        <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+        <div><dt>Phone</dt><dd>{row.worker_phone}</dd></div>
+        <div><dt>Username</dt><dd>{row.worker_username}</dd></div>
+        <div><dt>Mode</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
+        <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
+        {row.backup_error ? <div><dt>Backup error</dt><dd>{row.backup_error}</dd></div> : null}
+        {row.one_drive_web_url ? (
+          <div><dt>OneDrive</dt><dd><a href={row.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a></dd></div>
+        ) : null}
+        {row.notes ? <div><dt>Notes</dt><dd>{row.notes}</dd></div> : null}
+      </dl>
+      {isDigitalToolboxTalkSubmission(row) ? (
+        <ToolboxTalkSubmissionDetails
+          data={row.form_data}
+          filePreviewContext={filePreviewContext}
+          row={row}
+          showActions={false}
+        />
+      ) : null}
+      {isDigitalSiteInspectionSubmission(row) ? (
+        <SiteInspectionSubmissionDetails
+          data={row.form_data}
+          filePreviewContext={filePreviewContext}
+          row={row}
+          showActions={false}
+        />
+      ) : null}
+      {isTemplateDigitalSubmission(row) ? (
+        <TemplateSubmissionDetails
+          data={row.form_data}
+          filePreviewContext={filePreviewContext}
+          row={row}
+          showActions={false}
+        />
+      ) : null}
+      {row.action_items?.length ? (
+        <div className="submission-action-items">
+          <h3>Linked Action Items</h3>
+          {row.action_items.map((item) => (
+            <div className="submission-action-item-row" key={item.id}>
+              <div>
+                <strong>{item.title || item.description || "Action item"}</strong>
+                <span>{item.assigned_to || item.suggested_assignee || "Unassigned"}</span>
+              </div>
+              <StatusPill value={actionItemStatusLabel(item.status)} />
+              <StatusPill value={priorityLabel(item.priority)} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {files.length ? (
+        <div className="submission-file-list">
+          <h3>Files</h3>
+          {filePreviewMessage ? <p className="form-message error">{filePreviewMessage}</p> : null}
+          {files.map((file) => (
+            <div className="submission-file-row" key={file.id}>
+              <button
+                className="submission-file-name-button"
+                disabled={filePreviewContext?.previewLoadingId === file.id}
+                type="button"
+                onClick={() => filePreviewContext?.openFilePreview?.(file)}
+              >
+                {filePreviewContext?.previewLoadingId === file.id ? "Opening..." : file.original_filename}
+              </button>
+              <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
+              {file.one_drive_web_url ? (
+                <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open</a>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <StaffSignoffSection signoffs={row.staff_signoffs} />
+    </div>
+  );
+}
+
+function SubmissionReviewSignDialog({ onClose, onSaved, row, staff }) {
+  const [signature, setSignature] = useState("");
+  const [comments, setComments] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const saveSignoff = async ({ keepOpen = false } = {}) => {
+    const cleanedSignature = cleanSignatureDataUrl(signature);
+    if (!cleanedSignature) {
+      setMessage("Staff signature is required.");
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}/signoffs`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            signatureDataUrl: cleanedSignature,
+            comments,
+          }),
+        }),
+      );
+      onSaved(payload.submission);
+      if (keepOpen) {
+        setSignature("");
+        setComments("");
+        setMessage("Signature saved.");
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop signoff-dialog-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Review & Sign Form"
+        className="staff-detail-dialog signoff-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>Review &amp; Sign Form</h2>
+            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+          </div>
+          <button aria-label="Close" type="button" onClick={onClose}>X</button>
+        </div>
+        <dl className="staff-detail-list signoff-summary-list">
+          <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+          <div><dt>Reviewing as</dt><dd>{staff?.display_name || staff?.username || "Staff"}</dd></div>
+          <div><dt>Status</dt><dd>{submissionReviewStatus(row)}</dd></div>
+        </dl>
+        <StaffSignoffSection compact signoffs={row.staff_signoffs} />
+        <SignaturePadField
+          field={{
+            label: "Staff Signature",
+            helperText: "Draw in the box with a finger, stylus, or mouse.",
+          }}
+          value={signature}
+          onChange={setSignature}
+        />
+        <label className="field signoff-comment-field">
+          <span>Comments</span>
+          <textarea
+            value={comments}
+            onChange={(event) => setComments(event.target.value)}
+            placeholder="Optional review comments"
+          />
+        </label>
+        {message ? <p className={message === "Signature saved." ? "form-message success" : "form-message error"}>{message}</p> : null}
+        <div className="signoff-dialog-actions">
+          <button disabled={saving} type="button" onClick={onClose}>Cancel</button>
+          <button disabled={saving} type="button" onClick={() => saveSignoff({ keepOpen: true })}>
+            {saving ? "Signing..." : "Sign & Add Another Signature"}
+          </button>
+          <button className="primary-button" disabled={saving} type="button" onClick={() => saveSignoff()}>
+            {saving ? "Signing..." : "Sign"}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function StaffSignoffSection({ compact = false, signoffs }) {
+  const rows = normalizeStaffSignoffsForDisplay(signoffs);
+  return (
+    <section className={compact ? "staff-signoff-section compact" : "staff-signoff-section"}>
+      <div className="staff-signoff-heading">
+        <h3>Staff Sign-Off</h3>
+        <span>{rows.length ? `${rows.length} signature${rows.length === 1 ? "" : "s"}` : "Not signed"}</span>
+      </div>
+      {rows.length ? (
+        <div className="staff-signoff-list">
+          {rows.map((signoff) => (
+            <article className="staff-signoff-card" key={signoff.id}>
+              <div>
+                <strong>{signoff.staff_name || signoff.staff_username || "Staff"}</strong>
+                <span>{signoff.signed_at ? formatDateTime(signoff.signed_at) : "Signed"}</span>
+              </div>
+              <img alt={`${signoff.staff_name || "Staff"} signature`} src={signoff.signature_data_url} />
+              {signoff.comments ? <p>{signoff.comments}</p> : null}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p>No staff sign-off recorded yet.</p>
+      )}
+    </section>
+  );
+}
+
+function ToolbarIcon({ type }) {
+  const paths = {
+    back: "M15 18l-6-6 6-6M9 12h12",
+    review: "M4 5h16v14H4zM8 9h8M8 13h5",
+    edit: "M4 20h4l11-11-4-4L4 16v4zM13 7l4 4",
+    translate: "M4 5h8M8 5v14M5 19h6M14 19l4-10 4 10M16 15h4",
+    download: "M12 3v12M7 10l5 5 5-5M5 21h14",
+    more: "M12 6h.01M12 12h.01M12 18h.01",
+    sign: "M4 17c3-5 5-5 6 0 1 3 3 3 6-1 1-1 2-2 4-2",
+    print: "M7 8V4h10v4M7 17H5v-7h14v7h-2M8 14h8v6H8z",
+    email: "M4 6h16v12H4zM4 7l8 6 8-6",
+  };
+  return (
+    <svg aria-hidden="true" className="toolbar-icon" viewBox="0 0 24 24">
+      <path d={paths[type] || paths.more} />
+    </svg>
   );
 }
 
@@ -11478,10 +11895,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
   const [filePreview, setFilePreview] = useState(null);
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
-  const digitalFormData =
-    isDigitalToolboxTalkSubmission(row) || isDigitalSiteInspectionSubmission(row) || isTemplateDigitalSubmission(row)
-      ? row.form_data
-      : null;
+  const digitalFormData = digitalSubmissionData(row);
   const filesByStoragePath = useMemo(() => {
     const map = new Map();
     files.forEach((file) => {
@@ -11609,6 +12023,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
               ))}
             </div>
           ) : null}
+          <StaffSignoffSection signoffs={row.staff_signoffs} />
         </div>
         {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
           <button
@@ -15641,6 +16056,35 @@ function isDigitalSiteInspectionSubmission(row) {
 
 function isTemplateDigitalSubmission(row) {
   return row?.submission_mode === "fill_form" && row?.form_data?.kind === "template_submission_v1";
+}
+
+function digitalSubmissionData(row) {
+  return isDigitalToolboxTalkSubmission(row) || isDigitalSiteInspectionSubmission(row) || isTemplateDigitalSubmission(row)
+    ? row.form_data
+    : null;
+}
+
+function normalizeStaffSignoffsForDisplay(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item, index) => {
+      const signature = cleanSignatureDataUrl(item?.signature_data_url);
+      if (!signature) return null;
+      return {
+        id: item.id || `${item.staff_id || "staff"}-${item.signed_at || index}`,
+        staff_id: item.staff_id || "",
+        staff_name: item.staff_name || item.staff_username || "Staff",
+        staff_username: item.staff_username || "",
+        signature_data_url: signature,
+        comments: item.comments || "",
+        signed_at: item.signed_at || "",
+      };
+    })
+    .filter(Boolean);
+}
+
+function submissionReviewStatus(row) {
+  return normalizeStaffSignoffsForDisplay(row?.staff_signoffs).length ? "Reviewed" : "Pending review";
 }
 
 function renderTemplateAnswerDisplay(field, value, filePreviewContext) {
