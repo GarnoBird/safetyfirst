@@ -7,7 +7,12 @@ const STAFF_ROLES = ["owner", "admin", "staff"];
 const STAFF_USER_SELECT =
   "id, auth_user_id, username, email, display_name, role, active, created_at, updated_at, created_by_staff_id, updated_by_staff_id, last_login_at";
 
-export async function listStaffUsers({ search = "", role = "", active = "all" } = {}) {
+export async function listStaffUsers({
+  search = "",
+  role = "",
+  active = "all",
+  includeEmail = true,
+} = {}) {
   let query = getSupabaseServiceClient()
     .from("staff_profiles")
     .select(STAFF_USER_SELECT)
@@ -21,13 +26,16 @@ export async function listStaffUsers({ search = "", role = "", active = "all" } 
   let rows = throwIfSupabaseError(await query, "Staff users could not be loaded.");
   const normalizedSearch = String(search || "").trim().toLowerCase();
   if (normalizedSearch) {
+    const searchFields = includeEmail
+      ? ["username", "email", "display_name", "role"]
+      : ["username", "display_name", "role"];
     rows = rows.filter((row) =>
-      [row.username, row.email, row.display_name, row.role]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(normalizedSearch)),
+      searchFields.some((field) =>
+        String(row[field] || "").toLowerCase().includes(normalizedSearch),
+      ),
     );
   }
-  return rows.map(publicStaffUser);
+  return rows.map((row) => publicStaffUser(row, { includeEmail }));
 }
 
 export async function createStaffUser(body, actor) {
@@ -255,11 +263,10 @@ export async function updateOwnStaffProfile(body, actor) {
   return publicStaffUser(row);
 }
 
-function publicStaffUser(row) {
-  return {
+function publicStaffUser(row, { includeEmail = true } = {}) {
+  const user = {
     id: row.id,
     username: row.username,
-    email: row.email,
     display_name: row.display_name || row.username,
     role: row.role,
     active: row.active,
@@ -267,6 +274,8 @@ function publicStaffUser(row) {
     updated_at: row.updated_at,
     last_login_at: row.last_login_at,
   };
+  if (includeEmail) user.email = row.email;
+  return user;
 }
 
 function cleanStaffUserInput(body, { requirePassword = false } = {}) {

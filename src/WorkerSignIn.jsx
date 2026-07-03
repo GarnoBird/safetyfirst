@@ -22,7 +22,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
   { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items", adminOnly: true },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
-  { id: "users", label: "USERS", path: "/staff/users", adminOnly: true },
+  { id: "users", label: "STAFF", path: "/staff/users" },
   { id: "backups", label: "BACKUPS", path: "/staff/backups", adminOnly: true },
   { id: "health", label: "HEALTH", path: "/staff/health", adminOnly: true },
   { id: "audit", label: "AUDIT", path: "/staff/audit", adminOnly: true },
@@ -1695,6 +1695,7 @@ export function StaffHomePage({ navigateTo }) {
   };
 
   if (!staff) return <StaffLoadingScreen />;
+  const canManageStaffUsers = isAdminOrOwner(staff);
 
   return (
     <StaffShell active="home" navigateTo={navigateTo} staff={staff}>
@@ -1752,26 +1753,28 @@ export function StaffHomePage({ navigateTo }) {
           </dl>
         </StaffActionCard>
 
-        {isAdminOrOwner(staff) ? (
-          <StaffActionCard
-            actionLabel="Manage users"
-            eyebrow="Staff security"
-            text="Create named staff accounts, assign owner/admin/staff roles, deactivate accounts, and reset passwords."
-            title="Staff Users"
-            onAction={() => navigateTo("/staff/users")}
-          >
-            <dl className="staff-card-listing">
-              <div>
-                <dt>Roles</dt>
-                <dd>Owner / Admin / Staff</dd>
-              </div>
-              <div>
-                <dt>Legacy</dt>
-                <dd>lbird stays admin</dd>
-              </div>
-            </dl>
-          </StaffActionCard>
-        ) : null}
+        <StaffActionCard
+          actionLabel={canManageStaffUsers ? "Manage staff" : "View staff"}
+          eyebrow={canManageStaffUsers ? "Staff security" : "Staff directory"}
+          text={
+            canManageStaffUsers
+              ? "Create named staff accounts, assign owner/admin/staff roles, deactivate accounts, and reset passwords."
+              : "View staff names, roles, and account status for this site."
+          }
+          title="Staff"
+          onAction={() => navigateTo("/staff/users")}
+        >
+          <dl className="staff-card-listing">
+            <div>
+              <dt>Roles</dt>
+              <dd>Owner / Admin / Staff</dd>
+            </div>
+            <div>
+              <dt>Access</dt>
+              <dd>{canManageStaffUsers ? "Manage accounts" : "View only"}</dd>
+            </div>
+          </dl>
+        </StaffActionCard>
 
         {isAdminOrOwner(staff) ? (
           <StaffActionCard
@@ -5797,19 +5800,15 @@ export function StaffUsersPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (!staff) return;
-    if (!canManageStaffUsers) {
-      navigateTo("/staff/home");
-      return;
-    }
-    loadUsers();
-  }, [staff, canManageStaffUsers, navigateTo]);
+    if (staff) loadUsers();
+  }, [staff]);
 
   const updateForm = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
   const startEdit = (user) => {
+    if (!canManageStaffUsers) return;
     setEditingId(user.id);
     setForm({
       display_name: user.display_name || "",
@@ -5828,6 +5827,10 @@ export function StaffUsersPage({ navigateTo }) {
 
   const saveUser = async (event) => {
     event.preventDefault();
+    if (!canManageStaffUsers) {
+      setMessage("Only admins and owners can manage staff accounts.");
+      return;
+    }
     setSaving(true);
     setMessage("");
     try {
@@ -5844,7 +5847,7 @@ export function StaffUsersPage({ navigateTo }) {
       );
       resetForm();
       await loadUsers();
-      setMessage(editingId ? "Staff user updated." : "Staff user created.");
+      setMessage(editingId ? "Staff account updated." : "Staff account created.");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -5853,6 +5856,10 @@ export function StaffUsersPage({ navigateTo }) {
   };
 
   const toggleActive = async (user) => {
+    if (!canManageStaffUsers) {
+      setMessage("Only admins and owners can manage staff accounts.");
+      return;
+    }
     setMessage("");
     try {
       await readApiJson(
@@ -5869,64 +5876,66 @@ export function StaffUsersPage({ navigateTo }) {
     }
   };
 
-  if (!staff || !canManageStaffUsers) return <StaffLoadingScreen />;
+  if (!staff) return <StaffLoadingScreen />;
 
   return (
     <StaffShell active="users" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
-      <section className="staff-form-admin-grid">
-        <form className="staff-admin-form" onSubmit={saveUser}>
-          <h2>{editingId ? "Edit staff user" : "Create staff user"}</h2>
-          <label className="field">
-            <span>Name</span>
-            <input required value={form.display_name} onChange={(event) => updateForm("display_name", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Email</span>
-            <input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Username</span>
-            <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>{editingId ? "New password" : "Password"}</span>
-            <input
-              required={!editingId}
-              type="password"
-              value={form.password}
-              onChange={(event) => updateForm("password", event.target.value)}
-            />
-          </label>
-          <label className="field">
-            <span>Role</span>
-            <select value={form.role} onChange={(event) => updateForm("role", event.target.value)}>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-              <option value="owner">Owner</option>
-            </select>
-          </label>
-          <label className="remember-worker-field">
-            <input
-              checked={form.active}
-              type="checkbox"
-              onChange={(event) => updateForm("active", event.target.checked)}
-            />
-            <span>Active</span>
-          </label>
-          <div className="staff-card-actions">
-            {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
-            <button className="primary-button" disabled={saving} type="submit">
-              {saving ? "Saving..." : editingId ? "Save user" : "Create user"}
-            </button>
-          </div>
-        </form>
+      <section className={canManageStaffUsers ? "staff-form-admin-grid" : "staff-form-admin-grid view-only"}>
+        {canManageStaffUsers ? (
+          <form className="staff-admin-form" onSubmit={saveUser}>
+            <h2>{editingId ? "Edit staff account" : "Create staff account"}</h2>
+            <label className="field">
+              <span>Name</span>
+              <input required value={form.display_name} onChange={(event) => updateForm("display_name", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Email</span>
+              <input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Username</span>
+              <input required value={form.username} onChange={(event) => updateForm("username", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>{editingId ? "New password" : "Password"}</span>
+              <input
+                required={!editingId}
+                type="password"
+                value={form.password}
+                onChange={(event) => updateForm("password", event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>Role</span>
+              <select value={form.role} onChange={(event) => updateForm("role", event.target.value)}>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+                <option value="owner">Owner</option>
+              </select>
+            </label>
+            <label className="remember-worker-field">
+              <input
+                checked={form.active}
+                type="checkbox"
+                onChange={(event) => updateForm("active", event.target.checked)}
+              />
+              <span>Active</span>
+            </label>
+            <div className="staff-card-actions">
+              {editingId ? <button type="button" onClick={resetForm}>Cancel</button> : null}
+              <button className="primary-button" disabled={saving} type="submit">
+                {saving ? "Saving..." : editingId ? "Save staff" : "Create staff"}
+              </button>
+            </div>
+          </form>
+        ) : null}
 
         <section className="staff-table-panel">
           <div className="staff-list-controls">
             <label className="staff-search-field">
-              <span>Search users</span>
-              <input placeholder="Search users" type="search" value={search} onChange={(event) => setSearch(event.target.value)} />
+              <span>Search staff</span>
+              <input placeholder="Search staff" type="search" value={search} onChange={(event) => setSearch(event.target.value)} />
             </label>
             <label className="staff-sort-select">
               <span>Role</span>
@@ -5948,9 +5957,11 @@ export function StaffUsersPage({ navigateTo }) {
             <button type="button" onClick={loadUsers}>Search</button>
           </div>
           <StaffUsersTable
+            canManage={canManageStaffUsers}
             currentStaffId={staff.id}
             loading={loading}
             rows={rows}
+            showEmail={canManageStaffUsers}
             onEdit={startEdit}
             onToggleActive={toggleActive}
           />
@@ -10214,9 +10225,17 @@ function WorkerAccountsTable({ canManage, loading, rows, onDelete, onEdit, onTog
   );
 }
 
-function StaffUsersTable({ currentStaffId, loading, rows, onEdit, onToggleActive }) {
-  if (loading) return <p className="empty-state">Loading staff users...</p>;
-  if (!rows.length) return <p className="empty-state">No staff users found.</p>;
+function StaffUsersTable({
+  canManage,
+  currentStaffId,
+  loading,
+  rows,
+  showEmail,
+  onEdit,
+  onToggleActive,
+}) {
+  if (loading) return <p className="empty-state">Loading staff...</p>;
+  if (!rows.length) return <p className="empty-state">No staff found.</p>;
 
   return (
     <div className="staff-table-scroll staff-form-table-scroll">
@@ -10225,11 +10244,11 @@ function StaffUsersTable({ currentStaffId, loading, rows, onEdit, onToggleActive
           <tr>
             <th>Name</th>
             <th>Username</th>
-            <th>Email</th>
+            {showEmail ? <th>Email</th> : null}
             <th>Role</th>
             <th>Status</th>
             <th>Last login</th>
-            <th>Actions</th>
+            {canManage ? <th>Actions</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -10237,22 +10256,24 @@ function StaffUsersTable({ currentStaffId, loading, rows, onEdit, onToggleActive
             <tr key={user.id}>
               <td>{user.display_name}</td>
               <td>{user.username}</td>
-              <td><a href={`mailto:${user.email}`}>{user.email}</a></td>
+              {showEmail ? <td><a href={`mailto:${user.email}`}>{user.email}</a></td> : null}
               <td><StatusPill value={roleLabel(user.role)} /></td>
               <td><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
               <td>{user.last_login_at ? formatDateTime(user.last_login_at) : "Never"}</td>
-              <td>
-                <div className="table-action-row">
-                  <button type="button" onClick={() => onEdit(user)}>Edit</button>
-                  <button
-                    disabled={user.id === currentStaffId}
-                    type="button"
-                    onClick={() => onToggleActive(user)}
-                  >
-                    {user.active ? "Deactivate" : "Activate"}
-                  </button>
-                </div>
-              </td>
+              {canManage ? (
+                <td>
+                  <div className="table-action-row">
+                    <button type="button" onClick={() => onEdit(user)}>Edit</button>
+                    <button
+                      disabled={user.id === currentStaffId}
+                      type="button"
+                      onClick={() => onToggleActive(user)}
+                    >
+                      {user.active ? "Deactivate" : "Activate"}
+                    </button>
+                  </div>
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>

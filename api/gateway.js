@@ -505,17 +505,18 @@ async function handleStaffWorkers(req, res, staff, parts = []) {
 }
 
 async function handleStaffUsers(req, res, staff) {
-  requireStaffRole(staff, ["owner", "admin"]);
   if (req.method === "GET") {
     const query = parseQuery(req);
     const rows = await listStaffUsers({
       search: query.get("search") || "",
       role: query.get("role") || "",
       active: query.get("active") || "all",
+      includeEmail: ["owner", "admin"].includes(staff.role),
     });
     return sendJson(res, 200, { rows });
   }
   if (req.method === "POST") {
+    requireStaffRole(staff, ["owner", "admin"]);
     const body = await readJson(req);
     const user = await createStaffUser(body, staff);
     await recordAuditEvent({
@@ -530,6 +531,7 @@ async function handleStaffUsers(req, res, staff) {
     return sendJson(res, 201, { user });
   }
   if (req.method === "PATCH") {
+    requireStaffRole(staff, ["owner", "admin"]);
     const body = await readJson(req);
     const user = await updateStaffUser(body, staff);
     await recordAuditEvent({
