@@ -92,6 +92,7 @@ const speedFanInspectionSchema = readMigrationSchema(legacyBuildingBlockMigratio
 const hoistCompetencyObservationSchema = readMigrationSchema(legacyBuildingBlockMigration, "hoist_schema");
 const fallProtectionSchema = readMigrationSchema("024_fall_protection_template.sql");
 const dailySafetyInspectionSchema = readMigrationSchema("025_daily_safety_inspection_template.sql");
+const dailyWashroomInspectionSchema = readMigrationSchema("026_daily_washroom_inspection_template.sql");
 
 const requiredSignatureSection = {
   id: "signature_section",
@@ -2039,6 +2040,67 @@ test("Daily Safety Inspection worker form honors conditional sections, image-onl
   await page.getByRole("button", { name: "Submit Daily Safety Inspection" }).click();
   await expect(page.getByText("Inspector Signatures is required.")).toBeVisible();
   await expect(page.locator(".template-section-daily_signatures")).toHaveClass(/toolbox-section-invalid/);
+});
+
+test("Daily Washroom Inspection migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "daily_washroom_inspection",
+    "Daily Washroom Inspection",
+    dailyWashroomInspectionSchema,
+    { displayOrder: 100 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Daily Washroom Inspection" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Daily Washroom Inspection" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Flushables 1-2-3 - AT GATE 1 (HOIST)" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card")).toContainText("Radio buttons");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Daily Washroom Inspection" }).first()).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Bathroom Inspection" })).toBeVisible();
+  await expect(preview.getByText("Person(s) Inspecting")).toBeVisible();
+  await expect(preview.getByText("Flushables 4-5 - NORTH GL (WHITE UNITS)")).toBeVisible();
+  await expect(preview.getByText("Chemical 1-2-3-4-5 - NORTH EAST GROUND LEVEL")).toBeVisible();
+  await expect(preview.getByText("Chemical 6-7-8-9-10-11-12 - IN TOWER")).toBeVisible();
+  await expect(preview.locator(".template-field-daily_washroom_flushables_1_2_3_status").getByRole("radio", { name: "Pass" })).toBeVisible();
+  await expect(preview.getByText("Flushables 1-2-3: Describe Issues")).toBeVisible();
+});
+
+test("Daily Washroom Inspection worker form submits status and issue details", async ({ page }) => {
+  const row = template("daily_washroom_inspection", "Daily Washroom Inspection", dailyWashroomInspectionSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/daily_washroom_inspection");
+  await expect(page.getByRole("heading", { name: "Daily Washroom Inspection" })).toBeVisible();
+  await page
+    .locator(".template-field-daily_washroom_flushables_1_2_3_status")
+    .getByRole("radio", { name: "Fail" })
+    .click();
+  await page.getByLabel("Flushables 1-2-3: Describe Issues").fill("Flush handle is loose.");
+  await page
+    .locator(".template-field-daily_washroom_chemical_1_5_status")
+    .getByRole("radio", { name: "Serviced by Safety" })
+    .click();
+  await page.getByLabel("Additional Notes").fill("Restocked paper and checked tower units.");
+  await page.getByRole("button", { name: "Submit Daily Washroom Inspection" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.daily_washroom_persons_inspecting).toBe(worker.name);
+  expect(submissions[0].formData.answers.daily_washroom_flushables_1_2_3_status).toBe("Fail");
+  expect(submissions[0].formData.answers.daily_washroom_flushables_1_2_3_issues).toBe("Flush handle is loose.");
+  expect(submissions[0].formData.answers.daily_washroom_chemical_1_5_status).toBe("Serviced by Safety");
+  expect(submissions[0].formData.answers.daily_washroom_additional_notes).toBe("Restocked paper and checked tower units.");
 });
 
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
