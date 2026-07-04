@@ -560,6 +560,7 @@ async function mockApis(page, templates, options = {}) {
   const currentStaff = options.staff || staff;
   const unlockPassword = options.unlockPassword || "letmein";
   const staffSubmissions = options.staffSubmissions || [];
+  const workerSubmissions = options.workerSubmissions || staffSubmissions.filter((row) => !row.worker_id || row.worker_id === worker.id);
   const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   const emailRequests = [];
@@ -568,6 +569,7 @@ async function mockApis(page, templates, options = {}) {
   submissions.emailRequests = emailRequests;
   submissions.pdfRequests = pdfRequests;
   submissions.staffSubmissions = staffSubmissions;
+  submissions.workerSubmissions = workerSubmissions;
   submissions.translateApiCalls = translateApiCalls;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
@@ -796,7 +798,45 @@ endobj
 trailer
 << /Root 1 0 R >>
 %%EOF`);
-      pdfRequests.push({ submissionId });
+      pdfRequests.push({ scope: "staff", submissionId });
+      return route.fulfill({
+        status: 200,
+        contentType: "application/pdf",
+        headers: {
+          "content-disposition": `attachment; filename="${row.company.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${row.form_type}.pdf"`,
+        },
+        body,
+      });
+    }
+    if (path === "/api/worker/submissions" && method === "GET") {
+      return json({ rows: workerSubmissions });
+    }
+    const workerSubmissionParts = path.split("/").filter(Boolean);
+    if (
+      method === "GET" &&
+      workerSubmissionParts.length === 5 &&
+      workerSubmissionParts[0] === "api" &&
+      workerSubmissionParts[1] === "worker" &&
+      workerSubmissionParts[2] === "submissions" &&
+      workerSubmissionParts[4] === "pdf"
+    ) {
+      const submissionId = workerSubmissionParts[3];
+      const row = workerSubmissions.find((item) => item.id === submissionId);
+      if (!row) return json({ error: "Not found" }, 404);
+      const body = Buffer.from(`%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>
+endobj
+trailer
+<< /Root 1 0 R >>
+%%EOF`);
+      pdfRequests.push({ scope: "worker", submissionId });
       return route.fulfill({
         status: 200,
         contentType: "application/pdf",
@@ -1420,6 +1460,18 @@ test("Toolbox Talk attendance splits comma-separated names", async ({ page }) =>
 test("worker group sign-in reuses duplicate open rows after refresh", async ({ page }) => {
   const workerSignIns = [];
   await mockApis(page, [], { workerSignIns });
+  await page.addInitScript(() => {
+    const fixedNow = new Date("2026-07-03T19:00:00.000Z").valueOf();
+    class FixedDate extends Date {
+      constructor(...args) {
+        super(...(args.length ? args : [fixedNow]));
+      }
+      static now() {
+        return fixedNow;
+      }
+    }
+    window.Date = FixedDate;
+  });
   const signInResponses = [];
   page.on("response", async (response) => {
     if (
@@ -1654,6 +1706,35 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
   }
 
   expect(pageErrors).toEqual([]);
+});
+
+test("worker submission review shows PDF PNG and Print actions at the top", async ({ page }) => {
+  const workerSubmission = templateSubmissionRow({
+    id: "worker-review-submission",
+    company: worker.company,
+    workerName: worker.name,
+  });
+  workerSubmission.worker_id = worker.id;
+  const mockState = await mockApis(page, [], { workerSubmissions: [workerSubmission] });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/my-submissions/${workerSubmission.id}`);
+  await expect(page.getByRole("button", { name: "PDF", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "PNG", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Print", exact: true })).toBeVisible();
+
+  const childClasses = await page.locator(".worker-submission-detail").evaluate((element) =>
+    Array.from(element.children).map((child) => child.className),
+  );
+  expect(childClasses[0]).toContain("worker-submission-export-actions");
+  expect(childClasses[1]).toContain("worker-submission-export-surface");
+  await expect(page.locator(".worker-submission-export-surface .digital-form-actions")).toHaveCount(0);
+
+  await expectNonEmptyDownload(page, "PDF", "pdf");
+  expect(mockState.pdfRequests.at(-1)).toMatchObject({
+    scope: "worker",
+    submissionId: workerSubmission.id,
+  });
 });
 
 test("Toolbox Talk review notes and safety concerns use editable subfields", async ({ page }) => {

@@ -861,6 +861,17 @@ export async function createStaffSubmissionPdf(submissionId) {
   return await renderSubmittedFormPdf(submission);
 }
 
+export async function createWorkerSubmissionPdf(worker, submissionId) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  const submission = await getSubmissionById(id);
+  if (submission.worker_id !== worker.id) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  return await renderSubmittedFormPdf(submission);
+}
+
 export async function retrySubmissionBackup(id) {
   const cleanId = cleanUuid(id, "Submission id is not valid.");
   try {

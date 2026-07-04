@@ -5258,6 +5258,19 @@ p {
   gap: 14px;
 }
 
+.worker-submission-export-actions {
+  justify-content: flex-start;
+  position: sticky;
+  top: 8px;
+  z-index: 8;
+  box-shadow: 0 8px 22px rgba(21, 35, 30, 0.08);
+}
+
+.worker-submission-export-surface {
+  display: grid;
+  gap: 14px;
+}
+
 .worker-submission-summary {
   border: 1px solid #d9e3de;
   border-radius: 8px;

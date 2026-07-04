@@ -5574,55 +5574,67 @@ export function WorkerSubmissionDetailPage({ navigateTo, routePath }) {
 }
 
 function WorkerSubmissionReadOnlyView({ row }) {
+  const exportSurfaceRef = useRef(null);
   const files = row.files || [];
+  const digitalFormData = digitalSubmissionData(row);
   return (
     <section className="worker-submission-detail">
-      <div className="worker-submission-summary">
-        <dl className="staff-detail-list">
-          <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
-          <div><dt>Form type</dt><dd>{formTypeLabel(row.form_type)}</dd></div>
-          <div><dt>Submission</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
-          <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
-          {row.notes ? <div><dt>Summary</dt><dd>{row.notes}</dd></div> : null}
-        </dl>
-      </div>
+      <DigitalFormActions
+        className="digital-form-actions worker-submission-export-actions"
+        data={digitalFormData}
+        exportRef={exportSurfaceRef}
+        pdfScope="worker"
+        row={row}
+      />
 
-      {isDigitalToolboxTalkSubmission(row) ? (
-        <ToolboxTalkSubmissionDetails data={row.form_data} row={row} />
-      ) : null}
-      {isDigitalSiteInspectionSubmission(row) ? (
-        <SiteInspectionSubmissionDetails data={row.form_data} row={row} />
-      ) : null}
-      {isTemplateDigitalSubmission(row) ? (
-        <TemplateSubmissionDetails data={row.form_data} row={row} />
-      ) : null}
-
-      {isFileUploadSubmission(row) ? (
-        <SubmittedFilePackage files={files} row={row} />
-      ) : null}
-
-      {!isFileUploadSubmission(row) && files.length ? (
-        <div className="submission-file-list">
-          <h3>Files</h3>
-          {files.map((file) => (
-            <div className="submission-file-row" key={file.id}>
-              <span>{file.original_filename}</span>
-              <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
-              {file.one_drive_web_url ? (
-                <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a>
-              ) : null}
-            </div>
-          ))}
+      <div className="worker-submission-export-surface" ref={exportSurfaceRef}>
+        <div className="worker-submission-summary">
+          <dl className="staff-detail-list">
+            <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
+            <div><dt>Form type</dt><dd>{formTypeLabel(row.form_type)}</dd></div>
+            <div><dt>Submission</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
+            <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
+            {row.notes ? <div><dt>Summary</dt><dd>{row.notes}</dd></div> : null}
+          </dl>
         </div>
-      ) : null}
 
-      {!isDigitalToolboxTalkSubmission(row) &&
-      !isDigitalSiteInspectionSubmission(row) &&
-      !isTemplateDigitalSubmission(row) &&
-      !isFileUploadSubmission(row) &&
-      !files.length ? (
-        <p className="empty-state">No additional form details were saved for this submission.</p>
-      ) : null}
+        {isDigitalToolboxTalkSubmission(row) ? (
+          <ToolboxTalkSubmissionDetails data={row.form_data} row={row} showActions={false} />
+        ) : null}
+        {isDigitalSiteInspectionSubmission(row) ? (
+          <SiteInspectionSubmissionDetails data={row.form_data} row={row} showActions={false} />
+        ) : null}
+        {isTemplateDigitalSubmission(row) ? (
+          <TemplateSubmissionDetails data={row.form_data} row={row} showActions={false} />
+        ) : null}
+
+        {isFileUploadSubmission(row) ? (
+          <SubmittedFilePackage files={files} row={row} />
+        ) : null}
+
+        {!isFileUploadSubmission(row) && files.length ? (
+          <div className="submission-file-list">
+            <h3>Files</h3>
+            {files.map((file) => (
+              <div className="submission-file-row" key={file.id}>
+                <span>{file.original_filename}</span>
+                <small>{formatFileSize(file.size_bytes)} / {backupStatusLabel(file.backup_status)}</small>
+                {file.one_drive_web_url ? (
+                  <a href={file.one_drive_web_url} target="_blank" rel="noreferrer">Open backup</a>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {!isDigitalToolboxTalkSubmission(row) &&
+        !isDigitalSiteInspectionSubmission(row) &&
+        !isTemplateDigitalSubmission(row) &&
+        !isFileUploadSubmission(row) &&
+        !files.length ? (
+          <p className="empty-state">No additional form details were saved for this submission.</p>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -12777,7 +12789,7 @@ function TemplateSubmissionDetails({ data, filePreviewContext, row, showActions 
   );
 }
 
-function DigitalFormActions({ className = "digital-form-actions", data, exportRef, row }) {
+function DigitalFormActions({ className = "digital-form-actions", data, exportRef, pdfScope = "staff", row }) {
   const [exportStatus, setExportStatus] = useState("");
   const [activeExport, setActiveExport] = useState("");
 
@@ -12786,7 +12798,7 @@ function DigitalFormActions({ className = "digital-form-actions", data, exportRe
     setExportStatus("");
     try {
       if (type === "pdf") {
-        await downloadDigitalFormPdf(row, data, exportRef);
+        await downloadDigitalFormPdf(row, data, exportRef, { pdfScope });
         setExportStatus("PDF saved.");
       } else if (type === "png") {
         await downloadDigitalFormPng(row, data, exportRef);
@@ -16839,8 +16851,9 @@ async function downloadDigitalFormPng(row, data, exportTarget) {
   });
 }
 
-async function downloadDigitalFormPdf(row, data, exportTarget) {
-  const response = await fetch(`/api/staff/submissions/${row.id}/pdf`, {
+async function downloadDigitalFormPdf(row, data, exportTarget, options = {}) {
+  const basePath = options.pdfScope === "worker" ? "/api/worker/submissions" : "/api/staff/submissions";
+  const response = await fetch(`${basePath}/${row.id}/pdf`, {
     credentials: "include",
   });
   if (!response.ok) throw await digitalExportResponseError(response, "This form PDF could not be downloaded.");

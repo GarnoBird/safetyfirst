@@ -29,6 +29,7 @@ import {
   createFileUploadTarget,
   createStaffSubmissionPdf,
   createStaffSubmissionFileAccess,
+  createWorkerSubmissionPdf,
   deleteStaffSubmission,
   deleteStaffSubmissions,
   createWorkerSubmission,
@@ -1130,6 +1131,15 @@ async function handleWorker(req, res, parts) {
   if (tail.length === 1 && tail[0] === "file-upload-url" && req.method === "POST") {
     const upload = await createFileUploadTarget(worker, await readJson(req));
     return sendJson(res, 200, { upload });
+  }
+  if (tail.length === 2 && tail[1] === "pdf" && req.method === "GET") {
+    const result = await createWorkerSubmissionPdf(worker, tail[0]);
+    res.statusCode = 200;
+    res.setHeader("content-type", "application/pdf");
+    res.setHeader("content-length", String(result.buffer.length));
+    res.setHeader("content-disposition", `attachment; filename="${result.fileName}"`);
+    res.end(result.buffer);
+    return;
   }
   if (tail.length === 1 && req.method === "DELETE") {
     return sendJson(res, 200, await deleteWorkerSubmission(worker, tail[0]));
