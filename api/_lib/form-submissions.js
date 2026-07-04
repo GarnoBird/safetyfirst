@@ -782,6 +782,44 @@ export async function appendStaffSubmissionSignoff(staff, submissionId, body = {
   }
 }
 
+export async function updateStaffSubmission(staff, submissionId, body = {}) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  const existing = await getSubmissionById(id);
+  const updated = cleanStaffSubmissionEdit(existing, body);
+
+  try {
+    return publicSubmission(
+      throwIfSupabaseError(
+        await getSupabaseServiceClient()
+          .from("form_submissions")
+          .update({
+            notes: updated.notes,
+            form_data: updated.form_data,
+            form_template_version_id: updated.form_template_version_id,
+            form_schema_snapshot: updated.form_schema_snapshot,
+            one_drive_backup_status: "pending",
+            one_drive_item_id: null,
+            one_drive_item_name: null,
+            one_drive_web_url: null,
+            one_drive_path: null,
+            backup_attempted_at: null,
+            backup_error: null,
+          })
+          .eq("id", id)
+          .is("deleted_by_worker_at", null)
+          .is("deleted_by_staff_at", null)
+          .is("app_purged_at", null)
+          .select(SUBMISSION_WITH_FILES_SELECT)
+          .single(),
+        "Submission edit could not be saved.",
+      ),
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return updateFallbackStaffSubmission(id, updated);
+  }
+}
+
 export async function emailStaffSubmissionPdf(staff, submissionId, body = {}) {
   const id = cleanUuid(submissionId, "Submission id is not valid.");
   const recipientEmail = cleanStaffEmail(staff?.email);
@@ -1321,6 +1359,29 @@ async function appendFallbackStaffSubmissionSignoff(staff, id, signoff) {
   return publicSubmission(await saveFallbackSubmission(row));
 }
 
+async function updateFallbackStaffSubmission(id, updated) {
+  const row = await getFallbackSubmissionById(id);
+  if (!row) {
+    const error = new Error("Submission was not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  Object.assign(row, {
+    notes: updated.notes,
+    form_data: updated.form_data,
+    form_template_version_id: updated.form_template_version_id,
+    form_schema_snapshot: updated.form_schema_snapshot,
+    one_drive_backup_status: "pending",
+    one_drive_item_id: null,
+    one_drive_item_name: null,
+    one_drive_web_url: null,
+    one_drive_path: null,
+    backup_attempted_at: null,
+    backup_error: null,
+  });
+  return publicSubmission(await saveFallbackSubmission(row));
+}
+
 async function listFallbackSubmissions() {
   return (await listFallbackRecords("submission"))
     .map(normalizeFallbackSubmission)
@@ -1813,6 +1874,66 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
     formData: {},
     formTemplateVersionId: null,
     formSchemaSnapshot: {},
+  };
+}
+
+function cleanStaffSubmissionEdit(submission, body = {}) {
+  if (submission?.submission_mode !== "fill_form" || submission?.form_data?.kind !== "template_submission_v1") {
+    throwBadRequest("This submission type is not editable yet.");
+  }
+
+  const schema = cleanSubmissionEditSchema(submission);
+  const formType = cleanText(submission.form_type, 120);
+  const worker = {
+    id: submission.worker_id || null,
+    name: submission.worker_name || "",
+    phone: submission.worker_phone || "",
+    username: submission.worker_username || "",
+    user_name: submission.worker_username || "",
+    company: submission.company || "",
+  };
+  const source = body.formData ?? body.form_data ?? body;
+  const rawFormData = source?.kind === "template_submission_v1"
+    ? source
+    : {
+        answers: source?.answers || {},
+        actionItemBlocks: source?.actionItemBlocks || source?.action_item_blocks || {},
+      };
+  const cleaned = cleanTemplateSubmissionFieldsForSchema(schema, rawFormData, worker);
+  const current = submission.form_data || {};
+  const formData = {
+    ...current,
+    kind: "template_submission_v1",
+    version: current.version || 1,
+    formType,
+    templateVersionId: current.templateVersionId || submission.form_template_version_id || "",
+    templateVersionNumber: current.templateVersionNumber || null,
+    templateTitle: schema.title || current.templateTitle || humanizeFormType(formType),
+    schemaSnapshot: schema,
+    answers: cleaned.answers,
+    actionItemBlocks: cleaned.actionItemBlocks,
+  };
+
+  return {
+    notes: buildSubmissionNotes(formType, "fill_form", "", formData),
+    form_data: formData,
+    form_template_version_id: submission.form_template_version_id || current.templateVersionId || null,
+    form_schema_snapshot: schema,
+  };
+}
+
+function cleanSubmissionEditSchema(submission) {
+  const rawSchema = submission?.form_schema_snapshot && Object.keys(submission.form_schema_snapshot).length
+    ? submission.form_schema_snapshot
+    : submission?.form_data?.schemaSnapshot || {};
+  const schema = rawSchema && typeof rawSchema === "object" && !Array.isArray(rawSchema)
+    ? JSON.parse(JSON.stringify(rawSchema))
+    : {};
+  const sections = Array.isArray(schema.sections) ? schema.sections : [];
+  if (!sections.length) throwBadRequest("This submission does not include an editable form schema.");
+  return {
+    ...schema,
+    formType: schema.formType || submission?.form_type || "",
   };
 }
 

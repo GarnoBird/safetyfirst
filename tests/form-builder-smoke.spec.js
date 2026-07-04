@@ -563,6 +563,7 @@ async function mockApis(page, templates, options = {}) {
   const emailRequests = [];
   const translateApiCalls = [];
   submissions.emailRequests = emailRequests;
+  submissions.staffSubmissions = staffSubmissions;
   submissions.translateApiCalls = translateApiCalls;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
@@ -777,6 +778,35 @@ async function mockApis(page, templates, options = {}) {
       const submissionId = staffSubmissionParts.at(-1);
       const row = staffSubmissions.find((item) => item.id === submissionId);
       return row ? json({ submission: row }) : json({ error: "Not found" }, 404);
+    }
+    if (
+      method === "PATCH" &&
+      staffSubmissionParts.length === 4 &&
+      staffSubmissionParts[0] === "api" &&
+      staffSubmissionParts[1] === "staff" &&
+      staffSubmissionParts[2] === "submissions"
+    ) {
+      const submissionId = staffSubmissionParts.at(-1);
+      const index = staffSubmissions.findIndex((item) => item.id === submissionId);
+      if (index < 0) return json({ error: "Not found" }, 404);
+      const row = staffSubmissions[index];
+      if (row.submission_mode !== "fill_form" || row.form_data?.kind !== "template_submission_v1") {
+        return json({ error: "This submission type is not editable yet." }, 400);
+      }
+      const body = JSON.parse(request.postData() || "{}");
+      const formData = body.formData || body.form_data || {};
+      staffSubmissions[index] = {
+        ...row,
+        notes: `Editable Safety Form / Project Name: ${formData.answers?.project_name || "-"} / Approved?: ${formData.answers?.approved || "-"}`,
+        one_drive_backup_status: "pending",
+        one_drive_web_url: "",
+        form_data: {
+          ...row.form_data,
+          answers: formData.answers || {},
+          actionItemBlocks: formData.actionItemBlocks || {},
+        },
+      };
+      return json({ submission: staffSubmissions[index] });
     }
     if (
       method === "POST" &&
@@ -1033,6 +1063,66 @@ function fileSubmissionRow({
     action_items: [],
     form_schema_snapshot: null,
     form_data: null,
+  };
+}
+
+function templateSubmissionRow({
+  company = "EditCo",
+  formType = "editable_template",
+  id,
+  schemaSnapshot,
+  workerName = "Editor Worker",
+  answers = {},
+  actionItemBlocks = {},
+}) {
+  const schema = schemaSnapshot || {
+    schemaVersion: 1,
+    formType,
+    title: "Editable Safety Form",
+    sections: [
+      {
+        id: "main",
+        title: "Main",
+        fields: [
+          { id: "project_name", type: "short_text", label: "Project Name", required: true },
+          { id: "approved", type: "yes_no", label: "Approved?", required: true },
+        ],
+      },
+    ],
+  };
+  return {
+    id,
+    form_type: formType,
+    worker_name: workerName,
+    worker_phone: "6045551212",
+    worker_username: "eworker",
+    company,
+    submitted_at: "2026-07-03T17:04:00.000Z",
+    submitted_date_vancouver: "2026-07-03",
+    submission_mode: "fill_form",
+    one_drive_backup_status: "backed_up",
+    backup_error: "",
+    one_drive_web_url: "https://example.test/old-backup",
+    notes: "Editable Safety Form / Project Name: Original Project / Approved?: Yes",
+    files: [],
+    action_items: [],
+    form_schema_snapshot: schema,
+    form_template_version_id: `${formType}-version-1`,
+    form_data: {
+      kind: "template_submission_v1",
+      version: 1,
+      formType,
+      templateVersionId: `${formType}-version-1`,
+      templateVersionNumber: 1,
+      templateTitle: schema.title,
+      schemaSnapshot: schema,
+      answers: {
+        project_name: "Original Project",
+        approved: "yes",
+        ...answers,
+      },
+      actionItemBlocks,
+    },
   };
 }
 
@@ -1390,6 +1480,9 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
     id: "file-toolbox-submission",
     formType: "toolbox_talk_copy_2",
   });
+  const editableSubmission = templateSubmissionRow({
+    id: "editable-template-submission",
+  });
   const mockState = await mockApis(
     page,
     [
@@ -1398,27 +1491,32 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
         displayOrder: 2,
       }),
     ],
-    { staffSubmissions: [fileSubmission, customSubmission, standardSubmission] },
+    { staffSubmissions: [editableSubmission, fileSubmission, customSubmission, standardSubmission] },
   );
   const pageErrors = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
 
   await page.goto("/staff/forms");
-  await expect(page.getByText("3 form submissions")).toBeVisible();
+  await expect(page.getByText("4 form submissions")).toBeVisible();
 
   const viewerCases = [
+    { company: "EditCo", edit: true, expectedText: "Original Project", id: editableSubmission.id },
     { company: "Birding Scopes", expectedText: "Dinner-Photo-3.png", id: fileSubmission.id },
     { company: "CustomCo", expectedText: "Custom Toolbox Project", id: customSubmission.id, sign: true },
     { company: "StandardCo", expectedText: "Standard Toolbox Project", id: standardSubmission.id },
   ];
 
-  for (const { company, expectedText, id, sign } of viewerCases) {
+  for (const { company, edit, expectedText, id, sign } of viewerCases) {
     await page.goto("/staff/forms");
     await page.getByRole("row", { name: new RegExp(company) }).getByText(company, { exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/staff/forms/${id}$`));
     await expect(page.locator(".submitted-viewer-toolbar")).toBeVisible();
     await expect(page.getByRole("button", { name: "Review", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Edit" })).toBeDisabled();
+    if (edit) {
+      await expect(page.getByRole("button", { name: "Edit" })).toBeEnabled();
+    } else {
+      await expect(page.getByRole("button", { name: "Edit" })).toBeDisabled();
+    }
     await expect(page.getByRole("button", { name: "Translate" })).toBeEnabled();
     await expect(page.getByText(expectedText, { exact: true })).toBeVisible();
     if (id === fileSubmission.id) {
@@ -1426,6 +1524,26 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
       await expect(page.getByText("Submitted file package", { exact: true })).toBeVisible();
       await expect(page.getByText("1 uploaded file", { exact: true })).toBeVisible();
       await expect(page.getByText("Image / 1.0 MB", { exact: true })).toBeVisible();
+    }
+
+    if (edit) {
+      await page.getByRole("button", { name: "Edit" }).click();
+      const editDialog = page.getByRole("dialog", { name: "Edit Submitted Form" });
+      await expect(editDialog).toBeVisible();
+      await expect(editDialog.getByLabel("Project Name")).toHaveValue("Original Project");
+      await editDialog.getByLabel("Project Name").fill("Edited Project");
+      await editDialog.getByRole("button", { name: "No" }).click();
+      await editDialog.getByRole("button", { name: "Save edits" }).click();
+      await expect(editDialog).toHaveCount(0);
+      await expect(page.getByText("Edited Project", { exact: true })).toBeVisible();
+      await expect(page.getByText("Original Project", { exact: true })).toHaveCount(0);
+      await expect(page.locator(".submitted-viewer-status-message")).toHaveText("Form edits saved.");
+      const updatedSubmission = mockState.staffSubmissions.find((item) => item.id === id);
+      expect(updatedSubmission.form_data.answers).toMatchObject({
+        project_name: "Edited Project",
+        approved: "no",
+      });
+      expect(updatedSubmission.one_drive_backup_status).toBe("pending");
     }
 
     if (sign) {

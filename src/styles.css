@@ -6172,6 +6172,48 @@ p {
   min-height: 190px;
 }
 
+.submitted-edit-dialog {
+  width: min(100%, 1040px);
+  max-height: min(90vh, 920px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.submitted-edit-dialog .dialog-heading,
+.submitted-edit-dialog > .translate-dialog-notice {
+  margin-right: 18px;
+  margin-left: 18px;
+}
+
+.submitted-edit-dialog .dialog-heading {
+  margin-top: 18px;
+}
+
+.submitted-edit-form {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 18px 18px;
+}
+
+.submitted-edit-form .template-runtime-section-grid {
+  padding-bottom: 0;
+}
+
+.submitted-edit-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid #d9e3de;
+  padding: 12px 0 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), #fff 28%);
+}
+
 .signoff-summary-list div {
   grid-template-columns: 140px minmax(0, 1fr);
 }

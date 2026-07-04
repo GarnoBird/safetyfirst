@@ -39,6 +39,7 @@ import {
   retryFailedSubmissionBackups,
   retrySubmissionBackup,
   runSubmissionMaintenance,
+  updateStaffSubmission,
 } from "./_lib/form-submissions.js";
 import {
   createFormTemplate,
@@ -740,6 +741,22 @@ async function handleStaffSubmissions(req, res, staff, parts) {
       ? await getActionItemsForSubmission(parts[0])
       : [];
     return sendJson(res, 200, { submission: { ...submission, action_items: actionItems } });
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const submission = await updateStaffSubmission(staff, parts[0], await readJson(req));
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "submission_edited",
+      targetType: "submission",
+      targetId: submission.id,
+      summary: `${staff.username} edited a submitted form.`,
+      metadata: {
+        formType: submission.form_type,
+        submissionMode: submission.submission_mode,
+      },
+    });
+    return sendJson(res, 200, { submission });
   }
   if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
     const access = await createStaffSubmissionFileAccess(parts[0], parts[2]);

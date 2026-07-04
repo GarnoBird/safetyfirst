@@ -6740,6 +6740,7 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
   const [previewLoadingId, setPreviewLoadingId] = useState("");
   const [filePreviewMessage, setFilePreviewMessage] = useState("");
   const [signDialogOpen, setSignDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [translateDialogOpen, setTranslateDialogOpen] = useState(false);
   const [translationInfo, setTranslationInfo] = useState(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
@@ -6748,6 +6749,7 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
   const [exportStatus, setExportStatus] = useState("");
 
   const files = row?.files || [];
+  const canEditSubmission = isEditableStaffSubmission(row);
   const digitalFormData = digitalSubmissionData(row);
   const filesByStoragePath = useMemo(() => {
     const map = new Map();
@@ -6871,7 +6873,12 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
               <ToolbarIcon type="review" />
               <span>Review</span>
             </button>
-            <button disabled title="Edit is not available yet." type="button">
+            <button
+              disabled={!canEditSubmission}
+              title={canEditSubmission ? "Edit submitted answers." : "Only filled template forms can be edited right now."}
+              type="button"
+              onClick={() => setEditDialogOpen(true)}
+            >
               <ToolbarIcon type="edit" />
               <span>Edit</span>
             </button>
@@ -6959,6 +6966,17 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
           staff={staff}
           onClose={() => setSignDialogOpen(false)}
           onSaved={setRow}
+        />
+      ) : null}
+      {editDialogOpen && row ? (
+        <SubmissionEditDialog
+          row={row}
+          onClose={() => setEditDialogOpen(false)}
+          onSaved={(updated) => {
+            setRow(updated);
+            setTranslationInfo(null);
+            setExportStatus("Form edits saved.");
+          }}
         />
       ) : null}
       {translateDialogOpen && row ? (
@@ -7149,6 +7167,126 @@ function SubmittedFilePackage({ filePreviewContext, filePreviewMessage = "", fil
         <p className="empty-state">No attachment records were saved with this submission.</p>
       )}
     </section>
+  );
+}
+
+function SubmissionEditDialog({ onClose, onSaved, row }) {
+  const validationTargetsRef = useRef({});
+  const worker = useMemo(() => staffSubmissionWorker(row), [row]);
+  const schema = useMemo(() => staffSubmissionEditSchema(row), [row]);
+  const [answers, setAnswers] = useState(() => staffSubmissionEditAnswers(row));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const formTypeClass = slugifyTemplateId(row?.form_type || schema.formType || "");
+  const invalidFields = useMemo(
+    () => new Set(submitAttempted ? getTemplateMissingFields(schema, answers, worker) : []),
+    [answers, schema, submitAttempted, worker],
+  );
+
+  useEffect(() => {
+    setAnswers(staffSubmissionEditAnswers(row));
+    setError("");
+    setSubmitAttempted(false);
+  }, [row?.id]);
+
+  useEffect(() => {
+    if (!submitAttempted) return;
+    const missing = getTemplateMissingFields(schema, answers, worker);
+    setError(missing.length ? templateValidationMessage(schema, missing[0]) : "");
+  }, [answers, schema, submitAttempted, worker]);
+
+  const registerValidationTarget = (field) => (element) => {
+    if (element) {
+      validationTargetsRef.current[field] = element;
+      return;
+    }
+    delete validationTargetsRef.current[field];
+  };
+
+  const saveEdits = async (event) => {
+    event.preventDefault();
+    const missing = getTemplateMissingFields(schema, answers, worker);
+    if (missing.length) {
+      setSubmitAttempted(true);
+      setError(templateValidationMessage(schema, missing[0]));
+      scrollToToolboxValidationTarget(validationTargetsRef.current, missing[0]);
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/submissions/${row.id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            formData: {
+              kind: "template_submission_v1",
+              templateVersionId: row.form_data?.templateVersionId || row.form_template_version_id || "",
+              answers: cleanTemplateAnswersForSubmit(schema, answers, worker),
+              actionItemBlocks: cleanActionItemBlocksForSubmit(schema, answers, worker),
+            },
+          }),
+        }),
+      );
+      onSaved(payload.submission);
+      onClose();
+    } catch (saveError) {
+      setError(saveError.message || "Form edits could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop submitted-edit-backdrop" role="presentation" onClick={onClose}>
+      <section
+        aria-label="Edit Submitted Form"
+        className="staff-detail-dialog submitted-edit-dialog"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="dialog-heading">
+          <div>
+            <h2>Edit Submitted Form</h2>
+            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+          </div>
+          <button aria-label="Close" disabled={saving} type="button" onClick={onClose}>X</button>
+        </div>
+        <div className="translate-dialog-notice">
+          Saving edits updates the staff copy and marks backup as pending.
+        </div>
+        <form
+          className={[
+            "submission-form",
+            "toolbox-talk-form",
+            "template-worker-form",
+            "submitted-edit-form",
+            formTypeClass ? `template-worker-form-${formTypeClass}` : "",
+          ].filter(Boolean).join(" ")}
+          noValidate
+          onSubmit={saveEdits}
+        >
+          <TemplateFormFields
+            answers={answers}
+            invalidFields={invalidFields}
+            registerValidationTarget={registerValidationTarget}
+            schema={schema}
+            worker={worker}
+            onChange={setAnswers}
+          />
+          {error ? <p className="form-message error">{error}</p> : null}
+          <div className="submitted-edit-actions">
+            <button disabled={saving} type="button" onClick={onClose}>Cancel</button>
+            <button className="primary-button" disabled={saving} type="submit">
+              {saving ? "Saving..." : "Save edits"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 
@@ -11211,9 +11349,11 @@ function MediaUploadRuntimeField({ field, invalid, targetRef, value, onChange, o
                 <strong>{file.originalFilename || "Attachment"}</strong>
                 <small>{mediaUploadFileTypeLabel(file)} / {formatFileSize(file.sizeBytes)}</small>
               </div>
-              <button type="button" onClick={() => removeFile(index)}>
-                Remove
-              </button>
+              {canUpload ? (
+                <button type="button" onClick={() => removeFile(index)}>
+                  Remove
+                </button>
+              ) : null}
             </div>
           ))}
         </div>
@@ -16350,6 +16490,42 @@ function submissionReviewStatus(row) {
 
 function isFileUploadSubmission(row) {
   return row?.submission_mode === "submit_file";
+}
+
+function isEditableStaffSubmission(row) {
+  return row?.submission_mode === "fill_form" && row?.form_data?.kind === "template_submission_v1";
+}
+
+function staffSubmissionWorker(row) {
+  return {
+    id: row?.worker_id || "",
+    name: row?.worker_name || "",
+    phone: row?.worker_phone || "",
+    username: row?.worker_username || "",
+    user_name: row?.worker_username || "",
+    company: row?.company || "",
+  };
+}
+
+function staffSubmissionEditSchema(row) {
+  const source = row?.form_schema_snapshot && Object.keys(row.form_schema_snapshot || {}).length
+    ? row.form_schema_snapshot
+    : row?.form_data?.schemaSnapshot || {};
+  return normalizeClientTemplateSchema({
+    ...source,
+    formType: source?.formType || row?.form_type || "",
+    title: source?.title || formTypeLabel(row?.form_type),
+  });
+}
+
+function staffSubmissionEditAnswers(row) {
+  const data = row?.form_data || {};
+  return {
+    ...(data.answers && typeof data.answers === "object" && !Array.isArray(data.answers) ? data.answers : {}),
+    ...(data.actionItemBlocks && typeof data.actionItemBlocks === "object" && !Array.isArray(data.actionItemBlocks)
+      ? data.actionItemBlocks
+      : {}),
+  };
 }
 
 function collectSubmittedFormTranslationTexts(root) {
