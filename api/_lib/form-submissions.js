@@ -20,6 +20,7 @@ import {
 } from "./form-templates.js";
 import { getRequiredEnv } from "./http.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
+import { renderSubmittedFormPdf } from "./submission-pdf.js";
 import { isOneDriveBackupEnabled } from "./settings.js";
 import {
   getSupabaseServiceClient,
@@ -824,8 +825,8 @@ export async function emailStaffSubmissionPdf(staff, submissionId, body = {}) {
   const id = cleanUuid(submissionId, "Submission id is not valid.");
   const recipientEmail = cleanStaffEmail(staff?.email);
   const submission = await getSubmissionById(id, { includeDeleted: true });
-  const attachment = cleanSubmissionEmailPdfAttachment(body, submission);
   assertSubmissionEmailConfig();
+  const attachment = await createSubmissionPdfAttachment(submission, body);
 
   const resend = new Resend(getRequiredEnv("RESEND_API_KEY"));
   const from = getRequiredEnv("REPORT_FROM_EMAIL");
@@ -852,6 +853,12 @@ export async function emailStaffSubmissionPdf(staff, submissionId, body = {}) {
     recipientEmail,
     sizeBytes: attachment.sizeBytes,
   };
+}
+
+export async function createStaffSubmissionPdf(submissionId) {
+  const id = cleanUuid(submissionId, "Submission id is not valid.");
+  const submission = await getSubmissionById(id, { includeDeleted: true });
+  return await renderSubmittedFormPdf(submission);
 }
 
 export async function retrySubmissionBackup(id) {
@@ -2749,33 +2756,17 @@ function cleanStaffSignatureDataUrl(value) {
   return signature;
 }
 
-function cleanSubmissionEmailPdfAttachment(body, submission) {
-  const raw = String(
-    body.pdfDataUrl ||
-      body.pdf_data_url ||
-      body.pdfBase64 ||
-      body.pdf_base64 ||
-      "",
-  ).trim();
-  if (!raw) throwBadRequest("Form PDF is required.");
-
-  const base64 = raw
-    .replace(/^data:application\/pdf(?:;charset=[^;]+)?;base64,/i, "")
-    .replace(/\s+/g, "");
-  if (!base64 || !/^[A-Za-z0-9+/=]+$/.test(base64)) {
-    throwBadRequest("Form PDF must be a valid base64 PDF.");
-  }
-
-  const buffer = Buffer.from(base64, "base64");
+async function createSubmissionPdfAttachment(submission, body = {}) {
+  const { buffer, fileName: generatedFileName } = await renderSubmittedFormPdf(submission);
   if (buffer.length < 20 || buffer.subarray(0, 4).toString("utf8") !== "%PDF") {
-    throwBadRequest("Form PDF must be a valid PDF file.");
+    throwBadRequest("Form PDF could not be created.");
   }
   if (buffer.length > MAX_SUBMISSION_EMAIL_PDF_BYTES) {
     throwBadRequest("Form PDF is too large to email.");
   }
 
   const requestedName = cleanText(body.fileName || body.filename, 180);
-  const fallbackName = `${sanitizeStorageFilename(submissionEmailTitle(submission))}.pdf`;
+  const fallbackName = generatedFileName || `${sanitizeStorageFilename(submissionEmailTitle(submission))}.pdf`;
   const fileName = sanitizeStorageFilename(requestedName || fallbackName).replace(/\.pdf$/i, "") + ".pdf";
   return {
     content: buffer.toString("base64"),

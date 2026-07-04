@@ -27,6 +27,7 @@ import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
   appendStaffSubmissionSignoff,
   createFileUploadTarget,
+  createStaffSubmissionPdf,
   createStaffSubmissionFileAccess,
   deleteStaffSubmission,
   deleteStaffSubmissions,
@@ -757,6 +758,15 @@ async function handleStaffSubmissions(req, res, staff, parts) {
       },
     });
     return sendJson(res, 200, { submission });
+  }
+  if (parts.length === 2 && parts[1] === "pdf" && req.method === "GET") {
+    const result = await createStaffSubmissionPdf(parts[0]);
+    res.statusCode = 200;
+    res.setHeader("content-type", "application/pdf");
+    res.setHeader("content-length", String(result.buffer.length));
+    res.setHeader("content-disposition", `attachment; filename="${result.fileName}"`);
+    res.end(result.buffer);
+    return;
   }
   if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
     const access = await createStaffSubmissionFileAccess(parts[0], parts[2]);

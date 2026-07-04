@@ -563,8 +563,10 @@ async function mockApis(page, templates, options = {}) {
   const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   const emailRequests = [];
+  const pdfRequests = [];
   const translateApiCalls = [];
   submissions.emailRequests = emailRequests;
+  submissions.pdfRequests = pdfRequests;
   submissions.staffSubmissions = staffSubmissions;
   submissions.translateApiCalls = translateApiCalls;
   let uploadCount = 0;
@@ -772,6 +774,40 @@ async function mockApis(page, templates, options = {}) {
     const staffSubmissionParts = path.split("/").filter(Boolean);
     if (
       method === "GET" &&
+      staffSubmissionParts.length === 5 &&
+      staffSubmissionParts[0] === "api" &&
+      staffSubmissionParts[1] === "staff" &&
+      staffSubmissionParts[2] === "submissions" &&
+      staffSubmissionParts[4] === "pdf"
+    ) {
+      const submissionId = staffSubmissionParts[3];
+      const row = staffSubmissions.find((item) => item.id === submissionId);
+      if (!row) return json({ error: "Not found" }, 404);
+      const body = Buffer.from(`%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>
+endobj
+trailer
+<< /Root 1 0 R >>
+%%EOF`);
+      pdfRequests.push({ submissionId });
+      return route.fulfill({
+        status: 200,
+        contentType: "application/pdf",
+        headers: {
+          "content-disposition": `attachment; filename="${row.company.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${row.form_type}.pdf"`,
+        },
+        body,
+      });
+    }
+    if (
+      method === "GET" &&
       staffSubmissionParts.length === 4 &&
       staffSubmissionParts[0] === "api" &&
       staffSubmissionParts[1] === "staff" &&
@@ -854,13 +890,8 @@ async function mockApis(page, templates, options = {}) {
       const row = staffSubmissions.find((item) => item.id === submissionId);
       if (!row) return json({ error: "Not found" }, 404);
       const body = JSON.parse(request.postData() || "{}");
-      const pdfDataUrl = String(body.pdfDataUrl || "");
-      if (!pdfDataUrl.startsWith("data:application/pdf;base64,")) {
-        return json({ error: "Form PDF is required." }, 400);
-      }
       const requestRecord = {
-        fileName: String(body.fileName || ""),
-        pdfDataUrl,
+        fileName: String(body.fileName || `${row.form_type}.pdf`),
         recipientEmail: currentStaff.email,
         submissionId,
       };
@@ -869,7 +900,7 @@ async function mockApis(page, templates, options = {}) {
         emailId: `email-${emailRequests.length}`,
         fileName: requestRecord.fileName,
         recipientEmail: currentStaff.email,
-        sizeBytes: Math.round((pdfDataUrl.length * 3) / 4),
+        sizeBytes: 512,
       });
     }
     if (
@@ -1594,6 +1625,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
     await page.getByRole("button", { name: "Download" }).click();
     await expectNonEmptyDownload(page, "PDF", "pdf");
     await expect(page.getByText("PDF saved.")).toBeVisible();
+    expect(mockState.pdfRequests.at(-1)).toMatchObject({ submissionId: id });
 
     await page.getByRole("button", { name: "Download" }).click();
     await expectNonEmptyDownload(page, "PNG", "png");
@@ -1609,8 +1641,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
       submissionId: id,
     });
     expect(emailRequest.fileName).toMatch(/\.pdf$/);
-    expect(emailRequest.pdfDataUrl.length).toBeLessThan(4 * 1024 * 1024);
-    expect(Buffer.from(emailRequest.pdfDataUrl.split(",")[1], "base64").subarray(0, 4).toString()).toBe("%PDF");
+    expect(emailRequest.pdfDataUrl).toBeUndefined();
 
     const popupPromise = page
       .waitForEvent("popup", { timeout: 1000 })

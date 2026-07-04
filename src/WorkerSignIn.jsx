@@ -1,7 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
+import {
+  buildSubmittedFormPrintHtml,
+  submittedFormPdfFileName,
+} from "./submissionPrintRenderer.js";
 import {
   SUBMITTED_FORM_TRANSLATION_LANGUAGES,
   translateSubmittedFormTexts,
@@ -16837,103 +16840,30 @@ async function downloadDigitalFormPng(row, data, exportTarget) {
 }
 
 async function downloadDigitalFormPdf(row, data, exportTarget) {
-  const { pdf } = await createDigitalFormPdf(row, data, exportTarget);
-  pdf.save(digitalFormExportFileName(row, data, "pdf"));
+  const response = await fetch(`/api/staff/submissions/${row.id}/pdf`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw await digitalExportResponseError(response, "This form PDF could not be downloaded.");
+  const blob = await response.blob();
+  if (!blob.size) throw new Error("This form PDF was empty.");
+  const fileName = fileNameFromContentDisposition(response.headers.get("content-disposition")) ||
+    submittedFormPdfFileName(row);
+  downloadBlob(blob, fileName);
 }
 
 async function emailDigitalFormPdf(row, data, exportTarget) {
-  const maxPostBytes = 3 * 1024 * 1024;
-  let { fileName, pdf } = await createDigitalFormPdf(row, data, exportTarget, {
-    captureScale: 1,
-    imageCompression: "FAST",
-    imageFormat: "JPEG",
-    imageQuality: 0.76,
-  });
-  let pdfBlob = pdf.output("blob");
-  if (pdfBlob.size > maxPostBytes) {
-    ({ fileName, pdf } = await createDigitalFormPdf(row, data, exportTarget, {
-      captureScale: 0.82,
-      imageCompression: "FAST",
-      imageFormat: "JPEG",
-      imageQuality: 0.58,
-    }));
-    pdfBlob = pdf.output("blob");
-  }
-  if (pdfBlob.size > maxPostBytes) {
-    throw new Error("This PDF is too large to email. Download the PDF and send it manually.");
-  }
-  const pdfDataUrl = await blobToDataUrl(pdfBlob);
   return await readApiJson(
     await fetch(`/api/staff/submissions/${row.id}/email`, {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ fileName, pdfDataUrl }),
+      body: JSON.stringify({ fileName: submittedFormPdfFileName(row) }),
     }),
   );
 }
 
-async function createDigitalFormPdf(row, data, exportTarget, options = {}) {
-  let builtPdf = null;
-  await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
-    const canvas = await captureDigitalFormElement(element, { scale: options.captureScale });
-    const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 28;
-    const imageWidth = pageWidth - margin * 2;
-    const printableHeight = pageHeight - margin * 2;
-    const pageSliceHeight = Math.max(1, Math.floor((printableHeight * canvas.width) / imageWidth));
-    const imageFormat = options.imageFormat === "JPEG" ? "JPEG" : "PNG";
-    const mimeType = imageFormat === "JPEG" ? "image/jpeg" : "image/png";
-    const imageQuality = Number.isFinite(options.imageQuality) ? options.imageQuality : 0.86;
-    const imageCompression = options.imageCompression || "FAST";
-
-    for (let y = 0; y < canvas.height; y += pageSliceHeight) {
-      const sliceHeight = Math.min(pageSliceHeight, canvas.height - y);
-      const pageCanvas = document.createElement("canvas");
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = sliceHeight;
-      const context = pageCanvas.getContext("2d");
-      if (!context) throw new Error("This form PDF could not be created.");
-      context.fillStyle = "#ffffff";
-      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      context.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-      const pageImageData = pageCanvas.toDataURL(mimeType, imageQuality);
-      const pageImageHeight = (sliceHeight * imageWidth) / canvas.width;
-
-      if (y > 0) pdf.addPage();
-      if (imageFormat === "JPEG") {
-        pdf.addImage(pageImageData, "JPEG", margin, margin, imageWidth, pageImageHeight, undefined, imageCompression);
-      } else {
-        pdf.addImage(pageImageData, "PNG", margin, margin, imageWidth, pageImageHeight);
-      }
-    }
-
-    builtPdf = pdf;
-  });
-
-  if (!builtPdf) throw new Error("This form PDF could not be created.");
-  return {
-    fileName: digitalFormExportFileName(row, data, "pdf"),
-    pdf: builtPdf,
-  };
-}
-
 async function printDigitalForm(row, data, exportTarget) {
-  await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
-    const html = buildDigitalFormPrintHtmlFromElement(row, data, element);
-    await printHtmlInHiddenFrame(html);
-  });
-}
-
-function blobToDataUrl(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(String(reader.result || "")), { once: true });
-    reader.addEventListener("error", () => reject(reader.error || new Error("The PDF could not be read.")), { once: true });
-    reader.readAsDataURL(blob);
-  });
+  await printHtmlInHiddenFrame(buildSubmittedFormPrintHtml(row, { includePrintButton: false }));
 }
 
 async function withDigitalFormExportElement(row, data, exportTarget, callback) {
@@ -17019,42 +16949,6 @@ function canvasToBlob(canvas, type) {
       else reject(new Error("This form image could not be created."));
     }, type);
   });
-}
-
-function buildDigitalFormPrintHtmlFromElement(row, data, element) {
-  const clone = element.cloneNode(true);
-  clone.querySelectorAll("button").forEach((button) => {
-    const span = document.createElement("span");
-    span.className = button.className;
-    span.textContent = button.textContent || "";
-    button.replaceWith(span);
-  });
-  const styles = [...document.querySelectorAll('style, link[rel="stylesheet"]')]
-    .map((node) => node.outerHTML)
-    .join("\n");
-  return `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(digitalFormTitle(row, data))}</title>
-    ${styles}
-    <style>
-      body { margin: 0; background: #fff; color: #17211f; }
-      .submission-export-surface { max-width: none; padding: 18px; background: #fff; }
-      .toolbox-detail { margin-top: 12px; }
-      @page { size: letter portrait; margin: 0.28in; }
-      @media print {
-        body { background: #fff; }
-        .submission-export-surface { padding: 0; }
-        .submission-file-name-button { border: 0; padding: 0; background: transparent; color: #17211f; }
-      }
-    </style>
-  </head>
-  <body>
-    ${clone.outerHTML}
-  </body>
-</html>`;
 }
 
 function printHtmlInHiddenFrame(html) {
@@ -17250,6 +17144,28 @@ function downloadBlob(blob, fileName) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function digitalExportResponseError(response, fallbackMessage) {
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    try {
+      const payload = await response.json();
+      return new Error(payload?.error || fallbackMessage);
+    } catch {
+      return new Error(fallbackMessage);
+    }
+  }
+  const text = await response.text().catch(() => "");
+  return new Error(text.trim().slice(0, 240) || fallbackMessage);
+}
+
+function fileNameFromContentDisposition(value) {
+  const text = String(value || "");
+  const utfMatch = text.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) return decodeURIComponent(utfMatch[1].replace(/"/g, ""));
+  const match = text.match(/filename="?([^";]+)"?/i);
+  return match?.[1] || "";
 }
 
 function digitalTemplateFormTitle(row, data) {
