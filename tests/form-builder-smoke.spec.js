@@ -561,9 +561,9 @@ async function mockApis(page, templates, options = {}) {
   const workerSignIns = options.workerSignIns || [];
   const submissions = [];
   const emailRequests = [];
-  const translationRequests = [];
+  const translateApiCalls = [];
   submissions.emailRequests = emailRequests;
-  submissions.translationRequests = translationRequests;
+  submissions.translateApiCalls = translateApiCalls;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
   let duplicateCount = 0;
@@ -848,26 +848,11 @@ async function mockApis(page, templates, options = {}) {
       staffSubmissionParts[2] === "submissions" &&
       staffSubmissionParts[4] === "translate"
     ) {
-      const submissionId = staffSubmissionParts[3];
-      const row = staffSubmissions.find((item) => item.id === submissionId);
-      if (!row) return json({ error: "Not found" }, 404);
-      const body = JSON.parse(request.postData() || "{}");
-      const texts = Array.isArray(body.texts) ? body.texts.map((text) => String(text)) : [];
-      translationRequests.push({
-        submissionId,
-        targetLanguage: body.targetLanguage,
-        texts,
+      translateApiCalls.push({
+        submissionId: staffSubmissionParts[3],
+        method,
       });
-      return json({
-        language: body.targetLanguage || "es",
-        languageLabel: "Spanish",
-        submissionId,
-        translatedCount: texts.length,
-        translations: texts.map((text) => ({
-          source: text,
-          text: text === "Custom Toolbox Project" ? "Proyecto de herramientas personalizado" : `[es] ${text}`,
-        })),
-      });
+      return json({ error: "Translate API should not be called." }, 500);
     }
     if (path.startsWith("/api/worker/form-templates/") && path.endsWith("/published")) {
       const formType = decodeURIComponent(path.split("/").at(-2));
@@ -1445,21 +1430,27 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
 
     if (sign) {
       await page.getByRole("button", { name: "Translate" }).click();
-      const translateDialog = page.getByRole("dialog", { name: "AI Translation: Select Output Language" });
+      const translateDialog = page.getByRole("dialog", { name: "Translation: Select Output Language" });
       await expect(translateDialog).toBeVisible();
-      await expect(translateDialog.getByText("Notice: This is a beta feature.")).toBeVisible();
+      await expect(
+        translateDialog.getByText("Rough phrasebook translation. Unrecognized text stays original."),
+      ).toBeVisible();
+      await expect(translateDialog.getByLabel("Translate To").locator("option")).toHaveText([
+        "Select language",
+        "Spanish",
+        "French",
+        "Hindi",
+      ]);
       await expect(translateDialog.getByRole("button", { name: "Translate Form" })).toBeDisabled();
       await translateDialog.getByLabel("Translate To").selectOption("es");
       await translateDialog.getByRole("button", { name: "Translate Form" }).click();
       await expect(translateDialog).toHaveCount(0);
-      await expect(page.getByText("Proyecto de herramientas personalizado", { exact: true })).toBeVisible();
+      await expect(page.getByText("Temas discutidos", { exact: true })).toBeVisible();
+      await expect(page.getByText("Custom Toolbox Project", { exact: true })).toBeVisible();
       await expect(page.locator(".submitted-viewer-status-message")).toHaveText("Translated to Spanish.");
-      const translationRequest = mockState.translationRequests.at(-1);
-      expect(translationRequest).toMatchObject({
-        submissionId: id,
-        targetLanguage: "es",
-      });
-      expect(translationRequest.texts).toContain("Custom Toolbox Project");
+      expect(mockState.translateApiCalls).toEqual([]);
+      await page.getByRole("button", { name: "Show original" }).click();
+      await expect(page.getByText("Topics Discussed", { exact: true })).toBeVisible();
 
       await page.getByRole("button", { name: "Review", exact: true }).click();
       const signDialog = page.getByRole("dialog", { name: "Review & Sign Form" });

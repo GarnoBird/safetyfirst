@@ -2,6 +2,10 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
+import {
+  SUBMITTED_FORM_TRANSLATION_LANGUAGES,
+  translateSubmittedFormTexts,
+} from "./submittedFormPhrasebook.js";
 
 const STAFF_SORT_LABELS = {
   company: "Company",
@@ -11,16 +15,6 @@ const STAFF_SORT_LABELS = {
   signed_out_at: "Signed Out",
   trade: "Trade",
 };
-
-const SUBMITTED_FORM_TRANSLATION_LANGUAGES = [
-  { code: "es", label: "Spanish" },
-  { code: "fr", label: "French" },
-  { code: "en", label: "English" },
-  { code: "ru", label: "Russian" },
-  { code: "ko", label: "Korean" },
-  { code: "tl", label: "Tagalog" },
-  { code: "hi", label: "Hindi" },
-];
 
 const STAFF_MOBILE_NAV_ITEMS = [
   { id: "home", label: "HOME", path: "/staff/home" },
@@ -7272,17 +7266,10 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
     setTranslating(true);
     setMessage("");
     try {
-      const payload = await readApiJson(
-        await fetch(`/api/staff/submissions/${row.id}/translate`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ targetLanguage, texts }),
-        }),
-      );
+      const payload = translateSubmittedFormTexts(targetLanguage, texts);
       const translations = normalizeSubmittedFormTranslations(payload.translations);
       if (!translations.size) {
-        setMessage("No translated text was returned.");
+        setMessage("No phrasebook matches found for this form.");
         return;
       }
       applySubmittedFormTranslations(root, translations);
@@ -7305,20 +7292,20 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
   return (
     <div className="staff-dialog-backdrop translate-dialog-backdrop" role="presentation" onClick={onClose}>
       <section
-        aria-label="AI Translation: Select Output Language"
+        aria-label="Translation: Select Output Language"
         className="staff-detail-dialog translate-dialog"
         role="dialog"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="dialog-heading">
           <div>
-            <h2>AI Translation: Select Output Language</h2>
+            <h2>Translation: Select Output Language</h2>
             <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
           </div>
           <button aria-label="Close" type="button" onClick={onClose}>X</button>
         </div>
         <div className="translate-dialog-notice">
-          Notice: This is a beta feature. Accuracy may vary, so please review carefully.
+          Rough phrasebook translation. Unrecognized text stays original.
         </div>
         <form className="translate-dialog-form" onSubmit={translate}>
           <label className="field">
