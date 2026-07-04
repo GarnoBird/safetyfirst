@@ -93,6 +93,7 @@ const hoistCompetencyObservationSchema = readMigrationSchema(legacyBuildingBlock
 const fallProtectionSchema = readMigrationSchema("024_fall_protection_template.sql");
 const dailySafetyInspectionSchema = readMigrationSchema("025_daily_safety_inspection_template.sql");
 const dailyWashroomInspectionSchema = readMigrationSchema("026_daily_washroom_inspection_template.sql");
+const skidSteerLoaderPreUseInspectionSchema = readMigrationSchema("029_skid_steer_loader_pre_use_inspection_template.sql");
 const importedSalusSchemas = [
   newWorkerOrientationSchema,
   speedFanInspectionSchema,
@@ -100,6 +101,7 @@ const importedSalusSchemas = [
   fallProtectionSchema,
   dailySafetyInspectionSchema,
   dailyWashroomInspectionSchema,
+  skidSteerLoaderPreUseInspectionSchema,
 ];
 
 const requiredSignatureSection = {
@@ -2409,6 +2411,77 @@ test("Daily Washroom Inspection worker form submits status and issue details", a
   expect(submissions[0].formData.answers.daily_washroom_flushables_1_2_3_issues).toBe("Flush handle is loose.");
   expect(submissions[0].formData.answers.daily_washroom_chemical_1_5_status).toBe("Serviced by Safety");
   expect(submissions[0].formData.answers.daily_washroom_additional_notes).toBe("Restocked paper and checked tower units.");
+});
+
+test("Skid Steer Loader Pre-use Inspection migration opens as a hidden editable draft", async ({ page }) => {
+  const row = draftTemplate(
+    "skid_steer_loader_pre_use_inspection",
+    "Skid Steer Loader Pre-use Inspection",
+    skidSteerLoaderPreUseInspectionSchema,
+    { displayOrder: 110 },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Skid Steer Loader Pre-use Inspection" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Skid Steer Loader Pre-use Inspection" });
+  await expect(templateCard).toContainText("Draft ready");
+  await expect(templateCard).toContainText("Hidden from workers");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Before starting engine, check the following:" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card").getByLabel("Display style")).toHaveValue("checklist");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Pre-use Inspection Checklist for Skid Steer Loader" })).toBeVisible();
+  await expect(preview.getByText("Visual Inspection")).toBeVisible();
+  await expect(preview.getByText("Engine (check oil levels, look for leaks)")).toBeVisible();
+  await expect(preview.getByText("Operating near a leading edge?")).toBeVisible();
+  await expect(preview.getByText("Operator Information")).toBeVisible();
+  await expect(preview.getByLabel("Operator Name")).toHaveValue(worker.name);
+});
+
+test("Skid Steer Loader Pre-use Inspection worker form submits checklist and operator details", async ({ page }) => {
+  const row = template(
+    "skid_steer_loader_pre_use_inspection",
+    "Skid Steer Loader Pre-use Inspection",
+    skidSteerLoaderPreUseInspectionSchema,
+  );
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/skid_steer_loader_pre_use_inspection");
+  await expect(page.getByRole("heading", { name: "Pre-use Inspection Checklist for Skid Steer Loader" })).toBeVisible();
+  await page
+    .locator(".template-field-skid_steer_before_start_checks")
+    .getByLabel("Engine (check oil levels, look for leaks)")
+    .check();
+  await page
+    .locator(".template-field-skid_steer_before_start_checks")
+    .getByLabel("Fuel tank (drain off moisture or sediment)")
+    .check();
+  await page
+    .locator(".template-field-skid_steer_operating_near_leading_edge")
+    .getByRole("radio", { name: "No" })
+    .click();
+  await page.getByLabel("Remarks").first().fill("No leaks observed.");
+  await page.getByLabel("Vehicle #").fill("SS-14");
+  await page.getByLabel("Hour Meter Reading").fill("247.5");
+  await page.getByRole("button", { name: "Submit Pre-use Inspection Checklist for Skid Steer Loader" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.skid_steer_before_start_checks).toEqual([
+    "Engine (check oil levels, look for leaks)",
+    "Fuel tank (drain off moisture or sediment)",
+  ]);
+  expect(submissions[0].formData.answers.skid_steer_operating_near_leading_edge).toBe("No");
+  expect(submissions[0].formData.answers.skid_steer_visual_remarks).toBe("No leaks observed.");
+  expect(submissions[0].formData.answers.skid_steer_vehicle_number).toBe("SS-14");
+  expect(submissions[0].formData.answers.skid_steer_hour_meter_reading).toBe("247.5");
 });
 
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
