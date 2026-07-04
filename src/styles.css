@@ -3611,6 +3611,109 @@ p {
   font-weight: 800;
 }
 
+.template-asset-picker-field {
+  display: grid;
+  gap: 10px;
+  grid-column: 1 / -1;
+  min-width: 0;
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.template-asset-picker-field.toolbox-field-invalid {
+  border-color: #d64a43;
+  background: #fff7f6;
+  box-shadow: 0 0 0 3px rgba(214, 74, 67, 0.12);
+}
+
+.template-asset-selected-card,
+.template-asset-result {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f8fcfa;
+  text-align: left;
+}
+
+.template-asset-selected-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.template-asset-selected-card strong,
+.template-asset-result strong,
+.template-asset-answer strong {
+  overflow-wrap: anywhere;
+}
+
+.template-asset-selected-card small,
+.template-asset-result small,
+.template-asset-filter-summary,
+.template-asset-answer small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.template-asset-selected-card button,
+.template-asset-result {
+  min-height: 36px;
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  background: #fff;
+  color: #17211f;
+  font: inherit;
+  font-weight: 800;
+}
+
+.template-asset-selected-card button {
+  padding: 0 10px;
+}
+
+.template-asset-search {
+  display: grid;
+  gap: 6px;
+}
+
+.template-asset-search > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.template-asset-filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.template-asset-filter-summary span {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #e7f4ef;
+}
+
+.template-asset-result-list {
+  display: grid;
+  gap: 8px;
+}
+
+.template-asset-result.active {
+  border-color: #245f5b;
+  background: #e9f6f1;
+  color: #123331;
+}
+
+.template-asset-answer {
+  display: grid;
+  gap: 2px;
+}
+
 .media-answer-list {
   align-items: center;
 }
@@ -4928,7 +5031,8 @@ p {
 .template-action-row-subfields,
 .template-action-row-subfield,
 .template-conditional-settings,
-.template-media-kind-settings {
+.template-media-kind-settings,
+.template-asset-picker-settings {
   display: grid;
   gap: 8px;
   min-width: 0;
@@ -4936,7 +5040,8 @@ p {
 
 .template-options-builder > span,
 .template-action-row-subfields > span,
-.template-media-kind-settings > span {
+.template-media-kind-settings > span,
+.template-asset-picker-settings > span {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 850;
@@ -5345,6 +5450,44 @@ p {
 
 .staff-admin-form h2 {
   font-size: 1.25rem;
+}
+
+.staff-assets-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.staff-asset-import-card textarea {
+  min-height: 220px;
+  resize: vertical;
+}
+
+.staff-assets-panel {
+  min-width: 0;
+}
+
+.staff-assets-controls {
+  grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(120px, 160px)) auto;
+  align-items: end;
+  padding: 14px;
+}
+
+.staff-assets-controls select,
+.staff-assets-controls button {
+  min-height: 39px;
+}
+
+.staff-assets-table td strong,
+.staff-assets-table td small {
+  display: block;
+}
+
+.staff-assets-table td small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .staff-form-filter-toolbar {

@@ -27,6 +27,7 @@ export const TEMPLATE_FIELD_TYPES = [
   "boolean",
   "toggle",
   "media_upload",
+  "asset_picker",
   "dropdown",
   "multi_select",
   "checkbox",
@@ -1031,6 +1032,7 @@ function cleanAnswer(field, raw) {
       .slice(0, MAX_OPTIONS);
   }
   if (field.type === "media_upload") return cleanMediaUploadAnswer(raw, field.label, field);
+  if (field.type === "asset_picker") return cleanAssetPickerAnswer(raw);
   if (field.type === "signature") return cleanSignatureDataUrl(raw, field.label);
   const max = field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT;
   return cleanString(raw, max);
@@ -1041,6 +1043,7 @@ function isEmptyAnswer(field, value) {
   if (field.type === "checkbox") return value !== true;
   if (field.type === "multi_select") return !value.length;
   if (field.type === "media_upload") return !Array.isArray(value) || !value.length;
+  if (field.type === "asset_picker") return !value;
   return value === "" || value === null || value === undefined;
 }
 
@@ -1063,6 +1066,38 @@ function cleanMediaUploadAnswer(raw, label, field = null) {
     throwBadRequest(`${label} allows ${MAX_MEDIA_UPLOAD_FILES} files or fewer.`);
   }
   return source.map((file) => cleanMediaUploadFile(file, label, field));
+}
+
+function cleanAssetPickerAnswer(raw) {
+  const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  const assetId = cleanString(source.assetId || source.asset_id || source.id, 120);
+  const name = cleanString(source.name || source.assetName || source.asset_name, MAX_TEXT);
+  const assetType = cleanString(source.assetType || source.asset_type || source.type, MAX_TEXT);
+  const serialNumber = cleanString(source.serialNumber || source.serial_number || source.vin || source.serial, MAX_TEXT);
+  const currentSite = cleanString(source.currentSite || source.current_site || source.site, MAX_TEXT);
+  const status = cleanString(source.status, 80);
+  const selectedAt = cleanString(source.selectedAt || source.selected_at, 80);
+  if (!assetId && !name && !serialNumber) return null;
+  return {
+    assetId,
+    name,
+    assetType,
+    serialNumber,
+    currentSite,
+    status,
+    selectedAt,
+  };
+}
+
+function assetPickerAnswerText(value) {
+  const asset = cleanAssetPickerAnswer(value);
+  if (!asset) return "";
+  const details = [];
+  if (asset.assetType) details.push(asset.assetType);
+  if (asset.serialNumber) details.push(`Serial/VIN: ${asset.serialNumber}`);
+  if (asset.currentSite) details.push(`Site: ${asset.currentSite}`);
+  if (asset.status) details.push(asset.status);
+  return [asset.name || "Selected asset", details.join(" / ")].filter(Boolean).join(" / ");
 }
 
 function cleanMediaUploadFile(file, label, field = null) {
@@ -1141,6 +1176,7 @@ function defaultForField(field, worker) {
     if (["short_text", "long_text", "number", "date", "time"].includes(field.type)) return staticDefault;
   }
   if (field.type === "media_upload") return [];
+  if (field.type === "asset_picker") return null;
   if (field.type === "boolean" || field.type === "toggle") return false;
   return "";
 }
@@ -1342,6 +1378,7 @@ function formatAnswerForNotes(field, value) {
     if (!files.length) return "";
     return `${files.length} file${files.length === 1 ? "" : "s"}`;
   }
+  if (field.type === "asset_picker") return assetPickerAnswerText(value);
   if (field.type === "signature") return cleanSignatureDataUrl(value, field.label) ? "Signed" : "";
   if (field.type === "multi_select") return Array.isArray(value) ? value.slice(0, 3).join(", ") : "";
   if (field.type === "yes_no") return value === "yes" ? "Yes" : value === "no" ? "No" : "";

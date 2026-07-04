@@ -30,6 +30,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
   { id: "forms", label: "FORMS", path: "/staff/forms" },
   { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items", adminOnly: true },
+  { id: "assets", label: "ASSETS", path: "/staff/assets" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "STAFF", path: "/staff/users" },
   { id: "backups", label: "BACKUPS", path: "/staff/backups", adminOnly: true },
@@ -148,6 +149,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "boolean", label: "Boolean" },
   { id: "toggle", label: "Toggle" },
   { id: "media_upload", label: "Media upload" },
+  { id: "asset_picker", label: "Asset picker" },
   { id: "dropdown", label: "Dropdown" },
   { id: "multi_select", label: "Multi-select chips" },
   { id: "checkbox", label: "Checkbox confirmation" },
@@ -249,7 +251,7 @@ const TEMPLATE_BLOCK_GROUPS = [
   },
   {
     title: "Fast inputs",
-    fields: ["date", "time", "number", "yes_no", "boolean", "toggle", "media_upload"],
+    fields: ["date", "time", "number", "yes_no", "boolean", "toggle", "media_upload", "asset_picker"],
   },
   {
     title: "Choices",
@@ -279,6 +281,14 @@ const TEMPLATE_V3_FIELD_GROUPS = [
     label: "Media",
     fields: [
       { type: "media_upload", title: "Media upload", hint: "Images, PDF, Excel", icon: "Up", label: "Media upload" },
+      {
+        type: "asset_picker",
+        title: "Asset picker",
+        hint: "Search saved assets",
+        icon: "A",
+        label: "Select asset",
+        settings: { assetPicker: { typeFilter: "", siteFilter: "", statusFilter: "active" } },
+      },
     ],
   },
   {
@@ -5639,6 +5649,225 @@ function WorkerSubmissionReadOnlyView({ row }) {
   );
 }
 
+export function StaffAssetsPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [rows, setRows] = useState([]);
+  const [filters, setFilters] = useState({
+    q: "",
+    type: "",
+    site: "",
+    status: "active",
+    includeArchived: false,
+  });
+  const [importText, setImportText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadAssets = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams();
+      if (filters.q) params.set("q", filters.q);
+      if (filters.type) params.set("type", filters.type);
+      if (filters.site) params.set("site", filters.site);
+      if (filters.status && filters.status !== "all") params.set("status", filters.status);
+      if (filters.includeArchived) params.set("includeArchived", "true");
+      const payload = await readApiJson(
+        await fetch(`/api/staff/assets?${params}`, { credentials: "include" }),
+      );
+      setRows(payload.rows || []);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadAssets();
+  }, [staff]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  const importAssetText = async (event) => {
+    event.preventDefault();
+    setImporting(true);
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/assets/import", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text: importText }),
+        }),
+      );
+      setImportText("");
+      await loadAssets();
+      setMessage(`Imported ${payload.inserted || 0} new assets and updated ${payload.updated || 0}.`);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const importAssetFile = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      setImportText(await file.text());
+      setMessage(`Loaded ${file.name}. Review, then import.`);
+    } catch (error) {
+      setMessage(error.message || "Asset file could not be read.");
+    }
+  };
+
+  const archiveAsset = async (asset) => {
+    if (!window.confirm(`Archive ${asset.name || "this asset"}? It will no longer appear in worker pickers.`)) return;
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/assets/${asset.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      await loadAssets();
+      setMessage("Asset archived.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const typeOptions = useMemo(() => {
+    return Array.from(new Set(rows.map((asset) => asset.assetType).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b),
+    );
+  }, [rows]);
+
+  const siteOptions = useMemo(() => {
+    return Array.from(new Set(rows.map((asset) => asset.currentSite).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b),
+    );
+  }, [rows]);
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="assets" contentWide navigateTo={navigateTo} staff={staff}>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-assets-layout">
+        <form className="staff-admin-form staff-asset-import-card" onSubmit={importAssetText}>
+          <h2>Import assets</h2>
+          <p className="muted">
+            Upload or paste a local CSV/JSON asset export. Safety First stores its own copy and does not call Salus.
+          </p>
+          <label className="field">
+            <span>CSV or JSON file</span>
+            <input accept=".csv,.json,application/json,text/csv" type="file" onChange={importAssetFile} />
+          </label>
+          <label className="field">
+            <span>Import data</span>
+            <textarea
+              placeholder="Name, Type, Serial, Current Site, Status..."
+              rows="10"
+              value={importText}
+              onChange={(event) => setImportText(event.target.value)}
+            />
+          </label>
+          <div className="staff-card-actions">
+            <button className="primary-button" disabled={importing || !importText.trim()} type="submit">
+              {importing ? "Importing..." : "Import assets"}
+            </button>
+          </div>
+        </form>
+
+        <section className="staff-table-panel staff-assets-panel">
+          <div className="staff-list-controls staff-assets-controls">
+            <label className="staff-search-field">
+              <span>Search assets</span>
+              <input
+                placeholder="Name, serial, type, site"
+                type="search"
+                value={filters.q}
+                onChange={(event) => updateFilter("q", event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") loadAssets();
+                }}
+              />
+            </label>
+            <select value={filters.type} onChange={(event) => updateFilter("type", event.target.value)}>
+              <option value="">All types</option>
+              {typeOptions.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            <select value={filters.site} onChange={(event) => updateFilter("site", event.target.value)}>
+              <option value="">All sites</option>
+              {siteOptions.map((site) => (
+                <option key={site} value={site}>{site}</option>
+              ))}
+            </select>
+            <select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="retired">Retired</option>
+              <option value="all">All statuses</option>
+            </select>
+            <button type="button" onClick={loadAssets}>Search</button>
+          </div>
+
+          <div className="staff-table-scroll">
+            <table className="staff-table staff-assets-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Serial / VIN</th>
+                  <th>Site</th>
+                  <th>Status</th>
+                  <th>Last used</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan="7">Loading assets...</td></tr>
+                ) : rows.length ? rows.map((asset) => (
+                  <tr key={asset.id}>
+                    <td>
+                      <strong>{asset.name || "Unnamed asset"}</strong>
+                      {asset.notes ? <small>{asset.notes}</small> : null}
+                    </td>
+                    <td>{asset.assetType || "-"}</td>
+                    <td>{asset.serialNumber || "-"}</td>
+                    <td>{asset.currentSite || "-"}</td>
+                    <td>{asset.archivedAt ? "Archived" : asset.status || "active"}</td>
+                    <td>{asset.lastUsedAt ? formatDateTime(asset.lastUsedAt) : "-"}</td>
+                    <td>
+                      {!asset.archivedAt ? (
+                        <button type="button" onClick={() => archiveAsset(asset)}>Archive</button>
+                      ) : "-"}
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan="7">No assets found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </StaffShell>
+  );
+}
+
 export function StaffWorkersPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const canManageWorkers = ["owner", "admin"].includes(staff?.role);
@@ -7285,6 +7514,7 @@ function SubmissionEditDialog({ onClose, onSaved, row }) {
           onSubmit={saveEdits}
         >
           <TemplateFormFields
+            assetSearchEndpoint="/api/staff/assets"
             answers={answers}
             invalidFields={invalidFields}
             registerValidationTarget={registerValidationTarget}
@@ -9445,6 +9675,7 @@ function TemplateSchemaEditorV3({
                   />
                 ) : (
                   <TemplateFormFields
+                    assetSearchEndpoint="/api/staff/assets"
                     answers={previewAnswers}
                     schema={current}
                     worker={previewWorker}
@@ -10247,6 +10478,13 @@ function TemplateSchemaEditorV3({
                     onChange={updateSelectedFieldSettings}
                   />
                 ) : null}
+                {selectedField.type === "asset_picker" ? (
+                  <TemplateAssetPickerSettingsEditor
+                    disabled={readOnly}
+                    field={selectedField}
+                    onChange={updateSelectedFieldSettings}
+                  />
+                ) : null}
                 {!selectedFieldIsNonAnswer ? (
                   <label className="settings-checkbox compact">
                     <input
@@ -10540,6 +10778,55 @@ function TemplateMediaUploadSettingsEditor({ disabled = false, field, onChange }
   );
 }
 
+function TemplateAssetPickerSettingsEditor({ disabled = false, field, onChange }) {
+  const settings = normalizeAssetPickerSettings(field.settings);
+  const update = (patch) => {
+    onChange({
+      assetPicker: serializeAssetPickerSettings({
+        ...settings,
+        ...patch,
+      }),
+    });
+  };
+
+  return (
+    <div className="template-asset-picker-settings">
+      <span>Asset filters</span>
+      <label>
+        <span>Asset type</span>
+        <input
+          disabled={disabled}
+          placeholder="Any type"
+          value={settings.typeFilter}
+          onChange={(event) => update({ typeFilter: event.target.value })}
+        />
+      </label>
+      <label>
+        <span>Site</span>
+        <input
+          disabled={disabled}
+          placeholder="Any site"
+          value={settings.siteFilter}
+          onChange={(event) => update({ siteFilter: event.target.value })}
+        />
+      </label>
+      <label>
+        <span>Status</span>
+        <select
+          disabled={disabled}
+          value={settings.statusFilter}
+          onChange={(event) => update({ statusFilter: event.target.value })}
+        >
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="retired">Retired</option>
+          <option value="all">All statuses</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getToolboxTalkLayout(current);
@@ -10714,6 +11001,7 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
       </div>
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
+          assetSearchEndpoint="/api/staff/assets"
           answers={answers}
           schema={genericSchema}
           sections={genericSchema.sections}
@@ -10828,6 +11116,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
       </div>
       {genericSchema.sections.length ? (
         <TemplateRuntimeSections
+          assetSearchEndpoint="/api/staff/assets"
           answers={answers}
           schema={genericSchema}
           sections={genericSchema.sections}
@@ -10840,6 +11129,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
 }
 
 function TemplateFormFields({
+  assetSearchEndpoint = "/api/worker/assets",
   answers,
   invalidFields = new Set(),
   onChange,
@@ -10859,6 +11149,7 @@ function TemplateFormFields({
         schema={current}
         sections={current.sections}
         worker={worker}
+        assetSearchEndpoint={assetSearchEndpoint}
         onUploadFile={onUploadFile}
         onChange={onChange}
       />
@@ -10867,6 +11158,7 @@ function TemplateFormFields({
 }
 
 function TemplateRuntimeSections({
+  assetSearchEndpoint = "/api/worker/assets",
   answers,
   invalidFields = new Set(),
   onChange,
@@ -10937,6 +11229,7 @@ function TemplateRuntimeSections({
                     registerValidationTarget={registerValidationTarget}
                     targetRef={registerValidationTarget?.(field.id)}
                     value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
+                    assetSearchEndpoint={assetSearchEndpoint}
                     onUploadFile={onUploadFile}
                     onChange={(value) => updateAnswer(field.id, value)}
                   />
@@ -10951,6 +11244,7 @@ function TemplateRuntimeSections({
 }
 
 function TemplateRuntimeField({
+  assetSearchEndpoint = "/api/worker/assets",
   field,
   invalid,
   invalidFields = new Set(),
@@ -11266,6 +11560,18 @@ function TemplateRuntimeField({
       />
     );
   }
+  if (field.type === "asset_picker") {
+    return (
+      <AssetPickerRuntimeField
+        assetSearchEndpoint={assetSearchEndpoint}
+        field={field}
+        invalid={invalid}
+        targetRef={targetRef}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
   return (
     <label className={labelClass} ref={targetRef}>
       <span>{field.label}</span>
@@ -11276,6 +11582,107 @@ function TemplateRuntimeField({
         onChange={(event) => onChange(event.target.value)}
       />
     </label>
+  );
+}
+
+function AssetPickerRuntimeField({ assetSearchEndpoint, field, invalid, targetRef, value, onChange }) {
+  const [query, setQuery] = useState("");
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const selected = normalizeAssetPickerAnswer(value);
+  const settings = normalizeAssetPickerSettings(field.settings);
+
+  useEffect(() => {
+    let active = true;
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      setMessage("");
+      try {
+        const params = new URLSearchParams();
+        if (query) params.set("q", query);
+        if (settings.typeFilter) params.set("type", settings.typeFilter);
+        if (settings.siteFilter) params.set("site", settings.siteFilter);
+        if (settings.statusFilter && settings.statusFilter !== "all") params.set("status", settings.statusFilter);
+        params.set("limit", "25");
+        const payload = await readApiJson(
+          await fetch(`${assetSearchEndpoint}?${params}`, { credentials: "include" }),
+        );
+        if (active) setRows(payload.rows || []);
+      } catch (error) {
+        if (active) {
+          setRows([]);
+          setMessage(error.message || "Assets could not be loaded.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }, 180);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [assetSearchEndpoint, query, settings.siteFilter, settings.statusFilter, settings.typeFilter]);
+
+  const selectAsset = (asset) => {
+    onChange(assetSnapshotFromAsset(asset));
+    setQuery("");
+  };
+
+  return (
+    <div
+      className={invalid ? "template-asset-picker-field toolbox-field-invalid" : "template-asset-picker-field"}
+      ref={targetRef}
+    >
+      <div className="template-media-upload-heading">
+        <div>
+          <span>{field.label}</span>
+          {field.helperText ? <small>{field.helperText}</small> : null}
+        </div>
+        {field.required ? <strong>Required</strong> : null}
+      </div>
+      {selected ? (
+        <div className="template-asset-selected-card">
+          <div>
+            <strong>{selected.name || "Selected asset"}</strong>
+            <small>{assetPickerDetailsText(selected) || "Asset selected"}</small>
+          </div>
+          <button type="button" onClick={() => onChange(null)}>Clear</button>
+        </div>
+      ) : null}
+      <label className="template-asset-search">
+        <span>Search assets</span>
+        <input
+          placeholder={settings.typeFilter ? `Search ${settings.typeFilter} assets` : "Search name, serial, site"}
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
+      <div className="template-asset-filter-summary">
+        {settings.typeFilter ? <span>Type: {settings.typeFilter}</span> : null}
+        {settings.siteFilter ? <span>Site: {settings.siteFilter}</span> : null}
+        {settings.statusFilter && settings.statusFilter !== "all" ? <span>Status: {settings.statusFilter}</span> : null}
+      </div>
+      {message ? <p className="template-media-message">{message}</p> : null}
+      <div className="template-asset-result-list">
+        {loading ? <p className="template-media-empty">Loading assets...</p> : null}
+        {!loading && rows.length ? rows.map((asset) => (
+          <button
+            className={selected?.assetId === asset.id ? "template-asset-result active" : "template-asset-result"}
+            key={asset.id}
+            type="button"
+            onClick={() => selectAsset(asset)}
+          >
+            <strong>{asset.name || "Unnamed asset"}</strong>
+            <small>{assetPickerDetailsText(asset) || "No asset details"}</small>
+          </button>
+        )) : null}
+        {!loading && !rows.length && !message ? (
+          <p className="template-media-empty">No matching assets found.</p>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -15908,6 +16315,7 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     boolean: "Boolean question",
     toggle: "Toggle setting",
     media_upload: "Media upload",
+    asset_picker: "Select asset",
     dropdown: "Dropdown question",
     multi_select: "Multi-select question",
     checkbox: "Confirmation statement",
@@ -16024,6 +16432,7 @@ function templateFieldBuilderHint(type) {
     boolean: "Checked or not checked",
     toggle: "On / off switch",
     media_upload: "Images, PDF, Excel",
+    asset_picker: "Search Safety First assets",
     dropdown: "One option",
     multi_select: "Many chips",
     checkbox: "Final confirmation",
@@ -16052,6 +16461,7 @@ function templateFieldBuilderIcon(type) {
     boolean: "B",
     toggle: "On",
     media_upload: "Up",
+    asset_picker: "A",
     dropdown: "V",
     multi_select: "+",
     checkbox: "OK",
@@ -16110,7 +16520,7 @@ function templateWorkerDefaultValue(defaultKey, worker) {
 
 function templateDefaultOptionsForField(field) {
   if (isTemplateNonAnswerField(field)) return [];
-  if (["multi_select", "checkbox", "yes_no", "boolean", "toggle", "media_upload", "dropdown", "signature"].includes(field.type)) {
+  if (["multi_select", "checkbox", "yes_no", "boolean", "toggle", "media_upload", "asset_picker", "dropdown", "signature"].includes(field.type)) {
     return TEMPLATE_DEFAULT_VALUE_OPTIONS.filter((option) => option.id === "");
   }
   return TEMPLATE_DEFAULT_VALUE_OPTIONS.filter((option) => {
@@ -16128,6 +16538,7 @@ function templateFieldDefaultValue(field, worker, schema) {
   if (staticDefault !== "") return staticDefault;
   if (field.type === "multi_select") return [];
   if (field.type === "media_upload") return [];
+  if (field.type === "asset_picker") return null;
   if (field.type === "boolean" || field.type === "toggle") return false;
   if (field.type === "checkbox") return false;
   return "";
@@ -16242,6 +16653,7 @@ function cleanTemplateAnswerForSubmit(field, value) {
   if (field.type === "checkbox") return value === true;
   if (field.type === "multi_select") return Array.isArray(value) ? value.filter(Boolean) : [];
   if (field.type === "media_upload") return normalizeMediaUploadAnswer(value);
+  if (field.type === "asset_picker") return normalizeAssetPickerAnswer(value);
   if (field.type === "signature") return cleanSignatureDataUrl(value);
   if (isPhoneLikeTemplateField(field)) {
     return typeof value === "string" ? value.trim() : value || "";
@@ -16261,6 +16673,7 @@ function isTemplateAnswerEmpty(field, value) {
   if (field.type === "checkbox") return value !== true;
   if (field.type === "multi_select") return !Array.isArray(value) || value.length === 0;
   if (field.type === "media_upload") return normalizeMediaUploadAnswer(value).length === 0;
+  if (field.type === "asset_picker") return !normalizeAssetPickerAnswer(value);
   return value === "" || value === null || value === undefined;
 }
 
@@ -16290,6 +16703,78 @@ function normalizeMediaUploadAnswer(value) {
     .map(cleanMediaUploadAnswerFile)
     .filter(Boolean)
     .slice(0, MAX_MEDIA_UPLOAD_FILES);
+}
+
+function normalizeAssetPickerSettings(settings = {}) {
+  const raw = getTemplateSettingValue(settings, "assetPicker");
+  const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  const status = String(source.statusFilter || source.status || "active").trim().toLowerCase();
+  return {
+    typeFilter: String(source.typeFilter || source.type || "").trim(),
+    siteFilter: String(source.siteFilter || source.site || "").trim(),
+    statusFilter: ["active", "inactive", "retired", "all"].includes(status) ? status : "active",
+  };
+}
+
+function serializeAssetPickerSettings(settings = {}) {
+  const normalized = normalizeAssetPickerSettings({ assetPicker: settings });
+  return {
+    typeFilter: normalized.typeFilter,
+    siteFilter: normalized.siteFilter,
+    statusFilter: normalized.statusFilter,
+  };
+}
+
+function normalizeAssetPickerAnswer(value) {
+  const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const assetId = String(source.assetId || source.asset_id || source.id || "").trim();
+  const name = String(source.name || source.assetName || source.asset_name || "").trim();
+  const assetType = String(source.assetType || source.asset_type || source.type || "").trim();
+  const serialNumber = String(source.serialNumber || source.serial_number || source.vin || source.serial || "").trim();
+  const currentSite = String(source.currentSite || source.current_site || source.site || "").trim();
+  const status = String(source.status || "").trim();
+  const selectedAt = String(source.selectedAt || source.selected_at || "").trim();
+  if (!assetId && !name && !serialNumber) return null;
+  return {
+    assetId,
+    name,
+    assetType,
+    serialNumber,
+    currentSite,
+    status,
+    selectedAt,
+  };
+}
+
+function assetSnapshotFromAsset(asset) {
+  if (!asset || typeof asset !== "object" || Array.isArray(asset)) return null;
+  return normalizeAssetPickerAnswer({
+    assetId: asset.id,
+    name: asset.name,
+    assetType: asset.assetType,
+    serialNumber: asset.serialNumber,
+    currentSite: asset.currentSite,
+    status: asset.status,
+    selectedAt: new Date().toISOString(),
+  });
+}
+
+function assetPickerDetailsText(asset) {
+  const item = normalizeAssetPickerAnswer(asset) || asset;
+  if (!item || typeof item !== "object") return "";
+  const pieces = [];
+  if (item.assetType) pieces.push(item.assetType);
+  if (item.serialNumber) pieces.push(`Serial/VIN: ${item.serialNumber}`);
+  if (item.currentSite) pieces.push(`Site: ${item.currentSite}`);
+  if (item.status) pieces.push(item.status);
+  return pieces.join(" / ");
+}
+
+function formatAssetPickerAnswer(value) {
+  const asset = normalizeAssetPickerAnswer(value);
+  if (!asset) return "";
+  const details = assetPickerDetailsText(asset);
+  return [asset.name || "Selected asset", details].filter(Boolean).join(" / ");
 }
 
 function cleanMediaUploadAnswerFile(file) {
@@ -16645,6 +17130,16 @@ function renderTemplateAnswerDisplay(field, value, filePreviewContext) {
       </span>
     );
   }
+  if (field.type === "asset_picker") {
+    const asset = normalizeAssetPickerAnswer(value);
+    if (!asset) return "-";
+    return (
+      <span className="template-asset-answer">
+        <strong>{asset.name || "Selected asset"}</strong>
+        {assetPickerDetailsText(asset) ? <small>{assetPickerDetailsText(asset)}</small> : null}
+      </span>
+    );
+  }
   const display = formatTemplateAnswerDisplay(field, value);
   if (Array.isArray(display)) {
     if (!display.length) return "-";
@@ -16667,6 +17162,7 @@ function formatTemplateAnswerDisplay(field, value) {
   if (field.type === "media_upload") {
     return normalizeMediaUploadAnswer(value).map((file) => file.originalFilename || "Attachment");
   }
+  if (field.type === "asset_picker") return formatAssetPickerAnswer(value);
   if (field.type === "yes_no") {
     if (value === "yes") return "Yes";
     if (value === "no") return "No";

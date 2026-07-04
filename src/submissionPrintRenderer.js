@@ -9,6 +9,7 @@ const TEMPLATE_FIELD_TYPES = new Set([
   "boolean",
   "toggle",
   "media_upload",
+  "asset_picker",
   "dropdown",
   "multi_select",
   "checkbox",
@@ -149,6 +150,9 @@ function templateFieldHtml(field, value, actionItemBlock) {
     const files = normalizeMediaUploadAnswer(value);
     const text = files.map((file) => file.originalFilename || "Attachment").join(", ");
     return answerFieldHtml(field.label, text || "-", widthClass(field));
+  }
+  if (field.type === "asset_picker") {
+    return answerFieldHtml(field.label, assetPickerAnswerText(value) || "-", widthClass(field));
   }
   if (isChoiceField(field)) return choiceFieldHtml(field, value);
 
@@ -579,6 +583,7 @@ function templateFieldDefaultValue(field, worker, schema) {
   const staticDefault = normalizeTemplateStaticDefaultForField(field, templateStaticDefaultValue(field));
   if (staticDefault !== "") return staticDefault;
   if (field.type === "multi_select" || field.type === "media_upload") return [];
+  if (field.type === "asset_picker") return null;
   if (["boolean", "toggle", "checkbox"].includes(field.type)) return false;
   return "";
 }
@@ -647,6 +652,7 @@ function normalizeActionItemBlockValue(value) {
 
 function templateAnswerText(field, value) {
   if (field.type === "boolean" || field.type === "toggle" || field.type === "checkbox") return value ? "Yes" : "No";
+  if (field.type === "asset_picker") return assetPickerAnswerText(value);
   if (field.type === "yes_no") {
     if (String(value).toLowerCase() === "yes") return "Yes";
     if (String(value).toLowerCase() === "no") return "No";
@@ -656,6 +662,29 @@ function templateAnswerText(field, value) {
   if (field.type === "date" && value) return formatDateString(String(value));
   if (value === null || value === undefined || value === "") return "";
   return String(value);
+}
+
+function normalizeAssetPickerAnswer(value) {
+  const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const assetId = String(source.assetId || source.asset_id || source.id || "").trim();
+  const name = String(source.name || source.assetName || source.asset_name || "").trim();
+  const assetType = String(source.assetType || source.asset_type || source.type || "").trim();
+  const serialNumber = String(source.serialNumber || source.serial_number || source.vin || source.serial || "").trim();
+  const currentSite = String(source.currentSite || source.current_site || source.site || "").trim();
+  const status = String(source.status || "").trim();
+  if (!assetId && !name && !serialNumber) return null;
+  return { assetId, name, assetType, serialNumber, currentSite, status };
+}
+
+function assetPickerAnswerText(value) {
+  const asset = normalizeAssetPickerAnswer(value);
+  if (!asset) return "";
+  const details = [];
+  if (asset.assetType) details.push(asset.assetType);
+  if (asset.serialNumber) details.push(`Serial/VIN: ${asset.serialNumber}`);
+  if (asset.currentSite) details.push(`Site: ${asset.currentSite}`);
+  if (asset.status) details.push(asset.status);
+  return [asset.name || "Selected asset", details.join(" / ")].filter(Boolean).join(" / ");
 }
 
 function normalizeInstructionStyle(field) {

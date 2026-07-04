@@ -87,7 +87,7 @@ declare
           "required": false,
           "default": "",
           "remember": false,
-          "options": ["Manually", "Photo", "Select Appia Asset"],
+          "options": ["Manually", "Photo", "Select Safety First Asset"],
           "settings": { "choiceDisplay": "radio", "layout": { "width": "full" } }
         },
         {
@@ -146,73 +146,18 @@ declare
           "settings": { "layout": { "width": "full" }, "mediaUpload": { "acceptedKinds": ["image"] } }
         },
         {
-          "id": "fall_harness_asset",
-          "type": "short_text",
-          "label": "Select harness to be inspected (Appia only)",
-          "helperText": "",
+          "id": "fall_selected_asset",
+          "type": "asset_picker",
+          "label": "Select Safety First asset",
+          "helperText": "Search imported Fall Protection assets.",
           "required": false,
           "default": "",
           "remember": false,
           "options": [],
           "settings": {
-            "layout": { "width": "half" },
-            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Appia Asset" }
-          }
-        },
-        {
-          "id": "fall_lanyard_asset",
-          "type": "short_text",
-          "label": "Select lanyard to be inspected (Appia only)",
-          "helperText": "",
-          "required": false,
-          "default": "",
-          "remember": false,
-          "options": [],
-          "settings": {
-            "layout": { "width": "half" },
-            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Appia Asset" }
-          }
-        },
-        {
-          "id": "fall_vertical_lifeline_asset",
-          "type": "short_text",
-          "label": "Select vertical life line to be inspected (Appia only)",
-          "helperText": "",
-          "required": false,
-          "default": "",
-          "remember": false,
-          "options": [],
-          "settings": {
-            "layout": { "width": "half" },
-            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Appia Asset" }
-          }
-        },
-        {
-          "id": "fall_rope_grab_asset",
-          "type": "short_text",
-          "label": "Select rope grab to be inspected (Appia only)",
-          "helperText": "",
-          "required": false,
-          "default": "",
-          "remember": false,
-          "options": [],
-          "settings": {
-            "layout": { "width": "half" },
-            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Appia Asset" }
-          }
-        },
-        {
-          "id": "fall_srl_asset",
-          "type": "short_text",
-          "label": "Select Self Retracting Lifeline to be inspected (Appia only)",
-          "helperText": "",
-          "required": false,
-          "default": "",
-          "remember": false,
-          "options": [],
-          "settings": {
-            "layout": { "width": "half" },
-            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Appia Asset" }
+            "layout": { "width": "full" },
+            "assetPicker": { "typeFilter": "Fall Protection", "siteFilter": "", "statusFilter": "active" },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Select Safety First Asset" }
           }
         }
       ]

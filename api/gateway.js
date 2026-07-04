@@ -21,6 +21,12 @@ import {
   listActionItems,
   updateActionItem,
 } from "./_lib/action-items.js";
+import {
+  archiveAsset,
+  importAssets,
+  listAssets,
+  updateAsset,
+} from "./_lib/assets.js";
 import { processStaffAutoReports } from "./_lib/auto-reports.js";
 import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
@@ -331,6 +337,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "submissions") return handleStaffSubmissions(req, res, staff, parts.slice(1));
   if (parts[0] === "form-templates") return handleStaffFormTemplates(req, res, staff, parts.slice(1));
   if (parts[0] === "action-items") return handleStaffActionItems(req, res, staff, parts.slice(1));
+  if (parts[0] === "assets") return handleStaffAssets(req, res, staff, parts.slice(1));
   return sendJson(res, 404, { error: "Not found" });
 }
 
@@ -961,6 +968,62 @@ async function handleStaffActionItems(req, res, staff, parts) {
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }
 
+async function handleStaffAssets(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    const query = parseQuery(req);
+    const rows = await listAssets({
+      q: query.get("q") || query.get("search") || "",
+      type: query.get("type") || "",
+      site: query.get("site") || "",
+      status: query.get("status") || "",
+      includeArchived: query.get("includeArchived") === "true",
+      limit: query.get("limit") || 100,
+    });
+    return sendJson(res, 200, { rows });
+  }
+  if (parts.length === 1 && parts[0] === "import" && req.method === "POST") {
+    const result = await importAssets(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "assets_imported",
+      targetType: "asset",
+      summary: `${staff.username} imported ${result.inserted} asset${result.inserted === 1 ? "" : "s"} and updated ${result.updated}.`,
+      metadata: {
+        inserted: result.inserted,
+        updated: result.updated,
+        skipped: result.skipped,
+      },
+    });
+    return sendJson(res, 200, result);
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const asset = await updateAsset(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "asset_updated",
+      targetType: "asset",
+      targetId: asset.id,
+      summary: `${staff.username} updated asset ${asset.name}.`,
+    });
+    return sendJson(res, 200, { asset });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    const asset = await archiveAsset(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "asset_archived",
+      targetType: "asset",
+      targetId: asset.id,
+      summary: `${staff.username} archived asset ${asset.name}.`,
+    });
+    return sendJson(res, 200, { asset });
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
+}
+
 async function handleStaffFormTemplates(req, res, staff, parts) {
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, { rows: await listFormTemplates() });
@@ -1112,6 +1175,18 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
 
 async function handleWorker(req, res, parts) {
   const worker = await requireWorker(req);
+  if (parts[0] === "assets" && parts.length === 1 && req.method === "GET") {
+    const query = parseQuery(req);
+    const rows = await listAssets({
+      q: query.get("q") || query.get("search") || "",
+      type: query.get("type") || "",
+      site: query.get("site") || "",
+      status: query.get("status") || "active",
+      includeArchived: false,
+      limit: query.get("limit") || 50,
+    });
+    return sendJson(res, 200, { rows });
+  }
   if (parts[0] === "form-templates" && parts.length === 1 && req.method === "GET") {
     return sendJson(res, 200, { rows: await listWorkerVisibleFormTemplates() });
   }

@@ -17,6 +17,21 @@ const worker = {
   username: "gbird",
 };
 
+const defaultAssetRows = [
+  {
+    id: "asset-fall-harness-1",
+    name: "Harness 1",
+    assetType: "Fall Protection",
+    serialNumber: "FP-001",
+    currentSite: "Appia Yard",
+    status: "active",
+    notes: "Imported asset smoke fixture",
+    source: "local_import",
+    sourceId: "salus-asset-1",
+    archivedAt: null,
+  },
+];
+
 function version(formType, schema, number = 7) {
   return {
     id: `${formType}-version-${number}`,
@@ -386,6 +401,7 @@ const genericAllFieldsSchema = {
         { id: "toggle_false", type: "toggle", label: "Toggle false", required: true },
         { id: "toggle_true", type: "toggle", label: "Toggle true", required: true },
         { id: "media_required", type: "media_upload", label: "Required media", required: true },
+        { id: "asset_optional", type: "asset_picker", label: "Asset picker" },
         { id: "dropdown", type: "dropdown", label: "Dropdown", options: ["One", "Two"] },
         { id: "multi", type: "multi_select", label: "Multi Select", options: ["A", "B"] },
         { id: "checkbox", type: "checkbox", label: "Checkbox confirmation" },
@@ -490,6 +506,35 @@ const noDriverVisibilitySchema = {
   ],
 };
 
+const assetPickerSchema = {
+  schemaVersion: 1,
+  formType: "asset_picker_smoke",
+  title: "Asset Picker Smoke",
+  description: "Asset picker smoke template.",
+  sections: [
+    {
+      id: "asset_section",
+      title: "Asset Selection",
+      description: "",
+      fields: [
+        {
+          id: "selected_asset",
+          type: "asset_picker",
+          label: "Fall protection asset",
+          required: true,
+          settings: {
+            assetPicker: {
+              typeFilter: "Fall Protection",
+              siteFilter: "",
+              statusFilter: "active",
+            },
+          },
+        },
+      ],
+    },
+  ],
+};
+
 const legacyStyleSchema = {
   schemaVersion: 1,
   formType: "legacy_style_smoke",
@@ -557,6 +602,7 @@ const legacyStyleSchema = {
 
 async function mockApis(page, templates, options = {}) {
   let templateRows = templates.map((row) => structuredClone(row));
+  let assetRows = structuredClone(options.assets || defaultAssetRows);
   const currentStaff = options.staff || staff;
   const unlockPassword = options.unlockPassword || "letmein";
   const staffSubmissions = options.staffSubmissions || [];
@@ -654,6 +700,32 @@ async function mockApis(page, templates, options = {}) {
     }
     if (path.startsWith("/api/mock-upload/") && method === "PUT") {
       return route.fulfill({ status: 200, body: "" });
+    }
+    if (path === "/api/staff/assets" && method === "GET") {
+      return json({ rows: filterMockAssets(assetRows, url) });
+    }
+    if (path === "/api/worker/assets" && method === "GET") {
+      return json({ rows: filterMockAssets(assetRows, url).filter((asset) => !asset.archivedAt) });
+    }
+    if (path === "/api/staff/assets/import" && method === "POST") {
+      const body = JSON.parse(request.postData() || "{}");
+      const imported = parseMockAssetImport(body.text || body.content || "");
+      let inserted = 0;
+      let updated = 0;
+      imported.forEach((asset) => {
+        const index = assetRows.findIndex((row) =>
+          normalizeMockSignInIdentity(row.name) === normalizeMockSignInIdentity(asset.name) &&
+          normalizeMockSignInIdentity(row.serialNumber) === normalizeMockSignInIdentity(asset.serialNumber),
+        );
+        if (index >= 0) {
+          assetRows[index] = { ...assetRows[index], ...asset, id: assetRows[index].id };
+          updated += 1;
+        } else {
+          assetRows.push({ ...asset, id: `asset-import-${assetRows.length + 1}` });
+          inserted += 1;
+        }
+      });
+      return json({ rows: imported, inserted, updated, skipped: 0 });
     }
     if (path === "/api/staff/form-templates" && method === "GET") {
       return json({ rows: templateRows.map(jsonTemplate) });
@@ -995,6 +1067,68 @@ trailer
     return json({});
   });
   return submissions;
+}
+
+function filterMockAssets(rows, url) {
+  const query = normalizeMockSignInIdentity(url.searchParams.get("q") || url.searchParams.get("search"));
+  const type = normalizeMockSignInIdentity(url.searchParams.get("type"));
+  const site = normalizeMockSignInIdentity(url.searchParams.get("site"));
+  const status = normalizeMockSignInIdentity(url.searchParams.get("status"));
+  const includeArchived = url.searchParams.get("includeArchived") === "true";
+  return rows.filter((asset) => {
+    if (!includeArchived && asset.archivedAt) return false;
+    if (type && !normalizeMockSignInIdentity(asset.assetType).includes(type)) return false;
+    if (site && !normalizeMockSignInIdentity(asset.currentSite).includes(site)) return false;
+    if (status && status !== "all" && normalizeMockSignInIdentity(asset.status) !== status) return false;
+    if (!query) return true;
+    return [
+      asset.name,
+      asset.assetType,
+      asset.serialNumber,
+      asset.currentSite,
+      asset.status,
+    ].some((value) => normalizeMockSignInIdentity(value).includes(query));
+  });
+}
+
+function parseMockAssetImport(text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return [];
+  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+    const parsed = JSON.parse(trimmed);
+    const rows = Array.isArray(parsed) ? parsed : parsed.assets || parsed.rows || [];
+    return rows.map(normalizeMockAssetImportRow).filter(Boolean);
+  }
+  const [headerLine = "", ...lines] = trimmed.split(/\r?\n/);
+  const headers = headerLine.split(",").map((header) => header.trim().toLowerCase());
+  return lines
+    .map((line) => {
+      const values = line.split(",");
+      return headers.reduce((row, header, index) => {
+        row[header] = values[index] || "";
+        return row;
+      }, {});
+    })
+    .map(normalizeMockAssetImportRow)
+    .filter(Boolean);
+}
+
+function normalizeMockAssetImportRow(row) {
+  const name = String(row.name || row.Name || row.asset || row.Asset || "").trim();
+  const serialNumber = String(row.serialNumber || row.serial || row.Serial || row.vin || row.Vin || "").trim();
+  if (!name && !serialNumber) return null;
+  return {
+    id: String(row.id || row.Id || ""),
+    name: name || serialNumber,
+    assetType: String(row.assetType || row.type || row.Type || "General").trim() || "General",
+    serialNumber,
+    currentSite: String(row.currentSite || row.site || row.Site || row["Current Site"] || "").trim(),
+    status: String(row.status || row.Status || "active").trim().toLowerCase() || "active",
+    notes: String(row.notes || row.Notes || "").trim(),
+    source: "local_import",
+    sourceId: String(row.sourceId || row.id || row.Id || "").trim(),
+    archivedAt: null,
+  };
 }
 
 function normalizeMockSignInIdentity(value) {
@@ -1913,6 +2047,7 @@ test("generic V3 preview renders all normal field types and action item rows", a
   await expect(newFieldDialog.getByRole("button", { name: /Toggle/ })).toBeVisible();
   await newFieldDialog.getByRole("button", { name: "Media" }).click();
   await expect(newFieldDialog.getByRole("button", { name: /Media upload/ })).toBeVisible();
+  await expect(newFieldDialog.getByRole("button", { name: /Asset picker/ })).toBeVisible();
   await page.getByRole("button", { name: "Close new field picker" }).click();
   await openPreview(page);
 
@@ -1928,6 +2063,7 @@ test("generic V3 preview renders all normal field types and action item rows", a
     "Toggle false",
     "Toggle true",
     "Required media",
+    "Asset picker",
     "Dropdown",
     "Multi Select",
     "Checkbox confirmation",
@@ -1973,6 +2109,7 @@ test("generic V3 preview renders all normal field types and action item rows", a
   expect(submissions[0].formData.answers.boolean_true).toBe(true);
   expect(submissions[0].formData.answers.toggle_false).toBe(false);
   expect(submissions[0].formData.answers.toggle_true).toBe(true);
+  expect(submissions[0].formData.answers.asset_optional).toBe(null);
   expect(submissions[0].formData.answers.media_required).toEqual([
     expect.objectContaining({
       storagePath: expect.stringContaining(`${worker.id}/smoke-`),
@@ -1991,6 +2128,59 @@ test("generic V3 preview renders all normal field types and action item rows", a
       mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     }),
   ]);
+});
+
+test("asset import UI and asset picker field use local Safety First assets", async ({ page }) => {
+  const row = template("asset_picker_smoke", "Asset Picker Smoke", assetPickerSchema);
+  const submissions = await mockApis(page, [row], {
+    assets: [
+      {
+        ...defaultAssetRows[0],
+        name: "Harness 1",
+        serialNumber: "FP-001",
+        currentSite: "Appia Yard",
+      },
+    ],
+  });
+
+  await page.goto("/staff/assets");
+  await expect(page.getByRole("heading", { name: "Import assets" })).toBeVisible();
+  await expect(page.getByText("Harness 1")).toBeVisible();
+  await page.getByLabel("Import data").fill(JSON.stringify([
+    {
+      Name: "Harness 2",
+      Type: "Fall Protection",
+      Serial: "FP-002",
+      "Current Site": "North Tower",
+      Status: "Active",
+    },
+  ]));
+  await page.getByRole("button", { name: "Import assets" }).click();
+  await expect(page.getByText("Imported 1 new assets and updated 0.")).toBeVisible();
+  await expect(page.getByText("Harness 2")).toBeVisible();
+
+  await page.goto("/staff/form-templates");
+  await openPreview(page);
+  await expect(page.getByText("Fall protection asset")).toBeVisible();
+  await expect(page.getByText("Type: Fall Protection")).toBeVisible();
+
+  await page.goto("/forms/asset_picker_smoke");
+  await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
+  await expect(page.getByText("Fall protection asset is required.")).toBeVisible();
+  await page.getByLabel("Search assets").fill("FP-002");
+  await page.getByRole("button", { name: /Harness 2/ }).click();
+  await expect(page.locator(".template-asset-selected-card")).toContainText("Serial/VIN: FP-002");
+  await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.selected_asset).toEqual(expect.objectContaining({
+    assetId: expect.any(String),
+    name: "Harness 2",
+    assetType: "Fall Protection",
+    serialNumber: "FP-002",
+    currentSite: "North Tower",
+    status: "active",
+  }));
 });
 
 test("legacy-style layout, choice displays, instruction styles, and integer numbers work", async ({ page }) => {
