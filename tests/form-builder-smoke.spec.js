@@ -2262,8 +2262,13 @@ test("asset import UI and asset picker field use local Safety First assets", asy
   });
 
   await page.goto("/staff/assets");
-  await expect(page.getByRole("heading", { name: "Import assets" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Import assets" })).toHaveCount(0);
   await expect(page.getByText("Harness 1")).toBeVisible();
+  await expect.poll(() =>
+    page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
+  ).toBe(true);
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Import assets" })).toBeVisible();
   await page.getByLabel("Import data").fill(JSON.stringify([
     {
       Name: "Harness 2",
@@ -2275,6 +2280,7 @@ test("asset import UI and asset picker field use local Safety First assets", asy
   ]));
   await page.getByRole("button", { name: "Import assets" }).click();
   await expect(page.getByText("Imported 1 new assets and updated 0.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Import assets" })).toHaveCount(0);
   await expect(page.getByText("Harness 2")).toBeVisible();
 
   await page.goto("/staff/form-templates");

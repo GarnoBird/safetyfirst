@@ -5903,6 +5903,53 @@ function AssetEntryDialog({ asset, mode, onClose, onSave }) {
   );
 }
 
+function AssetImportDialog({
+  importText,
+  importing,
+  message,
+  onClose,
+  onFileChange,
+  onImport,
+  onTextChange,
+}) {
+  return (
+    <div className="staff-dialog-backdrop">
+      <form className="staff-detail-dialog asset-import-dialog" onSubmit={onImport}>
+        <div className="dialog-heading">
+          <div>
+            <p>Import</p>
+            <h2>Import assets</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        <p className="muted">
+          Upload or paste a local CSV/JSON asset export. Safety First stores its own local copy.
+        </p>
+        {message ? <p className="staff-message">{message}</p> : null}
+        <label className="field">
+          <span>CSV or JSON file</span>
+          <input accept=".csv,.json,application/json,text/csv" type="file" onChange={onFileChange} />
+        </label>
+        <label className="field">
+          <span>Import data</span>
+          <textarea
+            placeholder="Name, Type, Serial, Current Site, Status..."
+            rows="10"
+            value={importText}
+            onChange={(event) => onTextChange(event.target.value)}
+          />
+        </label>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" disabled={importing || !importText.trim()} type="submit">
+            {importing ? "Importing..." : "Import assets"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export function StaffAssetsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const [rows, setRows] = useState([]);
@@ -5916,6 +5963,8 @@ export function StaffAssetsPage({ navigateTo }) {
   const [importText, setImportText] = useState("");
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
   const [assetDialogOpen, setAssetDialogOpen] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -5952,6 +6001,7 @@ export function StaffAssetsPage({ navigateTo }) {
     event.preventDefault();
     setImporting(true);
     setMessage("");
+    setImportMessage("");
     try {
       const payload = await readApiJson(
         await fetch("/api/staff/assets/import", {
@@ -5964,8 +6014,9 @@ export function StaffAssetsPage({ navigateTo }) {
       setImportText("");
       await loadAssets();
       setMessage(`Imported ${payload.inserted || 0} new assets and updated ${payload.updated || 0}.`);
+      setImportDialogOpen(false);
     } catch (error) {
-      setMessage(error.message);
+      setImportMessage(error.message);
     } finally {
       setImporting(false);
     }
@@ -5977,9 +6028,9 @@ export function StaffAssetsPage({ navigateTo }) {
     if (!file) return;
     try {
       setImportText(await file.text());
-      setMessage(`Loaded ${file.name}. Review, then import.`);
+      setImportMessage(`Loaded ${file.name}. Review, then import.`);
     } catch (error) {
-      setMessage(error.message || "Asset file could not be read.");
+      setImportMessage(error.message || "Asset file could not be read.");
     }
   };
 
@@ -6032,40 +6083,26 @@ export function StaffAssetsPage({ navigateTo }) {
     <StaffShell active="assets" contentWide navigateTo={navigateTo} staff={staff}>
       {message ? <p className="staff-message">{message}</p> : null}
       <section className="staff-assets-layout">
-        <form className="staff-admin-form staff-asset-import-card" onSubmit={importAssetText}>
-          <h2>Import assets</h2>
-          <p className="muted">
-            Upload or paste a local CSV/JSON asset export. Safety First stores its own copy and does not call Salus.
-          </p>
-          <label className="field">
-            <span>CSV or JSON file</span>
-            <input accept=".csv,.json,application/json,text/csv" type="file" onChange={importAssetFile} />
-          </label>
-          <label className="field">
-            <span>Import data</span>
-            <textarea
-              placeholder="Name, Type, Serial, Current Site, Status..."
-              rows="10"
-              value={importText}
-              onChange={(event) => setImportText(event.target.value)}
-            />
-          </label>
-          <div className="staff-card-actions">
-            <button className="primary-button" disabled={importing || !importText.trim()} type="submit">
-              {importing ? "Importing..." : "Import assets"}
-            </button>
-          </div>
-        </form>
-
         <section className="staff-table-panel staff-assets-panel">
           <div className="staff-panel-heading">
             <div>
               <p>Assets</p>
               <h2>Safety First assets</h2>
             </div>
-            <button className="primary-button" type="button" onClick={() => setAssetDialogOpen(true)}>
-              Create Asset
-            </button>
+            <div className="staff-page-heading-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setImportMessage("");
+                  setImportDialogOpen(true);
+                }}
+              >
+                Import
+              </button>
+              <button className="primary-button" type="button" onClick={() => setAssetDialogOpen(true)}>
+                Create Asset
+              </button>
+            </div>
           </div>
           <div className="staff-list-controls staff-assets-controls">
             <label className="staff-search-field">
@@ -6152,6 +6189,17 @@ export function StaffAssetsPage({ navigateTo }) {
       </section>
       {assetDialogOpen ? (
         <AssetFormDialog mode="create" onClose={() => setAssetDialogOpen(false)} onSave={createAsset} />
+      ) : null}
+      {importDialogOpen ? (
+        <AssetImportDialog
+          importText={importText}
+          importing={importing}
+          message={importMessage}
+          onClose={() => setImportDialogOpen(false)}
+          onFileChange={importAssetFile}
+          onImport={importAssetText}
+          onTextChange={setImportText}
+        />
       ) : null}
     </StaffShell>
   );

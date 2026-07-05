@@ -5454,8 +5454,9 @@ p {
 
 .staff-assets-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: 100%;
   align-items: start;
 }
 
@@ -5497,19 +5498,47 @@ p {
   resize: vertical;
 }
 
+.asset-import-dialog {
+  width: min(100%, 720px);
+}
+
+.asset-import-dialog textarea {
+  min-height: 260px;
+  resize: vertical;
+}
+
 .staff-assets-panel {
+  width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .staff-assets-controls {
   grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(120px, 160px)) auto;
   align-items: end;
   padding: 14px;
+  max-width: 100%;
 }
 
 .staff-assets-controls select,
 .staff-assets-controls button {
   min-height: 39px;
+}
+
+.staff-assets-panel .staff-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.staff-assets-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.staff-assets-table td,
+.staff-assets-table th {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .staff-assets-table td strong,
