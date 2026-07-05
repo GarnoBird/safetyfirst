@@ -748,6 +748,7 @@ declare
           "options": [],
           "settings": {
             "layout": { "width": "full" },
+            "visibility": { "enabled": true, "sourceFieldId": "daily_safety_concerns_today", "operator": "equals", "value": "Yes" },
             "actionItemRows": {
               "noneLabel": "No safety concerns raised today.",
               "rowLabel": "Safety concern",
@@ -774,7 +775,10 @@ declare
           "default": "",
           "remember": false,
           "options": [],
-          "settings": { "layout": { "width": "full" } }
+          "settings": {
+            "layout": { "width": "full" },
+            "visibility": { "enabled": true, "sourceFieldId": "daily_safety_concerns_today", "operator": "equals", "value": "Yes" }
+          }
         }
       ]
     },

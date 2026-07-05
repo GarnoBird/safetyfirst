@@ -1470,12 +1470,28 @@ async function expectNonEmptyDownload(page, buttonName, extension) {
 async function drawSignatureOnCanvas(page, canvasLocator) {
   const box = await canvasLocator.boundingBox();
   expect(box).toBeTruthy();
-  await page.mouse.move(box.x + 24, box.y + box.height * 0.6);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.35, { steps: 5 });
-  await page.mouse.move(box.x + box.width * 0.62, box.y + box.height * 0.55, { steps: 5 });
-  await page.mouse.move(box.x + box.width - 28, box.y + box.height * 0.42, { steps: 5 });
-  await page.mouse.up();
+  const points = [
+    { x: box.x + 24, y: box.y + box.height * 0.6 },
+    { x: box.x + box.width * 0.35, y: box.y + box.height * 0.35 },
+    { x: box.x + box.width * 0.62, y: box.y + box.height * 0.55 },
+    { x: box.x + box.width - 28, y: box.y + box.height * 0.42 },
+  ];
+  const pointer = (point, buttons = 1) => ({
+    bubbles: true,
+    button: 0,
+    buttons,
+    cancelable: true,
+    clientX: point.x,
+    clientY: point.y,
+    isPrimary: true,
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+  await canvasLocator.dispatchEvent("pointerdown", pointer(points[0]));
+  await canvasLocator.dispatchEvent("pointermove", pointer(points[1]));
+  await canvasLocator.dispatchEvent("pointermove", pointer(points[2]));
+  await canvasLocator.dispatchEvent("pointermove", pointer(points[3]));
+  await canvasLocator.dispatchEvent("pointerup", pointer(points[3], 0));
 }
 
 async function openPreview(page) {
@@ -2814,6 +2830,20 @@ test("Daily Safety Inspection migration opens as a hidden editable draft", async
   await expect(templateCard).toContainText("Draft ready");
   await expect(templateCard).toContainText("Hidden from workers");
 
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Safety Concerns Raised" })
+    .filter({ hasText: "Action item rows" })
+    .getByRole("button")
+    .first()
+    .click();
+  const selectedBlock = page.locator(".template-v3-selected-block-card");
+  await expect(selectedBlock.getByLabel("Conditional visibility")).toBeChecked();
+  const visibilitySelects = selectedBlock.locator(".template-conditional-settings select");
+  await expect(visibilitySelects.nth(0)).toHaveValue("daily_safety_concerns_today");
+  await expect(visibilitySelects.nth(1)).toHaveValue("equals");
+  await expect(visibilitySelects.nth(2)).toHaveValue("Yes");
+
   await openPreview(page);
   const preview = page.locator(".template-v3-preview-page");
   await expect(preview.getByRole("heading", { name: "Daily Safety Inspection" })).toBeVisible();
@@ -2830,7 +2860,15 @@ test("Daily Safety Inspection migration opens as a hidden editable draft", async
   await expect(preview.getByText("Para-Stair Inspection")).toHaveCount(0);
   await preview.locator(".template-field-daily_access_items").getByLabel("Para-Stairs").check();
   await expect(preview.getByText("Para-Stair Inspection")).toBeVisible();
+  await expect(preview.getByText("No safety concerns raised today.")).toHaveCount(0);
+  const previewSafetyConcernGroup = preview.getByRole("radiogroup", {
+    name: "Are there any safety concerns raised by workers or supervisors today?",
+  });
+  await previewSafetyConcernGroup.getByRole("radio", { name: "No" }).click();
+  await expect(preview.getByText("No safety concerns raised today.")).toHaveCount(0);
+  await previewSafetyConcernGroup.getByRole("radio", { name: "Yes" }).click();
   await expect(preview.getByText("No safety concerns raised today.")).toBeVisible();
+  await expect(preview.getByText("Safety concern 1")).toBeVisible();
   await expect(preview.getByText("Add Photo")).toBeVisible();
   await expect(preview.getByText(/JPG, PNG, WEBP, HEIC/)).toBeVisible();
   await expect(preview.getByText("Inspector Signatures")).toBeVisible();
@@ -2843,6 +2881,21 @@ test("Daily Safety Inspection worker form honors conditional sections, image-onl
 
   await page.goto("/forms/daily_safety_inspection");
   await expect(page.getByRole("heading", { name: "Daily Safety Inspection" })).toBeVisible();
+  await expect(page.getByText("No safety concerns raised today.")).toHaveCount(0);
+  await expect(page.getByText("Safety concern 1")).toHaveCount(0);
+  const safetyConcernGroup = page.getByRole("radiogroup", {
+    name: "Are there any safety concerns raised by workers or supervisors today?",
+  });
+  await safetyConcernGroup.getByRole("radio", { name: "No" }).click();
+  await expect(page.getByText("No safety concerns raised today.")).toHaveCount(0);
+  await expect(page.getByText("Safety concern 1")).toHaveCount(0);
+  await safetyConcernGroup.getByRole("radio", { name: "Yes" }).click();
+  await expect(page.getByText("No safety concerns raised today.")).toBeVisible();
+  await expect(page.getByText("Safety concern 1")).toBeVisible();
+  await expect(page.getByLabel("Referred To")).toBeVisible();
+  await expect(page.getByLabel("Safety Concern Raised")).toBeVisible();
+  await safetyConcernGroup.getByRole("radio", { name: "No" }).click();
+  await expect(page.getByText("Safety concern 1")).toHaveCount(0);
   await expect(page.getByText("Scaffold Inspection")).toHaveCount(0);
   await page.locator(".template-field-daily_access_items").getByLabel("Scaffold").check();
   await expect(page.getByText("Scaffold Inspection")).toBeVisible();
@@ -2861,10 +2914,60 @@ test("Daily Safety Inspection worker form honors conditional sections, image-onl
   });
   await expect(page.getByText("daily-photo.jpg")).toBeVisible();
 
-  await page.getByLabel("No safety concerns raised today.").check();
   await page.getByRole("button", { name: "Submit Daily Safety Inspection" }).click();
   await expect(page.getByText("Inspector Signatures is required.")).toBeVisible();
   await expect(page.locator(".template-section-daily_signatures")).toHaveClass(/toolbox-section-invalid/);
+});
+
+test("Daily Safety Inspection omits hidden safety concern rows from submitted payload", async ({ page }) => {
+  const row = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/daily_safety_inspection");
+  await page
+    .getByRole("radiogroup", { name: "Are there any safety concerns raised by workers or supervisors today?" })
+    .getByRole("radio", { name: "No" })
+    .click();
+  await drawSignatureOnCanvas(page, page.locator(".template-section-daily_signatures .template-signature-canvas").nth(0));
+  await drawSignatureOnCanvas(page, page.locator(".template-section-daily_signatures .template-signature-canvas").nth(1));
+  await page.getByRole("button", { name: "Submit Daily Safety Inspection" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.daily_safety_concerns_today).toBe("No");
+  expect(submissions[0].formData.answers.daily_safety_concern_notes).toBeUndefined();
+  expect(submissions[0].formData.actionItemBlocks.daily_safety_concern_rows).toBeUndefined();
+});
+
+test("Daily Safety Inspection includes safety concern rows when answered Yes", async ({ page }) => {
+  const row = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/daily_safety_inspection");
+  await page
+    .getByRole("radiogroup", { name: "Are there any safety concerns raised by workers or supervisors today?" })
+    .getByRole("radio", { name: "Yes" })
+    .click();
+  await page.getByLabel("Referred To").fill("Site supervisor");
+  await page.getByLabel("Safety Concern Raised").fill("Loose temporary railing near the west stair.");
+  await page.getByLabel("Corrective Action").fill("Secure railing before work continues.");
+  await page.getByLabel("Notes", { exact: true }).fill("Raised during morning inspection.");
+  await drawSignatureOnCanvas(page, page.locator(".template-section-daily_signatures .template-signature-canvas").nth(0));
+  await drawSignatureOnCanvas(page, page.locator(".template-section-daily_signatures .template-signature-canvas").nth(1));
+  await page.getByRole("button", { name: "Submit Daily Safety Inspection" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.daily_safety_concerns_today).toBe("Yes");
+  expect(submissions[0].formData.answers.daily_safety_concern_notes).toBe("Raised during morning inspection.");
+  expect(submissions[0].formData.actionItemBlocks.daily_safety_concern_rows).toEqual({
+    noItems: false,
+    rows: [
+      expect.objectContaining({
+        suggestedAssignee: "Site supervisor",
+        description: "Loose temporary railing near the west stair.",
+        recommendedAction: "Secure railing before work continues.",
+      }),
+    ],
+  });
 });
 
 test("Daily Washroom Inspection migration opens as a hidden editable draft", async ({ page }) => {
