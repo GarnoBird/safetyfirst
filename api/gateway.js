@@ -57,8 +57,10 @@ import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
   appendStaffSubmissionSignoff,
   createFileUploadTarget,
-  createStaffSubmissionPdf,
+  createStaffFileUploadTarget,
   createStaffSubmissionFileAccess,
+  createStaffSubmissionPdf,
+  createStaffSubmission,
   createWorkerSubmissionPdf,
   deleteStaffSubmission,
   deleteStaffSubmissions,
@@ -78,6 +80,7 @@ import {
   deleteArchivedFormTemplates,
   duplicateFormTemplate,
   getFormTemplate,
+  getPublishedFormTemplateByShareToken,
   getPublishedWorkerFormTemplate,
   listFormTemplates,
   listWorkerVisibleFormTemplates,
@@ -150,6 +153,7 @@ export default async function handler(req, res) {
   try {
     if (parts[0] === "auth") return await handleAuth(req, res, parts.slice(1));
     if (parts[0] === "cron") return await handleCron(req, res, parts.slice(1));
+    if (parts[0] === "form-links") return await handleFormLinks(req, res, parts.slice(1));
     if (parts[0] === "staff") return await handleStaff(req, res, parts.slice(1));
     if (parts[0] === "worker") return await handleWorker(req, res, parts.slice(1));
     if (parts[0] === "worker-signins") return await handleWorkerSignIns(req, res);
@@ -390,6 +394,93 @@ async function handleSettings(req, res, staff) {
     settings,
     system: getSettingsSystemStatus(),
   });
+}
+
+async function handleFormLinks(req, res, parts) {
+  const token = parts[0];
+  if (!token) return sendJson(res, 404, { error: "Not found" });
+
+  if (parts.length === 1 && req.method === "GET") {
+    const template = await getPublishedFormTemplateByShareToken(token);
+    return sendJson(res, 200, {
+      template: publicShareLinkTemplate(template),
+      link: template.shareLink,
+    });
+  }
+
+  if (parts.length === 2 && parts[1] === "published" && req.method === "GET") {
+    await requireFormSubmitter(req, parseQuery(req).get("submitter"));
+    const template = await getPublishedFormTemplateByShareToken(token);
+    return sendJson(res, 200, {
+      template,
+      link: template.shareLink,
+    });
+  }
+
+  if (parts[1] !== "submissions") return sendJson(res, 404, { error: "Not found" });
+
+  const body = req.method === "POST" ? await readJson(req) : {};
+  const submitter = await requireFormSubmitter(req, body?.submitterKind || body?.submitter_kind || parseQuery(req).get("submitter"));
+  const template = await getPublishedFormTemplateByShareToken(token);
+  const bodyWithFormType = {
+    ...body,
+    formType: template.form_type,
+    form_type: template.form_type,
+  };
+
+  if (parts.length === 2 && req.method === "POST") {
+    const submission = submitter.kind === "staff"
+      ? await createStaffSubmission(submitter.profile, bodyWithFormType)
+      : await createWorkerSubmission(submitter.profile, bodyWithFormType);
+    return sendJson(res, 201, { submission });
+  }
+
+  if (parts.length === 3 && parts[2] === "file-upload-url" && req.method === "POST") {
+    const upload = submitter.kind === "staff"
+      ? await createStaffFileUploadTarget(submitter.profile, bodyWithFormType)
+      : await createFileUploadTarget(submitter.profile, bodyWithFormType);
+    return sendJson(res, 200, { upload });
+  }
+
+  return sendMethodNotAllowed(res, ["GET", "POST"]);
+}
+
+async function requireFormSubmitter(req, preferredKind) {
+  const kind = String(preferredKind || "").trim().toLowerCase();
+  if (kind === "worker") {
+    const worker = await getWorkerFromRequest(req);
+    if (worker) return { kind: "worker", profile: worker };
+    throwUnauthorized("Worker login required.");
+  }
+  if (kind === "staff") {
+    const staff = await getStaffFromRequest(req);
+    if (staff) return { kind: "staff", profile: staff };
+    throwUnauthorized("Staff login required.");
+  }
+
+  const worker = await getWorkerFromRequest(req);
+  if (worker) return { kind: "worker", profile: worker };
+  const staff = await getStaffFromRequest(req);
+  if (staff) return { kind: "staff", profile: staff };
+  throwUnauthorized("Login required.");
+}
+
+function publicShareLinkTemplate(template) {
+  return {
+    form_type: template.form_type,
+    label: template.label,
+    description: template.description || "",
+    renderer_type: template.renderer_type,
+    active: Boolean(template.active),
+    worker_visible: Boolean(template.worker_visible),
+    shareLink: template.shareLink || null,
+  };
+}
+
+function throwUnauthorized(message) {
+  const error = new Error(message);
+  error.statusCode = 401;
+  throw error;
 }
 
 async function handleTrends(req, res) {

@@ -1656,6 +1656,7 @@ export function StaffLoginPage({ navigateTo }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const returnTo = useMemo(() => readLoginReturnPath("/staff/home"), []);
 
   const submitLogin = async (event) => {
     event.preventDefault();
@@ -1671,7 +1672,7 @@ export function StaffLoginPage({ navigateTo }) {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Login failed.");
-      navigateTo("/staff/home");
+      navigateTo(returnTo);
     } catch (loginError) {
       setError(loginError.message);
     } finally {
@@ -3325,6 +3326,7 @@ export function WorkerLoginPage({ navigateTo }) {
   const [rememberMe, setRememberMe] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const returnTo = useMemo(() => readLoginReturnPath("/forms"), []);
 
   useEffect(() => {
     let active = true;
@@ -3332,13 +3334,13 @@ export function WorkerLoginPage({ navigateTo }) {
       .then(readApiJson)
       .then((payload) => {
         if (payload.worker) writeCachedWorkerSession(payload.worker);
-        if (active && payload.worker) navigateTo("/forms");
+        if (active && payload.worker) navigateTo(returnTo);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, [navigateTo]);
+  }, [navigateTo, returnTo]);
 
   const submitLogin = async (event) => {
     event.preventDefault();
@@ -3355,7 +3357,7 @@ export function WorkerLoginPage({ navigateTo }) {
         }),
       );
       writeCachedWorkerSession(payload.worker);
-      navigateTo("/forms");
+      navigateTo(returnTo);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -3403,6 +3405,136 @@ export function WorkerLoginPage({ navigateTo }) {
         </form>
       </section>
     </main>
+  );
+}
+
+export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
+  const token = routePath.split("/").filter(Boolean)[1] || "";
+  const returnTo = useMemo(() => currentRouteReturnPath(routePath), [routePath]);
+  const [linkPayload, setLinkPayload] = useState(null);
+  const [linkLoading, setLinkLoading] = useState(true);
+  const [linkError, setLinkError] = useState("");
+  const [auth, setAuth] = useState({ worker: null, staff: null });
+  const [authLoading, setAuthLoading] = useState(true);
+  const [submitterKind, setSubmitterKind] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    setLinkLoading(true);
+    setLinkError("");
+    fetch(`/api/form-links/${token}`, { credentials: "include" })
+      .then(readApiJson)
+      .then((payload) => {
+        if (active) setLinkPayload(payload);
+      })
+      .catch((error) => {
+        if (active) setLinkError(error.message);
+      })
+      .finally(() => {
+        if (active) setLinkLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    let active = true;
+    setAuthLoading(true);
+    Promise.all([
+      readOptionalSession("/api/auth/worker-me", "worker"),
+      readOptionalSession("/api/auth/me", "staff"),
+    ])
+      .then(([worker, staff]) => {
+        if (!active) return;
+        setAuth({ worker, staff });
+        if (worker && !staff) setSubmitterKind("worker");
+        if (staff && !worker) setSubmitterKind("staff");
+      })
+      .finally(() => {
+        if (active) setAuthLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const template = linkPayload?.template || null;
+  const workerSubmitter = auth.worker || null;
+  const staffSubmitter = useMemo(() => staffFormSubmitter(auth.staff), [auth.staff]);
+  const selectedSubmitter = submitterKind === "staff" ? staffSubmitter : workerSubmitter;
+
+  if (linkLoading) return <WorkerFormLoadingScreen />;
+
+  if (linkError || !template) {
+    return (
+      <main className="public-page form-platform-page">
+        <section className="form-platform-shell form-link-auth-panel">
+          <div className="brand-mark">APPIA</div>
+          <h1>Form link unavailable</h1>
+          <p>{linkError || "This QR link is not available."}</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (authLoading) return <WorkerFormLoadingScreen />;
+
+  if (!auth.worker && !auth.staff) {
+    return (
+      <main className="public-page form-platform-page">
+        <section className="form-platform-shell form-link-auth-panel">
+          <div className="brand-mark">APPIA</div>
+          <h1>{template.label}</h1>
+          <p>Sign in to fill and submit this form.</p>
+          <div className="form-link-auth-actions">
+            <button type="button" onClick={() => navigateTo(loginPathWithReturn("/worker-login", returnTo))}>
+              Company worker
+            </button>
+            <button className="primary-button" type="button" onClick={() => navigateTo(loginPathWithReturn("/staff-login", returnTo))}>
+              Appia staff
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (auth.worker && auth.staff && !submitterKind) {
+    return (
+      <main className="public-page form-platform-page">
+        <section className="form-platform-shell form-link-auth-panel">
+          <div className="brand-mark">APPIA</div>
+          <h1>{template.label}</h1>
+          <p>Choose how to submit this form.</p>
+          <div className="form-link-auth-actions">
+            <button type="button" onClick={() => setSubmitterKind("worker")}>
+              {auth.worker.name} / {auth.worker.company}
+            </button>
+            <button className="primary-button" type="button" onClick={() => setSubmitterKind("staff")}>
+              {staffSubmitter.name} / Appia Staff
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!selectedSubmitter) return <WorkerFormLoadingScreen />;
+
+  const submitterParam = encodeURIComponent(submitterKind);
+  return (
+    <FormSubmissionExperience
+      allowOfflineQueue={submitterKind === "worker"}
+      formType={template.form_type}
+      navigateTo={navigateTo}
+      redirectUnknownForm={false}
+      submissionEndpoint={`/api/form-links/${token}/submissions?submitter=${submitterParam}`}
+      submitter={selectedSubmitter}
+      submitterKind={submitterKind}
+      templateEndpoint={`/api/form-links/${token}/published?submitter=${submitterParam}`}
+      uploadEndpoint={`/api/form-links/${token}/submissions/file-upload-url?submitter=${submitterParam}`}
+    />
   );
 }
 
@@ -3514,6 +3646,32 @@ export function WorkerFormsHomePage({ navigateTo }) {
 export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const { worker } = useWorkerSession(navigateTo);
   const formType = routePath.split("/").filter(Boolean).pop();
+
+  if (!worker) return <WorkerFormLoadingScreen />;
+
+  return (
+    <FormSubmissionExperience
+      allowOfflineQueue
+      formType={formType}
+      navigateTo={navigateTo}
+      submitter={worker}
+      submitterKind="worker"
+    />
+  );
+}
+
+function FormSubmissionExperience({
+  allowOfflineQueue = false,
+  formType,
+  navigateTo,
+  redirectUnknownForm = true,
+  submissionEndpoint = "/api/worker/submissions",
+  submitter,
+  submitterKind = "worker",
+  templateEndpoint,
+  uploadEndpoint = "/api/worker/submissions/file-upload-url",
+}) {
+  const worker = submitter;
   const isToolboxTalk = formType === "toolbox_talk";
   const isSiteInspection = formType === "site_inspection";
   const {
@@ -3522,7 +3680,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     refreshQueue,
     syncing,
     syncNow,
-  } = useWorkerSubmissionQueue(worker);
+  } = useWorkerSubmissionQueue(allowOfflineQueue ? worker : null);
   const [formTemplate, setFormTemplate] = useState(null);
   const [formLoading, setFormLoading] = useState(true);
   const [formError, setFormError] = useState("");
@@ -3546,6 +3704,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   const scannedCopyInputRef = useRef(null);
   const submitted = status.type === "success" || status.type === "queued";
   const formTypeClass = slugifyTemplateId(formType);
+  const hideDuplicateHeaderTitle =
+    isTemplateDriven &&
+    normalizeComparableText(form?.label) &&
+    Array.isArray(formTemplateSchema?.sections) &&
+    formTemplateSchema.sections.some(
+      (section) => normalizeComparableText(section?.title) === normalizeComparableText(form?.label),
+    );
 
   useEffect(() => {
     let active = true;
@@ -3554,8 +3719,9 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
       setFormLoading(true);
       setFormError("");
       try {
+        const endpoint = templateEndpoint || `/api/worker/form-templates/${formType}/published`;
         const payload = await readApiJson(
-          await fetch(`/api/worker/form-templates/${formType}/published`, {
+          await fetch(endpoint, {
             credentials: "include",
           }),
         );
@@ -3573,14 +3739,14 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     return () => {
       active = false;
     };
-  }, [formType, worker]);
+  }, [formType, templateEndpoint, worker]);
 
   useEffect(() => {
     if (!worker || formLoading) return;
-    if (!formTemplate && !SAFETY_FORM_TYPES.some((item) => item.id === formType)) {
+    if (redirectUnknownForm && !formTemplate && !SAFETY_FORM_TYPES.some((item) => item.id === formType)) {
       navigateTo("/forms");
     }
-  }, [formLoading, formTemplate, formType, navigateTo, worker]);
+  }, [formLoading, formTemplate, formType, navigateTo, redirectUnknownForm, worker]);
 
   useEffect(() => {
     setMode(isToolboxTalkDigital || isSiteInspectionDigital || isTemplateDriven ? "fill_form" : "");
@@ -3696,12 +3862,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
   const submitUpload = async (selectedFile) => {
     const payload = await readApiJson(
-      await fetch("/api/worker/submissions/file-upload-url", {
+      await fetch(uploadEndpoint, {
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           formType,
+          submitterKind,
           file: {
             originalFilename: selectedFile.name,
             mimeType: selectedFile.type || "application/octet-stream",
@@ -3730,11 +3897,11 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
 
     try {
       const payload = await readApiJson(
-        await fetch("/api/worker/submissions", {
+        await fetch(submissionEndpoint, {
           method: "POST",
           credentials: "include",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ ...body, submitterKind }),
         }),
       );
       clearWorkerFormDraft(worker, body.formType, body.submissionMode);
@@ -3744,7 +3911,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         date: formatDateString(payload.submission.submitted_date_vancouver),
       });
     } catch (error) {
-      if (body.submissionMode === "fill_form" && shouldQueueWorkerSubmission(error)) {
+      if (allowOfflineQueue && body.submissionMode === "fill_form" && shouldQueueWorkerSubmission(error)) {
         try {
           const queued = queueWorkerSubmission(worker, body);
           clearWorkerFormDraft(worker, body.formType, body.submissionMode);
@@ -3765,7 +3932,17 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
     }
   };
 
-  if (!worker || formLoading || !form) return <WorkerFormLoadingScreen />;
+  if (!worker || formLoading) return <WorkerFormLoadingScreen />;
+
+  if (!form) {
+    return (
+      <main className="public-page form-platform-page">
+        <section className="form-platform-shell">
+          <p className="form-message error">{formError || "This form is not available."}</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="public-page form-platform-page">
@@ -3784,7 +3961,7 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
         />
         <header className="form-platform-header">
           <div>
-            <h1>{form.label}</h1>
+            <h1 aria-hidden={hideDuplicateHeaderTitle ? "true" : undefined}>{form.label}</h1>
             <p>{worker.name} / {worker.company}</p>
           </div>
         </header>
@@ -3929,11 +4106,13 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
                   </>
                 ) : isTemplateDriven ? (
                   <TemplateDrivenWorkerForm
+                    formTemplate={formTemplate}
                     formType={formType}
                     formLabel={form.label}
                     openScannedCopyPicker={openScannedCopyPicker}
                     onUploadFile={submitUpload}
                     submitting={submitting}
+                    templateEndpoint={templateEndpoint}
                     worker={worker}
                     onSubmit={submitTemplateForm}
                   />
@@ -5251,18 +5430,20 @@ function ToolboxSafetyConcernField({ field, onChange, value }) {
 
 function TemplateDrivenWorkerForm({
   formLabel,
+  formTemplate,
   formType,
   onSubmit,
   onUploadFile,
   openScannedCopyPicker,
   submitting,
+  templateEndpoint,
   worker,
 }) {
   const validationTargetsRef = useRef({});
   const restoredDraftRef = useRef(readWorkerFormDraft(worker, formType, "fill_form"));
-  const [template, setTemplate] = useState(null);
+  const [template, setTemplate] = useState(formTemplate || null);
   const [answers, setAnswers] = useState(() => restoredDraftRef.current?.answers || {});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!formTemplate);
   const [draftRestored, setDraftRestored] = useState(Boolean(restoredDraftRef.current?.answers));
   const [draftSavedAt, setDraftSavedAt] = useState(restoredDraftRef.current?.savedAt || "");
   const [error, setError] = useState("");
@@ -5292,11 +5473,18 @@ function TemplateDrivenWorkerForm({
   useEffect(() => {
     let active = true;
     const loadTemplate = async () => {
+      if (formTemplate) {
+        setTemplate(formTemplate);
+        setLoading(false);
+        setError("");
+        return;
+      }
       setLoading(true);
       setError("");
       try {
+        const endpoint = templateEndpoint || `/api/worker/form-templates/${formType}/published`;
         const payload = await readApiJson(
-          await fetch(`/api/worker/form-templates/${formType}/published`, {
+          await fetch(endpoint, {
             credentials: "include",
           }),
         );
@@ -5311,7 +5499,7 @@ function TemplateDrivenWorkerForm({
     return () => {
       active = false;
     };
-  }, [formType]);
+  }, [formTemplate, formType, templateEndpoint]);
 
   useEffect(() => {
     if (!submitAttempted) return;
@@ -9106,6 +9294,65 @@ function templateAccessLabel(template) {
   return "Editable";
 }
 
+function TemplateQrLinkPanel({
+  copyStatus,
+  onCopy,
+  onDownload,
+  onOpen,
+  qrDataUrl,
+  shareUrl,
+  template,
+}) {
+  const unavailableReason = templateQrUnavailableReason(template);
+  return (
+    <section className="template-qr-panel" aria-label="Form template QR link">
+      <div className="template-qr-heading">
+        <div>
+          <p>QR link</p>
+          <h2>{shareUrl ? "Ready for this form" : "Not active"}</h2>
+        </div>
+        {shareUrl ? <strong>Stored link</strong> : <strong>Unavailable</strong>}
+      </div>
+      {shareUrl ? (
+        <div className="template-qr-ready">
+          <div className="template-qr-image">
+            {qrDataUrl ? <img alt={`${template.label} QR code`} src={qrDataUrl} /> : <div className="public-qr-placeholder" />}
+          </div>
+          <div className="template-qr-details">
+            <label>
+              <span>Public QR URL</span>
+              <input readOnly value={shareUrl} onFocus={(event) => event.target.select()} />
+            </label>
+            <div className="template-qr-actions">
+              <button type="button" onClick={onCopy}>
+                Copy link
+              </button>
+              <button type="button" onClick={onOpen}>
+                Open
+              </button>
+              <button disabled={!qrDataUrl} type="button" onClick={onDownload}>
+                Download QR
+              </button>
+            </div>
+            {copyStatus ? <p className="template-qr-copy-status">{copyStatus}</p> : null}
+          </div>
+        </div>
+      ) : (
+        <p className="muted">{unavailableReason}</p>
+      )}
+    </section>
+  );
+}
+
+function templateQrUnavailableReason(template) {
+  if (!template) return "Select a form template to view its QR link.";
+  if (template.archived_at) return "Archived forms do not have active QR links.";
+  if (!template.active) return "Activate this form before assigning an active QR link.";
+  if (!template.worker_visible) return "Show this form to workers before assigning an active QR link.";
+  if (!template.publishedVersion) return "Publish this form before assigning an active QR link.";
+  return "The server has not assigned a QR link yet. Refresh the template list after publishing or showing the form.";
+}
+
 function syncSchemaMeta(schema, patch) {
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return schema;
   if (!patchHasKey(patch, "label") && !patchHasKey(patch, "description")) return schema;
@@ -9157,6 +9404,8 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [qrCopyStatus, setQrCopyStatus] = useState("");
   const [unlockingTemplate, setUnlockingTemplate] = useState(null);
   const templateCardRefs = useRef(new Map());
   const dragStateRef = useRef({ formType: "", moved: false, latestOrder: null });
@@ -9202,6 +9451,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
   const canDragTemplateOrder = isAdminOrOwner(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const selectedSharePath = selectedTemplate?.shareLink?.urlPath || "";
+  const selectedShareUrl = useMemo(
+    () => (selectedSharePath ? publicUrl(selectedSharePath) : ""),
+    [selectedSharePath],
+  );
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -9533,6 +9787,30 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     setPreviewAnswers({});
   }, [selectedFormType, selectedSchema]);
 
+  useEffect(() => {
+    setQrCopyStatus("");
+    setQrDataUrl("");
+    if (!selectedShareUrl) return undefined;
+    let cancelled = false;
+    QRCode.toDataURL(selectedShareUrl, {
+      errorCorrectionLevel: "M",
+      margin: 2,
+      scale: 8,
+      width: 260,
+      color: {
+        dark: "#111111",
+        light: "#ffffff",
+      },
+    }).then((dataUrl) => {
+      if (!cancelled) setQrDataUrl(dataUrl);
+    }).catch(() => {
+      if (!cancelled) setQrDataUrl("");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedShareUrl]);
+
   const saveTemplateMetaForSchema = async (schema) => {
     if (!selectedCanEdit) return null;
     const nextTitle = String(schema?.title || "").trim();
@@ -9650,6 +9928,29 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     }
   };
 
+  const copySelectedShareLink = async () => {
+    if (!selectedShareUrl) return;
+    try {
+      await navigator.clipboard.writeText(selectedShareUrl);
+      setQrCopyStatus("Copied");
+    } catch {
+      setQrCopyStatus("Copy failed");
+    }
+  };
+
+  const openSelectedShareLink = () => {
+    if (!selectedShareUrl) return;
+    window.open(selectedShareUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const downloadSelectedQrCode = () => {
+    if (!qrDataUrl || !selectedTemplate) return;
+    const anchor = document.createElement("a");
+    anchor.href = qrDataUrl;
+    anchor.download = `${slugifyTemplateId(selectedTemplate.form_type || selectedTemplate.label || "form")}-qr-code.png`;
+    anchor.click();
+  };
+
   if (!staff || loading) return <StaffLoadingScreen />;
 
   return (
@@ -9758,14 +10059,15 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 <strong>{template.label}</strong>
                 {template.draftVersion && !isLockedDefaultFormTemplate(template) ? <small>Draft ready</small> : null}
                 {isLockedFormTemplate(template) && !isLockedDefaultFormTemplate(template) ? <small>Locked</small> : null}
-                <small>
-                  {template.archived_at
-                    ? "Archived"
-                    : template.active
-                      ? template.worker_visible ? "Shown to workers" : "Hidden from workers"
-                      : "Inactive"}
-                </small>
-              </button>
+	                <small>
+	                  {template.archived_at
+	                    ? "Archived"
+	                    : template.active
+	                      ? template.worker_visible ? "Shown to workers" : "Hidden from workers"
+	                      : "Inactive"}
+	                </small>
+	                {template.shareLink?.urlPath ? <small>QR link ready</small> : null}
+	              </button>
               {template.renderer_type === "template" && canManageTemplates ? (
                 <div className="template-card-actions">
                   <button disabled={saving} type="button" onClick={() => duplicateTemplate(template)}>
@@ -9844,13 +10146,22 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                   <p>Special mobile form</p>
                 </div>
               </div>
-              <p className="muted">
-                This form uses a polished custom mobile flow. Editable labels and options for this special form will be added in a later phase.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="template-editor-heading">
+	              <p className="muted">
+	                This form uses a polished custom mobile flow. Editable labels and options for this special form will be added in a later phase.
+	              </p>
+	              <TemplateQrLinkPanel
+	                copyStatus={qrCopyStatus}
+	                qrDataUrl={qrDataUrl}
+	                shareUrl={selectedShareUrl}
+	                template={selectedTemplate}
+	                onCopy={copySelectedShareLink}
+	                onDownload={downloadSelectedQrCode}
+	                onOpen={openSelectedShareLink}
+	              />
+	            </div>
+	          ) : (
+	            <>
+	              <div className="template-editor-heading">
                 <div>
                   <p>Form template</p>
                   <h1>{draftSchema?.title || selectedTemplate.label}</h1>
@@ -9890,10 +10201,20 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                   ) : (
                     <span className="muted">View only</span>
                   )}
-                </div>
-              </div>
+	                </div>
+	              </div>
 
-              <TemplateSchemaEditorV3
+	              <TemplateQrLinkPanel
+	                copyStatus={qrCopyStatus}
+	                qrDataUrl={qrDataUrl}
+	                shareUrl={selectedShareUrl}
+	                template={selectedTemplate}
+	                onCopy={copySelectedShareLink}
+	                onDownload={downloadSelectedQrCode}
+	                onOpen={openSelectedShareLink}
+	              />
+
+	              <TemplateSchemaEditorV3
                 active={Boolean(selectedTemplate.active)}
                 archived={Boolean(selectedTemplate.archived_at)}
                 canArchive={selectedCanArchive}
@@ -12470,6 +12791,10 @@ function TemplateFormFields({
   );
 }
 
+function normalizeComparableText(value) {
+  return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 function TemplateRuntimeSections({
   assetSearchEndpoint = "/api/worker/assets",
   answers,
@@ -12517,10 +12842,10 @@ function TemplateRuntimeSections({
             key={section.id}
             ref={registerSectionValidationTarget(section)}
           >
-            <div className="toolbox-section-heading">
-              <h2>{section.title}</h2>
-              {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
-            </div>
+	            <div className="toolbox-section-heading">
+	              <h2>{section.title}</h2>
+	              {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
+	            </div>
             {section.description ? <p className="muted">{section.description}</p> : null}
             <div className="toolbox-field-grid">
               {section.fields.map((field) => (
@@ -15685,6 +16010,48 @@ function staffNavPath(path) {
   const url = new URL(path, "https://safetyfirst.local");
   url.searchParams.set("date", date);
   return `${url.pathname}${url.search}`;
+}
+
+function readLoginReturnPath(fallback) {
+  if (typeof window === "undefined") return fallback;
+  return safeAppReturnPath(new URLSearchParams(window.location.search).get("returnTo"), fallback);
+}
+
+function currentRouteReturnPath(routePath) {
+  if (typeof window === "undefined") return routePath || "/";
+  return safeAppReturnPath(`${routePath || window.location.pathname}${window.location.search || ""}`, routePath || "/");
+}
+
+function loginPathWithReturn(path, returnTo) {
+  const params = new URLSearchParams({ returnTo: safeAppReturnPath(returnTo, "/forms") });
+  return `${path}?${params.toString()}`;
+}
+
+function safeAppReturnPath(value, fallback) {
+  const path = String(value || "").trim();
+  if (!path || !path.startsWith("/") || path.startsWith("//") || path.startsWith("/api/") || path.includes("://")) {
+    return fallback;
+  }
+  return path;
+}
+
+async function readOptionalSession(path, key) {
+  const response = await fetch(path, { credentials: "include" });
+  if (response.status === 401) return null;
+  const payload = await readApiJson(response);
+  return payload?.[key] || null;
+}
+
+function staffFormSubmitter(staff) {
+  if (!staff) return null;
+  return {
+    id: `staff-${staff.id}`,
+    name: staff.display_name || staff.username || staff.email || "Appia Staff",
+    phone: "",
+    username: staff.username || staff.email || "staff",
+    user_name: staff.username || staff.email || "staff",
+    company: "Appia Staff",
+  };
 }
 
 function isISODate(value) {

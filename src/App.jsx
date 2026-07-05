@@ -32,6 +32,7 @@ import {
   StaffTrendsPage,
   StaffUsersPage,
   StaffWorkersPage,
+  FormTemplateShareLinkPage,
   WorkerFormSubmissionPage,
   WorkerFormsHomePage,
   WorkerLoginPage,
@@ -96,6 +97,10 @@ export default function App() {
 
   if (routePath.startsWith("/forms/")) {
     return <WorkerFormSubmissionPage routePath={routePath} navigateTo={navigateTo} />;
+  }
+
+  if (routePath.startsWith("/form-links/")) {
+    return <FormTemplateShareLinkPage routePath={routePath} navigateTo={navigateTo} />;
   }
 
   if (routePath === "/my-submissions") {

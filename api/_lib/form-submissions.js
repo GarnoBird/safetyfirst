@@ -224,8 +224,36 @@ export function publicSubmission(row) {
   };
 }
 
-async function uploadTargetPayload(worker, formType, file, storagePath, data) {
-  await recordSubmissionUpload(worker, formType, file, storagePath);
+function workerSubmitter(worker) {
+  return {
+    kind: "worker",
+    id: worker.id,
+    storagePrefix: worker.id,
+    workerId: worker.id,
+    name: worker.name,
+    phone: worker.phone,
+    username: worker.username,
+    user_name: worker.username,
+    company: worker.company,
+  };
+}
+
+function staffSubmitter(staff) {
+  return {
+    kind: "staff",
+    id: staff.id,
+    storagePrefix: `staff/${staff.id}`,
+    workerId: null,
+    name: staff.display_name || staff.username || staff.email || "Appia Staff",
+    phone: "",
+    username: staff.username || staff.email || "staff",
+    user_name: staff.username || staff.email || "staff",
+    company: "Appia Staff",
+  };
+}
+
+async function uploadTargetPayload(submitter, formType, file, storagePath, data) {
+  await recordSubmissionUpload(submitter, formType, file, storagePath);
   return {
     bucket: SUBMISSION_BUCKET,
     storagePath,
@@ -237,13 +265,13 @@ async function uploadTargetPayload(worker, formType, file, storagePath, data) {
   };
 }
 
-async function recordSubmissionUpload(worker, formType, file, storagePath) {
+async function recordSubmissionUpload(submitter, formType, file, storagePath) {
   try {
     throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("submission_uploads")
         .insert({
-          worker_id: worker.id,
+          worker_id: submitter.workerId,
           bucket: SUBMISSION_BUCKET,
           storage_path: storagePath,
           original_filename: file.originalFilename,
@@ -275,17 +303,17 @@ async function markUploadAttached(storagePath, submissionId) {
   }
 }
 
-function cleanSubmissionFilesForBody({ body, formData, submissionMode, workerId }) {
+function cleanSubmissionFilesForBody({ body, formData, submissionMode, storagePrefix }) {
   const files = [];
   if (submissionMode === "submit_file") {
-    files.push(cleanSubmittedFile(body?.file, workerId));
+    files.push(cleanSubmittedFile(body?.file, storagePrefix));
   }
   if (
     submissionMode === "fill_form" &&
     ["template_submission_v1", "toolbox_talk_v1", "site_inspection_v1"].includes(formData?.kind)
   ) {
     collectTemplateMediaUploadFiles(formData).forEach((file) => {
-      files.push(cleanSubmittedFile(file, workerId));
+      files.push(cleanSubmittedFile(file, storagePrefix));
     });
   }
   const seen = new Set();
@@ -318,9 +346,17 @@ function submissionFileRecord(submissionId, file, now = new Date()) {
 }
 
 export async function createFileUploadTarget(worker, body) {
+  return createSubmitterFileUploadTarget(workerSubmitter(worker), body);
+}
+
+export async function createStaffFileUploadTarget(staff, body) {
+  return createSubmitterFileUploadTarget(staffSubmitter(staff), body);
+}
+
+async function createSubmitterFileUploadTarget(submitter, body) {
   const formType = await cleanWorkerFormType(body?.formType || body?.form_type);
   const file = cleanFileMetadata(body?.file || body);
-  const storagePath = `${worker.id}/${Date.now()}-${crypto
+  const storagePath = `${submitter.storagePrefix}/${Date.now()}-${crypto
     .randomBytes(8)
     .toString("hex")}-${sanitizeStorageFilename(file.originalFilename)}`;
 
@@ -337,7 +373,7 @@ export async function createFileUploadTarget(worker, body) {
         .from(SUBMISSION_BUCKET)
         .createSignedUploadUrl(storagePath);
       if (!retry.error) {
-        return uploadTargetPayload(worker, formType, file, storagePath, retry.data);
+        return uploadTargetPayload(submitter, formType, file, storagePath, retry.data);
       }
       result.error = retry.error;
     }
@@ -348,24 +384,32 @@ export async function createFileUploadTarget(worker, body) {
     throw error;
   }
 
-  return uploadTargetPayload(worker, formType, file, storagePath, result.data);
+  return uploadTargetPayload(submitter, formType, file, storagePath, result.data);
 }
 
 export async function createWorkerSubmission(worker, body) {
+  return createSubmitterSubmission(workerSubmitter(worker), body);
+}
+
+export async function createStaffSubmission(staff, body) {
+  return createSubmitterSubmission(staffSubmitter(staff), body);
+}
+
+async function createSubmitterSubmission(submitter, body) {
   const formType = await cleanWorkerFormType(body?.formType || body?.form_type);
   const submissionMode = cleanSubmissionMode(body?.submissionMode || body?.submission_mode);
   const cleanedForm = await cleanSubmissionFormData(
     formType,
     submissionMode,
     body?.formData ?? body?.form_data,
-    worker,
+    submitter,
   );
   const formData = cleanedForm.formData;
   const submittedFiles = cleanSubmissionFilesForBody({
     body,
     formData,
     submissionMode,
-    workerId: worker.id,
+    storagePrefix: submitter.storagePrefix,
   });
   const notes = buildSubmissionNotes(formType, submissionMode, body?.notes, formData);
   const now = new Date();
@@ -376,11 +420,11 @@ export async function createWorkerSubmission(worker, body) {
       await getSupabaseServiceClient()
         .from("form_submissions")
         .insert({
-          worker_id: worker.id,
-          worker_name: worker.name,
-          worker_phone: worker.phone,
-          worker_username: worker.username,
-          company: worker.company,
+          worker_id: submitter.workerId,
+          worker_name: submitter.name,
+          worker_phone: submitter.phone,
+          worker_username: submitter.username,
+          company: submitter.company,
           form_type: formType,
           submission_mode: submissionMode,
           notes,
@@ -397,7 +441,7 @@ export async function createWorkerSubmission(worker, body) {
     );
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
-    return createFallbackWorkerSubmission(worker, {
+    return createFallbackWorkerSubmission(submitter, {
       body,
       formType,
       submissionMode,
@@ -1222,27 +1266,27 @@ async function updateFileBackupStatus(id, status, attemptedAt, errorMessage = ""
   );
 }
 
-async function createFallbackWorkerSubmission(worker, { body, formType, submissionMode, notes, cleanedForm, now }) {
+async function createFallbackWorkerSubmission(submitter, { body, formType, submissionMode, notes, cleanedForm, now }) {
   const nextCleanedForm = cleanedForm || await cleanSubmissionFormData(
     formType,
     submissionMode,
     body?.formData ?? body?.form_data,
-    worker,
+    submitter,
   );
   const formData = nextCleanedForm.formData || {};
   const submittedFiles = cleanSubmissionFilesForBody({
     body,
     formData,
     submissionMode,
-    workerId: worker.id,
+    storagePrefix: submitter.storagePrefix,
   });
   const submission = {
     id: crypto.randomUUID(),
-    worker_id: worker.id,
-    worker_name: worker.name,
-    worker_phone: worker.phone,
-    worker_username: worker.username,
-    company: worker.company,
+    worker_id: submitter.workerId,
+    worker_name: submitter.name,
+    worker_phone: submitter.phone,
+    worker_username: submitter.username,
+    company: submitter.company,
     form_type: formType,
     submission_mode: submissionMode,
     notes,
@@ -1785,11 +1829,11 @@ function cleanFileMetadata(file) {
   return cleaned;
 }
 
-function cleanSubmittedFile(file, workerId) {
+function cleanSubmittedFile(file, storagePrefix) {
   const metadata = cleanFileMetadata(file);
   const storagePath = String(file?.storagePath || file?.storage_path || "").trim();
-  if (!storagePath.startsWith(`${workerId}/`)) {
-    const error = new Error("Uploaded file path is not valid for this worker.");
+  if (!storagePrefix || !storagePath.startsWith(`${storagePrefix}/`)) {
+    const error = new Error("Uploaded file path is not valid for this submitter.");
     error.statusCode = 400;
     throw error;
   }
