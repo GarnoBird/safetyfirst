@@ -24,9 +24,9 @@ const CERTIFICATE_TYPE_SELECT =
 const CERTIFICATE_PROVIDER_SELECT =
   "id, slug, name, source, source_metadata, archived_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
 const CERTIFICATE_FILE_SELECT =
-  "id, certificate_id, bucket, storage_path, original_filename, mime_type, size_bytes, uploaded_by_staff_id, app_deleted_at, created_at";
+  "id, certificate_id, bucket, storage_path, original_filename, mime_type, size_bytes, uploaded_by_staff_id, app_deleted_at, source, source_external_id, source_metadata, imported_at, created_at";
 const CERTIFICATE_SELECT =
-  "id, worker_name, certificate_type_id, certificate_type_name, certificate_provider_id, certificate_provider_name, issue_date, expiry_date, status, archived_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
+  "id, worker_name, certificate_type_id, certificate_type_name, certificate_provider_id, certificate_provider_name, issue_date, expiry_date, status, archived_at, source, source_external_id, source_metadata, imported_at, created_by_staff_id, updated_by_staff_id, created_at, updated_at";
 const CERTIFICATE_WITH_FILES_SELECT = `${CERTIFICATE_SELECT}, certificate_files(${CERTIFICATE_FILE_SELECT})`;
 
 export async function listCertificates(query) {
@@ -518,6 +518,10 @@ function publicCertificate(row) {
     expiryDate: row.expiry_date || null,
     status: row.status || "approved",
     archivedAt: row.archived_at || null,
+    source: row.source || "safety_first",
+    sourceExternalId: row.source_external_id || null,
+    sourceMetadata: row.source_metadata || {},
+    importedAt: row.imported_at || null,
     createdByStaffId: row.created_by_staff_id || null,
     updatedByStaffId: row.updated_by_staff_id || null,
     createdAt: row.created_at || null,
@@ -537,6 +541,10 @@ function publicCertificateFile(file) {
     sizeBytes: file.size_bytes ?? file.sizeBytes ?? 0,
     uploadedByStaffId: file.uploaded_by_staff_id || file.uploadedByStaffId || null,
     appDeletedAt: file.app_deleted_at || file.appDeletedAt || null,
+    source: file.source || "safety_first",
+    sourceExternalId: file.source_external_id || file.sourceExternalId || null,
+    sourceMetadata: file.source_metadata || file.sourceMetadata || {},
+    importedAt: file.imported_at || file.importedAt || null,
     createdAt: file.created_at || file.createdAt || null,
     original_filename: file.original_filename || file.originalFilename || "",
     mime_type: file.mime_type || file.mimeType || "",
