@@ -2772,7 +2772,18 @@ test("Fall Protection Form migration opens as a hidden editable draft", async ({
   await expect(preview.getByRole("heading", { name: "Fall Protection Form" })).toBeVisible();
   await expect(preview.getByRole("heading", { name: "Fall Protection Equipment Inspection Checklist and Log" })).toBeVisible();
   await expect(preview.getByRole("heading", { name: "Equipment Information" })).toBeVisible();
+  const inputMethod = preview
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "How will you input Make/Model/Serial # information?" });
+  await expect(inputMethod.getByRole("radio", { name: "Photo" })).toHaveCount(0);
+  await expect(preview.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
+  await inputMethod.getByRole("radio", { name: "Manually" }).click();
+  await expect(preview.getByLabel("Make", { exact: true })).toBeVisible();
   await expect(preview.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toBeVisible();
+  await inputMethod.getByRole("radio", { name: "Select Safety First Asset" }).click();
+  await expect(preview.getByLabel("Make", { exact: true })).toHaveCount(0);
+  await expect(preview.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
+  await expect(preview.getByLabel("Search assets")).toBeVisible();
   await expect(preview.getByText("11-06 Harness Inspection")).toHaveCount(0);
   await preview.getByRole("radio", { name: "Full Body Harness" }).click();
   await expect(preview.getByText("11-06 Harness Inspection")).toBeVisible();
@@ -2797,6 +2808,18 @@ test("Fall Protection Form worker form honors conditional sections and image-onl
   await expect(page.getByText("11-06 Harness Inspection")).toBeVisible();
   await expect(page.getByText("11-09 SRL Inspection")).toHaveCount(0);
 
+  const inputMethod = page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "How will you input Make/Model/Serial # information?" });
+  await expect(inputMethod.getByRole("radio", { name: "Photo" })).toHaveCount(0);
+  await expect(page.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
+  await inputMethod.getByRole("radio", { name: "Select Safety First Asset" }).click();
+  await expect(page.getByLabel("Make", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
+  await expect(page.getByLabel("Search assets")).toBeVisible();
+  await inputMethod.getByRole("radio", { name: "Manually" }).click();
+  await expect(page.getByLabel("Make", { exact: true })).toBeVisible();
+  await expect(page.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toBeVisible();
   const upload = page.locator('input[type="file"][aria-label^="Add images of Make"]');
   await upload.setInputFiles({
     name: "fall-report.pdf",

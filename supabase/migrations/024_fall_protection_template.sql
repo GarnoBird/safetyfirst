@@ -87,7 +87,7 @@ declare
           "required": false,
           "default": "",
           "remember": false,
-          "options": ["Manually", "Photo", "Select Safety First Asset"],
+          "options": ["Manually", "Select Safety First Asset"],
           "settings": { "choiceDisplay": "radio", "layout": { "width": "full" } }
         },
         {
@@ -99,7 +99,10 @@ declare
           "default": "",
           "remember": true,
           "options": [],
-          "settings": { "layout": { "width": "half" } }
+          "settings": {
+            "layout": { "width": "half" },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Manually" }
+          }
         },
         {
           "id": "fall_equipment_model",
@@ -110,7 +113,10 @@ declare
           "default": "",
           "remember": true,
           "options": [],
-          "settings": { "layout": { "width": "half" } }
+          "settings": {
+            "layout": { "width": "half" },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Manually" }
+          }
         },
         {
           "id": "fall_equipment_serial",
@@ -121,7 +127,10 @@ declare
           "default": "",
           "remember": true,
           "options": [],
-          "settings": { "layout": { "width": "half" } }
+          "settings": {
+            "layout": { "width": "half" },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Manually" }
+          }
         },
         {
           "id": "fall_equipment_mfg_date",
@@ -132,7 +141,10 @@ declare
           "default": "",
           "remember": false,
           "options": [],
-          "settings": { "layout": { "width": "half" } }
+          "settings": {
+            "layout": { "width": "half" },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Manually" }
+          }
         },
         {
           "id": "fall_equipment_photos",
@@ -143,7 +155,11 @@ declare
           "default": "",
           "remember": false,
           "options": [],
-          "settings": { "layout": { "width": "full" }, "mediaUpload": { "acceptedKinds": ["image"] } }
+          "settings": {
+            "layout": { "width": "full" },
+            "mediaUpload": { "acceptedKinds": ["image"] },
+            "visibility": { "enabled": true, "sourceFieldId": "fall_equipment_input_method", "operator": "equals", "value": "Manually" }
+          }
         },
         {
           "id": "fall_selected_asset",
