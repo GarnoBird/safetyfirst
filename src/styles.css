@@ -2984,6 +2984,74 @@ p {
   font-weight: 850;
 }
 
+.staff-fill-forms-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.staff-fill-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.staff-fill-form-card {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  min-height: 148px;
+  align-content: start;
+  border: 1px solid #d9e3de;
+  border-radius: 8px;
+  padding: 18px;
+  color: #17211f;
+  text-align: left;
+  white-space: normal;
+  background: #fff;
+}
+
+.staff-fill-form-card:hover {
+  border-color: #245f5b;
+  background: #f8fcfa;
+}
+
+.staff-fill-form-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.staff-fill-form-card strong {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  font-size: 1.16rem;
+  line-height: 1.14;
+  overflow-wrap: break-word;
+}
+
+.staff-fill-form-card small {
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.staff-fill-form-card em {
+  align-self: end;
+  color: #245f5b;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.staff-fill-forms-empty {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
 .form-submit-panel {
   min-width: 0;
   border: 1px solid #d9e3de;
@@ -4540,8 +4608,14 @@ p {
   align-items: stretch;
 }
 
-.template-new-button {
+.template-new-button,
+.template-fill-button {
   width: 100%;
+  min-width: 0;
+}
+
+.template-fill-button {
+  grid-column: 1 / -1;
 }
 
 .template-list-toggle,
@@ -8140,6 +8214,10 @@ p {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .staff-fill-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .safety-form-card {
     min-height: 96px;
     gap: 6px;
@@ -8291,6 +8369,10 @@ p {
 
   .trend-metric-grid,
   .ops-metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-fill-form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -8679,11 +8761,13 @@ p {
 }
 
 @media (max-width: 380px) {
-  .safety-form-grid {
+  .safety-form-grid,
+  .staff-fill-form-grid {
     gap: 8px;
   }
 
-  .safety-form-card {
+  .safety-form-card,
+  .staff-fill-form-card {
     min-height: 86px;
     padding: 11px;
   }

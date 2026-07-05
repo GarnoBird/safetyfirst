@@ -3445,6 +3445,31 @@ test("regular staff can archive and purge only templates they created", async ({
   await expect(page.getByRole("button", { name: "Delete archived" })).toBeDisabled();
 });
 
+test("staff can open fill-out forms from the form templates section", async ({ page }) => {
+  const readyRow = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema, {
+    shareLink: {
+      token: "daily-safety-smoke",
+      urlPath: "/form-links/daily-safety-smoke",
+    },
+  });
+  const hiddenDraft = draftTemplate("hidden_draft", "Hidden Draft", {
+    ...toolboxSignatureSchema,
+    formType: "hidden_draft",
+    title: "Hidden Draft",
+  });
+  await mockApis(page, [readyRow, hiddenDraft]);
+
+  await page.goto("/staff/form-templates");
+  await page.getByRole("button", { name: "Fill Out Forms" }).click();
+  await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
+  await expect(page.getByRole("heading", { name: "Forms To Fill Out" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Daily Safety Inspection/ })).toBeVisible();
+  await expect(page.getByText("Hidden Draft")).toHaveCount(0);
+
+  await page.getByRole("button", { name: /Daily Safety Inspection/ }).click();
+  await expect(page).toHaveURL(/\/form-links\/daily-safety-smoke$/);
+});
+
 test("admin can archive and purge non-protected templates while protected defaults stay protected", async ({ page }) => {
   const adminStaff = {
     ...staff,

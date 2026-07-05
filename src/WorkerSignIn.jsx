@@ -3660,6 +3660,87 @@ export function WorkerFormSubmissionPage({ navigateTo, routePath }) {
   );
 }
 
+export function StaffFormsToFillOutPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [forms, setForms] = useState([]);
+  const [formsLoading, setFormsLoading] = useState(true);
+  const [formsMessage, setFormsMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    const loadForms = async () => {
+      if (!staff) return;
+      setFormsLoading(true);
+      setFormsMessage("");
+      try {
+        const payload = await readApiJson(
+          await fetch("/api/staff/form-templates", { credentials: "include" }),
+        );
+        const rows = (payload.rows || []).filter(isStaffFillableFormTemplate);
+        if (active) setForms(rows);
+      } catch (error) {
+        if (active) setFormsMessage(error.message);
+      } finally {
+        if (active) setFormsLoading(false);
+      }
+    };
+    loadForms();
+    return () => {
+      active = false;
+    };
+  }, [staff]);
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="form-templates" contentWide navigateTo={navigateTo} staff={staff}>
+      {formsMessage ? <p className="staff-message">{formsMessage}</p> : null}
+      <section className="staff-table-panel staff-fill-forms-panel">
+        <div className="staff-page-heading">
+          <div>
+            <p>Form templates</p>
+            <h1>Forms To Fill Out</h1>
+          </div>
+          <div className="staff-page-heading-actions">
+            <button type="button" onClick={() => navigateTo("/staff/form-templates")}>
+              Manage templates
+            </button>
+          </div>
+        </div>
+
+        {formsLoading ? (
+          <p className="empty-state">Loading forms...</p>
+        ) : forms.length ? (
+          <div className="staff-fill-form-grid" aria-label="Forms to fill out">
+            {forms.map((form) => (
+              <button
+                className="staff-fill-form-card"
+                key={form.form_type}
+                type="button"
+                onClick={() => navigateTo(form.shareLink.urlPath)}
+              >
+                <span>{form.renderer_type === "template" ? "Template form" : "Special form"}</span>
+                <strong>{form.label}</strong>
+                {form.description ? <small>{form.description}</small> : null}
+                <em>Open form</em>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="staff-fill-forms-empty">
+            <p className="empty-state">
+              No forms are ready to fill out. Publish a template, show it to workers, and its QR link will appear here.
+            </p>
+            <button className="primary-button" type="button" onClick={() => navigateTo("/staff/form-templates")}>
+              Manage templates
+            </button>
+          </div>
+        )}
+      </section>
+    </StaffShell>
+  );
+}
+
 function FormSubmissionExperience({
   allowOfflineQueue = false,
   formType,
@@ -9353,6 +9434,17 @@ function templateQrUnavailableReason(template) {
   return "The server has not assigned a QR link yet. Refresh the template list after publishing or showing the form.";
 }
 
+function isStaffFillableFormTemplate(template) {
+  return Boolean(
+    template &&
+    !template.archived_at &&
+    template.active &&
+    template.worker_visible &&
+    template.publishedVersion &&
+    template.shareLink?.urlPath
+  );
+}
+
 function syncSchemaMeta(schema, patch) {
   if (!schema || typeof schema !== "object" || Array.isArray(schema)) return schema;
   if (!patchHasKey(patch, "label") && !patchHasKey(patch, "description")) return schema;
@@ -9987,6 +10079,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
             ) : (
               <span aria-hidden="true" />
             )}
+            <button
+              className="secondary-button template-fill-button"
+              type="button"
+              onClick={() => navigateTo("/staff/forms-to-fill-out")}
+            >
+              Fill Out Forms
+            </button>
             <button
               aria-label="Hide form template list"
               className="template-list-toggle"

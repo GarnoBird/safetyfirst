@@ -20,6 +20,7 @@ import {
   StaffBackupsPage,
   StaffCertificatesPage,
   StaffFormSubmissionsPage,
+  StaffFormsToFillOutPage,
   StaffSubmissionViewerPage,
   StaffFormTemplatesPage,
   StaffHealthPage,
@@ -137,6 +138,10 @@ export default function App() {
 
   if (routePath === "/staff/forms") {
     return <StaffFormSubmissionsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/forms-to-fill-out") {
+    return <StaffFormsToFillOutPage navigateTo={navigateTo} />;
   }
 
   if (routePath.startsWith("/staff/forms/")) {
