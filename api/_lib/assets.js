@@ -25,7 +25,7 @@ const HEADER_ALIASES = {
   last_used_at: ["last used", "last used at", "last_used", "last_used_at", "last seen"],
   notes: ["notes", "note", "comments", "comment", "remarks"],
   description: ["asset description", "long description", "details"],
-  source_id: ["id", "asset id", "source id", "salus id", "uuid"],
+  source_id: ["id", "asset id", "source id", "legacy id", "uuid"],
 };
 
 export async function listAssets({ q = "", type = "", site = "", status = "", includeArchived = false, limit = 100 } = {}) {
