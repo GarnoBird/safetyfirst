@@ -2331,7 +2331,10 @@ test("staff assets support create, detail pages, log book, maintenance, and pick
   await expect(page.getByText("Created Created Rescue Harness.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Created Rescue Harness" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Created Rescue Harness" }).click();
+  await page
+    .getByRole("row", { name: /Created Rescue Harness/ })
+    .getByRole("cell", { name: "Fall Protection" })
+    .click();
   await expect(page.getByRole("heading", { name: "Created Rescue Harness" })).toBeVisible();
   await expect(page.getByText("Rescue-42")).toBeVisible();
   const tabs = page.locator(".asset-tabs-panel");

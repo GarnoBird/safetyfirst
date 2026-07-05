@@ -6077,6 +6077,23 @@ export function StaffAssetsPage({ navigateTo }) {
     );
   }, [rows]);
 
+  const openAssetDetail = (asset) => {
+    if (!asset?.id) return;
+    navigateTo(`/staff/assets/${asset.id}`);
+  };
+
+  const handleAssetRowClick = (event, asset) => {
+    if (event.target?.closest?.("button, a, input, select, textarea")) return;
+    openAssetDetail(asset);
+  };
+
+  const handleAssetRowKeyDown = (event, asset) => {
+    if (event.target?.closest?.("button, a, input, select, textarea")) return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openAssetDetail(asset);
+  };
+
   if (!staff) return <StaffLoadingScreen />;
 
   return (
@@ -6156,12 +6173,18 @@ export function StaffAssetsPage({ navigateTo }) {
                 {loading ? (
                   <tr><td colSpan="8">Loading assets...</td></tr>
                 ) : rows.length ? rows.map((asset) => (
-                  <tr key={asset.id}>
+                  <tr
+                    className="asset-clickable-row"
+                    key={asset.id}
+                    onClick={(event) => handleAssetRowClick(event, asset)}
+                    onKeyDown={(event) => handleAssetRowKeyDown(event, asset)}
+                    tabIndex={0}
+                  >
                     <td>
                       <button
                         className="link-button asset-name-link"
                         type="button"
-                        onClick={() => navigateTo(`/staff/assets/${asset.id}`)}
+                        onClick={() => openAssetDetail(asset)}
                       >
                         {asset.name || "Unnamed asset"}
                       </button>
@@ -6175,7 +6198,15 @@ export function StaffAssetsPage({ navigateTo }) {
                     <td>{asset.lastUsedAt ? formatDateTime(asset.lastUsedAt) : "-"}</td>
                     <td>
                       {!asset.archivedAt ? (
-                        <button type="button" onClick={() => archiveAsset(asset)}>Archive</button>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            archiveAsset(asset);
+                          }}
+                        >
+                          Archive
+                        </button>
                       ) : "-"}
                     </td>
                   </tr>
