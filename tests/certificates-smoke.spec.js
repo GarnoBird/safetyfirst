@@ -104,6 +104,12 @@ test("staff certificates support tabs, seeded options, upload, and archive filte
   expect(actionsCellBox).not.toBeNull();
   expect(fileButtonBox.x + fileButtonBox.width).toBeLessThanOrEqual(fileCellBox.x + fileCellBox.width + 1);
   expect(fileButtonBox.x + fileButtonBox.width).toBeLessThanOrEqual(actionsCellBox.x + 1);
+  const editButtonBox = await leanneRow.getByRole("button", { name: "Edit" }).boundingBox();
+  const archiveButtonBox = await leanneRow.getByRole("button", { name: "Archive" }).boundingBox();
+  expect(editButtonBox).not.toBeNull();
+  expect(archiveButtonBox).not.toBeNull();
+  expect(Math.abs(editButtonBox.y - archiveButtonBox.y)).toBeLessThanOrEqual(2);
+  expect(editButtonBox.x + editButtonBox.width).toBeLessThanOrEqual(archiveButtonBox.x);
   expect(state.uploads).toHaveLength(1);
   expect(state.certificates[0]).toMatchObject({
     workerName: "Leanne Bird",

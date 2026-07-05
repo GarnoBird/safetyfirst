@@ -5895,17 +5895,17 @@ p {
 .certificates-table {
   table-layout: fixed;
   width: 100%;
-  min-width: 1060px;
+  min-width: 1120px;
 }
 
 .certificates-table th:nth-child(1),
 .certificates-table td:nth-child(1) {
-  width: 14%;
+  width: 13%;
 }
 
 .certificates-table th:nth-child(2),
 .certificates-table td:nth-child(2) {
-  width: 18%;
+  width: 17%;
 }
 
 .certificates-table th:nth-child(3),
@@ -5917,18 +5917,32 @@ p {
 .certificates-table td:nth-child(4),
 .certificates-table th:nth-child(5),
 .certificates-table td:nth-child(5) {
-  width: 9%;
+  width: 8%;
   white-space: nowrap;
 }
 
 .certificates-table th:nth-child(6),
 .certificates-table td:nth-child(6) {
-  width: 24%;
+  width: 23%;
 }
 
 .certificates-table th:nth-child(7),
 .certificates-table td:nth-child(7) {
-  width: 10%;
+  width: 15%;
+}
+
+.certificates-table th {
+  white-space: nowrap;
+}
+
+.certificates-table td:nth-child(1),
+.certificates-table td:nth-child(2),
+.certificates-table td:nth-child(3),
+.certificates-table td:nth-child(4),
+.certificates-table td:nth-child(5) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .certificate-clickable-row {
@@ -5976,7 +5990,13 @@ p {
 }
 
 .certificate-row-actions {
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.certificate-row-actions button {
+  flex: 0 0 auto;
 }
 
 .certificate-form-grid {
