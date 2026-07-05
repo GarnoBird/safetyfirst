@@ -5830,6 +5830,79 @@ function CertificateOptionDialog({ item = null, kind, onClose, onSave }) {
   );
 }
 
+function CertificateDetailsDialog({ certificate, onArchive, onClose, onEdit, onFilePreview }) {
+  if (!certificate) return null;
+  const files = certificate.files || [];
+  const sourceLabel = certificate.source === "salus" ? "Salus import" : "Safety First";
+
+  return (
+    <div className="staff-dialog-backdrop">
+      <section className="staff-detail-dialog certificate-detail-dialog" aria-modal="true" role="dialog">
+        <div className="dialog-heading">
+          <div>
+            <p>{sourceLabel}</p>
+            <h2>{certificate.workerName || "Certificate"}</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        <dl className="certificate-detail-grid">
+          <div>
+            <dt>Certificate Type</dt>
+            <dd>{certificate.certificateTypeName || "-"}</dd>
+          </div>
+          <div>
+            <dt>Provider</dt>
+            <dd>{certificate.providerName || "-"}</dd>
+          </div>
+          <div>
+            <dt>Issue Date</dt>
+            <dd>{certificate.issueDate || "-"}</dd>
+          </div>
+          <div>
+            <dt>Expiry Date</dt>
+            <dd>{certificate.expiryDate || "-"}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{certificate.archivedAt ? "Archived" : certificate.status || "Approved"}</dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>{sourceLabel}</dd>
+          </div>
+        </dl>
+        <div className="certificate-detail-files">
+          <h3>Attached Files</h3>
+          {files.length ? (
+            <div className="certificate-file-list detail">
+              {files.map((file) => (
+                <button
+                  className="link-button"
+                  key={file.id}
+                  title={file.originalFilename || file.original_filename || "Attachment"}
+                  type="button"
+                  onClick={() => onFilePreview(certificate, file)}
+                >
+                  {file.originalFilename || file.original_filename || "Attachment"}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No files attached.</p>
+          )}
+        </div>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Close</button>
+          <button type="button" onClick={() => onEdit(certificate)}>Edit</button>
+          {!certificate.archivedAt ? (
+            <button type="button" onClick={() => onArchive(certificate)}>Archive</button>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function StaffCertificatesPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const [activeTab, setActiveTab] = useState("approved");
@@ -5839,6 +5912,7 @@ export function StaffCertificatesPage({ navigateTo }) {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [certificateDialog, setCertificateDialog] = useState(null);
+  const [detailsCertificate, setDetailsCertificate] = useState(null);
   const [optionDialog, setOptionDialog] = useState(null);
   const [showArchivedOptions, setShowArchivedOptions] = useState(false);
   const [filePreview, setFilePreview] = useState(null);
@@ -5939,6 +6013,7 @@ export function StaffCertificatesPage({ navigateTo }) {
         }),
       );
       await loadCertificates();
+      setDetailsCertificate(null);
       setMessage("Certificate archived.");
     } catch (error) {
       setMessage(error.message || "Certificate could not be archived.");
@@ -6029,6 +6104,7 @@ export function StaffCertificatesPage({ navigateTo }) {
             onArchive={archiveCertificateRow}
             onEdit={(certificate) => setCertificateDialog({ mode: "edit", certificate })}
             onFilePreview={openCertificateFile}
+            onOpenDetails={setDetailsCertificate}
             onSearch={setSearch}
             onSearchSubmit={loadCertificates}
           />
@@ -6070,6 +6146,18 @@ export function StaffCertificatesPage({ navigateTo }) {
           onSave={(payload, file) => saveCertificate(payload, file, certificateDialog.certificate || null)}
         />
       ) : null}
+      {detailsCertificate ? (
+        <CertificateDetailsDialog
+          certificate={detailsCertificate}
+          onArchive={archiveCertificateRow}
+          onClose={() => setDetailsCertificate(null)}
+          onEdit={(certificate) => {
+            setDetailsCertificate(null);
+            setCertificateDialog({ mode: "edit", certificate });
+          }}
+          onFilePreview={openCertificateFile}
+        />
+      ) : null}
       {optionDialog ? (
         <CertificateOptionDialog
           item={optionDialog.item || null}
@@ -6092,6 +6180,7 @@ function CertificateApprovedTab({
   onArchive,
   onEdit,
   onFilePreview,
+  onOpenDetails,
   onSearch,
   onSearchSubmit,
 }) {
@@ -6129,7 +6218,18 @@ function CertificateApprovedTab({
             {loading ? (
               <tr><td colSpan="7">Loading certificates...</td></tr>
             ) : certificates.length ? certificates.map((certificate) => (
-              <tr key={certificate.id}>
+              <tr
+                className="certificate-clickable-row"
+                key={certificate.id}
+                tabIndex="0"
+                onClick={() => onOpenDetails(certificate)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onOpenDetails(certificate);
+                  }
+                }}
+              >
                 <td>{certificate.workerName || "-"}</td>
                 <td>{certificate.certificateTypeName || "-"}</td>
                 <td>{certificate.providerName || "-"}</td>
@@ -6142,8 +6242,12 @@ function CertificateApprovedTab({
                         <button
                           className="link-button"
                           key={file.id}
+                          title={file.originalFilename || file.original_filename || "Attachment"}
                           type="button"
-                          onClick={() => onFilePreview(certificate, file)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onFilePreview(certificate, file);
+                          }}
                         >
                           {file.originalFilename || file.original_filename || "Attachment"}
                         </button>
@@ -6153,8 +6257,24 @@ function CertificateApprovedTab({
                 </td>
                 <td>
                   <span className="certificate-row-actions">
-                    <button type="button" onClick={() => onEdit(certificate)}>Edit</button>
-                    <button type="button" onClick={() => onArchive(certificate)}>Archive</button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(certificate);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onArchive(certificate);
+                      }}
+                    >
+                      Archive
+                    </button>
                   </span>
                 </td>
               </tr>
