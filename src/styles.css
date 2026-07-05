@@ -5527,7 +5527,7 @@ p {
 
 .staff-assets-panel .staff-table-scroll {
   max-width: 100%;
-  overflow-x: auto;
+  overflow-x: clip;
 }
 
 .staff-assets-table {
@@ -5535,10 +5535,51 @@ p {
   table-layout: fixed;
 }
 
+.staff-assets-table th:nth-child(1),
+.staff-assets-table td:nth-child(1) {
+  width: 23%;
+}
+
+.staff-assets-table th:nth-child(2),
+.staff-assets-table td:nth-child(2) {
+  width: 15%;
+}
+
+.staff-assets-table th:nth-child(3),
+.staff-assets-table td:nth-child(3) {
+  width: 13%;
+}
+
+.staff-assets-table th:nth-child(4),
+.staff-assets-table td:nth-child(4) {
+  width: 7%;
+}
+
+.staff-assets-table th:nth-child(5),
+.staff-assets-table td:nth-child(5) {
+  width: 13%;
+}
+
+.staff-assets-table th:nth-child(6),
+.staff-assets-table td:nth-child(6) {
+  width: 10%;
+}
+
+.staff-assets-table th:nth-child(7),
+.staff-assets-table td:nth-child(7) {
+  width: 11%;
+}
+
+.staff-assets-table th:nth-child(8),
+.staff-assets-table td:nth-child(8) {
+  width: 8%;
+}
+
 .staff-assets-table td,
 .staff-assets-table th {
   min-width: 0;
   overflow-wrap: anywhere;
+  vertical-align: middle;
 }
 
 .staff-assets-table .asset-clickable-row {
@@ -5568,8 +5609,12 @@ p {
   color: var(--ink);
   font: inherit;
   font-weight: 900;
+  line-height: 1.25;
+  max-width: 100%;
+  overflow-wrap: break-word;
   text-align: left;
   text-decoration: underline;
+  white-space: normal;
   cursor: pointer;
 }
 

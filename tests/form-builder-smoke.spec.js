@@ -2254,7 +2254,8 @@ test("asset import UI and asset picker field use local Safety First assets", asy
     assets: [
       {
         ...defaultAssetRows[0],
-        name: "Harness 1",
+        name: "17' Mastercraft Telescopic Ladder",
+        assetType: "Ladders/Scaffolds/Stairs",
         serialNumber: "FP-001",
         currentSite: "Appia Yard",
       },
@@ -2263,7 +2264,17 @@ test("asset import UI and asset picker field use local Safety First assets", asy
 
   await page.goto("/staff/assets");
   await expect(page.getByRole("heading", { name: "Import assets" })).toHaveCount(0);
-  await expect(page.getByText("Harness 1")).toBeVisible();
+  await expect(page.getByText("17' Mastercraft Telescopic Ladder")).toBeVisible();
+  const longAssetRow = page.getByRole("row", { name: /17' Mastercraft Telescopic Ladder/ });
+  const longAssetCells = longAssetRow.locator("td");
+  const longNameBox = await longAssetRow.getByRole("button", { name: /17' Mastercraft Telescopic Ladder/ }).boundingBox();
+  const nameCellBox = await longAssetCells.nth(0).boundingBox();
+  const typeCellBox = await longAssetCells.nth(1).boundingBox();
+  expect(longNameBox).not.toBeNull();
+  expect(nameCellBox).not.toBeNull();
+  expect(typeCellBox).not.toBeNull();
+  expect(longNameBox.x).toBeGreaterThanOrEqual(nameCellBox.x - 1);
+  expect(longNameBox.x + longNameBox.width).toBeLessThanOrEqual(typeCellBox.x + 1);
   await expect.poll(() =>
     page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
   ).toBe(true);
