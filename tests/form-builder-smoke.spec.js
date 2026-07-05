@@ -2312,15 +2312,28 @@ test("asset import UI and asset picker field use local Safety First assets", asy
 
   await page.goto("/staff/form-templates");
   await openPreview(page);
-  await expect(page.getByText("Fall protection asset")).toBeVisible();
-  await expect(page.getByText("Type: Fall Protection")).toBeVisible();
+  await expect(page.getByText("Fall protection asset", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Select asset" })).toBeVisible();
+  await page.getByRole("button", { name: "Select asset" }).click();
+  let pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await expect(pickerDialog.getByText("Type: Fall Protection")).toBeVisible();
+  await pickerDialog.getByRole("button", { name: "Close" }).click();
 
   await page.goto("/forms/asset_picker_smoke");
   await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
   await expect(page.getByText("Fall protection asset is required.")).toBeVisible();
-  await page.getByLabel("Search assets").fill("FP-002");
-  await page.getByRole("button", { name: /Harness 2/ }).click();
+  await page.getByRole("button", { name: "Select asset" }).click();
+  pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await pickerDialog.getByLabel("Search assets").fill("FP-002");
+  await pickerDialog.getByRole("button", { name: /Harness 2/ }).click();
+  await expect(page.getByRole("dialog", { name: "Choose asset" })).toHaveCount(0);
   await expect(page.locator(".template-asset-selected-card")).toContainText("Serial/VIN: FP-002");
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.locator(".template-asset-selected-card")).toHaveCount(0);
+  await page.getByRole("button", { name: "Select asset" }).click();
+  pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await pickerDialog.getByLabel("Search assets").fill("FP-002");
+  await pickerDialog.getByRole("button", { name: /Harness 2/ }).click();
   await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
 
   await expect.poll(() => submissions.length).toBe(1);
@@ -2397,10 +2410,12 @@ test("staff assets support create, detail pages, log book, maintenance, and pick
   await expect(page.getByText("Created Rescue Harness")).toHaveCount(0);
 
   await page.goto("/forms/asset_picker_smoke");
-  await page.getByLabel("Search assets").fill("Created Rescue Harness");
-  await expect(page.getByRole("button", { name: /Created Rescue Harness/ })).toHaveCount(0);
-  await page.getByLabel("Search assets").fill("Justin");
-  await page.getByRole("button", { name: /Justin - Lanyard/ }).click();
+  await page.getByRole("button", { name: "Select asset" }).click();
+  const pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await pickerDialog.getByLabel("Search assets").fill("Created Rescue Harness");
+  await expect(pickerDialog.getByRole("button", { name: /Created Rescue Harness/ })).toHaveCount(0);
+  await pickerDialog.getByLabel("Search assets").fill("Justin");
+  await pickerDialog.getByRole("button", { name: /Justin - Lanyard/ }).click();
   await expect(page.locator(".template-asset-selected-card")).toContainText("Model: SP 1101L3");
   await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
   await expect.poll(() => submissions.length).toBe(1);
@@ -2783,7 +2798,11 @@ test("Fall Protection Form migration opens as a hidden editable draft", async ({
   await inputMethod.getByRole("radio", { name: "Select Safety First Asset" }).click();
   await expect(preview.getByLabel("Make", { exact: true })).toHaveCount(0);
   await expect(preview.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
-  await expect(preview.getByLabel("Search assets")).toBeVisible();
+  await expect(preview.getByRole("button", { name: "Select asset" })).toBeVisible();
+  await preview.getByRole("button", { name: "Select asset" }).click();
+  let pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await expect(pickerDialog.getByLabel("Search assets")).toBeVisible();
+  await pickerDialog.getByRole("button", { name: "Close" }).click();
   await expect(preview.getByText("11-06 Harness Inspection")).toHaveCount(0);
   await preview.getByRole("radio", { name: "Full Body Harness" }).click();
   await expect(preview.getByText("11-06 Harness Inspection")).toBeVisible();
@@ -2816,7 +2835,11 @@ test("Fall Protection Form worker form honors conditional sections and image-onl
   await inputMethod.getByRole("radio", { name: "Select Safety First Asset" }).click();
   await expect(page.getByLabel("Make", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toHaveCount(0);
-  await expect(page.getByLabel("Search assets")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Select asset" })).toBeVisible();
+  await page.getByRole("button", { name: "Select asset" }).click();
+  const pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await expect(pickerDialog.getByLabel("Search assets")).toBeVisible();
+  await pickerDialog.getByRole("button", { name: "Close" }).click();
   await inputMethod.getByRole("radio", { name: "Manually" }).click();
   await expect(page.getByLabel("Make", { exact: true })).toBeVisible();
   await expect(page.getByText("Add images of Make/Model/Serial #/Mfg date instead of typing above")).toBeVisible();
@@ -2836,6 +2859,51 @@ test("Fall Protection Form worker form honors conditional sections and image-onl
 
   await page.getByRole("button", { name: "Submit Fall Protection Form" }).click();
   await expect(page.getByText("Inspector's Signature is required.")).toBeVisible();
+});
+
+test("Fall Protection Form asset picker opens a compact mobile drawer", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const row = template("fall_protection_form", "Fall Protection Form", fallProtectionSchema);
+  const assetNames = ["Brandon", "Gabriel", "Gustavo", "Guy", "Leanne", "Matti", "Nagam", "Troiy"];
+  const assets = assetNames.flatMap((name, index) => ([
+    {
+      ...defaultAssetRows[0],
+      id: `fall-mobile-harness-${index}`,
+      name: `${name} - Harness`,
+      serialNumber: `0291750-${index}-LONG-SERIAL-FALL-PROTECTION`,
+      currentSite: index % 2 ? "SOLO 4: Aerius" : "Downtown East",
+    },
+    {
+      ...defaultAssetRows[0],
+      id: `fall-mobile-lanyard-${index}`,
+      name: `${name} - Lanyard`,
+      serialNumber: `15.09.21-${index}-LONG-SERIAL-FALL-PROTECTION`,
+      currentSite: index % 2 ? "SOLO 4: Aerius" : "Downtown East",
+    },
+  ]));
+  await mockApis(page, [row], { assets });
+
+  await page.goto("/forms/fall_protection_form");
+  const inputMethod = page
+    .locator(".template-radio-choice-field")
+    .filter({ hasText: "How will you input Make/Model/Serial # information?" });
+  await inputMethod.getByRole("radio", { name: "Select Safety First Asset" }).click();
+  await expect(page.getByRole("button", { name: "Select asset" })).toBeVisible();
+  await expect(page.locator(".template-asset-result")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Select asset" }).click();
+  const pickerDialog = page.getByRole("dialog", { name: "Choose asset" });
+  await expect(pickerDialog.getByLabel("Search assets")).toBeVisible();
+  await expect(pickerDialog.getByText("Type: Fall Protection")).toBeVisible();
+  await expect(pickerDialog.getByRole("button", { name: /Brandon - Harness/ })).toBeVisible();
+  await expect.poll(() =>
+    page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
+  ).toBe(true);
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: false,
+    path: "test-results/fall-protection-asset-picker-mobile.png",
+  });
 });
 
 test("Daily Safety Inspection migration opens as a hidden editable draft", async ({ page }) => {

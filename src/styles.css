@@ -3628,16 +3628,30 @@ p {
   box-shadow: 0 0 0 3px rgba(214, 74, 67, 0.12);
 }
 
+.template-asset-empty-card,
 .template-asset-selected-card,
 .template-asset-result {
   display: grid;
   gap: 3px;
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
   border: 1px solid #d9e3de;
   border-radius: 8px;
   padding: 10px;
   background: #f8fcfa;
+  line-height: 1.25;
   text-align: left;
+}
+
+.template-asset-result {
+  justify-items: stretch;
+  white-space: normal;
+}
+
+.template-asset-empty-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
 }
 
 .template-asset-selected-card {
@@ -3645,21 +3659,39 @@ p {
   align-items: center;
 }
 
+.template-asset-selected-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.template-asset-empty-card strong,
 .template-asset-selected-card strong,
 .template-asset-result strong,
 .template-asset-answer strong {
+  display: block;
+  min-width: 0;
   overflow-wrap: anywhere;
+  white-space: normal;
 }
 
+.template-asset-empty-card small,
 .template-asset-selected-card small,
 .template-asset-result small,
 .template-asset-filter-summary,
 .template-asset-answer small {
+  display: block;
+  min-width: 0;
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 750;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
+.template-asset-empty-card button,
 .template-asset-selected-card button,
 .template-asset-result {
   min-height: 36px;
@@ -3671,8 +3703,26 @@ p {
   font-weight: 800;
 }
 
+.template-asset-result {
+  min-height: 68px;
+  padding: 10px 12px;
+}
+
+.template-asset-result small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-asset-empty-card button,
 .template-asset-selected-card button {
   padding: 0 10px;
+}
+
+.template-asset-empty-card button {
+  border-color: #276c66;
+  background: #276c66;
+  color: #fff;
 }
 
 .template-asset-search {
@@ -3701,12 +3751,122 @@ p {
 .template-asset-result-list {
   display: grid;
   gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .template-asset-result.active {
   border-color: #245f5b;
   background: #e9f6f1;
   color: #123331;
+}
+
+.template-asset-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 24, 31, 0.52);
+}
+
+.template-asset-picker-dialog {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: 12px;
+  width: min(680px, 100%);
+  max-height: min(760px, calc(100dvh - 48px));
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(8, 24, 31, 0.24);
+  overscroll-behavior: contain;
+}
+
+.template-asset-picker-dialog-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e3ece8;
+}
+
+.template-asset-picker-dialog-head > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.template-asset-picker-dialog-head strong {
+  color: #17211f;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.template-asset-picker-dialog-head small {
+  color: var(--muted);
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.template-asset-picker-dialog-head button {
+  min-height: 36px;
+  border: 1px solid #cbded7;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #fff;
+  color: #17211f;
+  font: inherit;
+  font-weight: 850;
+}
+
+@media (max-width: 640px) {
+  .template-asset-empty-card,
+  .template-asset-selected-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .template-asset-selected-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: stretch;
+  }
+
+  .template-asset-empty-card button,
+  .template-asset-selected-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .template-asset-picker-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .template-asset-picker-dialog {
+    width: 100%;
+    max-height: 86dvh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 14px 14px 0 0;
+    padding: 14px;
+    box-shadow: 0 -18px 50px rgba(8, 24, 31, 0.26);
+  }
+
+  .template-asset-picker-dialog-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .template-asset-result {
+    padding: 12px;
+  }
 }
 
 .template-asset-answer {

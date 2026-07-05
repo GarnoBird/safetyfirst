@@ -12903,10 +12903,14 @@ function AssetPickerRuntimeField({ assetSearchEndpoint, field, invalid, targetRe
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const searchInputRef = useRef(null);
   const selected = normalizeAssetPickerAnswer(value);
   const settings = normalizeAssetPickerSettings(field.settings);
+  const dialogTitleId = `${field.id || "asset"}-asset-picker-title`;
 
   useEffect(() => {
+    if (!pickerOpen) return undefined;
     let active = true;
     const timer = window.setTimeout(async () => {
       setLoading(true);
@@ -12935,10 +12939,31 @@ function AssetPickerRuntimeField({ assetSearchEndpoint, field, invalid, targetRe
       active = false;
       window.clearTimeout(timer);
     };
-  }, [assetSearchEndpoint, query, settings.siteFilter, settings.statusFilter, settings.typeFilter]);
+  }, [assetSearchEndpoint, pickerOpen, query, settings.siteFilter, settings.statusFilter, settings.typeFilter]);
+
+  useEffect(() => {
+    if (!pickerOpen) return undefined;
+    const timer = window.setTimeout(() => searchInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timer);
+  }, [pickerOpen]);
+
+  useEffect(() => {
+    if (!pickerOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setPickerOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [pickerOpen]);
 
   const selectAsset = (asset) => {
     onChange(assetSnapshotFromAsset(asset));
+    setQuery("");
+    setPickerOpen(false);
+  };
+
+  const clearAsset = () => {
+    onChange(null);
     setQuery("");
   };
 
@@ -12960,41 +12985,78 @@ function AssetPickerRuntimeField({ assetSearchEndpoint, field, invalid, targetRe
             <strong>{selected.name || "Selected asset"}</strong>
             <small>{assetPickerDetailsText(selected) || "Asset selected"}</small>
           </div>
-          <button type="button" onClick={() => onChange(null)}>Clear</button>
+          <div className="template-asset-selected-actions">
+            <button type="button" onClick={() => setPickerOpen(true)}>Change</button>
+            <button type="button" onClick={clearAsset}>Clear</button>
+          </div>
+        </div>
+      ) : (
+        <div className="template-asset-empty-card">
+          <div>
+            <strong>No asset selected</strong>
+            <small>{settings.typeFilter ? `Search imported ${settings.typeFilter} assets.` : "Search imported Safety First assets."}</small>
+          </div>
+          <button type="button" onClick={() => setPickerOpen(true)}>Select asset</button>
+        </div>
+      )}
+      {pickerOpen ? (
+        <div
+          className="template-asset-picker-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setPickerOpen(false);
+          }}
+        >
+          <div
+            aria-labelledby={dialogTitleId}
+            aria-modal="true"
+            className="template-asset-picker-dialog"
+            role="dialog"
+          >
+            <div className="template-asset-picker-dialog-head">
+              <div>
+                <strong id={dialogTitleId}>Choose asset</strong>
+                <small>{field.helperText || "Search imported Safety First assets."}</small>
+              </div>
+              <button aria-label="Close asset picker" type="button" onClick={() => setPickerOpen(false)}>
+                Close
+              </button>
+            </div>
+            <label className="template-asset-search">
+              <span>Search assets</span>
+              <input
+                placeholder={settings.typeFilter ? `Search ${settings.typeFilter} assets` : "Search name, serial, site"}
+                ref={searchInputRef}
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+            <div className="template-asset-filter-summary">
+              {settings.typeFilter ? <span>Type: {settings.typeFilter}</span> : null}
+              {settings.siteFilter ? <span>Site: {settings.siteFilter}</span> : null}
+              {settings.statusFilter && settings.statusFilter !== "all" ? <span>Status: {settings.statusFilter}</span> : null}
+            </div>
+            {message ? <p className="template-media-message">{message}</p> : null}
+            <div className="template-asset-result-list">
+              {loading ? <p className="template-media-empty">Loading assets...</p> : null}
+              {!loading && rows.length ? rows.map((asset) => (
+                <button
+                  className={selected?.assetId === asset.id ? "template-asset-result active" : "template-asset-result"}
+                  key={asset.id}
+                  type="button"
+                  onClick={() => selectAsset(asset)}
+                >
+                  <strong>{asset.name || "Unnamed asset"}</strong>
+                  <small>{assetPickerListDetailsText(asset) || "No asset details"}</small>
+                </button>
+              )) : null}
+              {!loading && !rows.length && !message ? (
+                <p className="template-media-empty">No matching assets found.</p>
+              ) : null}
+            </div>
+          </div>
         </div>
       ) : null}
-      <label className="template-asset-search">
-        <span>Search assets</span>
-        <input
-          placeholder={settings.typeFilter ? `Search ${settings.typeFilter} assets` : "Search name, serial, site"}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </label>
-      <div className="template-asset-filter-summary">
-        {settings.typeFilter ? <span>Type: {settings.typeFilter}</span> : null}
-        {settings.siteFilter ? <span>Site: {settings.siteFilter}</span> : null}
-        {settings.statusFilter && settings.statusFilter !== "all" ? <span>Status: {settings.statusFilter}</span> : null}
-      </div>
-      {message ? <p className="template-media-message">{message}</p> : null}
-      <div className="template-asset-result-list">
-        {loading ? <p className="template-media-empty">Loading assets...</p> : null}
-        {!loading && rows.length ? rows.map((asset) => (
-          <button
-            className={selected?.assetId === asset.id ? "template-asset-result active" : "template-asset-result"}
-            key={asset.id}
-            type="button"
-            onClick={() => selectAsset(asset)}
-          >
-            <strong>{asset.name || "Unnamed asset"}</strong>
-            <small>{assetPickerDetailsText(asset) || "No asset details"}</small>
-          </button>
-        )) : null}
-        {!loading && !rows.length && !message ? (
-          <p className="template-media-empty">No matching assets found.</p>
-        ) : null}
-      </div>
     </div>
   );
 }
@@ -18097,6 +18159,17 @@ function assetPickerDetailsText(asset) {
   if (item.year) pieces.push(`Year: ${item.year}`);
   if (item.hours !== "" && item.hours !== null && item.hours !== undefined) pieces.push(`Hours: ${item.hours}`);
   if (item.kmsMiles) pieces.push(`Kms/Miles: ${item.kmsMiles}`);
+  if (item.currentSite) pieces.push(`Site: ${item.currentSite}`);
+  if (item.status) pieces.push(item.status);
+  return pieces.join(" / ");
+}
+
+function assetPickerListDetailsText(asset) {
+  const item = normalizeAssetPickerAnswer(asset) || asset;
+  if (!item || typeof item !== "object") return "";
+  const pieces = [];
+  if (item.assetType) pieces.push(item.assetType);
+  if (item.serialNumber) pieces.push(`Serial/VIN: ${item.serialNumber}`);
   if (item.currentSite) pieces.push(`Site: ${item.currentSite}`);
   if (item.status) pieces.push(item.status);
   return pieces.join(" / ");
