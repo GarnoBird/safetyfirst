@@ -1076,6 +1076,11 @@ function cleanAssetPickerAnswer(raw) {
   const serialNumber = cleanString(source.serialNumber || source.serial_number || source.vin || source.serial, MAX_TEXT);
   const currentSite = cleanString(source.currentSite || source.current_site || source.site, MAX_TEXT);
   const status = cleanString(source.status, 80);
+  const model = cleanString(source.model, MAX_TEXT);
+  const year = cleanString(source.year, 40);
+  const hours = source.hours === "" || source.hours === null || source.hours === undefined ? "" : Number(source.hours);
+  const kmsMiles = cleanString(source.kmsMiles || source.kms_miles, MAX_TEXT);
+  const description = cleanString(source.description, MAX_LONG_TEXT);
   const selectedAt = cleanString(source.selectedAt || source.selected_at, 80);
   if (!assetId && !name && !serialNumber) return null;
   return {
@@ -1085,6 +1090,11 @@ function cleanAssetPickerAnswer(raw) {
     serialNumber,
     currentSite,
     status,
+    model,
+    year,
+    hours: Number.isFinite(hours) ? hours : "",
+    kmsMiles,
+    description,
     selectedAt,
   };
 }
@@ -1094,7 +1104,11 @@ function assetPickerAnswerText(value) {
   if (!asset) return "";
   const details = [];
   if (asset.assetType) details.push(asset.assetType);
+  if (asset.model) details.push(`Model: ${asset.model}`);
   if (asset.serialNumber) details.push(`Serial/VIN: ${asset.serialNumber}`);
+  if (asset.year) details.push(`Year: ${asset.year}`);
+  if (asset.hours !== "" && asset.hours !== null && asset.hours !== undefined) details.push(`Hours: ${asset.hours}`);
+  if (asset.kmsMiles) details.push(`Kms/Miles: ${asset.kmsMiles}`);
   if (asset.currentSite) details.push(`Site: ${asset.currentSite}`);
   if (asset.status) details.push(asset.status);
   return [asset.name || "Selected asset", details.join(" / ")].filter(Boolean).join(" / ");

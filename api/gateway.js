@@ -23,7 +23,13 @@ import {
 } from "./_lib/action-items.js";
 import {
   archiveAsset,
+  createAsset,
+  createAssetLogEntry,
+  createAssetMaintenanceEntry,
+  getAsset,
   importAssets,
+  listAssetLogEntries,
+  listAssetMaintenanceEntries,
   listAssets,
   updateAsset,
 } from "./_lib/assets.js";
@@ -981,6 +987,18 @@ async function handleStaffAssets(req, res, staff, parts) {
     });
     return sendJson(res, 200, { rows });
   }
+  if (!parts.length && req.method === "POST") {
+    const asset = await createAsset(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "asset_created",
+      targetType: "asset",
+      targetId: asset.id,
+      summary: `${staff.username} created asset ${asset.name}.`,
+    });
+    return sendJson(res, 201, { asset });
+  }
   if (parts.length === 1 && parts[0] === "import" && req.method === "POST") {
     const result = await importAssets(await readJson(req), staff);
     await recordAuditEvent({
@@ -996,6 +1014,41 @@ async function handleStaffAssets(req, res, staff, parts) {
       },
     });
     return sendJson(res, 200, result);
+  }
+  if (parts.length === 1 && req.method === "GET") {
+    return sendJson(res, 200, { asset: await getAsset(parts[0]) });
+  }
+  if (parts.length === 2 && parts[1] === "log-entries" && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listAssetLogEntries(parts[0]) });
+  }
+  if (parts.length === 2 && parts[1] === "log-entries" && req.method === "POST") {
+    const entry = await createAssetLogEntry(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "asset_log_entry_created",
+      targetType: "asset",
+      targetId: parts[0],
+      summary: `${staff.username} added an asset log entry.`,
+      metadata: { entryId: entry.id },
+    });
+    return sendJson(res, 201, { entry });
+  }
+  if (parts.length === 2 && parts[1] === "maintenance-entries" && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listAssetMaintenanceEntries(parts[0]) });
+  }
+  if (parts.length === 2 && parts[1] === "maintenance-entries" && req.method === "POST") {
+    const entry = await createAssetMaintenanceEntry(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "asset_maintenance_entry_created",
+      targetType: "asset",
+      targetId: parts[0],
+      summary: `${staff.username} added an asset maintenance entry.`,
+      metadata: { entryId: entry.id },
+    });
+    return sendJson(res, 201, { entry });
   }
   if (parts.length === 1 && req.method === "PATCH") {
     const asset = await updateAsset(parts[0], await readJson(req), staff);

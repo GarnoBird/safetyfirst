@@ -5649,6 +5649,260 @@ function WorkerSubmissionReadOnlyView({ row }) {
   );
 }
 
+const EMPTY_ASSET_FORM = {
+  name: "",
+  assetType: "Fall Protection",
+  serialNumber: "",
+  model: "",
+  year: "",
+  hours: "",
+  kmsMiles: "",
+  currentSite: "SOLO 4: Aerius",
+  status: "active",
+  description: "",
+  notes: "",
+};
+
+const EMPTY_ASSET_ENTRY_FORM = {
+  status: "active",
+  site: "SOLO 4: Aerius",
+  hours: "",
+  kmsMiles: "",
+  notes: "",
+  date: "",
+  performedBy: "",
+};
+
+function newAssetEntryForm(asset = {}) {
+  return {
+    ...EMPTY_ASSET_ENTRY_FORM,
+    site: asset.currentSite || "SOLO 4: Aerius",
+    hours: asset.hours ?? "",
+    kmsMiles: asset.kmsMiles || "",
+    date: new Date().toISOString().slice(0, 10),
+  };
+}
+
+function assetFormFromAsset(asset = {}) {
+  return {
+    ...EMPTY_ASSET_FORM,
+    name: asset.name || "",
+    assetType: asset.assetType || "Fall Protection",
+    serialNumber: asset.serialNumber || "",
+    model: asset.model || "",
+    year: asset.year || "",
+    hours: asset.hours ?? "",
+    kmsMiles: asset.kmsMiles || "",
+    currentSite: asset.currentSite || "SOLO 4: Aerius",
+    status: asset.status || "active",
+    description: asset.description || "",
+    notes: asset.notes || "",
+  };
+}
+
+function assetPayloadFromForm(form) {
+  return {
+    name: form.name,
+    assetType: form.assetType,
+    serialNumber: form.serialNumber,
+    model: form.model,
+    year: form.year,
+    hours: form.hours,
+    kmsMiles: form.kmsMiles,
+    currentSite: form.currentSite,
+    status: form.status,
+    description: form.description,
+    notes: form.notes,
+  };
+}
+
+function assetEntryPayloadFromForm(form) {
+  return {
+    status: form.status,
+    site: form.site,
+    hours: form.hours,
+    kmsMiles: form.kmsMiles,
+    notes: form.notes,
+    date: form.date,
+    performedBy: form.performedBy,
+  };
+}
+
+function assetStatusLabel(status) {
+  if (status === "retired") return "Retired";
+  if (status === "inactive") return "Inactive";
+  return "Operational";
+}
+
+function AssetFormDialog({ asset, mode, onClose, onSave }) {
+  const [form, setForm] = useState(() => assetFormFromAsset(asset));
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      await onSave(assetPayloadFromForm(form));
+    } catch (error) {
+      setMessage(error.message || "Asset could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop">
+      <form className="staff-detail-dialog asset-edit-dialog" onSubmit={submit}>
+        <div className="dialog-heading">
+          <div>
+            <p>{mode === "edit" ? "Edit Asset" : "New Asset"}</p>
+            <h2>{mode === "edit" ? form.name || "Asset" : "Create Asset"}</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        {message ? <p className="form-error">{message}</p> : null}
+        <div className="asset-form-grid">
+          <label className="field">
+            <span>Type</span>
+            <input value={form.assetType} onChange={(event) => update("assetType", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Name</span>
+            <input required value={form.name} onChange={(event) => update("name", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>VIN / Serial</span>
+            <input value={form.serialNumber} onChange={(event) => update("serialNumber", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Model</span>
+            <input value={form.model} onChange={(event) => update("model", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Year</span>
+            <input value={form.year} onChange={(event) => update("year", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Hours</span>
+            <input inputMode="decimal" value={form.hours} onChange={(event) => update("hours", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Kms/Miles</span>
+            <input value={form.kmsMiles} onChange={(event) => update("kmsMiles", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Current Site</span>
+            <input value={form.currentSite} onChange={(event) => update("currentSite", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Status</span>
+            <select value={form.status} onChange={(event) => update("status", event.target.value)}>
+              <option value="active">Operational</option>
+              <option value="inactive">Inactive</option>
+              <option value="retired">Retired</option>
+            </select>
+          </label>
+          <label className="field asset-form-wide">
+            <span>Description</span>
+            <textarea rows="4" value={form.description} onChange={(event) => update("description", event.target.value)} />
+          </label>
+          <label className="field asset-form-wide">
+            <span>Notes</span>
+            <textarea rows="3" value={form.notes} onChange={(event) => update("notes", event.target.value)} />
+          </label>
+        </div>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" disabled={saving} type="submit">
+            {saving ? "Saving..." : mode === "edit" ? "Save asset" : "Create asset"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function AssetEntryDialog({ asset, mode, onClose, onSave }) {
+  const [form, setForm] = useState(() => newAssetEntryForm(asset));
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const title = mode === "maintenance" ? "Add Maintenance Entry" : "Add Log Entry";
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      await onSave(assetEntryPayloadFromForm(form));
+    } catch (error) {
+      setMessage(error.message || "Entry could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop">
+      <form className="staff-detail-dialog asset-entry-dialog" onSubmit={submit}>
+        <div className="dialog-heading">
+          <div>
+            <p>{asset.name}</p>
+            <h2>{title}</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        {message ? <p className="form-error">{message}</p> : null}
+        <div className="asset-form-grid">
+          <label className="field">
+            <span>Status</span>
+            <select value={form.status} onChange={(event) => update("status", event.target.value)}>
+              <option value="active">Operational</option>
+              <option value="inactive">Inactive</option>
+              <option value="retired">Retired</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>Date</span>
+            <input type="date" value={form.date} onChange={(event) => update("date", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Site</span>
+            <input value={form.site} onChange={(event) => update("site", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Hours</span>
+            <input inputMode="decimal" value={form.hours} onChange={(event) => update("hours", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Kms/Miles</span>
+            <input value={form.kmsMiles} onChange={(event) => update("kmsMiles", event.target.value)} />
+          </label>
+          {mode === "maintenance" ? (
+            <label className="field">
+              <span>Performed by</span>
+              <input value={form.performedBy} onChange={(event) => update("performedBy", event.target.value)} />
+            </label>
+          ) : null}
+          <label className="field asset-form-wide">
+            <span>Notes</span>
+            <textarea rows="4" value={form.notes} onChange={(event) => update("notes", event.target.value)} />
+          </label>
+        </div>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" disabled={saving} type="submit">
+            {saving ? "Saving..." : "Add entry"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export function StaffAssetsPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const [rows, setRows] = useState([]);
@@ -5662,6 +5916,7 @@ export function StaffAssetsPage({ navigateTo }) {
   const [importText, setImportText] = useState("");
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [assetDialogOpen, setAssetDialogOpen] = useState(false);
   const [message, setMessage] = useState("");
 
   const loadAssets = async () => {
@@ -5745,6 +6000,20 @@ export function StaffAssetsPage({ navigateTo }) {
     }
   };
 
+  const createAsset = async (form) => {
+    const payload = await readApiJson(
+      await fetch("/api/staff/assets", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      }),
+    );
+    setAssetDialogOpen(false);
+    await loadAssets();
+    setMessage(`Created ${payload.asset?.name || "asset"}.`);
+  };
+
   const typeOptions = useMemo(() => {
     return Array.from(new Set(rows.map((asset) => asset.assetType).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b),
@@ -5789,6 +6058,15 @@ export function StaffAssetsPage({ navigateTo }) {
         </form>
 
         <section className="staff-table-panel staff-assets-panel">
+          <div className="staff-panel-heading">
+            <div>
+              <p>Assets</p>
+              <h2>Safety First assets</h2>
+            </div>
+            <button className="primary-button" type="button" onClick={() => setAssetDialogOpen(true)}>
+              Create Asset
+            </button>
+          </div>
           <div className="staff-list-controls staff-assets-controls">
             <label className="staff-search-field">
               <span>Search assets</span>
@@ -5830,6 +6108,7 @@ export function StaffAssetsPage({ navigateTo }) {
                   <th>Name</th>
                   <th>Type</th>
                   <th>Serial / VIN</th>
+                  <th>Hours</th>
                   <th>Site</th>
                   <th>Status</th>
                   <th>Last used</th>
@@ -5838,17 +6117,24 @@ export function StaffAssetsPage({ navigateTo }) {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="7">Loading assets...</td></tr>
+                  <tr><td colSpan="8">Loading assets...</td></tr>
                 ) : rows.length ? rows.map((asset) => (
                   <tr key={asset.id}>
                     <td>
-                      <strong>{asset.name || "Unnamed asset"}</strong>
+                      <button
+                        className="link-button asset-name-link"
+                        type="button"
+                        onClick={() => navigateTo(`/staff/assets/${asset.id}`)}
+                      >
+                        {asset.name || "Unnamed asset"}
+                      </button>
                       {asset.notes ? <small>{asset.notes}</small> : null}
                     </td>
                     <td>{asset.assetType || "-"}</td>
                     <td>{asset.serialNumber || "-"}</td>
+                    <td>{asset.hours ?? "-"}</td>
                     <td>{asset.currentSite || "-"}</td>
-                    <td>{asset.archivedAt ? "Archived" : asset.status || "active"}</td>
+                    <td>{asset.archivedAt ? "Archived" : assetStatusLabel(asset.status)}</td>
                     <td>{asset.lastUsedAt ? formatDateTime(asset.lastUsedAt) : "-"}</td>
                     <td>
                       {!asset.archivedAt ? (
@@ -5857,14 +6143,251 @@ export function StaffAssetsPage({ navigateTo }) {
                     </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan="7">No assets found.</td></tr>
+                  <tr><td colSpan="8">No assets found.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </section>
       </section>
+      {assetDialogOpen ? (
+        <AssetFormDialog mode="create" onClose={() => setAssetDialogOpen(false)} onSave={createAsset} />
+      ) : null}
     </StaffShell>
+  );
+}
+
+export function StaffAssetDetailPage({ assetId, navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [asset, setAsset] = useState(null);
+  const [logEntries, setLogEntries] = useState([]);
+  const [maintenanceEntries, setMaintenanceEntries] = useState([]);
+  const [activeTab, setActiveTab] = useState("log");
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [assetDialogOpen, setAssetDialogOpen] = useState(false);
+  const [entryDialog, setEntryDialog] = useState("");
+
+  const loadAssetDetail = async () => {
+    if (!assetId) return;
+    setLoading(true);
+    setMessage("");
+    try {
+      const [assetPayload, logPayload, maintenancePayload] = await Promise.all([
+        fetch(`/api/staff/assets/${assetId}`, { credentials: "include" }).then(readApiJson),
+        fetch(`/api/staff/assets/${assetId}/log-entries`, { credentials: "include" }).then(readApiJson),
+        fetch(`/api/staff/assets/${assetId}/maintenance-entries`, { credentials: "include" }).then(readApiJson),
+      ]);
+      setAsset(assetPayload.asset || null);
+      setLogEntries(logPayload.rows || []);
+      setMaintenanceEntries(maintenancePayload.rows || []);
+    } catch (error) {
+      setMessage(error.message || "Asset could not be loaded.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadAssetDetail();
+  }, [staff, assetId]);
+
+  const updateAsset = async (form) => {
+    const payload = await readApiJson(
+      await fetch(`/api/staff/assets/${assetId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      }),
+    );
+    setAsset(payload.asset || null);
+    setAssetDialogOpen(false);
+    setMessage("Asset updated.");
+  };
+
+  const archiveAsset = async () => {
+    if (!asset || !window.confirm(`Archive ${asset.name || "this asset"}? It will no longer appear in worker pickers.`)) return;
+    await readApiJson(
+      await fetch(`/api/staff/assets/${assetId}`, {
+        method: "DELETE",
+        credentials: "include",
+      }),
+    );
+    navigateTo("/staff/assets");
+  };
+
+  const createEntry = async (mode, form) => {
+    const path = mode === "maintenance" ? "maintenance-entries" : "log-entries";
+    await readApiJson(
+      await fetch(`/api/staff/assets/${assetId}/${path}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      }),
+    );
+    setEntryDialog("");
+    await loadAssetDetail();
+    setMessage(mode === "maintenance" ? "Maintenance entry added." : "Log entry added.");
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="assets" contentWide navigateTo={navigateTo} staff={staff}>
+      <div className="staff-page-heading asset-detail-heading">
+        <button type="button" onClick={() => navigateTo("/staff/assets")}>Back to assets</button>
+        <div className="staff-page-heading-actions">
+          <button disabled={!asset} type="button" onClick={() => setAssetDialogOpen(true)}>Edit Asset</button>
+          <button className="danger-button" disabled={!asset} type="button" onClick={archiveAsset}>Archive</button>
+        </div>
+      </div>
+      {message ? <p className="staff-message">{message}</p> : null}
+      {loading ? <p className="staff-message">Loading asset...</p> : null}
+      {!loading && !asset ? <p className="empty-state">Asset not found.</p> : null}
+      {asset ? (
+        <>
+          <section className="staff-table-panel asset-profile-card">
+            <div className="asset-profile-icon" aria-hidden="true">A</div>
+            <div className="asset-profile-main">
+              <div className="asset-title-row">
+                <div>
+                  <p>{asset.assetType || "Asset"}</p>
+                  <h1>{asset.name || "Unnamed asset"}</h1>
+                </div>
+                <span className="status-pill status-open">{assetStatusLabel(asset.status)}</span>
+              </div>
+              <dl className="asset-profile-grid">
+                <div><dt>Model</dt><dd>{asset.model || "-"}</dd></div>
+                <div><dt>VIN / Serial</dt><dd>{asset.serialNumber || "-"}</dd></div>
+                <div><dt>Year</dt><dd>{asset.year || "-"}</dd></div>
+                <div><dt>Hours</dt><dd>{asset.hours ?? "-"}</dd></div>
+                <div><dt>Kms/Miles</dt><dd>{asset.kmsMiles || "-"}</dd></div>
+                <div><dt>Current Site</dt><dd>{asset.currentSite || "-"}</dd></div>
+              </dl>
+              {asset.description ? <p className="asset-profile-description">{asset.description}</p> : null}
+            </div>
+          </section>
+
+          <section className="staff-table-panel asset-tabs-panel">
+            <div className="asset-tabs" role="tablist" aria-label="Asset details">
+              <button
+                aria-selected={activeTab === "log"}
+                className={activeTab === "log" ? "active" : ""}
+                role="tab"
+                type="button"
+                onClick={() => setActiveTab("log")}
+              >
+                Log Book
+              </button>
+              <button
+                aria-selected={activeTab === "maintenance"}
+                className={activeTab === "maintenance" ? "active" : ""}
+                role="tab"
+                type="button"
+                onClick={() => setActiveTab("maintenance")}
+              >
+                Maintenance
+              </button>
+            </div>
+            {activeTab === "log" ? (
+              <AssetLogBookTab asset={asset} rows={logEntries} onAdd={() => setEntryDialog("log")} />
+            ) : (
+              <AssetMaintenanceTab asset={asset} rows={maintenanceEntries} onAdd={() => setEntryDialog("maintenance")} />
+            )}
+          </section>
+        </>
+      ) : null}
+      {assetDialogOpen && asset ? (
+        <AssetFormDialog
+          asset={asset}
+          mode="edit"
+          onClose={() => setAssetDialogOpen(false)}
+          onSave={updateAsset}
+        />
+      ) : null}
+      {entryDialog && asset ? (
+        <AssetEntryDialog
+          asset={asset}
+          mode={entryDialog}
+          onClose={() => setEntryDialog("")}
+          onSave={(form) => createEntry(entryDialog, form)}
+        />
+      ) : null}
+    </StaffShell>
+  );
+}
+
+function AssetLogBookTab({ rows, onAdd }) {
+  return (
+    <div className="asset-tab-content">
+      <div className="staff-panel-heading compact">
+        <div>
+          <p>Log Book</p>
+          <h2>Asset log</h2>
+        </div>
+        <button className="primary-button" type="button" onClick={onAdd}>Add Log Entry</button>
+      </div>
+      <AssetEntryTable dateField="entryDate" rows={rows} />
+    </div>
+  );
+}
+
+function AssetMaintenanceTab({ rows, onAdd }) {
+  return (
+    <div className="asset-tab-content">
+      <div className="staff-panel-heading compact">
+        <div>
+          <p>Maintenance</p>
+          <h2>Maintenance history</h2>
+        </div>
+        <button className="primary-button" type="button" onClick={onAdd}>Add Maintenance Entry</button>
+      </div>
+      {rows.length ? (
+        <AssetEntryTable dateField="maintenanceDate" rows={rows} showPerformedBy />
+      ) : (
+        <div className="asset-empty-state">
+          <div aria-hidden="true">A</div>
+          <strong>No maintenance entries yet.</strong>
+          <span>Add maintenance work as it happens.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssetEntryTable({ dateField, rows, showPerformedBy = false }) {
+  if (!rows.length) return <p className="empty-state">No entries yet.</p>;
+  return (
+    <div className="staff-table-scroll">
+      <table className="staff-table asset-entry-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            {showPerformedBy ? <th>Performed By</th> : null}
+            <th>Site</th>
+            <th>Hours</th>
+            <th>Kms/Miles</th>
+            <th>Notes</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td><span className="status-pill status-open">{assetStatusLabel(row.status)}</span></td>
+              {showPerformedBy ? <td>{row.performedBy || "-"}</td> : null}
+              <td>{row.site || "-"}</td>
+              <td>{row.hours ?? "-"}</td>
+              <td>{row.kmsMiles || "-"}</td>
+              <td>{row.notes || "-"}</td>
+              <td>{row[dateField] ? formatDateTime(row[dateField]) : "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -16733,6 +17256,11 @@ function normalizeAssetPickerAnswer(value) {
   const serialNumber = String(source.serialNumber || source.serial_number || source.vin || source.serial || "").trim();
   const currentSite = String(source.currentSite || source.current_site || source.site || "").trim();
   const status = String(source.status || "").trim();
+  const model = String(source.model || "").trim();
+  const year = String(source.year || "").trim();
+  const rawHours = source.hours === "" || source.hours === null || source.hours === undefined ? "" : Number(source.hours);
+  const kmsMiles = String(source.kmsMiles || source.kms_miles || "").trim();
+  const description = String(source.description || "").trim();
   const selectedAt = String(source.selectedAt || source.selected_at || "").trim();
   if (!assetId && !name && !serialNumber) return null;
   return {
@@ -16742,6 +17270,11 @@ function normalizeAssetPickerAnswer(value) {
     serialNumber,
     currentSite,
     status,
+    model,
+    year,
+    hours: Number.isFinite(rawHours) ? rawHours : "",
+    kmsMiles,
+    description,
     selectedAt,
   };
 }
@@ -16755,6 +17288,11 @@ function assetSnapshotFromAsset(asset) {
     serialNumber: asset.serialNumber,
     currentSite: asset.currentSite,
     status: asset.status,
+    model: asset.model,
+    year: asset.year,
+    hours: asset.hours,
+    kmsMiles: asset.kmsMiles,
+    description: asset.description,
     selectedAt: new Date().toISOString(),
   });
 }
@@ -16764,7 +17302,11 @@ function assetPickerDetailsText(asset) {
   if (!item || typeof item !== "object") return "";
   const pieces = [];
   if (item.assetType) pieces.push(item.assetType);
+  if (item.model) pieces.push(`Model: ${item.model}`);
   if (item.serialNumber) pieces.push(`Serial/VIN: ${item.serialNumber}`);
+  if (item.year) pieces.push(`Year: ${item.year}`);
+  if (item.hours !== "" && item.hours !== null && item.hours !== undefined) pieces.push(`Hours: ${item.hours}`);
+  if (item.kmsMiles) pieces.push(`Kms/Miles: ${item.kmsMiles}`);
   if (item.currentSite) pieces.push(`Site: ${item.currentSite}`);
   if (item.status) pieces.push(item.status);
   return pieces.join(" / ");

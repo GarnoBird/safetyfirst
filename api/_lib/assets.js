@@ -5,7 +5,11 @@ import {
 } from "./supabase.js";
 
 const ASSET_SELECT =
-  "id, asset_key, name, asset_type, serial_number, current_site, status, hours, last_used_at, notes, source, source_id, source_metadata, imported_by_staff_id, updated_by_staff_id, archived_at, created_at, updated_at";
+  "id, asset_key, name, asset_type, serial_number, current_site, status, model, year, hours, kms_miles, description, last_used_at, notes, source, source_id, source_metadata, imported_by_staff_id, created_by_staff_id, updated_by_staff_id, archived_at, created_at, updated_at";
+const ASSET_LOG_SELECT =
+  "id, asset_id, status, site, hours, kms_miles, notes, entry_date, created_by_staff_id, archived_at, created_at, updated_at";
+const ASSET_MAINTENANCE_SELECT =
+  "id, asset_id, status, site, hours, kms_miles, performed_by, notes, maintenance_date, created_by_staff_id, archived_at, created_at, updated_at";
 const MAX_TEXT = 600;
 const MAX_ASSET_ROWS = 2000;
 const HEADER_ALIASES = {
@@ -14,9 +18,13 @@ const HEADER_ALIASES = {
   serial_number: ["vin", "serial", "serial #", "serial number", "serial no", "serial no.", "asset number", "asset #", "unit number", "unit #"],
   current_site: ["current site", "site", "location", "project", "current location"],
   status: ["status", "state"],
+  model: ["model"],
+  year: ["year", "yr"],
   hours: ["hours", "hour", "hour meter", "meter", "odometer"],
+  kms_miles: ["kms/miles", "km/miles", "kms miles", "km miles", "kilometers", "kilometres", "miles"],
   last_used_at: ["last used", "last used at", "last_used", "last_used_at", "last seen"],
   notes: ["notes", "note", "comments", "comment", "remarks"],
+  description: ["asset description", "long description", "details"],
   source_id: ["id", "asset id", "source id", "salus id", "uuid"],
 };
 
@@ -43,6 +51,58 @@ export async function listAssets({ q = "", type = "", site = "", status = "", in
   }
 
   return throwIfSupabaseError(await query, "Assets could not be loaded.").map(publicAsset);
+}
+
+export async function getAsset(assetId) {
+  const id = cleanString(assetId, 80);
+  if (!id) throwBadRequest("Asset id is required.");
+  const asset = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("assets")
+      .select(ASSET_SELECT)
+      .eq("id", id)
+      .single(),
+    "Asset could not be loaded.",
+  );
+  return publicAsset(asset);
+}
+
+export async function createAsset(body, staff) {
+  const cleaned = cleanAssetInput(body, staff);
+  if (!cleaned.name && !cleaned.serial_number) {
+    throwBadRequest("Asset name or serial/VIN is required.");
+  }
+  const fallbackName = cleaned.name || cleaned.serial_number;
+  const now = new Date().toISOString();
+  const asset = {
+    ...cleaned,
+    name: fallbackName,
+    asset_type: cleaned.asset_type || "General",
+    asset_key: createAssetKey({
+      sourceId: "",
+      name: fallbackName,
+      assetType: cleaned.asset_type || "General",
+      serialNumber: cleaned.serial_number,
+      currentSite: cleaned.current_site,
+    }),
+    source: "safety_first",
+    source_id: "",
+    source_metadata: {},
+    imported_by_staff_id: null,
+    created_by_staff_id: staff?.id || null,
+    updated_by_staff_id: staff?.id || null,
+    archived_at: null,
+    updated_at: now,
+  };
+  const created = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("assets")
+      .upsert(asset, { onConflict: "asset_key" })
+      .select(ASSET_SELECT)
+      .single(),
+    "Asset could not be created.",
+  );
+  return publicAsset(created);
 }
 
 export async function importAssets(body, staff) {
@@ -106,8 +166,14 @@ export async function updateAsset(assetId, body, staff) {
     patch.current_site = cleanString(body.currentSite ?? body.current_site ?? body.site, MAX_TEXT);
   }
   if (body?.status !== undefined) patch.status = normalizeStatus(body.status);
+  if (body?.model !== undefined) patch.model = cleanString(body.model, MAX_TEXT);
+  if (body?.year !== undefined) patch.year = cleanString(body.year, 40);
   if (body?.notes !== undefined) patch.notes = cleanString(body.notes, 4000);
+  if (body?.description !== undefined) patch.description = cleanString(body.description, 4000);
   if (body?.hours !== undefined) patch.hours = cleanNumberOrNull(body.hours);
+  if (body?.kmsMiles !== undefined || body?.kms_miles !== undefined) {
+    patch.kms_miles = cleanString(body.kmsMiles ?? body.kms_miles, MAX_TEXT);
+  }
   if (body?.lastUsedAt !== undefined || body?.last_used_at !== undefined) {
     patch.last_used_at = cleanDateTimeOrNull(body.lastUsedAt ?? body.last_used_at);
   }
@@ -127,6 +193,69 @@ export async function updateAsset(assetId, body, staff) {
   return publicAsset(updated);
 }
 
+export async function listAssetLogEntries(assetId) {
+  const id = cleanString(assetId, 80);
+  if (!id) throwBadRequest("Asset id is required.");
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("asset_log_entries")
+      .select(ASSET_LOG_SELECT)
+      .eq("asset_id", id)
+      .is("archived_at", null)
+      .order("entry_date", { ascending: false }),
+    "Asset log entries could not be loaded.",
+  );
+  return rows.map(publicAssetLogEntry);
+}
+
+export async function createAssetLogEntry(assetId, body, staff) {
+  const id = cleanString(assetId, 80);
+  if (!id) throwBadRequest("Asset id is required.");
+  const entry = cleanAssetEntryInput(body, staff, "entry_date");
+  entry.asset_id = id;
+  const created = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("asset_log_entries")
+      .insert(entry)
+      .select(ASSET_LOG_SELECT)
+      .single(),
+    "Asset log entry could not be created.",
+  );
+  return publicAssetLogEntry(created);
+}
+
+export async function listAssetMaintenanceEntries(assetId) {
+  const id = cleanString(assetId, 80);
+  if (!id) throwBadRequest("Asset id is required.");
+  const rows = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("asset_maintenance_entries")
+      .select(ASSET_MAINTENANCE_SELECT)
+      .eq("asset_id", id)
+      .is("archived_at", null)
+      .order("maintenance_date", { ascending: false }),
+    "Asset maintenance entries could not be loaded.",
+  );
+  return rows.map(publicAssetMaintenanceEntry);
+}
+
+export async function createAssetMaintenanceEntry(assetId, body, staff) {
+  const id = cleanString(assetId, 80);
+  if (!id) throwBadRequest("Asset id is required.");
+  const entry = cleanAssetEntryInput(body, staff, "maintenance_date");
+  entry.asset_id = id;
+  entry.performed_by = cleanString(body?.performedBy ?? body?.performed_by, MAX_TEXT);
+  const created = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("asset_maintenance_entries")
+      .insert(entry)
+      .select(ASSET_MAINTENANCE_SELECT)
+      .single(),
+    "Asset maintenance entry could not be created.",
+  );
+  return publicAssetMaintenanceEntry(created);
+}
+
 export async function archiveAsset(assetId, staff) {
   const id = cleanString(assetId, 80);
   if (!id) throwBadRequest("Asset id is required.");
@@ -144,6 +273,36 @@ export async function archiveAsset(assetId, staff) {
     "Asset could not be archived.",
   );
   return publicAsset(updated);
+}
+
+function cleanAssetInput(body, staff) {
+  return {
+    name: cleanString(body?.name, MAX_TEXT),
+    asset_type: cleanString(body?.assetType ?? body?.asset_type ?? body?.type, MAX_TEXT),
+    serial_number: cleanString(body?.serialNumber ?? body?.serial_number ?? body?.vin, MAX_TEXT),
+    current_site: cleanString(body?.currentSite ?? body?.current_site ?? body?.site, MAX_TEXT),
+    status: normalizeStatus(body?.status),
+    model: cleanString(body?.model, MAX_TEXT),
+    year: cleanString(body?.year, 40),
+    hours: cleanNumberOrNull(body?.hours),
+    kms_miles: cleanString(body?.kmsMiles ?? body?.kms_miles, MAX_TEXT),
+    description: cleanString(body?.description, 4000),
+    notes: cleanString(body?.notes, 4000),
+    last_used_at: cleanDateTimeOrNull(body?.lastUsedAt ?? body?.last_used_at),
+    updated_by_staff_id: staff?.id || null,
+  };
+}
+
+function cleanAssetEntryInput(body, staff, dateKey) {
+  return {
+    status: normalizeStatus(body?.status),
+    site: cleanString(body?.site ?? body?.currentSite ?? body?.current_site, MAX_TEXT),
+    hours: cleanNumberOrNull(body?.hours),
+    kms_miles: cleanString(body?.kmsMiles ?? body?.kms_miles, MAX_TEXT),
+    notes: cleanString(body?.notes, 4000),
+    [dateKey]: cleanDateTimeOrNull(body?.date ?? body?.entryDate ?? body?.entry_date ?? body?.maintenanceDate ?? body?.maintenance_date) || new Date().toISOString(),
+    created_by_staff_id: staff?.id || null,
+  };
 }
 
 function parseAssetRows(body) {
@@ -191,13 +350,18 @@ function cleanImportedAsset(row, staff) {
     serial_number: serialNumber,
     current_site: currentSite,
     status: normalizeStatus(fieldValue(normalized, "status")),
+    model: fieldValue(normalized, "model"),
+    year: fieldValue(normalized, "year", 40),
     hours: cleanNumberOrNull(fieldValue(normalized, "hours")),
+    kms_miles: fieldValue(normalized, "kms_miles"),
+    description: fieldValue(normalized, "description", 4000),
     last_used_at: cleanDateTimeOrNull(fieldValue(normalized, "last_used_at")),
     notes: fieldValue(normalized, "notes", 4000),
     source: "local_import",
     source_id: sourceId,
     source_metadata: { original: row },
     imported_by_staff_id: staff?.id || null,
+    created_by_staff_id: staff?.id || null,
     updated_by_staff_id: staff?.id || null,
     archived_at: null,
     updated_at: now,
@@ -237,7 +401,7 @@ function normalizeIdentityPart(value) {
 function normalizeStatus(value) {
   const status = cleanString(value, MAX_TEXT).toLowerCase().replace(/\s+/g, "_");
   if (!status) return "active";
-  if (["available", "in_service", "in-use", "in_use", "used"].includes(status)) return "active";
+  if (["available", "in_service", "in-use", "in_use", "used", "operational"].includes(status)) return "active";
   if (["retired", "out_of_service", "out-of-service", "removed"].includes(status)) return "retired";
   if (["inactive", "unavailable", "not_available"].includes(status)) return "inactive";
   return status.slice(0, 80);
@@ -264,7 +428,11 @@ function publicAsset(asset) {
     serialNumber: asset.serial_number || "",
     currentSite: asset.current_site || "",
     status: asset.status || "active",
+    model: asset.model || "",
+    year: asset.year || "",
     hours: asset.hours ?? null,
+    kmsMiles: asset.kms_miles || "",
+    description: asset.description || "",
     lastUsedAt: asset.last_used_at || null,
     notes: asset.notes || "",
     source: asset.source || "",
@@ -272,6 +440,41 @@ function publicAsset(asset) {
     archivedAt: asset.archived_at || null,
     createdAt: asset.created_at || null,
     updatedAt: asset.updated_at || null,
+  };
+}
+
+function publicAssetLogEntry(entry) {
+  return {
+    id: entry.id,
+    assetId: entry.asset_id,
+    status: entry.status || "active",
+    site: entry.site || "",
+    hours: entry.hours ?? null,
+    kmsMiles: entry.kms_miles || "",
+    notes: entry.notes || "",
+    entryDate: entry.entry_date || null,
+    createdByStaffId: entry.created_by_staff_id || null,
+    archivedAt: entry.archived_at || null,
+    createdAt: entry.created_at || null,
+    updatedAt: entry.updated_at || null,
+  };
+}
+
+function publicAssetMaintenanceEntry(entry) {
+  return {
+    id: entry.id,
+    assetId: entry.asset_id,
+    status: entry.status || "active",
+    site: entry.site || "",
+    hours: entry.hours ?? null,
+    kmsMiles: entry.kms_miles || "",
+    performedBy: entry.performed_by || "",
+    notes: entry.notes || "",
+    maintenanceDate: entry.maintenance_date || null,
+    createdByStaffId: entry.created_by_staff_id || null,
+    archivedAt: entry.archived_at || null,
+    createdAt: entry.created_at || null,
+    updatedAt: entry.updated_at || null,
   };
 }
 

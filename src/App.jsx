@@ -24,6 +24,7 @@ import {
   StaffHealthPage,
   StaffActionItemsPage,
   StaffAssetsPage,
+  StaffAssetDetailPage,
   StaffLoginPage,
   StaffSettingsPage,
   StaffSignInsPage,
@@ -146,6 +147,11 @@ export default function App() {
 
   if (routePath === "/staff/assets") {
     return <StaffAssetsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath.startsWith("/staff/assets/")) {
+    const assetId = decodeURIComponent(routePath.split("/").filter(Boolean)[2] || "");
+    return <StaffAssetDetailPage assetId={assetId} navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/workers") {

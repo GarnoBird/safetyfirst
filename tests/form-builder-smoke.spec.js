@@ -20,14 +20,20 @@ const worker = {
 const defaultAssetRows = [
   {
     id: "asset-fall-harness-1",
-    name: "Harness 1",
+    name: "Justin - Lanyard",
     assetType: "Fall Protection",
-    serialNumber: "FP-001",
-    currentSite: "Appia Yard",
+    serialNumber: "GEMTOR",
+    model: "SP 1101L3",
+    year: "24",
+    hours: null,
+    kmsMiles: "N/A",
+    currentSite: "SOLO 4: Aerius",
     status: "active",
+    description: "MFG DATE: 04/24 MAX LENGTH 42\" MAX FREE FALL 6' LENGTH 3' MATERIAL: POLYESTER CAPACITY 350LBS MAX",
     notes: "Imported asset smoke fixture",
     source: "local_import",
     sourceId: "salus-asset-1",
+    lastUsedAt: "2024-09-03T22:32:00.000Z",
     archivedAt: null,
   },
 ];
@@ -603,6 +609,8 @@ const legacyStyleSchema = {
 async function mockApis(page, templates, options = {}) {
   let templateRows = templates.map((row) => structuredClone(row));
   let assetRows = structuredClone(options.assets || defaultAssetRows);
+  let assetLogRows = structuredClone(options.assetLogEntries || []);
+  let assetMaintenanceRows = structuredClone(options.assetMaintenanceEntries || []);
   const currentStaff = options.staff || staff;
   const unlockPassword = options.unlockPassword || "letmein";
   const staffSubmissions = options.staffSubmissions || [];
@@ -619,6 +627,8 @@ async function mockApis(page, templates, options = {}) {
   submissions.translateApiCalls = translateApiCalls;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
+  let assetCount = assetRows.length;
+  let assetEntryCount = assetLogRows.length + assetMaintenanceRows.length;
   let duplicateCount = 0;
   const protectedFormTypes = new Set(["toolbox_talk", "site_inspection", "daily_hazard_assessment"]);
   const findTemplate = (formType) => templateRows.find((row) => row.form_type === formType);
@@ -726,6 +736,107 @@ async function mockApis(page, templates, options = {}) {
         }
       });
       return json({ rows: imported, inserted, updated, skipped: 0 });
+    }
+    if (path === "/api/staff/assets" && method === "POST") {
+      const body = JSON.parse(request.postData() || "{}");
+      assetCount += 1;
+      const asset = {
+        id: `asset-created-${assetCount}`,
+        name: String(body.name || body.serialNumber || "Created asset").trim(),
+        assetType: String(body.assetType || body.type || "General").trim() || "General",
+        serialNumber: String(body.serialNumber || body.vin || "").trim(),
+        model: String(body.model || "").trim(),
+        year: String(body.year || "").trim(),
+        hours: body.hours === "" || body.hours === null || body.hours === undefined ? null : Number(body.hours),
+        kmsMiles: String(body.kmsMiles || "").trim(),
+        currentSite: String(body.currentSite || body.site || "").trim(),
+        status: String(body.status || "active").trim().toLowerCase() || "active",
+        description: String(body.description || "").trim(),
+        notes: String(body.notes || "").trim(),
+        source: "safety_first",
+        sourceId: "",
+        lastUsedAt: null,
+        archivedAt: null,
+      };
+      assetRows.push(asset);
+      return json({ asset }, 201);
+    }
+    const assetParts = path.split("/").filter(Boolean);
+    if (
+      assetParts[0] === "api" &&
+      assetParts[1] === "staff" &&
+      assetParts[2] === "assets" &&
+      assetParts.length >= 4
+    ) {
+      const assetId = assetParts[3];
+      const asset = assetRows.find((row) => row.id === assetId);
+      if (!asset) return json({ error: "Asset not found" }, 404);
+      if (assetParts.length === 4 && method === "GET") return json({ asset });
+      if (assetParts.length === 4 && method === "PATCH") {
+        const body = JSON.parse(request.postData() || "{}");
+        const updated = {
+          ...asset,
+          name: body.name ?? asset.name,
+          assetType: body.assetType ?? body.type ?? asset.assetType,
+          serialNumber: body.serialNumber ?? body.vin ?? asset.serialNumber,
+          model: body.model ?? asset.model,
+          year: body.year ?? asset.year,
+          hours: body.hours === undefined ? asset.hours : (body.hours === "" || body.hours === null ? null : Number(body.hours)),
+          kmsMiles: body.kmsMiles ?? asset.kmsMiles,
+          currentSite: body.currentSite ?? body.site ?? asset.currentSite,
+          status: body.status ?? asset.status,
+          description: body.description ?? asset.description,
+          notes: body.notes ?? asset.notes,
+        };
+        assetRows = assetRows.map((row) => (row.id === assetId ? updated : row));
+        return json({ asset: updated });
+      }
+      if (assetParts.length === 4 && method === "DELETE") {
+        const archived = { ...asset, archivedAt: "2026-07-04T19:00:00.000Z" };
+        assetRows = assetRows.map((row) => (row.id === assetId ? archived : row));
+        return json({ asset: archived });
+      }
+      if (assetParts.length === 5 && assetParts[4] === "log-entries" && method === "GET") {
+        return json({ rows: assetLogRows.filter((row) => row.assetId === assetId && !row.archivedAt) });
+      }
+      if (assetParts.length === 5 && assetParts[4] === "log-entries" && method === "POST") {
+        const body = JSON.parse(request.postData() || "{}");
+        assetEntryCount += 1;
+        const entry = {
+          id: `asset-log-${assetEntryCount}`,
+          assetId,
+          status: String(body.status || "active").trim().toLowerCase() || "active",
+          site: String(body.site || "").trim(),
+          hours: body.hours === "" || body.hours === null || body.hours === undefined ? null : Number(body.hours),
+          kmsMiles: String(body.kmsMiles || "").trim(),
+          notes: String(body.notes || "").trim(),
+          entryDate: body.date || "2026-07-04T19:00:00.000Z",
+          archivedAt: null,
+        };
+        assetLogRows.push(entry);
+        return json({ entry }, 201);
+      }
+      if (assetParts.length === 5 && assetParts[4] === "maintenance-entries" && method === "GET") {
+        return json({ rows: assetMaintenanceRows.filter((row) => row.assetId === assetId && !row.archivedAt) });
+      }
+      if (assetParts.length === 5 && assetParts[4] === "maintenance-entries" && method === "POST") {
+        const body = JSON.parse(request.postData() || "{}");
+        assetEntryCount += 1;
+        const entry = {
+          id: `asset-maintenance-${assetEntryCount}`,
+          assetId,
+          status: String(body.status || "active").trim().toLowerCase() || "active",
+          site: String(body.site || "").trim(),
+          hours: body.hours === "" || body.hours === null || body.hours === undefined ? null : Number(body.hours),
+          kmsMiles: String(body.kmsMiles || "").trim(),
+          performedBy: String(body.performedBy || "").trim(),
+          notes: String(body.notes || "").trim(),
+          maintenanceDate: body.date || "2026-07-04T19:00:00.000Z",
+          archivedAt: null,
+        };
+        assetMaintenanceRows.push(entry);
+        return json({ entry }, 201);
+      }
     }
     if (path === "/api/staff/form-templates" && method === "GET") {
       return json({ rows: templateRows.map(jsonTemplate) });
@@ -1085,6 +1196,7 @@ function filterMockAssets(rows, url) {
       asset.name,
       asset.assetType,
       asset.serialNumber,
+      asset.model,
       asset.currentSite,
       asset.status,
     ].some((value) => normalizeMockSignInIdentity(value).includes(query));
@@ -1122,11 +1234,17 @@ function normalizeMockAssetImportRow(row) {
     name: name || serialNumber,
     assetType: String(row.assetType || row.type || row.Type || "General").trim() || "General",
     serialNumber,
+    model: String(row.model || row.Model || "").trim(),
+    year: String(row.year || row.Year || "").trim(),
+    hours: row.hours || row.Hours ? Number(row.hours || row.Hours) : null,
+    kmsMiles: String(row.kmsMiles || row["Kms/Miles"] || row["KMS/Miles"] || "").trim(),
     currentSite: String(row.currentSite || row.site || row.Site || row["Current Site"] || "").trim(),
     status: String(row.status || row.Status || "active").trim().toLowerCase() || "active",
+    description: String(row.description || row.Description || "").trim(),
     notes: String(row.notes || row.Notes || "").trim(),
     source: "local_import",
     sourceId: String(row.sourceId || row.id || row.Id || "").trim(),
+    lastUsedAt: row.lastUsedAt || row["Last Used"] || null,
     archivedAt: null,
   };
 }
@@ -2180,6 +2298,81 @@ test("asset import UI and asset picker field use local Safety First assets", asy
     serialNumber: "FP-002",
     currentSite: "North Tower",
     status: "active",
+  }));
+});
+
+test("staff assets support create, detail pages, log book, maintenance, and picker archive filtering", async ({ page }) => {
+  const row = template("asset_picker_smoke", "Asset Picker Smoke", assetPickerSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/staff/assets");
+  await expect(page.getByText("Justin - Lanyard")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "SOLO 4: Aerius" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Create Asset" }).click();
+  const assetDialog = page.locator(".asset-edit-dialog");
+  await expect(assetDialog.getByRole("heading", { name: "Create Asset" })).toBeVisible();
+  await assetDialog.getByLabel("Type").fill("Fall Protection");
+  await assetDialog.getByLabel("Name").fill("Created Rescue Harness");
+  await assetDialog.getByLabel("VIN / Serial").fill("CRH-1");
+  await assetDialog.getByLabel("Model").fill("Rescue-42");
+  await assetDialog.getByLabel("Year").fill("2026");
+  await assetDialog.getByLabel("Hours").fill("12");
+  await assetDialog.getByLabel("Kms/Miles").fill("N/A");
+  await assetDialog.getByLabel("Current Site").fill("SOLO 4: Aerius");
+  await assetDialog.getByLabel("Description").fill("Created locally during smoke coverage.");
+  await assetDialog.getByRole("button", { name: "Create asset" }).click();
+  await expect(page.getByText("Created Created Rescue Harness.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Created Rescue Harness" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Created Rescue Harness" }).click();
+  await expect(page.getByRole("heading", { name: "Created Rescue Harness" })).toBeVisible();
+  await expect(page.getByText("Rescue-42")).toBeVisible();
+  const tabs = page.locator(".asset-tabs-panel");
+  await expect(tabs.getByRole("tab", { name: "Log Book" })).toBeVisible();
+  await expect(tabs.getByRole("tab", { name: "Maintenance" })).toBeVisible();
+  await expect(tabs.getByRole("tab", { name: "Forms" })).toHaveCount(0);
+  await expect(tabs.getByRole("tab", { name: "Reminders" })).toHaveCount(0);
+  await expect(tabs.getByRole("tab", { name: "Documents" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Add Log Entry" }).click();
+  let entryDialog = page.locator(".asset-entry-dialog");
+  await entryDialog.getByLabel("Site").fill("SOLO 4: Aerius");
+  await entryDialog.getByLabel("Hours").fill("13");
+  await entryDialog.getByLabel("Notes").fill("Inspection Completed: PASS LB");
+  await entryDialog.getByRole("button", { name: "Add entry" }).click();
+  await expect(page.getByText("Log entry added.")).toBeVisible();
+  await expect(page.getByText("Inspection Completed: PASS LB")).toBeVisible();
+
+  await tabs.getByRole("tab", { name: "Maintenance" }).click();
+  await expect(page.getByText("No maintenance entries yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Add Maintenance Entry" }).click();
+  entryDialog = page.locator(".asset-entry-dialog");
+  await entryDialog.getByLabel("Performed by").fill("Leanne Bird");
+  await entryDialog.getByLabel("Notes").fill("Replaced lanyard label sleeve.");
+  await entryDialog.getByRole("button", { name: "Add entry" }).click();
+  await expect(page.getByText("Maintenance entry added.")).toBeVisible();
+  await expect(page.getByText("Replaced lanyard label sleeve.")).toBeVisible();
+  await expect(page.getByText("Leanne Bird")).toBeVisible();
+
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Archive" }).click();
+  await expect(page).toHaveURL(/\/staff\/assets$/);
+  await expect(page.getByText("Created Rescue Harness")).toHaveCount(0);
+
+  await page.goto("/forms/asset_picker_smoke");
+  await page.getByLabel("Search assets").fill("Created Rescue Harness");
+  await expect(page.getByRole("button", { name: /Created Rescue Harness/ })).toHaveCount(0);
+  await page.getByLabel("Search assets").fill("Justin");
+  await page.getByRole("button", { name: /Justin - Lanyard/ }).click();
+  await expect(page.locator(".template-asset-selected-card")).toContainText("Model: SP 1101L3");
+  await page.getByRole("button", { name: "Submit Asset Picker Smoke" }).click();
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.selected_asset).toEqual(expect.objectContaining({
+    name: "Justin - Lanyard",
+    model: "SP 1101L3",
+    kmsMiles: "N/A",
+    currentSite: "SOLO 4: Aerius",
   }));
 });
 
