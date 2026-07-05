@@ -38,7 +38,8 @@
     "verify:wiki-expansion": "node scripts/verify-wiki-expansion.js",
     "seed:staff": "node scripts/seed-staff-user.js",
     "smoke:ops": "node scripts/smoke-security-ops.js",
-    "smoke:forms": "playwright test tests/form-builder-smoke.spec.js"
+    "smoke:forms": "playwright test tests/form-builder-smoke.spec.js",
+    "smoke:certificates": "playwright test tests/certificates-smoke.spec.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "^149.0.0",

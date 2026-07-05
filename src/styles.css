@@ -5747,6 +5747,89 @@ p {
   padding: 16px;
 }
 
+.certificates-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.certificates-heading,
+.certificate-options-heading {
+  padding: 16px;
+}
+
+.certificate-tabs {
+  border-top: 1px solid #edf2ef;
+}
+
+.certificate-tab-content {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.certificate-list-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+}
+
+.certificate-list-controls .staff-search-field {
+  min-width: min(100%, 320px);
+}
+
+.certificates-table th,
+.certificates-table td {
+  min-width: 132px;
+}
+
+.certificates-table th:nth-child(1),
+.certificates-table td:nth-child(1),
+.certificates-table th:nth-child(2),
+.certificates-table td:nth-child(2),
+.certificates-table th:nth-child(3),
+.certificates-table td:nth-child(3) {
+  min-width: 190px;
+}
+
+.certificate-file-list,
+.certificate-row-actions,
+.certificate-options-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.certificate-file-list {
+  align-items: flex-start;
+}
+
+.certificate-file-list .link-button {
+  max-width: 220px;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.certificate-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.certificate-form-wide {
+  grid-column: 1 / -1;
+}
+
+.certificate-option-dialog {
+  width: min(100%, 460px);
+}
+
+.certificate-archived-toggle {
+  margin: 0;
+  white-space: nowrap;
+}
+
 .asset-entry-table th,
 .asset-entry-table td {
   min-width: 130px;

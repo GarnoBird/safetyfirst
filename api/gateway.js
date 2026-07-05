@@ -34,6 +34,24 @@ import {
   updateAsset,
 } from "./_lib/assets.js";
 import { processStaffAutoReports } from "./_lib/auto-reports.js";
+import {
+  archiveCertificate,
+  archiveCertificateProvider,
+  archiveCertificateType,
+  attachCertificateFile,
+  createCertificate,
+  createCertificateFileAccess,
+  createCertificateFileUploadTarget,
+  createCertificateProvider,
+  createCertificateType,
+  getCertificate,
+  listCertificateProviders,
+  listCertificates,
+  listCertificateTypes,
+  updateCertificate,
+  updateCertificateProvider,
+  updateCertificateType,
+} from "./_lib/certificates.js";
 import { assertCronAuthorized } from "./_lib/cron-auth.js";
 import { assertDateString, getVancouverDate } from "./_lib/date.js";
 import {
@@ -344,6 +362,7 @@ async function handleStaff(req, res, parts) {
   if (parts[0] === "form-templates") return handleStaffFormTemplates(req, res, staff, parts.slice(1));
   if (parts[0] === "action-items") return handleStaffActionItems(req, res, staff, parts.slice(1));
   if (parts[0] === "assets") return handleStaffAssets(req, res, staff, parts.slice(1));
+  if (parts[0] === "certificates") return handleStaffCertificates(req, res, staff, parts.slice(1));
   return sendJson(res, 404, { error: "Not found" });
 }
 
@@ -1073,6 +1092,166 @@ async function handleStaffAssets(req, res, staff, parts) {
       summary: `${staff.username} archived asset ${asset.name}.`,
     });
     return sendJson(res, 200, { asset });
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
+}
+
+async function handleStaffCertificates(req, res, staff, parts) {
+  if (parts[0] === "types") return handleStaffCertificateTypes(req, res, staff, parts.slice(1));
+  if (parts[0] === "providers") return handleStaffCertificateProviders(req, res, staff, parts.slice(1));
+
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, await listCertificates(parseQuery(req)));
+  }
+  if (!parts.length && req.method === "POST") {
+    const certificate = await createCertificate(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_created",
+      targetType: "certificate",
+      targetId: certificate.id,
+      summary: `${staff.username} created a certificate for ${certificate.workerName}.`,
+      metadata: {
+        certificateType: certificate.certificateTypeName,
+        provider: certificate.providerName,
+      },
+    });
+    return sendJson(res, 201, { certificate });
+  }
+  if (parts.length === 1 && req.method === "GET") {
+    return sendJson(res, 200, { certificate: await getCertificate(parts[0], { includeArchived: true }) });
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const certificate = await updateCertificate(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_updated",
+      targetType: "certificate",
+      targetId: certificate.id,
+      summary: `${staff.username} updated a certificate for ${certificate.workerName}.`,
+    });
+    return sendJson(res, 200, { certificate });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    const certificate = await archiveCertificate(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_archived",
+      targetType: "certificate",
+      targetId: certificate.id,
+      summary: `${staff.username} archived a certificate for ${certificate.workerName}.`,
+    });
+    return sendJson(res, 200, { certificate });
+  }
+  if (parts.length === 3 && parts[1] === "files" && parts[2] === "upload-url" && req.method === "POST") {
+    const upload = await createCertificateFileUploadTarget(parts[0], await readJson(req), staff);
+    return sendJson(res, 200, { upload });
+  }
+  if (parts.length === 2 && parts[1] === "files" && req.method === "POST") {
+    const result = await attachCertificateFile(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_file_added",
+      targetType: "certificate",
+      targetId: result.certificate.id,
+      summary: `${staff.username} added a certificate file for ${result.certificate.workerName}.`,
+      metadata: { fileId: result.file.id },
+    });
+    return sendJson(res, 201, result);
+  }
+  if (parts.length === 4 && parts[1] === "files" && parts[3] === "url" && req.method === "GET") {
+    const access = await createCertificateFileAccess(parts[0], parts[2]);
+    return sendJson(res, 200, access);
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
+}
+
+async function handleStaffCertificateTypes(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listCertificateTypes(parseQuery(req)) });
+  }
+  if (!parts.length && req.method === "POST") {
+    const type = await createCertificateType(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_type_created",
+      targetType: "certificate_type",
+      targetId: type.id,
+      summary: `${staff.username} created certificate type ${type.name}.`,
+    });
+    return sendJson(res, 201, { type });
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const type = await updateCertificateType(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_type_updated",
+      targetType: "certificate_type",
+      targetId: type.id,
+      summary: `${staff.username} updated certificate type ${type.name}.`,
+    });
+    return sendJson(res, 200, { type });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    const type = await archiveCertificateType(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_type_archived",
+      targetType: "certificate_type",
+      targetId: type.id,
+      summary: `${staff.username} archived certificate type ${type.name}.`,
+    });
+    return sendJson(res, 200, { type });
+  }
+  return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
+}
+
+async function handleStaffCertificateProviders(req, res, staff, parts) {
+  if (!parts.length && req.method === "GET") {
+    return sendJson(res, 200, { rows: await listCertificateProviders(parseQuery(req)) });
+  }
+  if (!parts.length && req.method === "POST") {
+    const provider = await createCertificateProvider(await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_provider_created",
+      targetType: "certificate_provider",
+      targetId: provider.id,
+      summary: `${staff.username} created certificate provider ${provider.name}.`,
+    });
+    return sendJson(res, 201, { provider });
+  }
+  if (parts.length === 1 && req.method === "PATCH") {
+    const provider = await updateCertificateProvider(parts[0], await readJson(req), staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_provider_updated",
+      targetType: "certificate_provider",
+      targetId: provider.id,
+      summary: `${staff.username} updated certificate provider ${provider.name}.`,
+    });
+    return sendJson(res, 200, { provider });
+  }
+  if (parts.length === 1 && req.method === "DELETE") {
+    const provider = await archiveCertificateProvider(parts[0], staff);
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "certificate_provider_archived",
+      targetType: "certificate_provider",
+      targetId: provider.id,
+      summary: `${staff.username} archived certificate provider ${provider.name}.`,
+    });
+    return sendJson(res, 200, { provider });
   }
   return sendMethodNotAllowed(res, ["GET", "POST", "PATCH", "DELETE"]);
 }

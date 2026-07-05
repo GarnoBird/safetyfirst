@@ -30,6 +30,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
   { id: "forms", label: "FORMS", path: "/staff/forms" },
   { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items", adminOnly: true },
+  { id: "certificates", label: "CERTIFICATES", path: "/staff/certificates" },
   { id: "assets", label: "ASSETS", path: "/staff/assets" },
   { id: "workers", label: "WORKERS", path: "/staff/workers" },
   { id: "users", label: "STAFF", path: "/staff/users" },
@@ -5646,6 +5647,596 @@ function WorkerSubmissionReadOnlyView({ row }) {
         ) : null}
       </div>
     </section>
+  );
+}
+
+const CERTIFICATE_TABS = [
+  { id: "approved", label: "Approved" },
+  { id: "types", label: "Types" },
+  { id: "providers", label: "Providers" },
+];
+
+const CERTIFICATE_UPLOAD_ACCEPT = ".jpg,.jpeg,.png,.webp,.heic,.heif,.pdf,image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf";
+
+const EMPTY_CERTIFICATE_FORM = {
+  workerName: "",
+  certificateTypeId: "",
+  providerId: "",
+  issueDate: "",
+  expiryDate: "",
+  file: null,
+};
+
+function certificateFormFromCertificate(certificate = {}) {
+  certificate = certificate || {};
+  return {
+    ...EMPTY_CERTIFICATE_FORM,
+    workerName: certificate.workerName || "",
+    certificateTypeId: certificate.certificateTypeId || "",
+    providerId: certificate.providerId || "",
+    issueDate: certificate.issueDate || "",
+    expiryDate: certificate.expiryDate || "",
+  };
+}
+
+function certificatePayloadFromForm(form) {
+  return {
+    workerName: form.workerName,
+    certificateTypeId: form.certificateTypeId,
+    providerId: form.providerId,
+    issueDate: form.issueDate,
+    expiryDate: form.expiryDate,
+  };
+}
+
+function CertificateFormDialog({ certificate = null, mode = "create", providers, types, onClose, onSave }) {
+  const [form, setForm] = useState(() => certificateFormFromCertificate(certificate));
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const activeTypes = types.filter((type) => !type.archivedAt || type.id === certificate?.certificateTypeId);
+  const activeProviders = providers.filter((provider) => !provider.archivedAt || provider.id === certificate?.providerId);
+  const title = mode === "edit" ? "Edit Certificate" : "Create Certificate";
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+    if (!form.workerName.trim() || !form.certificateTypeId || !form.providerId || !form.issueDate || !form.expiryDate) {
+      setMessage("Worker name, certificate type, provider, issue date, and expiry date are required.");
+      return;
+    }
+    if (form.expiryDate < form.issueDate) {
+      setMessage("Expiry date cannot be before issue date.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave(certificatePayloadFromForm(form), form.file);
+    } catch (error) {
+      setMessage(error.message || "Certificate could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop">
+      <form className="staff-detail-dialog certificate-edit-dialog" noValidate onSubmit={submit}>
+        <div className="dialog-heading">
+          <div>
+            <p>{mode === "edit" ? certificate?.workerName || "Certificate" : "New Certificate"}</p>
+            <h2>{title}</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        {message ? <p className="form-error">{message}</p> : null}
+        <div className="certificate-form-grid">
+          <label className="field certificate-form-wide">
+            <span>Worker Name</span>
+            <input autoComplete="off" value={form.workerName} onChange={(event) => update("workerName", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Certificate Type</span>
+            <select value={form.certificateTypeId} onChange={(event) => update("certificateTypeId", event.target.value)}>
+              <option value="">Select type</option>
+              {activeTypes.map((type) => (
+                <option key={type.id} value={type.id}>{type.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Provider</span>
+            <select value={form.providerId} onChange={(event) => update("providerId", event.target.value)}>
+              <option value="">Select provider</option>
+              {activeProviders.map((provider) => (
+                <option key={provider.id} value={provider.id}>{provider.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Issue Date</span>
+            <input type="date" value={form.issueDate} onChange={(event) => update("issueDate", event.target.value)} />
+          </label>
+          <label className="field">
+            <span>Expiry Date</span>
+            <input type="date" value={form.expiryDate} onChange={(event) => update("expiryDate", event.target.value)} />
+          </label>
+          <label className="field certificate-form-wide">
+            <span>Media upload</span>
+            <input
+              accept={CERTIFICATE_UPLOAD_ACCEPT}
+              type="file"
+              onChange={(event) => update("file", event.target.files?.[0] || null)}
+            />
+          </label>
+        </div>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" disabled={saving} type="submit">
+            {saving ? "Saving..." : mode === "edit" ? "Save certificate" : "Create certificate"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function CertificateOptionDialog({ item = null, kind, onClose, onSave }) {
+  const [name, setName] = useState(item?.name || "");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const noun = kind === "types" ? "Type" : "Provider";
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+    if (!name.trim()) {
+      setMessage(`${noun} name is required.`);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({ name });
+    } catch (error) {
+      setMessage(error.message || `${noun} could not be saved.`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="staff-dialog-backdrop">
+      <form className="staff-detail-dialog certificate-option-dialog" noValidate onSubmit={submit}>
+        <div className="dialog-heading">
+          <div>
+            <p>{item ? "Edit" : "New"}</p>
+            <h2>{item ? `Edit ${noun}` : `Create ${noun}`}</h2>
+          </div>
+          <button type="button" onClick={onClose}>X</button>
+        </div>
+        {message ? <p className="form-error">{message}</p> : null}
+        <label className="field">
+          <span>Name</span>
+          <input autoFocus value={name} onChange={(event) => setName(event.target.value)} />
+        </label>
+        <div className="staff-card-actions">
+          <button type="button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" disabled={saving} type="submit">
+            {saving ? "Saving..." : item ? `Save ${noun.toLowerCase()}` : `Create ${noun.toLowerCase()}`}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+export function StaffCertificatesPage({ navigateTo }) {
+  const { staff } = useStaffSession(navigateTo);
+  const [activeTab, setActiveTab] = useState("approved");
+  const [certificates, setCertificates] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [certificateDialog, setCertificateDialog] = useState(null);
+  const [optionDialog, setOptionDialog] = useState(null);
+  const [showArchivedOptions, setShowArchivedOptions] = useState(false);
+  const [filePreview, setFilePreview] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const loadCertificates = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      const [certificatePayload, typePayload, providerPayload] = await Promise.all([
+        fetch(`/api/staff/certificates?${params}`, { credentials: "include" }).then(readApiJson),
+        fetch("/api/staff/certificates/types?includeArchived=true", { credentials: "include" }).then(readApiJson),
+        fetch("/api/staff/certificates/providers?includeArchived=true", { credentials: "include" }).then(readApiJson),
+      ]);
+      setCertificates(certificatePayload.rows || []);
+      setTypes(typePayload.rows || []);
+      setProviders(providerPayload.rows || []);
+    } catch (error) {
+      setMessage(error.message || "Certificates could not be loaded.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff) loadCertificates();
+  }, [staff]);
+
+  const activeTypes = useMemo(() => types.filter((type) => !type.archivedAt), [types]);
+  const activeProviders = useMemo(() => providers.filter((provider) => !provider.archivedAt), [providers]);
+
+  const saveCertificate = async (payload, file, certificate = null) => {
+    const response = await readApiJson(
+      await fetch(certificate ? `/api/staff/certificates/${certificate.id}` : "/api/staff/certificates", {
+        method: certificate ? "PATCH" : "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      }),
+    );
+    const saved = response.certificate;
+    if (file) await uploadCertificateFile(saved, file);
+    setCertificateDialog(null);
+    await loadCertificates();
+    setMessage(certificate ? "Certificate updated." : "Certificate created.");
+  };
+
+  const uploadCertificateFile = async (certificate, selectedFile) => {
+    const target = await readApiJson(
+      await fetch(`/api/staff/certificates/${certificate.id}/files/upload-url`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          file: {
+            originalFilename: selectedFile.name,
+            mimeType: selectedFile.type || "application/octet-stream",
+            sizeBytes: selectedFile.size,
+          },
+        }),
+      }),
+    );
+    const formData = new FormData();
+    formData.append("cacheControl", "3600");
+    formData.append("", selectedFile);
+    const uploadResponse = await fetch(target.upload.signedUrl, {
+      method: "PUT",
+      body: formData,
+    });
+    if (!uploadResponse.ok) throw new Error("Certificate file upload failed.");
+    await readApiJson(
+      await fetch(`/api/staff/certificates/${certificate.id}/files`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          storagePath: target.upload.storagePath,
+          file: {
+            originalFilename: selectedFile.name,
+            mimeType: selectedFile.type || "application/octet-stream",
+            sizeBytes: selectedFile.size,
+          },
+        }),
+      }),
+    );
+  };
+
+  const archiveCertificateRow = async (certificate) => {
+    if (!window.confirm(`Archive certificate for ${certificate.workerName || "this worker"}?`)) return;
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/certificates/${certificate.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      await loadCertificates();
+      setMessage("Certificate archived.");
+    } catch (error) {
+      setMessage(error.message || "Certificate could not be archived.");
+    }
+  };
+
+  const saveOption = async (kind, item, payload) => {
+    const basePath = `/api/staff/certificates/${kind}`;
+    const response = await readApiJson(
+      await fetch(item ? `${basePath}/${item.id}` : basePath, {
+        method: item ? "PATCH" : "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      }),
+    );
+    setOptionDialog(null);
+    await loadCertificates();
+    setMessage(`${kind === "types" ? "Type" : "Provider"} ${item ? "updated" : "created"}.`);
+    return response;
+  };
+
+  const archiveOption = async (kind, item) => {
+    if (!window.confirm(`Archive ${item.name}? It will no longer appear for new certificates.`)) return;
+    setMessage("");
+    try {
+      await readApiJson(
+        await fetch(`/api/staff/certificates/${kind}/${item.id}`, {
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+      await loadCertificates();
+      setMessage(`${kind === "types" ? "Type" : "Provider"} archived.`);
+    } catch (error) {
+      setMessage(error.message || "Option could not be archived.");
+    }
+  };
+
+  const openCertificateFile = async (certificate, file) => {
+    setMessage("");
+    try {
+      const payload = await readApiJson(
+        await fetch(`/api/staff/certificates/${certificate.id}/files/${file.id}/url`, {
+          credentials: "include",
+        }),
+      );
+      setFilePreview(payload);
+    } catch (error) {
+      setMessage(error.message || "Certificate file could not be opened.");
+    }
+  };
+
+  if (!staff) return <StaffLoadingScreen />;
+
+  return (
+    <StaffShell active="certificates" contentWide navigateTo={navigateTo} staff={staff}>
+      {message ? <p className="staff-message">{message}</p> : null}
+      <section className="staff-table-panel certificates-panel">
+        <div className="staff-panel-heading certificates-heading">
+          <div>
+            <p>Certificates</p>
+            <h2>Safety First certificates</h2>
+          </div>
+          <button className="primary-button" type="button" onClick={() => setCertificateDialog({ mode: "create" })}>
+            Create Certificate
+          </button>
+        </div>
+        <div className="asset-tabs certificate-tabs" role="tablist" aria-label="Certificate sections">
+          {CERTIFICATE_TABS.map((tab) => (
+            <button
+              aria-selected={activeTab === tab.id}
+              className={activeTab === tab.id ? "active" : ""}
+              key={tab.id}
+              role="tab"
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {activeTab === "approved" ? (
+          <CertificateApprovedTab
+            certificates={certificates}
+            loading={loading}
+            search={search}
+            onArchive={archiveCertificateRow}
+            onEdit={(certificate) => setCertificateDialog({ mode: "edit", certificate })}
+            onFilePreview={openCertificateFile}
+            onSearch={setSearch}
+            onSearchSubmit={loadCertificates}
+          />
+        ) : null}
+        {activeTab === "types" ? (
+          <CertificateOptionsTab
+            kind="types"
+            loading={loading}
+            rows={types}
+            showArchived={showArchivedOptions}
+            title="Certificate Types"
+            onArchive={(item) => archiveOption("types", item)}
+            onCreate={() => setOptionDialog({ kind: "types" })}
+            onEdit={(item) => setOptionDialog({ kind: "types", item })}
+            onShowArchived={setShowArchivedOptions}
+          />
+        ) : null}
+        {activeTab === "providers" ? (
+          <CertificateOptionsTab
+            kind="providers"
+            loading={loading}
+            rows={providers}
+            showArchived={showArchivedOptions}
+            title="Certificate Providers"
+            onArchive={(item) => archiveOption("providers", item)}
+            onCreate={() => setOptionDialog({ kind: "providers" })}
+            onEdit={(item) => setOptionDialog({ kind: "providers", item })}
+            onShowArchived={setShowArchivedOptions}
+          />
+        ) : null}
+      </section>
+      {certificateDialog ? (
+        <CertificateFormDialog
+          certificate={certificateDialog.certificate || null}
+          mode={certificateDialog.mode}
+          providers={certificateDialog.mode === "edit" ? providers : activeProviders}
+          types={certificateDialog.mode === "edit" ? types : activeTypes}
+          onClose={() => setCertificateDialog(null)}
+          onSave={(payload, file) => saveCertificate(payload, file, certificateDialog.certificate || null)}
+        />
+      ) : null}
+      {optionDialog ? (
+        <CertificateOptionDialog
+          item={optionDialog.item || null}
+          kind={optionDialog.kind}
+          onClose={() => setOptionDialog(null)}
+          onSave={(payload) => saveOption(optionDialog.kind, optionDialog.item || null, payload)}
+        />
+      ) : null}
+      {filePreview ? (
+        <SubmissionFilePreviewDialog preview={filePreview} onClose={() => setFilePreview(null)} />
+      ) : null}
+    </StaffShell>
+  );
+}
+
+function CertificateApprovedTab({
+  certificates,
+  loading,
+  search,
+  onArchive,
+  onEdit,
+  onFilePreview,
+  onSearch,
+  onSearchSubmit,
+}) {
+  return (
+    <div className="certificate-tab-content">
+      <div className="staff-list-controls certificate-list-controls">
+        <label className="staff-search-field">
+          <span>Search certificates</span>
+          <input
+            placeholder="Worker, type, provider"
+            type="search"
+            value={search}
+            onChange={(event) => onSearch(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") onSearchSubmit();
+            }}
+          />
+        </label>
+        <button type="button" onClick={onSearchSubmit}>Search</button>
+      </div>
+      <div className="staff-table-scroll">
+        <table className="staff-table certificates-table">
+          <thead>
+            <tr>
+              <th>Worker Name</th>
+              <th>Certificate Type</th>
+              <th>Provider</th>
+              <th>Issue Date</th>
+              <th>Expiry Date</th>
+              <th>Attached file(s)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="7">Loading certificates...</td></tr>
+            ) : certificates.length ? certificates.map((certificate) => (
+              <tr key={certificate.id}>
+                <td>{certificate.workerName || "-"}</td>
+                <td>{certificate.certificateTypeName || "-"}</td>
+                <td>{certificate.providerName || "-"}</td>
+                <td>{certificate.issueDate || "-"}</td>
+                <td>{certificate.expiryDate || "-"}</td>
+                <td>
+                  {certificate.files?.length ? (
+                    <span className="certificate-file-list">
+                      {certificate.files.map((file) => (
+                        <button
+                          className="link-button"
+                          key={file.id}
+                          type="button"
+                          onClick={() => onFilePreview(certificate, file)}
+                        >
+                          {file.originalFilename || file.original_filename || "Attachment"}
+                        </button>
+                      ))}
+                    </span>
+                  ) : "-"}
+                </td>
+                <td>
+                  <span className="certificate-row-actions">
+                    <button type="button" onClick={() => onEdit(certificate)}>Edit</button>
+                    <button type="button" onClick={() => onArchive(certificate)}>Archive</button>
+                  </span>
+                </td>
+              </tr>
+            )) : (
+              <tr><td colSpan="7">No certificates found.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function CertificateOptionsTab({
+  kind,
+  loading,
+  rows,
+  showArchived,
+  title,
+  onArchive,
+  onCreate,
+  onEdit,
+  onShowArchived,
+}) {
+  const visibleRows = rows.filter((row) => showArchived || !row.archivedAt);
+  const noun = kind === "types" ? "Type" : "Provider";
+
+  return (
+    <div className="certificate-tab-content">
+      <div className="staff-panel-heading compact certificate-options-heading">
+        <div>
+          <p>{noun}s</p>
+          <h2>{title}</h2>
+        </div>
+        <div className="certificate-options-actions">
+          <label className="remember-worker-field certificate-archived-toggle">
+            <input
+              checked={showArchived}
+              type="checkbox"
+              onChange={(event) => onShowArchived(event.target.checked)}
+            />
+            <span>Show archived</span>
+          </label>
+          <button className="primary-button" type="button" onClick={onCreate}>Add {noun}</button>
+        </div>
+      </div>
+      <div className="staff-table-scroll">
+        <table className="staff-table certificate-options-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="3">Loading {noun.toLowerCase()}s...</td></tr>
+            ) : visibleRows.length ? visibleRows.map((row) => (
+              <tr key={row.id}>
+                <td>{row.name}</td>
+                <td>
+                  <span className={row.archivedAt ? "status-pill status-open" : "status-pill status-closed"}>
+                    {row.archivedAt ? "Archived" : "Active"}
+                  </span>
+                </td>
+                <td>
+                  <span className="certificate-row-actions">
+                    <button type="button" onClick={() => onEdit(row)}>Edit</button>
+                    {!row.archivedAt ? (
+                      <button type="button" onClick={() => onArchive(row)}>Archive</button>
+                    ) : null}
+                  </span>
+                </td>
+              </tr>
+            )) : (
+              <tr><td colSpan="3">No {noun.toLowerCase()}s found.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 

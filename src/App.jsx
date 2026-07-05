@@ -18,6 +18,7 @@ import {
   StaffCompanySummaryPage,
   StaffAuditPage,
   StaffBackupsPage,
+  StaffCertificatesPage,
   StaffFormSubmissionsPage,
   StaffSubmissionViewerPage,
   StaffFormTemplatesPage,
@@ -143,6 +144,10 @@ export default function App() {
 
   if (routePath === "/staff/action-items") {
     return <StaffActionItemsPage navigateTo={navigateTo} />;
+  }
+
+  if (routePath === "/staff/certificates") {
+    return <StaffCertificatesPage navigateTo={navigateTo} />;
   }
 
   if (routePath === "/staff/assets") {
