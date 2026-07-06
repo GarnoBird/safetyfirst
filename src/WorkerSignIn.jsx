@@ -37,7 +37,7 @@ const STAFF_MOBILE_NAV_ITEMS = [
   { id: "backups", label: "BACKUPS", path: "/staff/backups", adminOnly: true },
   { id: "health", label: "HEALTH", path: "/staff/health", adminOnly: true },
   { id: "audit", label: "AUDIT", path: "/staff/audit", adminOnly: true },
-  { id: "trends", label: "TRENDS", path: "/staff/trends" },
+  { id: "trends", label: "TRENDS", path: "/staff/trends", adminOnly: true },
   { id: "settings", label: "SETTINGS", path: "/staff/settings" },
 ];
 
