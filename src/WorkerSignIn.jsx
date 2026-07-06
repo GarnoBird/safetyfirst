@@ -2208,31 +2208,6 @@ export function StaffSettingsPage({ navigateTo }) {
             onChange={updateProfileForm}
             onSubmit={saveProfile}
           />
-
-          <SettingsSection
-            description="Public worker links and the notice workers should understand."
-            title="Worker Sign-In"
-          >
-            <div className="settings-link-row">
-              <span>Sign-in link</span>
-              <a href="/worker-sign-in">{publicUrl("/worker-sign-in")}</a>
-            </div>
-            <div className="settings-link-row">
-              <span>Sign-out link</span>
-              <a href="/worker-sign-out">{publicUrl("/worker-sign-out")}</a>
-            </div>
-            <div className="staff-card-actions">
-              <button type="button" onClick={() => navigateTo("/worker-sign-in-qr")}>
-                Sign-In QR
-              </button>
-              <button type="button" onClick={() => navigateTo("/worker-sign-out-qr")}>
-                Sign-Out QR
-              </button>
-            </div>
-            <p className="settings-note">
-              Phone numbers are used for site sign-in records and stay staff-only.
-            </p>
-          </SettingsSection>
         </div>
       </StaffShell>
     );
@@ -2279,31 +2254,6 @@ export function StaffSettingsPage({ navigateTo }) {
             </label>
           </SettingsSection>
         ) : null}
-
-        <SettingsSection
-          description="Public worker links and the notice workers should understand."
-          title="Worker Sign-In"
-        >
-          <div className="settings-link-row">
-            <span>Sign-in link</span>
-            <a href="/worker-sign-in">{publicUrl("/worker-sign-in")}</a>
-          </div>
-          <div className="settings-link-row">
-            <span>Sign-out link</span>
-            <a href="/worker-sign-out">{publicUrl("/worker-sign-out")}</a>
-          </div>
-          <div className="staff-card-actions">
-            <button type="button" onClick={() => navigateTo("/worker-sign-in-qr")}>
-              Sign-In QR
-            </button>
-            <button type="button" onClick={() => navigateTo("/worker-sign-out-qr")}>
-              Sign-Out QR
-            </button>
-          </div>
-          <p className="settings-note">
-            Phone numbers are used for site sign-in records and sign-out reminders only.
-          </p>
-        </SettingsSection>
 
         {canManageSettings ? (
           <SettingsSection
