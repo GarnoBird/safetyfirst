@@ -270,11 +270,11 @@ function staffSubmitterRoleLabel(role) {
 
 async function withStaffSubmitterLabels(rows) {
   if (!Array.isArray(rows) || !rows.length) return rows || [];
-  const legacyRows = rows.filter(shouldRewriteStaffSubmitterCompany);
-  if (!legacyRows.length) return rows;
+  const staffRows = rows.filter(shouldEnrichStaffSubmitter);
+  if (!staffRows.length) return rows;
 
   const usernames = [...new Set(
-    legacyRows
+    staffRows
       .map((row) => String(row.worker_username || "").trim().toLowerCase())
       .filter(Boolean),
   )];
@@ -283,7 +283,7 @@ async function withStaffSubmitterLabels(rows) {
     const profiles = throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("staff_profiles")
-        .select("username, display_name, role")
+        .select("username, display_name, role, phone")
         .in("username", usernames),
       "Staff submitters could not be loaded.",
     );
@@ -293,23 +293,32 @@ async function withStaffSubmitterLabels(rows) {
   }
 
   return rows.map((row) => {
-    if (!shouldRewriteStaffSubmitterCompany(row)) return row;
+    if (!shouldEnrichStaffSubmitter(row)) return row;
     const username = String(row.worker_username || "").trim().toLowerCase();
     const profile = profileByUsername.get(username) || {};
     const name = staffSubmitterName({
       display_name: profile.display_name || row.worker_name,
       username: row.worker_username,
     });
+    const company = shouldRewriteStaffSubmitterCompany(row)
+      ? staffSubmitterCompany({ role: profile.role || legacyStaffRoleFromCompany(row.company) }, name)
+      : row.company;
     return {
       ...row,
-      company: staffSubmitterCompany({ role: profile.role || legacyStaffRoleFromCompany(row.company) }, name),
+      company,
       worker_name: row.worker_name || name,
+      worker_phone: row.worker_phone || profile.phone || "",
     };
   });
 }
 
-function shouldRewriteStaffSubmitterCompany(row) {
+function shouldEnrichStaffSubmitter(row) {
   if (row?.worker_id) return false;
+  const company = String(row?.company || "").trim();
+  return !company || /^Appia (Staff|Admin|Owner)(?:\s+\(.+\))?$/i.test(company);
+}
+
+function shouldRewriteStaffSubmitterCompany(row) {
   const company = String(row?.company || "").trim();
   return !company || /^Appia (Staff|Admin|Owner)$/i.test(company);
 }
@@ -767,6 +776,7 @@ export async function listStaffSubmissions(query) {
   }
 
   const filterCompanyAfterEnrichment = company && /^Appia\s+/i.test(company);
+  const filterPhoneAfterEnrichment = Boolean(phone);
   let dbQuery = getSupabaseServiceClient()
     .from("form_submissions")
     .select(SUBMISSION_WITH_FILES_SELECT)
@@ -777,7 +787,6 @@ export async function listStaffSubmissions(query) {
   if (from) dbQuery = dbQuery.gte("submitted_date_vancouver", from);
   if (to) dbQuery = dbQuery.lte("submitted_date_vancouver", to);
   if (company && !filterCompanyAfterEnrichment) dbQuery = dbQuery.ilike("company", `%${escapeLike(company)}%`);
-  if (phone) dbQuery = dbQuery.ilike("worker_phone", `%${escapeLike(phone)}%`);
   if (name) dbQuery = dbQuery.ilike("worker_name", `%${escapeLike(name)}%`);
   if (isValidFormTypeSlug(formType)) dbQuery = dbQuery.eq("form_type", formType);
   if (["pending", "backed_up", "failed"].includes(backupStatus)) {
@@ -796,7 +805,7 @@ export async function listStaffSubmissions(query) {
       from,
       to,
       company: filterCompanyAfterEnrichment ? "" : company,
-      phone,
+      phone: "",
       name,
       formType,
       backupStatus,
@@ -807,6 +816,9 @@ export async function listStaffSubmissions(query) {
   rows = await withStaffSubmitterLabels(rows);
   if (filterCompanyAfterEnrichment) {
     rows = rows.filter((row) => textIncludes(row.company, company));
+  }
+  if (filterPhoneAfterEnrichment) {
+    rows = rows.filter((row) => textIncludes(row.worker_phone, phone));
   }
 
   return {
