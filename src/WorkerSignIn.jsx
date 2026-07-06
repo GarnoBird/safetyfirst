@@ -11035,6 +11035,7 @@ function TemplateSchemaEditorV3({
   const sidebarPointerFocusRef = useRef("");
   const [view, setView] = useState("editor");
   const [fieldPickerOpen, setFieldPickerOpen] = useState(false);
+  const [fieldPickerTargetSectionIndex, setFieldPickerTargetSectionIndex] = useState(null);
   const [fieldPickerTab, setFieldPickerTab] = useState("basics");
   const [optionDraft, setOptionDraft] = useState("");
   const [dragState, setDragState] = useState(null);
@@ -11078,7 +11079,7 @@ function TemplateSchemaEditorV3({
   }, [selectedField?.id]);
 
   useEffect(() => {
-    if (readOnly) setFieldPickerOpen(false);
+    if (readOnly) closeFieldPicker();
   }, [readOnly]);
 
   useEffect(() => {
@@ -11236,6 +11237,15 @@ function TemplateSchemaEditorV3({
     setSelected(nextSelection);
     changeView("editor");
   };
+  const openFieldPicker = (sectionIndex = null) => {
+    if (!canEdit) return;
+    setFieldPickerTargetSectionIndex(Number.isInteger(sectionIndex) ? sectionIndex : null);
+    setFieldPickerOpen(true);
+  };
+  const closeFieldPicker = () => {
+    setFieldPickerOpen(false);
+    setFieldPickerTargetSectionIndex(null);
+  };
   const addSection = () => {
     if (!canEdit) return;
     const sectionIndex = current.sections.length;
@@ -11268,7 +11278,7 @@ function TemplateSchemaEditorV3({
       return { ...previous, sectionIndex: nextSectionIndex };
     });
   };
-  const addFieldFromConfig = (fieldConfig, sectionIndex = targetSectionIndex) => {
+  const addFieldFromConfig = (fieldConfig, sectionIndex = fieldPickerTargetSectionIndex ?? targetSectionIndex) => {
     if (!canEdit) return;
     if (!fieldConfig || fieldConfig.disabled) return;
     const hasSections = current.sections.length > 0;
@@ -11295,7 +11305,7 @@ function TemplateSchemaEditorV3({
     });
     setSelected({ kind: "field", sectionIndex: safeSectionIndex, fieldIndex });
     changeView("editor");
-    setFieldPickerOpen(false);
+    closeFieldPicker();
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
     if (!canEdit) return;
@@ -11559,7 +11569,7 @@ function TemplateSchemaEditorV3({
                   <button type="button" onClick={addSection}>
                     New Section +
                   </button>
-                  <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                  <button className="primary-button" type="button" onClick={() => openFieldPicker()}>
                     New Field +
                   </button>
                 </>
@@ -11606,7 +11616,7 @@ function TemplateSchemaEditorV3({
                 <div className="template-v3-empty-page">
                   <h2>No fields yet</h2>
                   <p>Add fields before previewing the worker form.</p>
-                  {canEdit ? <button type="button" onClick={() => setFieldPickerOpen(true)}>New Field +</button> : null}
+                  {canEdit ? <button type="button" onClick={() => openFieldPicker()}>New Field +</button> : null}
                 </div>
               )}
             </section>
@@ -11632,7 +11642,7 @@ function TemplateSchemaEditorV3({
                       <button type="button" onClick={addSection}>
                         New Section +
                       </button>
-                      <button className="primary-button" type="button" onClick={() => setFieldPickerOpen(true)}>
+                      <button className="primary-button" type="button" onClick={() => openFieldPicker()}>
                         New Field +
                       </button>
                     </div>
@@ -11742,7 +11752,7 @@ function TemplateSchemaEditorV3({
                   </div>
 
                   {canEdit ? (
-                    <button className="template-v3-add-row" type="button" onClick={() => setFieldPickerOpen(true)}>
+                    <button className="template-v3-add-row" type="button" onClick={() => openFieldPicker(sectionIndex)}>
                       New Field +
                     </button>
                   ) : null}
@@ -12521,7 +12531,7 @@ function TemplateSchemaEditorV3({
           <section className="template-v3-field-modal" role="dialog" aria-modal="true" aria-label="New field">
             <div className="template-v3-modal-head">
               <h2>New Field</h2>
-              <button aria-label="Close new field picker" type="button" onClick={() => setFieldPickerOpen(false)}>
+              <button aria-label="Close new field picker" type="button" onClick={closeFieldPicker}>
                 X
               </button>
             </div>
