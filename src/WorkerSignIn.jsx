@@ -9665,7 +9665,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
-  const canDragTemplateOrder = isAdminOrOwner(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const canDragTemplateOrder = Boolean(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
   const selectedSharePath = selectedTemplate?.shareLink?.urlPath || "";
   const selectedShareUrl = useMemo(
     () => (selectedSharePath ? publicUrl(selectedSharePath) : ""),
@@ -9887,7 +9887,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const saveTemplateOrder = async (order) => {
-    if (!isAdminOrOwner(staff)) return;
+    if (!staff?.id) return;
     if (!order?.length) return;
     setReordering(true);
     setMessage("");

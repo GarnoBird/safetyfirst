@@ -417,7 +417,7 @@ export async function updateFormTemplate(formType, body, staff) {
     bodyKeys.length > 0 &&
     bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
   if (updatesDisplayOrderOnly) {
-    assertAdminOrOwner(staff);
+    assertStaffCanReorderTemplates(staff);
   } else {
     assertTemplateMutable(template, staff);
   }
@@ -1468,9 +1468,9 @@ function canManageTemplate(template, staff) {
   );
 }
 
-function assertAdminOrOwner(staff) {
-  if (isAdminOrOwner(staff)) return;
-  throwForbidden("Only Admin or Owner can change form template order.");
+function assertStaffCanReorderTemplates(staff) {
+  if (staff?.id) return;
+  throwForbidden("Staff sign-in is required to change form template order.");
 }
 
 function assertTemplateManageable(template, staff) {

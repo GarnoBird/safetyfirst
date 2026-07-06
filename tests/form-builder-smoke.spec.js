@@ -622,11 +622,13 @@ async function mockApis(page, templates, options = {}) {
   const emailRequests = [];
   const pdfRequests = [];
   const translateApiCalls = [];
+  const templatePatchRequests = [];
   submissions.emailRequests = emailRequests;
   submissions.pdfRequests = pdfRequests;
   submissions.staffSubmissions = staffSubmissions;
   submissions.workerSubmissions = workerSubmissions;
   submissions.translateApiCalls = translateApiCalls;
+  submissions.templatePatchRequests = templatePatchRequests;
   let uploadCount = 0;
   let workerSignInCount = workerSignIns.length;
   let assetCount = assetRows.length;
@@ -889,8 +891,19 @@ async function mockApis(page, templates, options = {}) {
       const action = templateParts[4] || "";
       if (!action && method === "PATCH") {
         const body = JSON.parse(request.postData() || "{}");
-        const problem = assertTemplateMutationAllowed(row);
-        if (problem) return json({ error: problem.error }, problem.status);
+        const bodyKeys = Object.keys(body);
+        const updatesDisplayOrderOnly =
+          bodyKeys.length > 0 &&
+          bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
+        if (!updatesDisplayOrderOnly) {
+          const problem = assertTemplateMutationAllowed(row);
+          if (problem) return json({ error: problem.error }, problem.status);
+        }
+        templatePatchRequests.push({
+          body,
+          formType,
+          staffId: currentStaff.id,
+        });
         const updated = {
           ...row,
           label: body.label ?? body.name ?? body.title ?? row.label,
@@ -3788,6 +3801,62 @@ test("regular staff can archive and purge only templates they created", async ({
   await expect(page.locator(".template-archive-items")).toContainText("Other Archived");
   await expect(page.locator(".template-archive-items")).not.toContainText("Regular Owned");
   await expect(page.getByRole("button", { name: "Delete archived" })).toBeDisabled();
+});
+
+test("regular staff can reorder all active form templates", async ({ page }) => {
+  const regularStaff = {
+    ...staff,
+    id: "regular-reorder-staff",
+    role: "staff",
+    username: "regular-reorder",
+    email: "regular-reorder@example.com",
+  };
+  const protectedDefault = template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, {
+    created_by_staff_id: null,
+    displayOrder: 10,
+    updated_by_staff_id: null,
+  });
+  const otherOwned = template("other_reorder", "Other Staff Form", {
+    ...toolboxSignatureSchema,
+    formType: "other_reorder",
+    title: "Other Staff Form",
+  }, {
+    created_by_staff_id: "other-staff",
+    displayOrder: 20,
+  });
+  const mockState = await mockApis(page, [protectedDefault, otherOwned], { staff: regularStaff });
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Drag Other Staff Form to reorder forms" })).toBeVisible();
+
+  const firstHandle = page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" });
+  const secondCard = page.locator(".template-card").filter({ hasText: "Other Staff Form" });
+  const handleBox = await firstHandle.boundingBox();
+  const targetBox = await secondCard.boundingBox();
+  expect(handleBox).toBeTruthy();
+  expect(targetBox).toBeTruthy();
+
+  await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height * 0.8, { steps: 8 });
+  await page.mouse.up();
+
+  await expect.poll(() =>
+    mockState.templatePatchRequests
+      .filter((request) => request.body.displayOrder !== undefined || request.body.display_order !== undefined)
+      .length,
+  ).toBe(2);
+  expect(mockState.templatePatchRequests.every((request) => request.staffId === regularStaff.id)).toBe(true);
+  expect(
+    mockState.templatePatchRequests
+      .filter((request) => request.body.displayOrder !== undefined)
+      .map((request) => [request.formType, request.body.displayOrder]),
+  ).toEqual(expect.arrayContaining([
+    ["other_reorder", 10],
+    ["toolbox_talk", 20],
+  ]));
+  await expect(page.getByText("Form order saved.")).toBeVisible();
 });
 
 test("staff can open fill-out forms from the form templates section", async ({ page }) => {
