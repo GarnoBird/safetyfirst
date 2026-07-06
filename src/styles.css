@@ -519,6 +519,7 @@ p {
 .primary-button {
   border-color: #245f5b;
   color: #fff;
+  font-weight: 800;
   background: #245f5b;
 }
 
