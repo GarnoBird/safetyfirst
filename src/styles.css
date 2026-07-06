@@ -1199,25 +1199,27 @@ p {
   left: 0;
   z-index: 20;
   display: grid;
-  gap: 4px;
+  gap: 2px;
   width: min(270px, calc(100vw - 24px));
   border: 1px solid #d9e3de;
   border-radius: 8px;
-  padding: 6px;
+  padding: 5px;
   background: #fff;
   box-shadow: 0 16px 34px rgba(21, 35, 30, 0.14);
 }
 
 .staff-mobile-menu-panel button {
   display: flex;
+  align-items: center;
   justify-content: flex-start;
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
   border: 0;
   border-radius: 6px;
   padding: 0 12px;
   color: #34423f;
   font-weight: 900;
+  line-height: 1;
   text-align: left;
   background: #fff;
 }
@@ -1234,7 +1236,7 @@ p {
 
 .staff-mobile-submenu {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .staff-mobile-menu-panel .staff-mobile-submenu-trigger {
@@ -1257,12 +1259,12 @@ p {
 
 .staff-mobile-submenu-panel {
   display: grid;
-  gap: 3px;
-  padding-left: 16px;
+  gap: 2px;
+  padding: 1px 0 1px 14px;
 }
 
 .staff-mobile-menu-panel .staff-mobile-submenu-option {
-  min-height: 38px;
+  min-height: 34px;
   padding: 0 10px;
   font-size: 0.9rem;
   line-height: 1.1;
