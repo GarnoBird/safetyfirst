@@ -1850,12 +1850,21 @@ export function StaffHomePage({ navigateTo }) {
         </StaffActionCard>
 
         <StaffActionCard
-          actionLabel="Open forms"
           eyebrow="Submissions"
           text="Review toolbox talks, site inspections, daily hazard assessments, file backups, and retry failed OneDrive uploads."
           title="Safety Forms"
-          onAction={() => navigateTo("/staff/forms")}
         >
+          <div className="staff-card-actions staff-card-actions-stacked">
+            <button className="primary-button" type="button" onClick={() => navigateTo("/staff/forms")}>
+              Submitted Forms
+            </button>
+            <button type="button" onClick={() => navigateTo("/staff/forms-to-fill-out")}>
+              Fill a Form
+            </button>
+            <button type="button" onClick={() => navigateTo("/staff/form-templates")}>
+              Form Templates / QR Codes
+            </button>
+          </div>
           <dl className="staff-card-listing">
             <div>
               <dt>Worker link</dt>

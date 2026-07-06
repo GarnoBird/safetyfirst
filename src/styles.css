@@ -1747,6 +1747,10 @@ p {
   gap: 8px;
 }
 
+.staff-card-actions-stacked {
+  display: grid;
+}
+
 .staff-card-actions a,
 .staff-card-actions button {
   display: inline-flex;
@@ -1766,6 +1770,16 @@ p {
 .staff-card-actions button:hover {
   border-color: #245f5b;
   background: #f7faf9;
+}
+
+.staff-card-actions .primary-button {
+  border-color: #245f5b;
+  color: #fff;
+  background: #245f5b;
+}
+
+.staff-card-actions .primary-button:hover {
+  background: #1d4e4b;
 }
 
 .staff-card-listing,
