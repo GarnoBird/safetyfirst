@@ -268,6 +268,58 @@ function staffSubmitterRoleLabel(role) {
   return "Staff";
 }
 
+async function withStaffSubmitterLabels(rows) {
+  if (!Array.isArray(rows) || !rows.length) return rows || [];
+  const legacyRows = rows.filter(shouldRewriteStaffSubmitterCompany);
+  if (!legacyRows.length) return rows;
+
+  const usernames = [...new Set(
+    legacyRows
+      .map((row) => String(row.worker_username || "").trim().toLowerCase())
+      .filter(Boolean),
+  )];
+  const profileByUsername = new Map();
+  if (usernames.length) {
+    const profiles = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("staff_profiles")
+        .select("username, display_name, role")
+        .in("username", usernames),
+      "Staff submitters could not be loaded.",
+    );
+    profiles.forEach((profile) => {
+      profileByUsername.set(String(profile.username || "").trim().toLowerCase(), profile);
+    });
+  }
+
+  return rows.map((row) => {
+    if (!shouldRewriteStaffSubmitterCompany(row)) return row;
+    const username = String(row.worker_username || "").trim().toLowerCase();
+    const profile = profileByUsername.get(username) || {};
+    const name = staffSubmitterName({
+      display_name: profile.display_name || row.worker_name,
+      username: row.worker_username,
+    });
+    return {
+      ...row,
+      company: staffSubmitterCompany({ role: profile.role || legacyStaffRoleFromCompany(row.company) }, name),
+      worker_name: row.worker_name || name,
+    };
+  });
+}
+
+function shouldRewriteStaffSubmitterCompany(row) {
+  if (row?.worker_id) return false;
+  const company = String(row?.company || "").trim();
+  return !company || /^Appia (Staff|Admin|Owner)$/i.test(company);
+}
+
+function legacyStaffRoleFromCompany(company) {
+  const role = String(company || "").trim().toLowerCase().replace(/^appia\s+/, "");
+  if (role === "owner" || role === "admin") return role;
+  return "staff";
+}
+
 async function uploadTargetPayload(submitter, formType, file, storagePath, data) {
   await recordSubmissionUpload(submitter, formType, file, storagePath);
   return {
@@ -695,7 +747,7 @@ export async function listStaffSubmissions(query) {
     const companyRows = throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("form_submissions")
-        .select("company")
+        .select("worker_id, worker_name, worker_username, company")
         .is("deleted_by_worker_at", null)
         .is("deleted_by_staff_at", null)
         .is("app_purged_at", null)
@@ -703,15 +755,18 @@ export async function listStaffSubmissions(query) {
         .limit(1000),
       "Submission companies could not be loaded.",
     );
-    companyOptions = submittedCompanyOptions(companyRows);
+    companyOptions = submittedCompanyOptions(await withStaffSubmitterLabels(companyRows));
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
     companyOptions = submittedCompanyOptions(
-      (await listFallbackSubmissions())
-        .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at),
+      await withStaffSubmitterLabels(
+        (await listFallbackSubmissions())
+          .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at),
+      ),
     );
   }
 
+  const filterCompanyAfterEnrichment = company && /^Appia\s+/i.test(company);
   let dbQuery = getSupabaseServiceClient()
     .from("form_submissions")
     .select(SUBMISSION_WITH_FILES_SELECT)
@@ -721,7 +776,7 @@ export async function listStaffSubmissions(query) {
 
   if (from) dbQuery = dbQuery.gte("submitted_date_vancouver", from);
   if (to) dbQuery = dbQuery.lte("submitted_date_vancouver", to);
-  if (company) dbQuery = dbQuery.ilike("company", `%${escapeLike(company)}%`);
+  if (company && !filterCompanyAfterEnrichment) dbQuery = dbQuery.ilike("company", `%${escapeLike(company)}%`);
   if (phone) dbQuery = dbQuery.ilike("worker_phone", `%${escapeLike(phone)}%`);
   if (name) dbQuery = dbQuery.ilike("worker_name", `%${escapeLike(name)}%`);
   if (isValidFormTypeSlug(formType)) dbQuery = dbQuery.eq("form_type", formType);
@@ -740,7 +795,7 @@ export async function listStaffSubmissions(query) {
     rows = await listFallbackStaffSubmissions({
       from,
       to,
-      company,
+      company: filterCompanyAfterEnrichment ? "" : company,
       phone,
       name,
       formType,
@@ -748,6 +803,10 @@ export async function listStaffSubmissions(query) {
       sort,
       dir,
     });
+  }
+  rows = await withStaffSubmitterLabels(rows);
+  if (filterCompanyAfterEnrichment) {
+    rows = rows.filter((row) => textIncludes(row.company, company));
   }
 
   return {
@@ -783,7 +842,7 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
     error.statusCode = 404;
     throw error;
   }
-  return publicSubmission(row);
+  return publicSubmission((await withStaffSubmitterLabels([row]))[0]);
 }
 
 export async function createStaffSubmissionFileAccess(submissionId, fileId) {
