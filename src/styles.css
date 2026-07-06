@@ -1379,10 +1379,11 @@ p {
 }
 
 .staff-action-card-button {
-  align-self: start;
+  align-self: end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-top: auto;
   width: 100%;
   min-height: 40px;
 }
