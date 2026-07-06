@@ -27,8 +27,15 @@ const STAFF_MOBILE_NAV_ITEMS = [
     label: "ON SITE - COMPANY",
     path: "/staff/sign-ins/company",
   },
-  { id: "forms", label: "FORMS", path: "/staff/forms" },
-  { id: "form-templates", label: "FORM TEMPLATES", path: "/staff/form-templates" },
+  {
+    id: "forms-menu",
+    label: "FORMS",
+    children: [
+      { id: "forms", label: "Submitted Forms", path: "/staff/forms" },
+      { id: "forms-fill", label: "Fill A Form", path: "/staff/forms-to-fill-out" },
+      { id: "form-templates", label: "Form Templates / QR Codes", path: "/staff/form-templates" },
+    ],
+  },
   { id: "action-items", label: "ACTIONS", path: "/staff/action-items", adminOnly: true },
   { id: "certificates", label: "CERTIFICATES", path: "/staff/certificates" },
   { id: "assets", label: "ASSETS", path: "/staff/assets" },
@@ -3724,7 +3731,7 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="form-templates" contentWide navigateTo={navigateTo} staff={staff}>
+    <StaffShell active="forms-fill" contentWide navigateTo={navigateTo} staff={staff}>
       {formsMessage ? <p className="staff-message">{formsMessage}</p> : null}
       <section className="staff-table-panel staff-fill-forms-panel">
         <div className="staff-page-heading">
@@ -15428,9 +15435,10 @@ function WorkerFormLoadingScreen() {
 
 function StaffShell({ active, children, contentWide = false, navigateTo, staff = null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openMobileSubmenu, setOpenMobileSubmenu] = useState("");
   const mobileNavItems = getStaffNavItemsForRole(staff);
   const activeMobileItem =
-    mobileNavItems.find((item) => item.id === active) ||
+    findStaffNavItemForActiveId(mobileNavItems, active) ||
     mobileNavItems[0] ||
     STAFF_MOBILE_NAV_ITEMS[0];
 
@@ -15463,20 +15471,63 @@ function StaffShell({ active, children, contentWide = false, navigateTo, staff =
         </button>
         {mobileMenuOpen ? (
           <div className="staff-mobile-menu-panel" role="menu">
-            {mobileNavItems.map((item) => (
-              <button
-                className={active === item.id ? "active" : ""}
-                key={item.id}
-                role="menuitem"
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigateTo(staffNavPath(item.path));
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+            {mobileNavItems.map((item) => {
+              const children = Array.isArray(item.children) ? item.children : [];
+              const hasChildren = children.length > 0;
+              const childActive = children.some((child) => child.id === active);
+              const expanded = hasChildren && (openMobileSubmenu === item.id || childActive);
+              const buttonClass = active === item.id || childActive ? "active" : "";
+              if (hasChildren) {
+                return (
+                  <div className="staff-mobile-submenu" key={item.id}>
+                    <button
+                      aria-expanded={expanded}
+                      aria-haspopup="menu"
+                      className={buttonClass ? `${buttonClass} staff-mobile-submenu-trigger` : "staff-mobile-submenu-trigger"}
+                      role="menuitem"
+                      type="button"
+                      onClick={() => {
+                        setOpenMobileSubmenu((current) => (current === item.id ? "" : item.id));
+                      }}
+                    >
+                      <span>{item.label}</span>
+                    </button>
+                    {expanded ? (
+                      <div className="staff-mobile-submenu-panel" role="menu">
+                        {children.map((child) => (
+                          <button
+                            className={active === child.id ? "active staff-mobile-submenu-option" : "staff-mobile-submenu-option"}
+                            key={child.id}
+                            role="menuitem"
+                            type="button"
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              navigateTo(staffNavPath(child.path));
+                            }}
+                          >
+                            {child.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              }
+              return (
+                <button
+                  className={buttonClass}
+                  key={item.id}
+                  role="menuitem"
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigateTo(staffNavPath(item.path));
+                  }}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
             <button
               role="menuitem"
               type="button"
@@ -15516,7 +15567,24 @@ function StaffActionCard({ actionLabel, children, eyebrow, onAction, text, title
 }
 
 function getStaffNavItemsForRole(staff) {
-  return STAFF_MOBILE_NAV_ITEMS.filter((item) => !item.adminOnly || isAdminOrOwner(staff));
+  return STAFF_MOBILE_NAV_ITEMS.reduce((items, item) => {
+    if (item.adminOnly && !isAdminOrOwner(staff)) return items;
+    if (Array.isArray(item.children)) {
+      const children = item.children.filter((child) => !child.adminOnly || isAdminOrOwner(staff));
+      if (!children.length && !item.path) return items;
+      items.push({ ...item, children });
+      return items;
+    }
+    items.push(item);
+    return items;
+  }, []);
+}
+
+function findStaffNavItemForActiveId(items, active) {
+  return items.find((item) => {
+    if (item.id === active) return true;
+    return Array.isArray(item.children) && item.children.some((child) => child.id === active);
+  });
 }
 
 function StaffProfileSettingsCard({ form, saving, onChange, onSubmit }) {

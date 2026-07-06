@@ -1889,6 +1889,23 @@ test("staff home CSV and XML exports open native file share when available", asy
   expect(shares[1].files[0].size).toBeGreaterThan(0);
 });
 
+test("staff mobile menu nests form destinations under Forms", async ({ page }) => {
+  await mockApis(page, []);
+
+  await page.goto("/staff/home");
+  await page.locator(".staff-mobile-menu-trigger").click();
+  await expect(page.getByRole("menuitem", { exact: true, name: "FORM TEMPLATES" })).toHaveCount(0);
+  await page.getByRole("menuitem", { exact: true, name: "FORMS" }).click();
+
+  await expect(page.getByRole("menuitem", { name: "Submitted Forms" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Fill A Form" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Form Templates / QR Codes" })).toBeVisible();
+
+  await page.getByRole("menuitem", { name: "Fill A Form" }).click();
+  await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
+  await expect(page.locator(".staff-mobile-menu-trigger")).toContainText("FORMS");
+});
+
 test("submitted forms open in a routed viewer, sign off, export, email, and print", async ({ page }) => {
   test.slow();
   const standardSubmission = toolboxSubmissionRow({
