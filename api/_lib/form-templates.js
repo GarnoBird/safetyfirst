@@ -59,7 +59,7 @@ const TEMPLATE_SELECT =
 const VERSION_SELECT =
   "id, template_id, form_type, version_number, status, schema, notes, created_by_staff_id, updated_by_staff_id, published_by_staff_id, created_at, updated_at, published_at";
 const SHARE_LINK_SELECT =
-  "id, template_id, form_type, token, active, created_at, updated_at";
+  "id, template_id, form_type, token, slug, active, created_at, updated_at";
 const MAX_SECTIONS = 20;
 const MAX_FIELDS = 100;
 const MAX_OPTIONS = 80;
@@ -192,14 +192,15 @@ export async function getPublishedWorkerFormTemplate(formType) {
   return template;
 }
 
-export async function getPublishedFormTemplateByShareToken(token) {
+export async function getPublishedFormTemplateByShareIdentifier(identifier) {
   await ensureSeedTemplates();
-  const cleanToken = cleanShareToken(token);
+  const cleanIdentifier = cleanShareIdentifier(identifier);
+  const identifierColumn = isShareToken(cleanIdentifier) ? "token" : "slug";
   const link = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("form_template_share_links")
       .select(SHARE_LINK_SELECT)
-      .eq("token", cleanToken)
+      .eq(identifierColumn, cleanIdentifier)
       .eq("active", true)
       .maybeSingle(),
     "Form QR link could not be loaded.",
@@ -1407,10 +1408,10 @@ async function attachTemplateShareLinks(templates) {
 
       const missingOrInactive = eligibleTemplates.filter((template) => {
         const link = byTemplateId.get(template.id);
-        return !link || !link.active || link.form_type !== template.form_type;
+        return !link || !link.active || link.form_type !== template.form_type || !link.slug;
       });
       for (const template of missingOrInactive) {
-        const link = await upsertTemplateShareLink(template);
+        const link = await upsertTemplateShareLink(template, byTemplateId.get(template.id));
         byTemplateId.set(template.id, link);
       }
     } catch (error) {
@@ -1426,7 +1427,8 @@ async function attachTemplateShareLinks(templates) {
   }));
 }
 
-async function upsertTemplateShareLink(template) {
+async function upsertTemplateShareLink(template, existingLink = null) {
+  const slug = existingLink?.slug || await uniqueShareLinkSlug(template, existingLink?.id);
   return throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("form_template_share_links")
@@ -1434,6 +1436,7 @@ async function upsertTemplateShareLink(template) {
         {
           template_id: template.id,
           form_type: template.form_type,
+          slug,
           active: true,
           updated_at: new Date().toISOString(),
         },
@@ -1443,6 +1446,31 @@ async function upsertTemplateShareLink(template) {
       .single(),
     "Form QR link could not be assigned.",
   );
+}
+
+async function uniqueShareLinkSlug(template, existingLinkId = "") {
+  const baseSlug = slugifyFormType(template?.label || template?.form_type || "form") || "form";
+  let candidate = baseSlug;
+  let suffix = 2;
+
+  while (await shareLinkSlugExists(candidate, existingLinkId)) {
+    const suffixText = `-${suffix}`;
+    candidate = `${baseSlug.slice(0, Math.max(1, 64 - suffixText.length)).replace(/-+$/g, "")}${suffixText}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}
+
+async function shareLinkSlugExists(slug, existingLinkId = "") {
+  let query = getSupabaseServiceClient()
+    .from("form_template_share_links")
+    .select("id")
+    .eq("slug", slug)
+    .limit(1);
+  if (existingLinkId) query = query.neq("id", existingLinkId);
+  const rows = throwIfSupabaseError(await query, "Form QR link slug could not be checked.");
+  return rows.length > 0;
 }
 
 function isTemplateShareLinkEligible(template) {
@@ -1458,11 +1486,14 @@ function isTemplateShareLinkEligible(template) {
 function publicTemplateShareLink(link) {
   if (!link?.token || !link.active) return null;
   const token = String(link.token);
+  const slug = String(link.slug || "").trim();
   return {
     id: link.id,
     token,
+    slug,
     active: Boolean(link.active),
-    urlPath: `/form-links/${token}`,
+    urlPath: `/form-links/${slug || token}`,
+    tokenUrlPath: `/form-links/${token}`,
     created_at: link.created_at || null,
     updated_at: link.updated_at || null,
   };
@@ -1589,12 +1620,20 @@ function cleanFormType(value) {
   return formType;
 }
 
-function cleanShareToken(value) {
-  const token = cleanString(value, 80).toLowerCase();
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(token)) {
+function cleanShareIdentifier(value) {
+  const identifier = cleanString(value, 80).toLowerCase();
+  if (!isShareToken(identifier) && !isShareSlug(identifier)) {
     throwNotFound("Form QR link was not found.");
   }
-  return token;
+  return identifier;
+}
+
+function isShareToken(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(String(value || ""));
+}
+
+function isShareSlug(value) {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(value || ""));
 }
 
 function slugifyFormType(value) {

@@ -3396,7 +3396,7 @@ export function WorkerLoginPage({ navigateTo }) {
 }
 
 export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
-  const token = routePath.split("/").filter(Boolean)[1] || "";
+  const linkIdentifier = routePath.split("/").filter(Boolean)[1] || "";
   const returnTo = useMemo(() => currentRouteReturnPath(routePath), [routePath]);
   const [linkPayload, setLinkPayload] = useState(null);
   const [linkLoading, setLinkLoading] = useState(true);
@@ -3409,7 +3409,7 @@ export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
     let active = true;
     setLinkLoading(true);
     setLinkError("");
-    fetch(`/api/form-links/${token}`, { credentials: "include" })
+    fetch(`/api/form-links/${linkIdentifier}`, { credentials: "include" })
       .then(readApiJson)
       .then((payload) => {
         if (active) setLinkPayload(payload);
@@ -3423,7 +3423,7 @@ export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [linkIdentifier]);
 
   useEffect(() => {
     let active = true;
@@ -3516,11 +3516,11 @@ export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
       formType={template.form_type}
       navigateTo={navigateTo}
       redirectUnknownForm={false}
-      submissionEndpoint={`/api/form-links/${token}/submissions?submitter=${submitterParam}`}
+      submissionEndpoint={`/api/form-links/${linkIdentifier}/submissions?submitter=${submitterParam}`}
       submitter={selectedSubmitter}
       submitterKind={submitterKind}
-      templateEndpoint={`/api/form-links/${token}/published?submitter=${submitterParam}`}
-      uploadEndpoint={`/api/form-links/${token}/submissions/file-upload-url?submitter=${submitterParam}`}
+      templateEndpoint={`/api/form-links/${linkIdentifier}/published?submitter=${submitterParam}`}
+      uploadEndpoint={`/api/form-links/${linkIdentifier}/submissions/file-upload-url?submitter=${submitterParam}`}
     />
   );
 }

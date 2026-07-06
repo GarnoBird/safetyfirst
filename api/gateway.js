@@ -80,7 +80,7 @@ import {
   deleteArchivedFormTemplates,
   duplicateFormTemplate,
   getFormTemplate,
-  getPublishedFormTemplateByShareToken,
+  getPublishedFormTemplateByShareIdentifier,
   getPublishedWorkerFormTemplate,
   listFormTemplates,
   listWorkerVisibleFormTemplates,
@@ -404,17 +404,17 @@ async function handleSettings(req, res, staff) {
 }
 
 async function handleFormLinks(req, res, parts) {
-  const token = parts[0];
-  if (!token) return sendJson(res, 404, { error: "Not found" });
+  const linkIdentifier = parts[0];
+  if (!linkIdentifier) return sendJson(res, 404, { error: "Not found" });
 
   if (parts.length === 1 && req.method === "GET") {
     assertRateLimit({
       req,
       scope: "form_link_metadata",
-      identifier: token,
+      identifier: linkIdentifier,
       limit: 120,
     });
-    const template = await getPublishedFormTemplateByShareToken(token);
+    const template = await getPublishedFormTemplateByShareIdentifier(linkIdentifier);
     return sendJson(res, 200, {
       template: publicShareLinkTemplate(template),
       link: template.shareLink,
@@ -425,11 +425,11 @@ async function handleFormLinks(req, res, parts) {
     assertRateLimit({
       req,
       scope: "form_link_published",
-      identifier: token,
+      identifier: linkIdentifier,
       limit: 120,
     });
     await requireFormSubmitter(req, parseQuery(req).get("submitter"));
-    const template = await getPublishedFormTemplateByShareToken(token);
+    const template = await getPublishedFormTemplateByShareIdentifier(linkIdentifier);
     return sendJson(res, 200, {
       template,
       link: template.shareLink,
@@ -443,12 +443,12 @@ async function handleFormLinks(req, res, parts) {
     assertRateLimit({
       req,
       scope: parts[2] === "file-upload-url" ? "form_link_upload_url" : "form_link_submission",
-      identifier: token,
+      identifier: linkIdentifier,
       limit: parts[2] === "file-upload-url" ? 60 : 30,
     });
   }
   const submitter = await requireFormSubmitter(req, body?.submitterKind || body?.submitter_kind || parseQuery(req).get("submitter"));
-  const template = await getPublishedFormTemplateByShareToken(token);
+  const template = await getPublishedFormTemplateByShareIdentifier(linkIdentifier);
   const bodyWithFormType = {
     ...body,
     formType: template.form_type,
