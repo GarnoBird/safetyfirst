@@ -15,6 +15,7 @@ const TEMPLATE_FIELD_TYPES = new Set([
   "checkbox",
   "signature",
   "instructions",
+  "spacer",
   "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
@@ -154,6 +155,7 @@ function templateSectionsHtml(sections, answers = {}, actionItemBlocks = {}) {
 
 function templateFieldHtml(field, value, actionItemBlock) {
   if (field.type === "instructions") return instructionFieldHtml(field);
+  if (field.type === "spacer") return "";
   if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) return actionItemRowsFieldHtml(field, actionItemBlock);
   if (field.type === "signature") return signatureFieldHtml(field.label, value, widthClass(field));
   if (field.type === "media_upload") {
@@ -547,7 +549,7 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     type,
     label,
     helperText: String(field?.helperText || field?.helper_text || ""),
-    required: TEMPLATE_SPECIAL_BLOCK_TYPES.has(type) || type === "instructions" ? false : Boolean(field?.required),
+    required: TEMPLATE_SPECIAL_BLOCK_TYPES.has(type) || type === "instructions" || type === "spacer" ? false : Boolean(field?.required),
     default: String(field?.default || ""),
     options,
     settings: cloneSettings(field?.settings),

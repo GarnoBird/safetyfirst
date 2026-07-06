@@ -163,6 +163,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "checkbox", label: "Checkbox confirmation" },
   { id: "signature", label: "Drawn signature" },
   { id: "instructions", label: "Instructions" },
+  { id: "spacer", label: "Spacer" },
   { id: "toolbox_meeting_info", label: "Toolbox meeting info" },
   { id: "toolbox_topics", label: "Toolbox topic picker" },
   { id: "toolbox_incident_review", label: "Toolbox incident review" },
@@ -282,6 +283,7 @@ const TEMPLATE_V3_FIELD_GROUPS = [
       { type: "toggle", title: "Toggle", hint: "On / off switch", icon: "On", label: "Toggle setting" },
       { type: "checkbox", title: "Confirmation", hint: "Required acknowledgement", icon: "OK", label: "I confirm this information is correct." },
       { type: "signature", title: "Drawn signature", hint: "Finger or mouse signature", icon: "Sig", label: "Signature" },
+      { type: "spacer", title: "Spacer", hint: "Blank layout space", icon: "---", label: "Spacer" },
     ],
   },
   {
@@ -11721,6 +11723,8 @@ function TemplateSchemaEditorV3({
                           <small>
                             {TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)
                               ? "Special block"
+                              : isTemplateNonAnswerField(field)
+                                ? templateFieldBuilderHint(field.type)
                               : (
                                   <>
                                     {templateFieldIsHidden(field) ? "Hidden" : field.required ? "Required" : "Optional"}
@@ -12042,9 +12046,11 @@ function TemplateSchemaEditorV3({
                   <span>
                     {selectedField.type === "instructions"
                       ? "Instruction text"
-                      : TEMPLATE_SPECIAL_BLOCK_TYPES.has(selectedField.type)
-                        ? "Block label"
-                        : "Question label"}
+                      : selectedField.type === "spacer"
+                        ? "Spacer name"
+                        : TEMPLATE_SPECIAL_BLOCK_TYPES.has(selectedField.type)
+                          ? "Block label"
+                          : "Question label"}
                   </span>
                   {selectedField.type === "instructions" ? (
                     <textarea
@@ -12069,7 +12075,7 @@ function TemplateSchemaEditorV3({
                     />
                   )}
                 </label>
-                {selectedField.type !== "instructions" ? (
+                {!["instructions", "spacer"].includes(selectedField.type) ? (
                   <label>
                     <span>Helper text</span>
                     <input
@@ -13236,6 +13242,9 @@ function TemplateRuntimeField({
         {field.label}
       </p>
     );
+  }
+  if (field.type === "spacer") {
+    return <div aria-hidden="true" className="template-spacer-field" />;
   }
   if (ACTION_ITEM_ROW_BLOCK_TYPES.has(field.type)) {
     const block = normalizeActionItemBlockValue(value);
@@ -18432,6 +18441,7 @@ function createTemplateField(index, type = "short_text", overrides = {}) {
     multi_select: "Multi-select question",
     checkbox: "Confirmation statement",
     signature: "Signature",
+    spacer: "Spacer",
     toolbox_meeting_info: "Meeting Info",
     toolbox_topics: "Topics Discussed",
     toolbox_incident_review: "Incident / Review",
@@ -18599,6 +18609,7 @@ function templateFieldBuilderHint(type) {
     checkbox: "Final confirmation",
     signature: "Drawn signature",
     instructions: "Read-only text",
+    spacer: "Blank layout space",
     toolbox_meeting_info: "Toolbox Talk header logic",
     toolbox_topics: "APPIA toolbox topic picker",
     toolbox_incident_review: "FA, medical aids, near misses",
@@ -18628,6 +18639,7 @@ function templateFieldBuilderIcon(type) {
     checkbox: "OK",
     signature: "Sig",
     instructions: "i",
+    spacer: "---",
     toolbox_meeting_info: "TT",
     toolbox_topics: "T",
     toolbox_incident_review: "IR",
@@ -18710,7 +18722,7 @@ function collectClientTemplateFields(schema) {
 }
 
 function isTemplateNonAnswerField(field) {
-  return field?.type === "instructions" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(field?.type);
+  return field?.type === "instructions" || field?.type === "spacer" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(field?.type);
 }
 
 function getTemplateMissingFields(schema, answers, worker) {

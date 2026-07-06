@@ -3222,6 +3222,11 @@ p {
   min-width: 0;
 }
 
+.template-spacer-field {
+  min-height: 58px;
+  pointer-events: none;
+}
+
 .toolbox-topic-list,
 .toolbox-row-list {
   display: grid;

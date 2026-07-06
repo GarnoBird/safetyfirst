@@ -34,6 +34,7 @@ export const TEMPLATE_FIELD_TYPES = [
   "checkbox",
   "signature",
   "instructions",
+  "spacer",
   "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
@@ -1242,7 +1243,7 @@ function collectTemplateFields(schema) {
 }
 
 function isTemplateNonAnswerType(type) {
-  return type === "instructions" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(type);
+  return type === "instructions" || type === "spacer" || TEMPLATE_SPECIAL_BLOCK_TYPES.has(type);
 }
 
 function isTemplateNonAnswerField(field) {
