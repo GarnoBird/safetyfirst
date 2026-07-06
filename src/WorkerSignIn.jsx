@@ -15511,7 +15511,7 @@ function StaffActionCard({ actionLabel, children, eyebrow, onAction, text, title
       </div>
       {children}
       {actionLabel ? (
-        <button className="primary-button" type="button" onClick={onAction}>
+        <button className="primary-button staff-action-card-button" type="button" onClick={onAction}>
           {actionLabel}
         </button>
       ) : null}

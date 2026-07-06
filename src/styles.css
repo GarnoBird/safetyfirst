@@ -1378,6 +1378,15 @@ p {
   text-transform: none;
 }
 
+.staff-action-card-button {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+}
+
 .staff-mini-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
