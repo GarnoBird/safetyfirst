@@ -5958,6 +5958,48 @@ function certificatePayloadFromForm(form) {
   };
 }
 
+function certificateFileName(file = {}) {
+  return String(file.originalFilename || file.original_filename || "").trim();
+}
+
+function certificateFileExtension(file = {}) {
+  const name = certificateFileName(file);
+  const extension = name.includes(".") ? name.split(".").pop() : "";
+  return String(extension || "").trim().toLowerCase();
+}
+
+function certificateFileKind(file = {}) {
+  const mimeType = String(file.mimeType || file.mime_type || "").toLowerCase();
+  const extension = certificateFileExtension(file);
+  if (mimeType === "application/pdf" || extension === "pdf") return "PDF";
+  if (mimeType.startsWith("image/") || ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(extension)) {
+    return "image";
+  }
+  return "file";
+}
+
+function certificateFileSideLabel(file = {}) {
+  const side = String(file.sourceMetadata?.salusSide || file.source_metadata?.salusSide || "").toLowerCase();
+  if (side === "front") return "Front";
+  if (side === "back") return "Back";
+  return "";
+}
+
+function certificateFileDisplayLabel(file = {}, index = 0, total = 1) {
+  const kind = certificateFileKind(file);
+  const noun = kind === "image" ? "Image" : kind === "PDF" ? "PDF" : "File";
+  const side = certificateFileSideLabel(file);
+  if (side) return `${side} ${noun.toLowerCase() === "pdf" ? "PDF" : noun.toLowerCase()}`;
+  if (total > 1) return `${noun} ${index + 1}`;
+  return kind === "file" ? "View file" : `View ${kind}`;
+}
+
+function certificateFileTitle(file = {}, index = 0, total = 1) {
+  const label = certificateFileDisplayLabel(file, index, total);
+  const name = certificateFileName(file);
+  return name ? `${label}: ${name}` : label;
+}
+
 function CertificateFormDialog({ certificate = null, mode = "create", providers, types, onClose, onSave }) {
   const [form, setForm] = useState(() => certificateFormFromCertificate(certificate));
   const [saving, setSaving] = useState(false);
@@ -6144,17 +6186,20 @@ function CertificateDetailsDialog({ certificate, onArchive, onClose, onEdit, onF
           <h3>Attached Files</h3>
           {files.length ? (
             <div className="certificate-file-list detail">
-              {files.map((file) => (
-                <button
-                  className="link-button"
-                  key={file.id}
-                  title={file.originalFilename || file.original_filename || "Attachment"}
-                  type="button"
-                  onClick={() => onFilePreview(certificate, file)}
-                >
-                  {file.originalFilename || file.original_filename || "Attachment"}
-                </button>
-              ))}
+              {files.map((file, index) => {
+                const label = certificateFileDisplayLabel(file, index, files.length);
+                return (
+                  <button
+                    className="link-button"
+                    key={file.id}
+                    title={certificateFileTitle(file, index, files.length)}
+                    type="button"
+                    onClick={() => onFilePreview(certificate, file)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <p className="empty-state">No files attached.</p>
@@ -6507,20 +6552,23 @@ function CertificateApprovedTab({
                 <td>
                   {certificate.files?.length ? (
                     <span className="certificate-file-list">
-                      {certificate.files.map((file) => (
-                        <button
-                          className="link-button"
-                          key={file.id}
-                          title={file.originalFilename || file.original_filename || "Attachment"}
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onFilePreview(certificate, file);
-                          }}
-                        >
-                          {file.originalFilename || file.original_filename || "Attachment"}
-                        </button>
-                      ))}
+                      {certificate.files.map((file, index) => {
+                        const label = certificateFileDisplayLabel(file, index, certificate.files.length);
+                        return (
+                          <button
+                            className="link-button"
+                            key={file.id}
+                            title={certificateFileTitle(file, index, certificate.files.length)}
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onFilePreview(certificate, file);
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
                     </span>
                   ) : "-"}
                 </td>
@@ -10035,12 +10083,21 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     window.open(selectedShareUrl, "_blank", "noopener,noreferrer");
   };
 
-  const downloadSelectedQrCode = () => {
+  const downloadSelectedQrCode = async () => {
     if (!qrDataUrl || !selectedTemplate) return;
-    const anchor = document.createElement("a");
-    anchor.href = qrDataUrl;
-    anchor.download = `${slugifyTemplateId(selectedTemplate.form_type || selectedTemplate.label || "form")}-qr-code.png`;
-    anchor.click();
+    const fileName = `${slugifyTemplateId(selectedTemplate.form_type || selectedTemplate.label || "form")}-qr-code.png`;
+    await shareOrDownloadQrCode(qrDataUrl, fileName, `${selectedTemplate.label} QR code`);
+  };
+
+  const selectTemplateForDetails = (formType) => {
+    setSelectedFormType(formType);
+    if (!isTemplateListFocused) setFocusedTemplateType("");
+    if (window.matchMedia?.("(max-width: 820px)").matches) {
+      setTemplateListHidden(true);
+      window.requestAnimationFrame(() => {
+        document.querySelector(".template-editor-panel")?.scrollIntoView({ block: "start" });
+      });
+    }
   };
 
   if (!staff || loading) return <StaffLoadingScreen />;
@@ -10147,10 +10204,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               <button
                 className="template-card-main"
                 type="button"
-                onClick={() => {
-                  setSelectedFormType(template.form_type);
-                  if (!isTemplateListFocused) setFocusedTemplateType("");
-                }}
+                onClick={() => selectTemplateForDetails(template.form_type)}
               >
                 <span>
                   {templateAccessLabel(template)}
@@ -10168,8 +10222,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
 	                {template.shareLink?.urlPath ? <small>QR link ready</small> : null}
 	              </button>
               {template.renderer_type === "template" && canManageTemplates ? (
-                <div className="template-card-actions">
-                  <button disabled={saving} type="button" onClick={() => duplicateTemplate(template)}>
+                <div className="template-card-actions template-duplicate-actions">
+                  <button
+                    className="template-duplicate-action"
+                    disabled={saving}
+                    type="button"
+                    onClick={() => duplicateTemplate(template)}
+                  >
                     Duplicate
                   </button>
                 </div>
@@ -10217,7 +10276,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                       className={selectedTemplate?.form_type === template.form_type ? "template-card archived active" : "template-card archived"}
                       key={template.form_type}
                       type="button"
-                      onClick={() => setSelectedFormType(template.form_type)}
+                      onClick={() => selectTemplateForDetails(template.form_type)}
                     >
                       <span>
                         {templateAccessLabel(template)}
@@ -10272,9 +10331,14 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 <div className="staff-card-actions">
                   {selectedIsLockedDefault ? (
                     <>
-                      <span className="muted">Protected default. Duplicate to edit.</span>
+                      <span className="muted template-duplicate-note">Protected default. Duplicate to edit.</span>
                       {canManageTemplates ? (
-                        <button disabled={saving} type="button" onClick={() => duplicateTemplate(selectedTemplate)}>
+                        <button
+                          className="template-duplicate-action"
+                          disabled={saving}
+                          type="button"
+                          onClick={() => duplicateTemplate(selectedTemplate)}
+                        >
                           Duplicate
                         </button>
                       ) : null}
@@ -11648,7 +11712,16 @@ function TemplateSchemaEditorV3({
                 </>
               ) : null}
               <button type="button" onClick={() => changeView("preview")}>Preview</button>
-              {canDuplicate ? <button disabled={saving} type="button" onClick={onDuplicate}>Duplicate</button> : null}
+              {canDuplicate ? (
+                <button
+                  className="template-duplicate-action"
+                  disabled={saving}
+                  type="button"
+                  onClick={onDuplicate}
+                >
+                  Duplicate
+                </button>
+              ) : null}
               {canEdit && onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
               {canArchive ? (
                 <button
@@ -19173,6 +19246,47 @@ async function shareSubmissionAttachment(preview) {
     url: preview.url,
   });
   return true;
+}
+
+async function shareOrDownloadQrCode(dataUrl, fileName, title) {
+  const qrFile = dataUrlToFile(dataUrl, fileName);
+  if (qrFile && navigator.share) {
+    try {
+      if (!navigator.canShare || navigator.canShare({ files: [qrFile] })) {
+        await navigator.share({
+          files: [qrFile],
+          title,
+        });
+        return;
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+    }
+  }
+  downloadDataUrl(dataUrl, fileName);
+}
+
+function dataUrlToFile(dataUrl, fileName) {
+  if (!dataUrl || typeof File === "undefined") return null;
+  const match = String(dataUrl).match(/^data:([^;,]+);base64,(.+)$/);
+  if (!match) return null;
+  try {
+    const binary = window.atob(match[2]);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    return new File([bytes], fileName, { type: match[1] || "image/png" });
+  } catch {
+    return null;
+  }
+}
+
+function downloadDataUrl(dataUrl, fileName) {
+  const anchor = document.createElement("a");
+  anchor.href = dataUrl;
+  anchor.download = fileName;
+  anchor.click();
 }
 
 function printSubmissionAttachment(preview) {

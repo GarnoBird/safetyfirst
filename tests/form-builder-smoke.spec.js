@@ -1976,6 +1976,56 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
   expect(pageErrors).toEqual([]);
 });
 
+test("submitted form viewer fits the mobile viewport", async ({ page }) => {
+  const mobileSubmission = templateSubmissionRow({
+    id: "mobile-fall-protection-submission",
+    formType: "fall_protection_form",
+    company: "GarnoCo",
+    workerName: "Garnet Bird",
+    schemaSnapshot: fallProtectionSchema,
+    answers: {
+      fall_inspection_date: "2026-07-05",
+      fall_worker_name: "Garnet Bird",
+      fall_equipment_inspected: "Full Body Harness",
+      fall_equipment_input_method: "Manually",
+      fall_equipment_make: "Guardian",
+      fall_equipment_model: "Harness X",
+      fall_equipment_serial: "FP-1234567890-LONG",
+      fall_equipment_mfg_date: "2026-01",
+      fall_inspector_name: "Garnet Bird",
+    },
+  });
+  await mockApis(
+    page,
+    [template("fall_protection_form", "Fall Protection Form", fallProtectionSchema)],
+    { staffSubmissions: [mobileSubmission] },
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/staff/forms/${mobileSubmission.id}`);
+  await expect(page.locator(".submitted-viewer-toolbar")).toBeVisible();
+  await expect(page.locator(".submitted-form-document").getByRole("heading", { name: "Fall Protection Form" })).toBeVisible();
+  await expect(page.locator(".submitted-form-document").getByText("Garnet Bird / GarnoCo", { exact: true })).toBeVisible();
+
+  await expect.poll(() =>
+    page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
+  ).toBe(true);
+
+  const viewportWidth = page.viewportSize().width;
+  for (const selector of [".submitted-viewer-toolbar", ".submitted-viewer-stage", ".submitted-form-document"]) {
+    const box = await page.locator(selector).boundingBox();
+    expect(box).toBeTruthy();
+    expect(box.x).toBeGreaterThanOrEqual(-1);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewportWidth + 1);
+  }
+
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: false,
+    path: "test-results/submitted-form-viewer-mobile.png",
+  });
+});
+
 test("worker submission review shows PDF PNG and Print actions at the top", async ({ page }) => {
   const workerSubmission = templateSubmissionRow({
     id: "worker-review-submission",
@@ -3470,6 +3520,53 @@ test("staff can open fill-out forms from the form templates section", async ({ p
   await expect(page).toHaveURL(/\/form-links\/daily-safety-smoke$/);
 });
 
+test("template QR download opens native image share when available", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__qrSharePayload = null;
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: (payload) => Boolean(payload?.files?.length),
+    });
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (payload) => {
+        window.__qrSharePayload = {
+          files: (payload.files || []).map((file) => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          })),
+          title: payload.title,
+        };
+      },
+    });
+  });
+  const readyRow = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema, {
+    shareLink: {
+      token: "daily-safety-share-smoke",
+      urlPath: "/form-links/daily-safety-share-smoke",
+    },
+  });
+  await mockApis(page, [readyRow]);
+
+  await page.goto("/staff/form-templates");
+  const downloadButton = page.getByRole("button", { name: "Download QR" });
+  await expect(downloadButton).toBeEnabled();
+  await downloadButton.click();
+
+  await expect.poll(() => page.evaluate(() => window.__qrSharePayload)).toMatchObject({
+    files: [
+      {
+        name: "daily_safety_inspection-qr-code.png",
+        type: "image/png",
+      },
+    ],
+    title: "Daily Safety Inspection QR code",
+  });
+  const sharedSize = await page.evaluate(() => window.__qrSharePayload?.files?.[0]?.size || 0);
+  expect(sharedSize).toBeGreaterThan(0);
+});
+
 test("admin can archive and purge non-protected templates while protected defaults stay protected", async ({ page }) => {
   const adminStaff = {
     ...staff,
@@ -3529,4 +3626,39 @@ test("protected default templates open in the V3 shell without edit actions", as
   await expect(page.getByRole("button", { name: "Publish", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Restore previous", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Archive form", exact: true })).toHaveCount(0);
+});
+
+test("mobile form templates hide form duplicate actions", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const toolboxRow = template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, {
+    displayOrder: 1,
+    shareLink: {
+      token: "toolbox-mobile-smoke",
+      urlPath: "/form-links/toolbox-mobile-smoke",
+    },
+    versionNumber: 4,
+  });
+  const siteRow = template("site_inspection", "Site Inspection", siteSignatureSchema, {
+    displayOrder: 2,
+    shareLink: {
+      token: "site-mobile-smoke",
+      urlPath: "/form-links/site-mobile-smoke",
+    },
+    versionNumber: 4,
+  });
+  await mockApis(page, [toolboxRow, siteRow]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("button", { name: "Fill Out Forms" })).toBeVisible();
+  await expect(page.locator(".template-card-list")).toBeVisible();
+  await expect(page.getByText("Please use a larger screen to build or edit form templates.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Duplicate", exact: true })).toHaveCount(0);
+  await page.locator(".template-card").filter({ hasText: "Site Inspection" }).getByRole("button").first().click();
+  await expect(page.locator(".template-card-list")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Show form template list" })).toBeVisible();
+  await expect(page.locator(".template-editor-panel").getByRole("heading", { name: "Site Inspection" })).toBeVisible();
+  await expect(page.locator(".template-editor-panel").getByRole("heading", { name: "Ready for this form" })).toBeVisible();
+  await expect.poll(() =>
+    page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
+  ).toBe(true);
 });

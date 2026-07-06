@@ -7163,12 +7163,14 @@ p {
 
 .submitted-viewer-stage {
   overflow-x: auto;
+  min-width: 0;
   border-radius: 8px;
   padding: 32px;
   background: #718087;
 }
 
 .submitted-form-document {
+  box-sizing: border-box;
   width: min(100%, 1080px);
   min-height: 900px;
   margin: 0 auto;
@@ -7859,6 +7861,14 @@ p {
     display: block;
   }
 
+  .template-duplicate-actions,
+  .template-duplicate-actions button,
+  .staff-card-actions .template-duplicate-action,
+  .template-v3-actions .template-duplicate-action,
+  .template-duplicate-note {
+    display: none;
+  }
+
   .template-v3-workspace {
     display: none;
   }
@@ -8291,6 +8301,126 @@ p {
   .submitted-file-card-actions a {
     justify-content: center;
     width: 100%;
+  }
+
+  .submitted-viewer-shell {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    min-width: 0;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .submitted-viewer-toolbar {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 10px;
+  }
+
+  .submitted-viewer-toolbar-left {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .submitted-viewer-toolbar h1 {
+    font-size: 0.98rem;
+  }
+
+  .submitted-viewer-toolbar p {
+    font-size: 0.78rem;
+  }
+
+  .submitted-viewer-status {
+    padding: 5px 9px;
+    font-size: 0.72rem;
+  }
+
+  .submitted-viewer-toolbar-actions {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .submitted-viewer-toolbar-actions > button,
+  .submitted-viewer-toolbar-actions > .submitted-viewer-menu-wrap > button {
+    position: relative;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+  }
+
+  .submitted-viewer-toolbar-actions > button > span,
+  .submitted-viewer-toolbar-actions > .submitted-viewer-menu-wrap > button > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .submitted-viewer-menu {
+    right: auto;
+    left: 0;
+  }
+
+  .submitted-viewer-menu.right {
+    right: 0;
+    left: auto;
+  }
+
+  .submitted-viewer-menu button span {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .submitted-viewer-stage {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding: 12px;
+  }
+
+  .submitted-form-document {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    padding: 22px 18px;
+  }
+
+  .submitted-form-document .submission-export-heading h2 {
+    font-size: 1.25rem;
+  }
+
+  .submitted-form-document .submission-export-heading strong {
+    overflow-wrap: anywhere;
+    font-size: 1rem;
+  }
+
+  .submitted-form-document .staff-detail-list div {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .toolbox-detail-table .header {

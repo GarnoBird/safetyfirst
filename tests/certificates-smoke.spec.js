@@ -54,6 +54,7 @@ const seedProviders = [
 ];
 
 const longCertificateFileName = "361b2c7c-6b3a-4c9c-bacb-b32db155a567-salus-front-certificate.pdf";
+const certificateFileButtonLabel = "View PDF";
 
 test("staff certificates support tabs, seeded options, upload, and archive filtering", async ({ page }) => {
   const state = await mockCertificateApis(page);
@@ -94,8 +95,10 @@ test("staff certificates support tabs, seeded options, upload, and archive filte
   await expect(page.getByText("Certificate created.")).toBeVisible();
   const leanneRow = page.getByRole("row", { name: /Leanne Bird WHMIS We the Safe/ });
   await expect(leanneRow).toBeVisible();
-  const fileButton = leanneRow.getByRole("button", { name: longCertificateFileName });
+  const fileButton = leanneRow.getByRole("button", { name: certificateFileButtonLabel });
   await expect(fileButton).toBeVisible();
+  await expect(fileButton).toHaveAttribute("title", `${certificateFileButtonLabel}: ${longCertificateFileName}`);
+  await expect(leanneRow.getByText(longCertificateFileName)).toHaveCount(0);
   const fileButtonBox = await fileButton.boundingBox();
   const fileCellBox = await leanneRow.locator("td").nth(5).boundingBox();
   const actionsCellBox = await leanneRow.locator("td").nth(6).boundingBox();
@@ -124,7 +127,7 @@ test("staff certificates support tabs, seeded options, upload, and archive filte
   const detailsDialog = page.locator(".certificate-detail-dialog");
   await expect(detailsDialog.getByRole("heading", { name: "Leanne Bird" })).toBeVisible();
   await expect(detailsDialog.locator("dd").filter({ hasText: "WHMIS" })).toBeVisible();
-  await expect(detailsDialog.getByRole("button", { name: longCertificateFileName })).toBeVisible();
+  await expect(detailsDialog.getByRole("button", { name: certificateFileButtonLabel })).toBeVisible();
   await detailsDialog.getByRole("button", { name: "Close" }).click();
 
   await fileButton.click();
