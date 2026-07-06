@@ -3731,36 +3731,35 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <StaffShell active="forms-fill" contentWide navigateTo={navigateTo} staff={staff}>
-      {formsMessage ? <p className="staff-message">{formsMessage}</p> : null}
-      <section className="staff-table-panel staff-fill-forms-panel">
-        <div className="staff-page-heading">
+    <main className="public-page form-platform-page">
+      <section className="form-platform-shell">
+        <header className="form-platform-header">
           <div>
-            <p>Form templates</p>
-            <h1>Forms To Fill Out</h1>
+            <div className="brand-mark">APPIA</div>
+            <h1>Submit a Safety Form</h1>
+            <p>{staff.display_name || staff.username} / Appia Staff</p>
           </div>
-          <div className="staff-page-heading-actions">
-            <button type="button" onClick={() => navigateTo("/staff/form-templates")}>
-              Manage templates
+          <div className="form-platform-actions">
+            <button type="button" onClick={() => navigateTo("/staff/forms")}>
+              Submitted Forms
             </button>
           </div>
-        </div>
+        </header>
 
+        {formsMessage ? <p className="form-message error">{formsMessage}</p> : null}
         {formsLoading ? (
           <p className="empty-state">Loading forms...</p>
         ) : forms.length ? (
-          <div className="staff-fill-form-grid" aria-label="Forms to fill out">
+          <div className="safety-form-grid" aria-label="Forms to fill out">
             {forms.map((form) => (
               <button
-                className="staff-fill-form-card"
+                className="safety-form-card"
                 key={form.form_type}
                 type="button"
                 onClick={() => navigateTo(form.shareLink.urlPath)}
               >
-                <span>{form.renderer_type === "template" ? "Template form" : "Special form"}</span>
-                <strong>{form.label}</strong>
-                {form.description ? <small>{form.description}</small> : null}
-                <em>Open form</em>
+                <span>{form.label}</span>
+                <strong>Open</strong>
               </button>
             ))}
           </div>
@@ -3770,12 +3769,12 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
               No forms are ready to fill out. Publish a template, show it to workers, and its QR link will appear here.
             </p>
             <button className="primary-button" type="button" onClick={() => navigateTo("/staff/form-templates")}>
-              Manage templates
+              Form Templates / QR Codes
             </button>
           </div>
         )}
       </section>
-    </StaffShell>
+    </main>
   );
 }
 

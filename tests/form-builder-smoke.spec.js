@@ -1936,7 +1936,8 @@ test("staff mobile menu nests form destinations under Forms", async ({ page }) =
 
   await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
-  await expect(page.locator(".staff-mobile-menu-trigger")).toContainText("FORMS");
+  await expect(page.getByRole("heading", { name: "Submit a Safety Form" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
 });
 
 test("submitted form company filter uses submitted company dropdown", async ({ page }) => {
@@ -3938,7 +3939,10 @@ test("staff can open fill-out forms from the Forms menu", async ({ page }) => {
   await page.getByRole("menuitem", { exact: true, name: "FORMS" }).click();
   await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
-  await expect(page.getByRole("heading", { name: "Forms To Fill Out" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Submit a Safety Form" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Submitted Forms" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
+  await expect(page.locator(".safety-form-grid")).toBeVisible();
   await expect(page.getByRole("button", { name: /Daily Safety Inspection/ })).toBeVisible();
   await expect(page.getByText("Hidden Draft")).toHaveCount(0);
 
