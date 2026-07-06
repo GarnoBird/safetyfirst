@@ -674,6 +674,28 @@ export async function listStaffSubmissions(query) {
     ? query.get("sort")
     : "submitted_at";
   const dir = query.get("dir") === "asc" ? "asc" : "desc";
+  let companyOptions = [];
+
+  try {
+    const companyRows = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select("company")
+        .is("deleted_by_worker_at", null)
+        .is("deleted_by_staff_at", null)
+        .is("app_purged_at", null)
+        .order("company", { ascending: true })
+        .limit(1000),
+      "Submission companies could not be loaded.",
+    );
+    companyOptions = submittedCompanyOptions(companyRows);
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    companyOptions = submittedCompanyOptions(
+      (await listFallbackSubmissions())
+        .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at),
+    );
+  }
 
   let dbQuery = getSupabaseServiceClient()
     .from("form_submissions")
@@ -714,6 +736,7 @@ export async function listStaffSubmissions(query) {
   }
 
   return {
+    companyOptions,
     rows: rows.map(publicSubmission),
     sort,
     dir,
@@ -1416,6 +1439,14 @@ async function listFallbackStaffSubmissions(filters) {
     )
     .sort((a, b) => compareFallbackSubmissions(a, b, sort, dir))
     .slice(0, 500);
+}
+
+function submittedCompanyOptions(rows) {
+  return [...new Set(
+    rows
+      .map((row) => String(row?.company || "").trim())
+      .filter(Boolean),
+  )].sort((a, b) => a.localeCompare(b));
 }
 
 async function getFallbackSubmissionById(id, { includeDeleted = false } = {}) {

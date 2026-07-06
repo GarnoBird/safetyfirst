@@ -8351,6 +8351,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [records, setRecords] = useState({ rows: [] });
+  const [companyOptions, setCompanyOptions] = useState([]);
   const [formOptions, setFormOptions] = useState(SAFETY_FORM_TYPES);
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -8378,6 +8379,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
         }),
       );
       setRecords(payload);
+      setCompanyOptions(submittedCompanyOptions(payload.companyOptions || payload.rows || []));
       setSelectedSubmissionIds([]);
     } catch (error) {
       setMessage(error.message);
@@ -8416,6 +8418,11 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   const updateFilter = (field, value) => {
     setFilters((current) => ({ ...current, [field]: value }));
   };
+
+  const companyFilterOptions = useMemo(
+    () => submittedCompanyOptions([...(companyOptions || []), filters.company]),
+    [companyOptions, filters.company],
+  );
 
   const changeSort = (value) => {
     const [sort, dir] = value.split(":");
@@ -8557,7 +8564,12 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
           </label>
           <label className="field">
             <span>Company</span>
-            <input value={filters.company} onChange={(event) => updateFilter("company", event.target.value)} />
+            <select value={filters.company} onChange={(event) => updateFilter("company", event.target.value)}>
+              <option value="">All</option>
+              {companyFilterOptions.map((company) => (
+                <option key={company} value={company}>{company}</option>
+              ))}
+            </select>
           </label>
           <label className="field">
             <span>Phone</span>
@@ -20632,6 +20644,14 @@ function getCheckedInCompanyOptions(rows) {
     rows
       .filter(isSignedIn)
       .map((row) => String(row.company || "").trim())
+      .filter(Boolean),
+  )].sort((a, b) => a.localeCompare(b));
+}
+
+function submittedCompanyOptions(values) {
+  return [...new Set(
+    values
+      .map((value) => String((typeof value === "string" ? value : value?.company) || "").trim())
       .filter(Boolean),
   )].sort((a, b) => a.localeCompare(b));
 }

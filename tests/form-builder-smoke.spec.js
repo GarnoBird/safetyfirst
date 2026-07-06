@@ -987,8 +987,20 @@ async function mockApis(page, templates, options = {}) {
       }
     }
     if (path === "/api/staff/submissions" && method === "GET") {
+      const company = String(url.searchParams.get("company") || "").trim();
+      const phone = String(url.searchParams.get("phone") || "").trim();
+      const name = String(url.searchParams.get("name") || "").trim();
+      const formType = String(url.searchParams.get("formType") || url.searchParams.get("form_type") || "").trim();
+      const backupStatus = String(url.searchParams.get("backupStatus") || url.searchParams.get("backup_status") || "").trim();
+      const rows = staffSubmissions
+        .filter((row) => !company || normalizeMockSignInIdentity(row.company) === normalizeMockSignInIdentity(company))
+        .filter((row) => !phone || normalizeMockSignInIdentity(row.worker_phone).includes(normalizeMockSignInIdentity(phone)))
+        .filter((row) => !name || normalizeMockSignInIdentity(row.worker_name).includes(normalizeMockSignInIdentity(name)))
+        .filter((row) => !formType || row.form_type === formType)
+        .filter((row) => !backupStatus || row.one_drive_backup_status === backupStatus);
       return json({
-        rows: staffSubmissions,
+        companyOptions: mockSubmittedCompanyOptions(staffSubmissions),
+        rows,
         sort: url.searchParams.get("sort") || "submitted_at",
         dir: url.searchParams.get("dir") || "desc",
       });
@@ -1215,6 +1227,14 @@ trailer
     return json({});
   });
   return submissions;
+}
+
+function mockSubmittedCompanyOptions(rows) {
+  return [...new Set(
+    rows
+      .map((row) => String(row.company || "").trim())
+      .filter(Boolean),
+  )].sort((a, b) => a.localeCompare(b));
 }
 
 function filterMockAssets(rows, url) {
@@ -1917,6 +1937,45 @@ test("staff mobile menu nests form destinations under Forms", async ({ page }) =
   await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
   await expect(page.locator(".staff-mobile-menu-trigger")).toContainText("FORMS");
+});
+
+test("submitted form company filter uses submitted company dropdown", async ({ page }) => {
+  const alphaSubmission = toolboxSubmissionRow({
+    company: "Alpha Concrete",
+    id: "alpha-company-submission",
+    projectName: "Alpha Project",
+  });
+  const zetaSubmission = toolboxSubmissionRow({
+    company: "Zeta Mechanical",
+    id: "zeta-company-submission",
+    projectName: "Zeta Project",
+  });
+  const anotherAlpha = fileSubmissionRow({
+    company: "Alpha Concrete",
+    id: "alpha-file-submission",
+  });
+  await mockApis(page, [], { staffSubmissions: [zetaSubmission, alphaSubmission, anotherAlpha] });
+
+  await page.goto("/staff/forms");
+  await page.getByLabel("Show filters").click();
+  const companyFilter = page.locator("#staff-form-filters label").filter({ hasText: /^Company/ }).locator("select");
+  await expect(companyFilter).toBeVisible();
+  await expect(companyFilter.locator("option")).toHaveText([
+    "All",
+    "Alpha Concrete",
+    "Zeta Mechanical",
+  ]);
+
+  await companyFilter.selectOption("Alpha Concrete");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(page.locator(".staff-table-heading-main strong")).toHaveText("2 form submissions");
+  await expect(page.getByRole("row", { name: /Alpha Concrete/ })).toHaveCount(2);
+  await expect(page.getByRole("row", { name: /Zeta Mechanical/ })).toHaveCount(0);
+  await expect(companyFilter.locator("option")).toHaveText([
+    "All",
+    "Alpha Concrete",
+    "Zeta Mechanical",
+  ]);
 });
 
 test("submitted forms open in a routed viewer, sign off, export, email, and print", async ({ page }) => {
