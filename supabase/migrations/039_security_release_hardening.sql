@@ -59,23 +59,33 @@ update storage.buckets
 set public = false
 where id = 'safety-form-submissions';
 
-alter table storage.objects enable row level security;
-
 do $$
 begin
-  if not exists (
-    select 1
-    from pg_policies
-    where schemaname = 'storage'
-      and tablename = 'objects'
-      and policyname = 'deny_direct_client_safety_form_submissions'
-  ) then
-    create policy deny_direct_client_safety_form_submissions
-      on storage.objects
-      as restrictive
-      for all
-      to anon, authenticated
-      using (bucket_id <> 'safety-form-submissions')
-      with check (bucket_id <> 'safety-form-submissions');
-  end if;
+  begin
+    alter table storage.objects enable row level security;
+  exception
+    when insufficient_privilege then
+      raise notice 'Skipping storage.objects RLS enable; migration role is not the table owner.';
+  end;
+
+  begin
+    if not exists (
+      select 1
+      from pg_policies
+      where schemaname = 'storage'
+        and tablename = 'objects'
+        and policyname = 'deny_direct_client_safety_form_submissions'
+    ) then
+      create policy deny_direct_client_safety_form_submissions
+        on storage.objects
+        as restrictive
+        for all
+        to anon, authenticated
+        using (bucket_id <> 'safety-form-submissions')
+        with check (bucket_id <> 'safety-form-submissions');
+    end if;
+  exception
+    when insufficient_privilege then
+      raise notice 'Skipping storage.objects direct-access policy; migration role is not the table owner.';
+  end;
 end $$;
