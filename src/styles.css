@@ -4831,35 +4831,6 @@ p {
   background: #f8fcfa;
 }
 
-.template-qr-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: start;
-}
-
-.template-qr-heading p {
-  margin: 0 0 3px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.template-qr-heading h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.template-qr-heading strong {
-  border: 1px solid #cfe0d8;
-  border-radius: 999px;
-  padding: 5px 9px;
-  color: #245f5b;
-  font-size: 0.72rem;
-  background: #fff;
-}
-
 .template-qr-ready {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);

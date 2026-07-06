@@ -9474,13 +9474,6 @@ function TemplateQrLinkPanel({
   const unavailableReason = templateQrUnavailableReason(template);
   return (
     <section className="template-qr-panel" aria-label="Form template QR link">
-      <div className="template-qr-heading">
-        <div>
-          <p>QR link</p>
-          <h2>{shareUrl ? "Ready for this form" : "Not active"}</h2>
-        </div>
-        {shareUrl ? <strong>Stored link</strong> : <strong>Unavailable</strong>}
-      </div>
       {shareUrl ? (
         <div className="template-qr-ready">
           <div className="template-qr-image">
@@ -19318,13 +19311,17 @@ async function createLabeledQrCodeDataUrl(qrDataUrl, label) {
   const padding = 24;
   const labelGap = 16;
   const lineHeight = 26;
+  const scale = 2;
   const maxTextWidth = width - padding * 2;
   context.font = "800 22px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   const lines = wrapCanvasText(context, String(label || "Form").trim() || "Form", maxTextWidth, 2);
   const height = padding + qrSize + labelGap + lines.length * lineHeight + padding;
 
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  context.scale(scale, scale);
   context.fillStyle = "#ffffff";
   context.fillRect(0, 0, width, height);
   context.imageSmoothingEnabled = false;
@@ -19444,7 +19441,8 @@ async function downloadDigitalFormPng(row, data, exportTarget) {
   await withDigitalFormExportElement(row, data, exportTarget, async (element) => {
     const canvas = await captureDigitalFormElement(element);
     const blob = await canvasToBlob(canvas, "image/png");
-    downloadBlob(blob, digitalFormExportFileName(row, data, "png"));
+    const fileName = digitalFormExportFileName(row, data, "png");
+    await shareOrDownloadBlob(blob, fileName, digitalFormTitle(row, data));
   });
 }
 
@@ -19754,6 +19752,26 @@ function downloadBlob(blob, fileName) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function shareOrDownloadBlob(blob, fileName, title) {
+  if (blob && typeof File !== "undefined" && typeof navigator !== "undefined" && navigator.share) {
+    const file = new File([blob], fileName, {
+      type: blob.type || "application/octet-stream",
+    });
+    try {
+      if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: title || fileName,
+        });
+        return;
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+    }
+  }
+  downloadBlob(blob, fileName);
 }
 
 async function digitalExportResponseError(response, fallbackMessage) {

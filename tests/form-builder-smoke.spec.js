@@ -2026,6 +2026,50 @@ test("submitted form viewer fits the mobile viewport", async ({ page }) => {
   });
 });
 
+test("submitted form PNG export opens native image share when available", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__formPngSharePayload = null;
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: (payload) => Boolean(payload?.files?.length),
+    });
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (payload) => {
+        window.__formPngSharePayload = {
+          files: (payload.files || []).map((file) => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          })),
+          title: payload.title,
+        };
+      },
+    });
+  });
+  const row = templateSubmissionRow({
+    id: "png-share-submission",
+    company: "GarnoCo",
+    workerName: "Garnet Bird",
+  });
+  await mockApis(page, [], { staffSubmissions: [row] });
+
+  await page.goto(`/staff/forms/${row.id}`);
+  await page.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("menuitem", { name: "PNG" }).click();
+
+  await expect.poll(() => page.evaluate(() => window.__formPngSharePayload)).toMatchObject({
+    files: [
+      {
+        name: "garnoco-editable-safety-form-2026-07-03.png",
+        type: "image/png",
+      },
+    ],
+  });
+  const sharedSize = await page.evaluate(() => window.__formPngSharePayload?.files?.[0]?.size || 0);
+  expect(sharedSize).toBeGreaterThan(0);
+});
+
 test("submitted form edit dialog owns mobile scroll", async ({ page }) => {
   const mobileSubmission = templateSubmissionRow({
     id: "mobile-edit-scroll-submission",
@@ -3596,7 +3640,7 @@ test("template QR download opens native image share when available", async ({ pa
     width: image.naturalWidth,
   }))).toMatchObject({
     height: expect.any(Number),
-    width: 320,
+    width: 640,
   });
   const qrImageSize = await qrImage.evaluate((image) => ({
     height: image.naturalHeight,
@@ -3710,7 +3754,7 @@ test("mobile form templates hide form duplicate actions", async ({ page }) => {
   await expect(page.locator(".template-card-list")).toBeHidden();
   await expect(page.getByRole("button", { name: "Show form template list" })).toBeVisible();
   await expect(page.locator(".template-editor-panel").getByRole("heading", { name: "Site Inspection" })).toBeVisible();
-  await expect(page.locator(".template-editor-panel").getByRole("heading", { name: "Ready for this form" })).toBeVisible();
+  await expect(page.locator(".template-editor-panel img[alt='Site Inspection QR code']")).toBeVisible();
   await expect.poll(() =>
     page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1),
   ).toBe(true);
