@@ -11037,6 +11037,7 @@ function TemplateSchemaEditorV3({
   const [fieldPickerOpen, setFieldPickerOpen] = useState(false);
   const [fieldPickerTab, setFieldPickerTab] = useState("basics");
   const [optionDraft, setOptionDraft] = useState("");
+  const [dragState, setDragState] = useState(null);
   const selectedSection =
     selected.kind === "section" || selected.kind === "field"
       ? sections[selected.sectionIndex]
@@ -11257,6 +11258,16 @@ function TemplateSchemaEditorV3({
     onChange({ ...current, sections: moveArrayItem(current.sections, sectionIndex, direction) });
     setSelected({ kind: "section", sectionIndex: sectionIndex + direction });
   };
+  const moveSectionTo = (fromIndex, toIndex) => {
+    if (!canEdit || fromIndex === toIndex) return;
+    const nextSections = moveArrayItemTo(current.sections, fromIndex, toIndex);
+    onChange({ ...current, sections: nextSections });
+    setSelected((previous) => {
+      if (previous.kind === "header") return previous;
+      const nextSectionIndex = remapMovedIndex(previous.sectionIndex, fromIndex, toIndex);
+      return { ...previous, sectionIndex: nextSectionIndex };
+    });
+  };
   const addFieldFromConfig = (fieldConfig, sectionIndex = targetSectionIndex) => {
     if (!canEdit) return;
     if (!fieldConfig || fieldConfig.disabled) return;
@@ -11328,6 +11339,86 @@ function TemplateSchemaEditorV3({
       ),
     });
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
+  };
+  const moveFieldTo = (sectionIndex, fromIndex, toIndex) => {
+    if (!canEdit || fromIndex === toIndex) return;
+    onChange({
+      ...current,
+      sections: current.sections.map((section, index) =>
+        index === sectionIndex
+          ? { ...section, fields: moveArrayItemTo(section.fields, fromIndex, toIndex) }
+          : section,
+      ),
+    });
+    setSelected((previous) => {
+      if (previous.kind !== "field" || previous.sectionIndex !== sectionIndex) return previous;
+      return { ...previous, fieldIndex: remapMovedIndex(previous.fieldIndex, fromIndex, toIndex) };
+    });
+  };
+  const startSectionDrag = (event, sectionIndex) => {
+    if (!canEdit || sections.length < 2) return;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", `section:${sectionIndex}`);
+    setDragState({ kind: "section", fromIndex: sectionIndex, overIndex: sectionIndex });
+  };
+  const handleSectionDragOver = (event, sectionIndex) => {
+    if (dragState?.kind !== "section") return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    if (dragState.overIndex !== sectionIndex) {
+      setDragState({ ...dragState, overIndex: sectionIndex });
+    }
+  };
+  const handleSectionDrop = (event, sectionIndex) => {
+    if (dragState?.kind !== "section") return;
+    event.preventDefault();
+    moveSectionTo(dragState.fromIndex, sectionIndex);
+    setDragState(null);
+  };
+  const handleSectionDragKeyDown = (event, sectionIndex) => {
+    if (event.key === "ArrowUp" && sectionIndex > 0) {
+      event.preventDefault();
+      moveSection(sectionIndex, -1);
+    }
+    if (event.key === "ArrowDown" && sectionIndex < sections.length - 1) {
+      event.preventDefault();
+      moveSection(sectionIndex, 1);
+    }
+  };
+  const startFieldDrag = (event, sectionIndex, fieldIndex) => {
+    const section = sections[sectionIndex];
+    if (!canEdit || !section || section.fields.length < 2) return;
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", `field:${sectionIndex}:${fieldIndex}`);
+    setDragState({ kind: "field", sectionIndex, fromIndex: fieldIndex, overIndex: fieldIndex });
+  };
+  const handleFieldDragOver = (event, sectionIndex, fieldIndex) => {
+    if (dragState?.kind !== "field" || dragState.sectionIndex !== sectionIndex) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+    if (dragState.overIndex !== fieldIndex) {
+      setDragState({ ...dragState, overIndex: fieldIndex });
+    }
+  };
+  const handleFieldDrop = (event, sectionIndex, fieldIndex) => {
+    if (dragState?.kind !== "field" || dragState.sectionIndex !== sectionIndex) return;
+    event.preventDefault();
+    event.stopPropagation();
+    moveFieldTo(sectionIndex, dragState.fromIndex, fieldIndex);
+    setDragState(null);
+  };
+  const handleFieldDragKeyDown = (event, sectionIndex, fieldIndex) => {
+    const fieldLength = sections[sectionIndex]?.fields?.length || 0;
+    if (event.key === "ArrowUp" && fieldIndex > 0) {
+      event.preventDefault();
+      moveField(sectionIndex, fieldIndex, -1);
+    }
+    if (event.key === "ArrowDown" && fieldIndex < fieldLength - 1) {
+      event.preventDefault();
+      moveField(sectionIndex, fieldIndex, 1);
+    }
   };
   const updateSelectedFieldType = (type) => {
     if (!canEdit) return;
@@ -11551,12 +11642,15 @@ function TemplateSchemaEditorV3({
 
               {sections.map((section, sectionIndex) => (
                 <article
-                  className={
-                    activeSelection.kind === "section" && activeSelection.sectionIndex === sectionIndex
-                      ? "template-v3-section selected"
-                      : "template-v3-section"
-                  }
+                  className={[
+                    "template-v3-section",
+                    activeSelection.kind === "section" && activeSelection.sectionIndex === sectionIndex ? "selected" : "",
+                    dragState?.kind === "section" && dragState.fromIndex === sectionIndex ? "dragging" : "",
+                    dragState?.kind === "section" && dragState.overIndex === sectionIndex && dragState.fromIndex !== sectionIndex ? "drag-over" : "",
+                  ].filter(Boolean).join(" ")}
                   key={section.id || sectionIndex}
+                  onDragOver={(event) => handleSectionDragOver(event, sectionIndex)}
+                  onDrop={(event) => handleSectionDrop(event, sectionIndex)}
                 >
                   <div className="template-v3-section-head">
                     <button type="button" onClick={() => selectBlock({ kind: "section", sectionIndex })}>
@@ -11569,8 +11663,17 @@ function TemplateSchemaEditorV3({
                     </button>
                     {canEdit ? (
                       <div>
-                        <button disabled={sectionIndex === 0} type="button" onClick={() => moveSection(sectionIndex, -1)}>Up</button>
-                        <button disabled={sectionIndex === sections.length - 1} type="button" onClick={() => moveSection(sectionIndex, 1)}>Down</button>
+                        <button
+                          aria-label={`Reorder ${section.title || `Section ${sectionIndex + 1}`}`}
+                          className="template-v3-drag-handle"
+                          disabled={sections.length < 2}
+                          draggable={sections.length > 1}
+                          title="Drag to reorder. Arrow keys move this section."
+                          type="button"
+                          onDragEnd={() => setDragState(null)}
+                          onDragStart={(event) => startSectionDrag(event, sectionIndex)}
+                          onKeyDown={(event) => handleSectionDragKeyDown(event, sectionIndex)}
+                        />
                         <button className="danger-button" type="button" onClick={() => removeSection(sectionIndex)}>Delete</button>
                       </div>
                     ) : null}
@@ -11579,14 +11682,28 @@ function TemplateSchemaEditorV3({
                   <div className="template-v3-field-list">
                     {(section.fields || []).map((field, fieldIndex) => (
                       <article
-                        className={
+                        className={[
+                          "template-v3-field-card",
                           activeSelection.kind === "field" &&
                           activeSelection.sectionIndex === sectionIndex &&
                           activeSelection.fieldIndex === fieldIndex
-                            ? "template-v3-field-card selected"
-                            : "template-v3-field-card"
-                        }
+                            ? "selected"
+                            : "",
+                          dragState?.kind === "field" &&
+                          dragState.sectionIndex === sectionIndex &&
+                          dragState.fromIndex === fieldIndex
+                            ? "dragging"
+                            : "",
+                          dragState?.kind === "field" &&
+                          dragState.sectionIndex === sectionIndex &&
+                          dragState.overIndex === fieldIndex &&
+                          dragState.fromIndex !== fieldIndex
+                            ? "drag-over"
+                            : "",
+                        ].filter(Boolean).join(" ")}
                         key={field.id || fieldIndex}
+                        onDragOver={(event) => handleFieldDragOver(event, sectionIndex, fieldIndex)}
+                        onDrop={(event) => handleFieldDrop(event, sectionIndex, fieldIndex)}
                       >
                         <button type="button" onClick={() => selectBlock({ kind: "field", sectionIndex, fieldIndex })}>
                           <span>{templateFieldTypeLabel(field.type)}</span>
@@ -11605,8 +11722,17 @@ function TemplateSchemaEditorV3({
                         </button>
                         {canEdit ? (
                           <div className="template-v3-field-actions">
-                            <button disabled={fieldIndex === 0} type="button" onClick={() => moveField(sectionIndex, fieldIndex, -1)}>Up</button>
-                            <button disabled={fieldIndex === section.fields.length - 1} type="button" onClick={() => moveField(sectionIndex, fieldIndex, 1)}>Down</button>
+                            <button
+                              aria-label={`Reorder ${field.label || `Field ${fieldIndex + 1}`}`}
+                              className="template-v3-drag-handle"
+                              disabled={section.fields.length < 2}
+                              draggable={section.fields.length > 1}
+                              title="Drag to reorder. Arrow keys move this field."
+                              type="button"
+                              onDragEnd={() => setDragState(null)}
+                              onDragStart={(event) => startFieldDrag(event, sectionIndex, fieldIndex)}
+                              onKeyDown={(event) => handleFieldDragKeyDown(event, sectionIndex, fieldIndex)}
+                            />
                             <button type="button" onClick={() => duplicateField(sectionIndex, fieldIndex)}>Duplicate</button>
                             <button className="danger-button" type="button" onClick={() => removeField(sectionIndex, fieldIndex)}>Delete</button>
                           </div>
@@ -18377,6 +18503,29 @@ function moveArrayItem(items, index, direction) {
   const [item] = next.splice(index, 1);
   next.splice(targetIndex, 0, item);
   return next;
+}
+
+function moveArrayItemTo(items, fromIndex, toIndex) {
+  const next = [...(Array.isArray(items) ? items : [])];
+  if (
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= next.length ||
+    toIndex >= next.length ||
+    fromIndex === toIndex
+  ) {
+    return next;
+  }
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
+
+function remapMovedIndex(index, fromIndex, toIndex) {
+  if (index === fromIndex) return toIndex;
+  if (fromIndex < toIndex && index > fromIndex && index <= toIndex) return index - 1;
+  if (fromIndex > toIndex && index >= toIndex && index < fromIndex) return index + 1;
+  return index;
 }
 
 function mergeTemplateVersions(versions = [], ...incomingVersions) {

@@ -5282,6 +5282,46 @@ p {
   font-size: 0.78rem;
 }
 
+.template-v3-section.dragging,
+.template-v3-field-card.dragging {
+  opacity: 0.48;
+}
+
+.template-v3-section.drag-over,
+.template-v3-field-card.drag-over {
+  outline: 2px solid #245f5b;
+  outline-offset: 2px;
+}
+
+.template-v3-drag-handle {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  cursor: grab;
+}
+
+.template-v3-drag-handle::before {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 20px;
+  background-image: radial-gradient(circle, #245f5b 1.8px, transparent 2px);
+  background-position: 0 0;
+  background-size: 7px 7px;
+  opacity: 0.82;
+}
+
+.template-v3-drag-handle:active {
+  cursor: grabbing;
+}
+
+.template-v3-drag-handle:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
 .template-v3-field-list {
   display: grid;
   gap: 8px;
