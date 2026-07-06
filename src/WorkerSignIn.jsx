@@ -1871,7 +1871,7 @@ export function StaffHomePage({ navigateTo }) {
             <button className="primary-button" type="button" onClick={() => navigateTo("/staff/forms")}>
               Submitted Forms
             </button>
-            <button type="button" onClick={() => navigateTo("/staff/forms-to-fill-out")}>
+            <button className="primary-button" type="button" onClick={() => navigateTo("/staff/forms-to-fill-out")}>
               Fill a Form
             </button>
             <button className="primary-button" type="button" onClick={() => navigateTo("/staff/form-templates")}>
