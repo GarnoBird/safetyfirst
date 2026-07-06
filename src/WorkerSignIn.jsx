@@ -1861,20 +1861,10 @@ export function StaffHomePage({ navigateTo }) {
             <button type="button" onClick={() => navigateTo("/staff/forms-to-fill-out")}>
               Fill a Form
             </button>
-            <button type="button" onClick={() => navigateTo("/staff/form-templates")}>
+            <button className="primary-button" type="button" onClick={() => navigateTo("/staff/form-templates")}>
               Form Templates / QR Codes
             </button>
           </div>
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Worker link</dt>
-              <dd>/worker-login</dd>
-            </div>
-            <div>
-              <dt>Retention</dt>
-              <dd>30 days after backup</dd>
-            </div>
-          </dl>
         </StaffActionCard>
 
         <StaffActionCard
@@ -1887,18 +1877,7 @@ export function StaffHomePage({ navigateTo }) {
           }
           title="Staff"
           onAction={() => navigateTo("/staff/users")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Roles</dt>
-              <dd>Owner / Admin / Staff</dd>
-            </div>
-            <div>
-              <dt>Access</dt>
-              <dd>{canManageStaffUsers ? "Manage accounts" : "View only"}</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        />
 
         {isAdminOrOwner(staff) ? (
           <StaffActionCard
@@ -1968,18 +1947,7 @@ export function StaffHomePage({ navigateTo }) {
           }
           title="Settings"
           onAction={() => navigateTo("/staff/settings")}
-        >
-          <dl className="staff-card-listing">
-            <div>
-              <dt>Site</dt>
-              <dd>{settings.site_location}</dd>
-            </div>
-            <div>
-              <dt>Access</dt>
-              <dd>{isAdminOrOwner(staff) ? "Admin controls" : "Read only"}</dd>
-            </div>
-          </dl>
-        </StaffActionCard>
+        />
 
         {isAdminOrOwner(staff) ? (
           <StaffActionCard
