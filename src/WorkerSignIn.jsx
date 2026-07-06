@@ -9044,7 +9044,46 @@ function SubmittedFilePackage({ filePreviewContext, filePreviewMessage = "", fil
   );
 }
 
+function useBodyScrollLock(active = true) {
+  useEffect(() => {
+    if (!active) return undefined;
+    const body = document.body;
+    const html = document.documentElement;
+    const scrollY = window.scrollY || html.scrollTop || 0;
+    const scrollbarWidth = Math.max(0, window.innerWidth - html.clientWidth);
+    const previous = {
+      left: body.style.left,
+      overflowY: body.style.overflowY,
+      paddingRight: body.style.paddingRight,
+      position: body.style.position,
+      right: body.style.right,
+      top: body.style.top,
+      width: body.style.width,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflowY = "hidden";
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
+
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      body.style.width = previous.width;
+      body.style.overflowY = previous.overflowY;
+      body.style.paddingRight = previous.paddingRight;
+      window.scrollTo(0, scrollY);
+    };
+  }, [active]);
+}
+
 function SubmissionEditDialog({ onClose, onSaved, row }) {
+  useBodyScrollLock(true);
   const validationTargetsRef = useRef({});
   const worker = useMemo(() => staffSubmissionWorker(row), [row]);
   const schema = useMemo(() => staffSubmissionEditSchema(row), [row]);
@@ -9932,6 +9971,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     setQrDataUrl("");
     if (!selectedShareUrl) return undefined;
     let cancelled = false;
+    const qrLabel = selectedTemplate?.label || "Form";
     QRCode.toDataURL(selectedShareUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
@@ -9941,7 +9981,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
         dark: "#111111",
         light: "#ffffff",
       },
-    }).then((dataUrl) => {
+    }).then((dataUrl) => createLabeledQrCodeDataUrl(dataUrl, qrLabel)).then((dataUrl) => {
       if (!cancelled) setQrDataUrl(dataUrl);
     }).catch(() => {
       if (!cancelled) setQrDataUrl("");
@@ -9949,7 +9989,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     return () => {
       cancelled = true;
     };
-  }, [selectedShareUrl]);
+  }, [selectedShareUrl, selectedTemplate?.label]);
 
   const saveTemplateMetaForSchema = async (schema) => {
     if (!selectedCanEdit) return null;
@@ -19264,6 +19304,82 @@ async function shareOrDownloadQrCode(dataUrl, fileName, title) {
     }
   }
   downloadDataUrl(dataUrl, fileName);
+}
+
+async function createLabeledQrCodeDataUrl(qrDataUrl, label) {
+  if (typeof document === "undefined") return qrDataUrl;
+  const image = await loadImage(qrDataUrl);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return qrDataUrl;
+
+  const width = 320;
+  const qrSize = 260;
+  const padding = 24;
+  const labelGap = 16;
+  const lineHeight = 26;
+  const maxTextWidth = width - padding * 2;
+  context.font = "800 22px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  const lines = wrapCanvasText(context, String(label || "Form").trim() || "Form", maxTextWidth, 2);
+  const height = padding + qrSize + labelGap + lines.length * lineHeight + padding;
+
+  canvas.width = width;
+  canvas.height = height;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.imageSmoothingEnabled = false;
+  context.drawImage(image, (width - qrSize) / 2, padding, qrSize, qrSize);
+  context.imageSmoothingEnabled = true;
+  context.fillStyle = "#111111";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = "800 22px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  lines.forEach((line, index) => {
+    context.fillText(line, width / 2, padding + qrSize + labelGap + lineHeight / 2 + index * lineHeight);
+  });
+  return canvas.toDataURL("image/png");
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+function wrapCanvasText(context, text, maxWidth, maxLines = 2) {
+  const words = String(text || "").split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = "";
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (!current || context.measureText(next).width <= maxWidth) {
+      current = next;
+      return;
+    }
+    lines.push(current);
+    current = word;
+  });
+  if (current) lines.push(current);
+  if (!lines.length) lines.push("Form");
+  const fitLines = lines.map((line) =>
+    context.measureText(line).width > maxWidth ? ellipsizeCanvasText(context, line, maxWidth) : line,
+  );
+  if (fitLines.length <= maxLines) return fitLines;
+  const kept = fitLines.slice(0, maxLines);
+  kept[maxLines - 1] = ellipsizeCanvasText(context, kept[maxLines - 1], maxWidth);
+  return kept;
+}
+
+function ellipsizeCanvasText(context, text, maxWidth) {
+  const ellipsis = "...";
+  let next = String(text || "");
+  while (next && context.measureText(`${next}${ellipsis}`).width > maxWidth) {
+    next = next.slice(0, -1).trimEnd();
+  }
+  return next ? `${next}${ellipsis}` : ellipsis;
 }
 
 function dataUrlToFile(dataUrl, fileName) {

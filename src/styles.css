@@ -4880,8 +4880,8 @@ p {
 
 .template-qr-image img {
   display: block;
-  width: 132px;
-  height: 132px;
+  width: min(100%, 320px);
+  height: auto;
 }
 
 .template-qr-details {
@@ -7310,8 +7310,13 @@ p {
 }
 
 .submitted-edit-dialog {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   width: min(100%, 1040px);
+  height: min(90vh, 920px);
+  height: min(90dvh, 920px);
   max-height: min(90vh, 920px);
+  max-height: min(90dvh, 920px);
   padding: 0;
   overflow: hidden;
 }
@@ -7328,10 +7333,13 @@ p {
 
 .submitted-edit-form {
   display: grid;
+  align-content: start;
   gap: 14px;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 0 18px 18px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .submitted-edit-form .template-runtime-section-grid {
@@ -8421,6 +8429,36 @@ p {
   .submitted-form-document .staff-detail-list div {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .submitted-edit-backdrop {
+    align-items: stretch;
+    padding: 10px;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .submitted-edit-dialog {
+    width: 100%;
+    height: calc(100vh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height: none;
+  }
+
+  .submitted-edit-dialog .dialog-heading,
+  .submitted-edit-dialog > .translate-dialog-notice {
+    margin-right: 14px;
+    margin-left: 14px;
+  }
+
+  .submitted-edit-dialog .dialog-heading {
+    margin-top: 14px;
+  }
+
+  .submitted-edit-form {
+    padding: 0 14px 14px;
   }
 
   .toolbox-detail-table .header {

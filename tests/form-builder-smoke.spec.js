@@ -2026,6 +2026,46 @@ test("submitted form viewer fits the mobile viewport", async ({ page }) => {
   });
 });
 
+test("submitted form edit dialog owns mobile scroll", async ({ page }) => {
+  const mobileSubmission = templateSubmissionRow({
+    id: "mobile-edit-scroll-submission",
+    formType: "fall_protection_form",
+    company: "GarnoCo",
+    workerName: "Garnet Bird",
+    schemaSnapshot: fallProtectionSchema,
+    answers: {
+      fall_inspection_date: "2026-07-05",
+      fall_worker_name: "Garnet Bird",
+      fall_equipment_inspected: "Lanyard",
+      fall_equipment_input_method: "Select Safety First Asset",
+      fall_selected_asset_name: "Garnet - Lanyard",
+      fall_selected_asset_serial: "FP-LONG-SERIAL-1234567890",
+      fall_inspector_name: "Garnet Bird",
+    },
+  });
+  await mockApis(
+    page,
+    [template("fall_protection_form", "Fall Protection Form", fallProtectionSchema)],
+    { staffSubmissions: [mobileSubmission] },
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/staff/forms/${mobileSubmission.id}`);
+  await page.getByRole("button", { name: "Edit" }).click();
+  const editDialog = page.getByRole("dialog", { name: "Edit Submitted Form" });
+  await expect(editDialog).toBeVisible();
+  await expect(page.locator(".submitted-edit-form")).toBeVisible();
+
+  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe("fixed");
+  await page.locator(".submitted-edit-form").hover();
+  await page.mouse.wheel(0, 900);
+  await expect.poll(() => page.locator(".submitted-edit-form").evaluate((element) => element.scrollTop > 0)).toBe(true);
+
+  await editDialog.getByRole("button", { name: "Close" }).click();
+  await expect(editDialog).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.body.style.position)).toBe("");
+});
+
 test("worker submission review shows PDF PNG and Print actions at the top", async ({ page }) => {
   const workerSubmission = templateSubmissionRow({
     id: "worker-review-submission",
@@ -3550,6 +3590,19 @@ test("template QR download opens native image share when available", async ({ pa
   await mockApis(page, [readyRow]);
 
   await page.goto("/staff/form-templates");
+  const qrImage = page.locator(".template-qr-image img");
+  await expect.poll(() => qrImage.evaluate((image) => ({
+    height: image.naturalHeight,
+    width: image.naturalWidth,
+  }))).toMatchObject({
+    height: expect.any(Number),
+    width: 320,
+  });
+  const qrImageSize = await qrImage.evaluate((image) => ({
+    height: image.naturalHeight,
+    width: image.naturalWidth,
+  }));
+  expect(qrImageSize.height).toBeGreaterThan(qrImageSize.width);
   const downloadButton = page.getByRole("button", { name: "Download QR" });
   await expect(downloadButton).toBeEnabled();
   await downloadButton.click();
