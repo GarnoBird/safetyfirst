@@ -4,6 +4,7 @@ import {
   getSupabaseServiceClient,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { assertStoredObjectMatches } from "./storage-validation.js";
 
 const CERTIFICATE_BUCKET = "safety-form-submissions";
 const MAX_TEXT = 600;
@@ -164,6 +165,14 @@ export async function attachCertificateFile(certificateId, body, staff) {
   if (!storagePath.startsWith(`certificates/${certificate.id}/`)) {
     throwBadRequest("Uploaded file path is not valid for this certificate.");
   }
+  await assertStoredObjectMatches({
+    bucket: CERTIFICATE_BUCKET,
+    storagePath,
+    allowedPrefix: `certificates/${certificate.id}/`,
+    expectedSizeBytes: file.sizeBytes,
+    expectedMimeType: file.mimeType,
+    maxSizeBytes: MAX_FILE_SIZE_BYTES,
+  });
 
   const inserted = throwIfSupabaseError(
     await getSupabaseServiceClient()

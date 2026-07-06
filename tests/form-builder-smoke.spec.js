@@ -115,6 +115,7 @@ const fallProtectionSchema = readMigrationSchema("024_fall_protection_template.s
 const dailySafetyInspectionSchema = readMigrationSchema("025_daily_safety_inspection_template.sql");
 const dailyWashroomInspectionSchema = readMigrationSchema("026_daily_washroom_inspection_template.sql");
 const skidSteerLoaderPreUseInspectionSchema = readMigrationSchema("029_skid_steer_loader_pre_use_inspection_template.sql");
+const weeklySubTradeSiteInspectionSchema = readMigrationSchema("040_weekly_sub_trade_site_inspection_template.sql");
 const importedSalusSchemas = [
   newWorkerOrientationSchema,
   speedFanInspectionSchema,
@@ -123,6 +124,7 @@ const importedSalusSchemas = [
   dailySafetyInspectionSchema,
   dailyWashroomInspectionSchema,
   skidSteerLoaderPreUseInspectionSchema,
+  weeklySubTradeSiteInspectionSchema,
 ];
 
 const requiredSignatureSection = {
@@ -673,7 +675,10 @@ async function mockApis(page, templates, options = {}) {
           normalizeMockSignInIdentity(row.name) === normalizedName &&
           normalizeMockSignInIdentity(row.company) === normalizedCompany,
       );
-      if (existing) return json({ signIn: existing, created: false }, 200);
+      if (existing) {
+        const signOutToken = `test-token-${existing.id}`;
+        return json({ signIn: { ...existing, signOutToken }, signOutToken, created: false }, 200);
+      }
       workerSignInCount += 1;
       const signIn = {
         id: `worker-signin-${workerSignInCount}`,
@@ -687,7 +692,8 @@ async function mockApis(page, templates, options = {}) {
         sign_out_date_vancouver: null,
       };
       workerSignIns.push(signIn);
-      return json({ signIn, created: true }, 201);
+      const signOutToken = `test-token-${signIn.id}`;
+      return json({ signIn: { ...signIn, signOutToken }, signOutToken, created: true }, 201);
     }
     if (path === "/api/staff/signins" && method === "GET") {
       const date = url.searchParams.get("date") || "2026-07-03";
@@ -3329,6 +3335,112 @@ test("Skid Steer Loader Pre-use Inspection worker form submits checklist and ope
   expect(submissions[0].formData.answers.skid_steer_visual_remarks).toBe("No leaks observed.");
   expect(submissions[0].formData.answers.skid_steer_vehicle_number).toBe("SS-14");
   expect(submissions[0].formData.answers.skid_steer_hour_meter_reading).toBe("247.5");
+});
+
+test("Weekly Sub-Trade Site Inspection migration opens as a published visible editable template", async ({ page }) => {
+  const row = template(
+    "weekly_sub_trade_site_inspection",
+    "Weekly Sub-Trade Site Inspection",
+    weeklySubTradeSiteInspectionSchema,
+    { created_by_staff_id: null, displayOrder: 120, updated_by_staff_id: null },
+  );
+  await mockApis(page, [row]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Weekly Sub-Trade Site Inspection" })).toBeVisible();
+  const templateCard = page.locator(".template-card").filter({ hasText: "Weekly Sub-Trade Site Inspection" });
+  await expect(templateCard).toContainText("Shown to workers");
+  await expect(page.locator(".template-editor-heading")).toContainText("Published v7");
+  await expect(page.getByRole("button", { name: "Save draft", exact: true }).first()).toBeVisible();
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Will you team be doing any of the following critical tasks next week?" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card").getByLabel("Display style")).toHaveValue("checklist");
+
+  await page
+    .locator(".template-v3-field-card")
+    .filter({ hasText: "Project work areas are clean, orderly, and free of excess trash and debris" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".template-v3-selected-block-card").getByLabel("Display style")).toHaveValue("radio");
+
+  await openPreview(page);
+  const preview = page.locator(".template-v3-preview-page");
+  await expect(preview.getByRole("heading", { name: "Weekly Sub-Trade Site Inspection" }).first()).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "General Information" }).first()).toBeVisible();
+  await expect(preview.getByLabel("Confined Space Entry")).toBeVisible();
+  await expect(preview.getByText("Housekeeping and Sanitation")).toBeVisible();
+  await expect(preview.getByRole("radio", { name: "Pass" }).first()).toBeVisible();
+  await expect(preview.getByRole("heading", { name: "Corrective Actions" }).first()).toBeVisible();
+  await expect(preview.getByText("No action items needed.")).toBeVisible();
+});
+
+test("Weekly Sub-Trade Site Inspection worker form submits inspection rows and corrective action", async ({ page }) => {
+  test.slow();
+  const row = template(
+    "weekly_sub_trade_site_inspection",
+    "Weekly Sub-Trade Site Inspection",
+    weeklySubTradeSiteInspectionSchema,
+    { created_by_staff_id: null, displayOrder: 120, updated_by_staff_id: null },
+  );
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/weekly_sub_trade_site_inspection");
+  await expect(page.getByRole("heading", { name: "Weekly Sub-Trade Site Inspection" })).toBeVisible();
+  await page
+    .locator(".template-field-weekly_sub_trade_critical_tasks_next_week")
+    .getByLabel("Confined Space Entry")
+    .check();
+  await page
+    .locator(".template-field-weekly_sub_trade_critical_tasks_next_week")
+    .getByLabel("Hot Work within 50 feet of a fire hazard")
+    .check();
+  await page
+    .locator(".template-field-weekly_sub_trade_work_areas_clean")
+    .getByRole("radio", { name: "Pass" })
+    .click();
+  await page
+    .locator(".template-field-weekly_sub_trade_drains_clear")
+    .getByRole("radio", { name: "Fail" })
+    .click();
+  await page
+    .locator(".template-field-weekly_sub_trade_pfas_used_properly")
+    .getByRole("radio", { name: "N/A" })
+    .click();
+
+  const correctiveActions = page.locator(".template-field-weekly_sub_trade_corrective_actions");
+  await correctiveActions.getByLabel("Suggested assignee").fill("Sub-trade foreman");
+  await correctiveActions.getByLabel("Location / area").fill("Level 2 drain");
+  await correctiveActions.getByLabel("Action item / issue").fill("Drain area has sludge and debris.");
+  await correctiveActions.getByLabel("Recommended corrective action").fill("Clean drain area before next shift.");
+  await page.locator("form.template-worker-form button[type='submit']").click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.answers.weekly_sub_trade_inspector).toBe(worker.name);
+  expect(submissions[0].formData.answers.weekly_sub_trade_trade_name).toBe(worker.company);
+  expect(submissions[0].formData.answers.weekly_sub_trade_critical_tasks_next_week).toEqual([
+    "Confined Space Entry",
+    "Hot Work within 50 feet of a fire hazard",
+  ]);
+  expect(submissions[0].formData.answers.weekly_sub_trade_work_areas_clean).toBe("Pass");
+  expect(submissions[0].formData.answers.weekly_sub_trade_drains_clear).toBe("Fail");
+  expect(submissions[0].formData.answers.weekly_sub_trade_pfas_used_properly).toBe("N/A");
+  expect(submissions[0].formData.actionItemBlocks.weekly_sub_trade_corrective_actions).toEqual({
+    noItems: false,
+    rows: [
+      expect.objectContaining({
+        suggestedAssignee: "Sub-trade foreman",
+        location: "Level 2 drain",
+        description: "Drain area has sludge and debris.",
+        recommendedAction: "Clean drain area before next shift.",
+      }),
+    ],
+  });
 });
 
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {

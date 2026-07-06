@@ -16,7 +16,9 @@ export const GROUP_FIELDS = ["none", "trade", "company"];
 
 const WORKER_COOKIE_NAME = "sf_worker_signin";
 const WORKER_COOKIE_TTL_SECONDS = 60 * 60 * 36;
+const WORKER_SIGNOUT_TOKEN_TTL_SECONDS = WORKER_COOKIE_TTL_SECONDS;
 const WORKER_SIGNIN_ID_LIMIT = 100;
+const WORKER_SIGNOUT_TOKEN_LIMIT = 100;
 const WORKER_SIGNIN_SELECT =
   "id, name, phone, trade, company, signed_in_at, signed_out_at, sign_in_date_vancouver, sign_out_date_vancouver";
 
@@ -152,9 +154,10 @@ export async function getCurrentWorkerSignIn(req) {
   );
 }
 
-export async function getCurrentWorkerSignInsByIds(ids) {
+export async function getCurrentWorkerSignInsByIds(ids, { signOutTokens } = {}) {
   const signInIds = cleanWorkerSignInIds(ids);
   if (!signInIds.length) return [];
+  assertWorkerSignOutAuthorized(signInIds, signOutTokens);
 
   const rows = throwIfSupabaseError(
     await getSupabaseServiceClient()
@@ -193,13 +196,14 @@ export async function signOutCurrentWorker(req) {
   );
 }
 
-export async function signOutWorkerSignInsByIds(ids) {
+export async function signOutWorkerSignInsByIds(ids, { signOutTokens, skipAuthorization = false } = {}) {
   const signInIds = cleanWorkerSignInIds(ids);
   if (!signInIds.length) {
     const error = new Error("At least one sign-in is required.");
     error.statusCode = 400;
     throw error;
   }
+  if (!skipAuthorization) assertWorkerSignOutAuthorized(signInIds, signOutTokens);
 
   const now = new Date();
   const rows = throwIfSupabaseError(
@@ -217,12 +221,34 @@ export async function signOutWorkerSignInsByIds(ids) {
   );
 
   if (!rows.length) {
-    const error = new Error("No open sign-ins were found for today.");
-    error.statusCode = 404;
+    const error = new Error(
+      skipAuthorization
+        ? "No open sign-ins were found for today."
+        : "Sign-out token is no longer usable.",
+    );
+    error.statusCode = skipAuthorization ? 404 : 403;
+    error.exposeMessage = true;
     throw error;
   }
 
   return orderSignInsByIds(rows, signInIds);
+}
+
+export function createWorkerSignOutToken(ids, now = new Date()) {
+  const signInIds = cleanWorkerSignInIds(ids);
+  if (!signInIds.length) {
+    const error = new Error("At least one sign-in is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+  const payload = base64url(
+    JSON.stringify({
+      signInIds,
+      date: getVancouverDate(now),
+      exp: Math.floor(now.getTime() / 1000) + WORKER_SIGNOUT_TOKEN_TTL_SECONDS,
+    }),
+  );
+  return `${payload}.${signPayload(payload)}`;
 }
 
 export async function listSignIns({ date, sort = "signed_in_at", dir = "asc" }) {
@@ -278,10 +304,83 @@ function orderSignInsByIds(rows, ids) {
   return [...rows].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }
 
+export function assertWorkerSignOutAuthorized(signInIds, signOutTokens) {
+  const tokenList = cleanWorkerSignOutTokens(signOutTokens);
+  if (!tokenList.length) {
+    const error = new Error("Sign-out token is required.");
+    error.statusCode = 401;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  const today = getVancouverDate();
+  const authorizedIds = new Set();
+  let validTokenCount = 0;
+  tokenList.forEach((token) => {
+    const payload = verifyWorkerSignOutToken(token);
+    if (!payload || payload.date !== today) return;
+    validTokenCount += 1;
+    payload.signInIds.forEach((id) => authorizedIds.add(id));
+  });
+
+  if (!validTokenCount) {
+    const error = new Error("Sign-out token is not valid.");
+    error.statusCode = 401;
+    error.exposeMessage = true;
+    throw error;
+  }
+
+  if (signInIds.every((id) => authorizedIds.has(id))) return;
+  const error = new Error("Sign-out token does not match the requested sign-ins.");
+  error.statusCode = 403;
+  error.exposeMessage = true;
+  throw error;
+}
+
+function cleanWorkerSignOutTokens(value) {
+  const rawTokens = Array.isArray(value) ? value : String(value || "").split(",");
+  const tokens = rawTokens.map((token) => String(token || "").trim()).filter(Boolean);
+  const uniqueTokens = [...new Set(tokens)];
+  if (uniqueTokens.length > WORKER_SIGNOUT_TOKEN_LIMIT) {
+    const error = new Error(`No more than ${WORKER_SIGNOUT_TOKEN_LIMIT} sign-out tokens can be used at once.`);
+    error.statusCode = 400;
+    throw error;
+  }
+  return uniqueTokens;
+}
+
+function verifyWorkerSignOutToken(token) {
+  const [payload, signature] = String(token || "").split(".");
+  if (!payload || !signature) return null;
+
+  const expected = signPayload(payload);
+  const expectedBytes = Buffer.from(expected);
+  const signatureBytes = Buffer.from(signature);
+  if (
+    expectedBytes.length !== signatureBytes.length ||
+    !crypto.timingSafeEqual(expectedBytes, signatureBytes)
+  ) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!parsed.exp || parsed.exp < Math.floor(Date.now() / 1000)) return null;
+    const signInIds = cleanWorkerSignInIds(parsed.signInIds || parsed.signInId);
+    if (!signInIds.length) return null;
+    return {
+      signInIds,
+      date: String(parsed.date || "").trim(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function getWorkerCookieSecret() {
-  const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET;
+  const secret = process.env.SESSION_SECRET;
   if (!secret) {
-    const error = new Error("Missing SESSION_SECRET or CRON_SECRET.");
+    const error = new Error("Missing SESSION_SECRET.");
     error.statusCode = 503;
     throw error;
   }

@@ -5,6 +5,7 @@ import {
   isSupabaseMissingRelationError,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { assertStoredObjectMatches } from "./storage-validation.js";
 
 export const ACTION_ITEM_STATUSES = [
   "draft",
@@ -502,6 +503,14 @@ export async function attachActionItemFile(actionItemId, body, staff) {
   if (!storagePath.startsWith(`action-items/${item.id}/`)) {
     throwBadRequest("Uploaded evidence path is not valid for this action item.");
   }
+  await assertStoredObjectMatches({
+    bucket: ACTION_ITEM_BUCKET,
+    storagePath,
+    allowedPrefix: `action-items/${item.id}/`,
+    expectedSizeBytes: file.sizeBytes,
+    expectedMimeType: file.mimeType,
+    maxSizeBytes: MAX_FILE_SIZE_BYTES,
+  });
 
   const inserted = throwIfSupabaseError(
     await getSupabaseServiceClient()

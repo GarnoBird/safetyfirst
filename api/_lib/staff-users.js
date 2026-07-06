@@ -2,10 +2,11 @@ import {
   getSupabaseServiceClient,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { validateStaffPassword } from "./password-policy.js";
 
 const STAFF_ROLES = ["owner", "admin", "staff"];
 const STAFF_USER_SELECT =
-  "id, auth_user_id, username, email, display_name, role, active, created_at, updated_at, created_by_staff_id, updated_by_staff_id, last_login_at";
+  "id, auth_user_id, username, email, phone, display_name, role, active, created_at, updated_at, created_by_staff_id, updated_by_staff_id, last_login_at";
 
 export async function listStaffUsers({
   search = "",
@@ -27,8 +28,8 @@ export async function listStaffUsers({
   const normalizedSearch = String(search || "").trim().toLowerCase();
   if (normalizedSearch) {
     const searchFields = includeEmail
-      ? ["username", "email", "display_name", "role"]
-      : ["username", "display_name", "role"];
+      ? ["username", "email", "phone", "display_name", "role"]
+      : ["username", "phone", "display_name", "role"];
     rows = rows.filter((row) =>
       searchFields.some((field) =>
         String(row[field] || "").toLowerCase().includes(normalizedSearch),
@@ -61,6 +62,7 @@ export async function createStaffUser(body, actor) {
           auth_user_id: data.user.id,
           username: cleaned.username,
           email: cleaned.email,
+          phone: cleaned.phone,
           display_name: cleaned.display_name,
           role: cleaned.role,
           active: cleaned.active,
@@ -101,6 +103,7 @@ export async function updateStaffUser(body, actor) {
   const update = {};
   if (body?.username !== undefined) update.username = cleanUsername(body.username);
   if (body?.email !== undefined) update.email = cleanEmail(body.email);
+  if (body?.phone !== undefined) update.phone = cleanPhone(body.phone);
   if (body?.display_name !== undefined) {
     update.display_name = cleanDisplayName(body.display_name, update.username || existing.username);
   }
@@ -123,7 +126,7 @@ export async function updateStaffUser(body, actor) {
 
   if (body?.password) {
     const password = String(body.password);
-    if (password.length < 3) throwBadRequest("Password must be at least 3 characters.");
+    validateStaffPassword(password);
     const { error } = await getSupabaseServiceClient().auth.admin.updateUserById(
       existing.auth_user_id,
       { password },
@@ -216,6 +219,7 @@ export async function updateOwnStaffProfile(body, actor) {
   const update = {};
   if (body?.username !== undefined) update.username = cleanUsername(body.username);
   if (body?.email !== undefined) update.email = cleanEmail(body.email);
+  if (body?.phone !== undefined) update.phone = cleanPhone(body.phone);
   if (body?.display_name !== undefined) {
     update.display_name = cleanDisplayName(body.display_name, update.username || existing.username);
   }
@@ -248,7 +252,7 @@ export async function updateOwnStaffProfile(body, actor) {
 
   if (body?.password) {
     const password = String(body.password);
-    if (password.length < 3) throwBadRequest("Password must be at least 3 characters.");
+    validateStaffPassword(password);
     const { error } = await getSupabaseServiceClient().auth.admin.updateUserById(
       existing.auth_user_id,
       { password },
@@ -298,6 +302,7 @@ function publicStaffUser(row, { includeEmail = true } = {}) {
   const user = {
     id: row.id,
     username: row.username,
+    phone: row.phone || "",
     display_name: row.display_name || row.username,
     role: row.role,
     active: row.active,
@@ -312,14 +317,14 @@ function publicStaffUser(row, { includeEmail = true } = {}) {
 function cleanStaffUserInput(body, { requirePassword = false } = {}) {
   const username = cleanUsername(body?.username);
   const email = cleanEmail(body?.email);
+  const phone = cleanPhone(body?.phone);
   const displayName = cleanDisplayName(body?.display_name || body?.displayName, username);
   const password = String(body?.password || "");
-  if (requirePassword && password.length < 3) {
-    throwBadRequest("Password must be at least 3 characters.");
-  }
+  if (requirePassword) validateStaffPassword(password);
   return {
     username,
     email,
+    phone,
     display_name: displayName,
     role: cleanRole(body?.role || "staff"),
     active: body?.active === undefined ? true : Boolean(body.active),
@@ -366,6 +371,13 @@ function cleanDisplayName(value, fallback) {
   if (!displayName) throwBadRequest("Display name is required.");
   if (displayName.length > 120) throwBadRequest("Display name must be 120 characters or less.");
   return displayName;
+}
+
+function cleanPhone(value) {
+  const phone = String(value || "").trim();
+  if (phone.length > 40) throwBadRequest("Phone number must be 40 characters or less.");
+  if (phone && !/\d/.test(phone)) throwBadRequest("Phone number must include digits.");
+  return phone;
 }
 
 function cleanRole(value) {

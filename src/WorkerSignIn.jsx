@@ -1060,6 +1060,7 @@ const EMPTY_STAFF_WORKER_FILTERS = {
 const EMPTY_STAFF_USER_FORM = {
   display_name: "",
   email: "",
+  phone: "",
   username: "",
   password: "",
   role: "staff",
@@ -1069,6 +1070,7 @@ const EMPTY_STAFF_USER_FORM = {
 const EMPTY_STAFF_PROFILE_FORM = {
   display_name: "",
   email: "",
+  phone: "",
   username: "",
   password: "",
 };
@@ -1310,7 +1312,10 @@ export function WorkerSignInPage() {
           throw new Error(responsePayload.error || "Sign-in failed.");
         }
         if (!responsePayload.signIn) throw new Error("Sign-in failed.");
-        submittedSignIns.push(responsePayload.signIn);
+        submittedSignIns.push({
+          ...responsePayload.signIn,
+          signOutToken: responsePayload.signOutToken || responsePayload.signIn.signOutToken || "",
+        });
         if (responsePayload.created === false) {
           reusedCount += 1;
         } else {
@@ -1501,19 +1506,29 @@ export function WorkerSignOutPage({ navigateTo }) {
         const rememberedGroup = readRememberedWorkerGroup();
         if (rememberedGroup.signIns.length) {
           const ids = rememberedGroup.signIns.map((signIn) => signIn.id);
-          const params = new URLSearchParams({ ids: ids.join(",") });
-          const groupPayload = await readApiJson(
-            await fetch(`/api/worker-signout?${params}`, {
-              credentials: "include",
-            }),
-          );
-          if (!active) return;
-          if (groupPayload.signIns?.length) {
-            setRememberedGroupIds(ids);
-            setSignIns(groupPayload.signIns);
-            return;
+          const signOutTokens = rememberedGroup.signIns
+            .map((signIn) => signIn.signOutToken)
+            .filter(Boolean);
+          if (signOutTokens.length !== ids.length) {
+            clearRememberedWorkerGroup();
+          } else {
+            const params = new URLSearchParams({
+              ids: ids.join(","),
+              signOutTokens: signOutTokens.join(","),
+            });
+            const groupPayload = await readApiJson(
+              await fetch(`/api/worker-signout?${params}`, {
+                credentials: "include",
+              }),
+            );
+            if (!active) return;
+            if (groupPayload.signIns?.length) {
+              setRememberedGroupIds(ids);
+              setSignIns(groupPayload.signIns);
+              return;
+            }
+            clearRememberedWorkerGroup();
           }
-          clearRememberedWorkerGroup();
         }
 
         const payload = await readApiJson(
@@ -1541,12 +1556,17 @@ export function WorkerSignOutPage({ navigateTo }) {
     try {
       const openIds = new Set(signIns.map((signIn) => signIn.id));
       const groupSignOutIds = rememberedGroupIds.filter((id) => openIds.has(id));
+      const rememberedGroup = readRememberedWorkerGroup();
+      const signOutTokens = rememberedGroup.signIns
+        .filter((signIn) => groupSignOutIds.includes(signIn.id))
+        .map((signIn) => signIn.signOutToken)
+        .filter(Boolean);
       const requestOptions = groupSignOutIds.length
         ? {
             method: "POST",
             credentials: "include",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ signInIds: groupSignOutIds }),
+            body: JSON.stringify({ signInIds: groupSignOutIds, signOutTokens }),
           }
         : {
             method: "POST",
@@ -2008,6 +2028,7 @@ export function StaffSettingsPage({ navigateTo }) {
     setProfileForm({
       display_name: staff.display_name || "",
       email: staff.email || "",
+      phone: staff.phone || "",
       username: staff.username || "",
       password: "",
     });
@@ -2065,6 +2086,7 @@ export function StaffSettingsPage({ navigateTo }) {
       setProfileForm({
         display_name: payload.staff.display_name || "",
         email: payload.staff.email || "",
+        phone: payload.staff.phone || "",
         username: payload.staff.username || "",
         password: "",
       });
@@ -7840,6 +7862,7 @@ export function StaffUsersPage({ navigateTo }) {
     setForm({
       display_name: user.display_name || "",
       email: user.email || "",
+      phone: user.phone || "",
       username: user.username || "",
       password: "",
       role: user.role || "staff",
@@ -7943,6 +7966,10 @@ export function StaffUsersPage({ navigateTo }) {
             <label className="field">
               <span>Email</span>
               <input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Phone</span>
+              <input inputMode="tel" value={form.phone} onChange={(event) => updateForm("phone", event.target.value)} />
             </label>
             <label className="field">
               <span>Username</span>
@@ -14293,6 +14320,7 @@ function StaffUsersTable({
             <th>Name</th>
             <th>Username</th>
             {showEmail ? <th>Email</th> : null}
+            <th>Phone</th>
             <th>Role</th>
             <th>Status</th>
             {canManage ? <th>Actions</th> : null}
@@ -14304,6 +14332,9 @@ function StaffUsersTable({
               <td data-label="Name">{user.display_name}</td>
               <td data-label="Username">{user.username}</td>
               {showEmail ? <td data-label="Email"><a href={`mailto:${user.email}`}>{user.email}</a></td> : null}
+              <td data-label="Phone">
+                {user.phone ? <a href={`tel:${phoneHref(user.phone)}`}>{user.phone}</a> : <span className="muted">-</span>}
+              </td>
               <td data-label="Role"><StatusPill value={roleLabel(user.role)} /></td>
               <td data-label="Status"><StatusPill value={user.active ? "Active" : "Inactive"} /></td>
               {canManage ? (
@@ -15507,6 +15538,15 @@ function StaffProfileSettingsCard({ form, saving, onChange, onSubmit }) {
           />
         </label>
         <label>
+          <span>Phone</span>
+          <input
+            autoComplete="tel"
+            inputMode="tel"
+            value={form.phone}
+            onChange={(event) => onChange("phone", event.target.value)}
+          />
+        </label>
+        <label>
           <span>Username</span>
           <input
             required
@@ -16252,7 +16292,7 @@ function staffFormSubmitter(staff) {
   return {
     id: `staff-${staff.id}`,
     name: staff.display_name || staff.username || staff.email || "Appia Staff",
-    phone: "",
+    phone: staff.phone || "",
     username: staff.username || staff.email || "staff",
     user_name: staff.username || staff.email || "staff",
     company: "Appia Staff",
@@ -16748,9 +16788,10 @@ function normalizeRememberedWorkerGroup(payload) {
         trade: String(signIn?.trade || "").trim(),
         signed_in_at: String(signIn?.signed_in_at || "").trim(),
         sign_in_date_vancouver: String(signIn?.sign_in_date_vancouver || date).trim(),
+        signOutToken: String(signIn?.signOutToken || signIn?.sign_out_token || "").trim(),
       }))
       .filter((signIn) => {
-        if (!signIn.id || seen.has(signIn.id)) return false;
+        if (!signIn.id || !signIn.signOutToken || seen.has(signIn.id)) return false;
         seen.add(signIn.id);
         return true;
       }),
@@ -17674,16 +17715,6 @@ function isToolboxTalkTemplateSchema(schema, template = {}) {
 function isSiteInspectionTemplateSchema(schema, template = {}) {
   const normalized = normalizeClientTemplateSchema(schema);
   if (normalized.formType === "site_inspection" || template?.form_type === "site_inspection") return true;
-
-  const templateSignal = slugifyTemplateId(
-    [
-      normalized.formType,
-      normalized.title,
-      template?.form_type,
-      template?.label,
-    ].filter(Boolean).join(" "),
-  );
-  if (templateSignal.includes("site_inspection")) return true;
 
   const fields = collectClientTemplateFields(normalized);
   return fields.some((field) =>

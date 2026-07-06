@@ -34,6 +34,16 @@ The default seeded staff account is:
 
 Change this password before using real production data.
 
+## Final release checklist
+
+Before real production data is entered, complete these release cleanup items:
+
+- Delete or rotate the prototype `lbird` / `123` staff credentials.
+- Replace the default `garnobird@gmail.com` report recipient wherever it appears in production settings.
+- Set a strong `SESSION_SECRET` that is different from `CRON_SECRET` / `SUPABASE_CRON_SECRET`.
+- Keep production Supabase, Resend, Microsoft, cron, and session secrets out of Vercel preview deployments.
+- Run every Supabase migration, including the security hardening migration, before enabling production traffic.
+
 ### OneDrive backup
 
 Safety form submissions use Microsoft Graph for staff-only OneDrive backup. Add

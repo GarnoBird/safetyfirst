@@ -12,6 +12,7 @@ import {
   isSupabaseMissingRelationError,
   throwIfSupabaseError,
 } from "./supabase.js";
+import { validateWorkerPassword } from "./password-policy.js";
 
 const scrypt = promisify(crypto.scrypt);
 
@@ -81,6 +82,7 @@ export async function verifyWorkerPassword(password, storedHash) {
 
 export async function createWorkerProfile(body, staffId) {
   const cleaned = cleanWorkerProfileInput(body, { requirePassword: true });
+  validateWorkerPassword(body.password);
   const password_hash = await hashWorkerPassword(body.password);
   try {
     return throwIfSupabaseError(
@@ -111,7 +113,10 @@ export async function updateWorkerProfile(body, staffId) {
   if (update.username !== undefined) update.username = normalizeUsername(update.username);
   if (update.phone !== undefined) update.phone_normalized = normalizePhone(update.phone);
   if (body?.active !== undefined) update.active = Boolean(body.active);
-  if (body?.password) update.password_hash = await hashWorkerPassword(body.password);
+  if (body?.password) {
+    validateWorkerPassword(body.password);
+    update.password_hash = await hashWorkerPassword(body.password);
+  }
 
   if (update.username !== undefined && !/^[a-z0-9._-]{2,64}$/.test(update.username)) {
     const error = new Error("Username can use letters, numbers, dots, dashes, and underscores.");
@@ -563,10 +568,10 @@ function signWorkerSessionPayload(payload) {
     .digest("base64url");
 }
 
-function getWorkerSessionSecret() {
-  const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET;
+export function getWorkerSessionSecret() {
+  const secret = process.env.SESSION_SECRET;
   if (!secret) {
-    const error = new Error("Missing SESSION_SECRET or CRON_SECRET.");
+    const error = new Error("Missing SESSION_SECRET.");
     error.statusCode = 503;
     throw error;
   }

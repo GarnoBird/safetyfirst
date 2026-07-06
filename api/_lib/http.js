@@ -12,16 +12,35 @@ export function sendMethodNotAllowed(res, methods) {
   sendJson(res, 405, { error: "Method not allowed" });
 }
 
-export async function readJson(req) {
-  if (req.body && typeof req.body === "object") return req.body;
-  if (typeof req.body === "string") return parseJson(req.body || "{}");
+export const DEFAULT_JSON_BODY_LIMIT_BYTES =
+  Number(process.env.JSON_BODY_LIMIT_BYTES || 2 * 1024 * 1024);
+
+export async function readJson(req, { limitBytes = DEFAULT_JSON_BODY_LIMIT_BYTES } = {}) {
+  if (req.body && typeof req.body === "object") {
+    assertBodySize(JSON.stringify(req.body), limitBytes);
+    return req.body;
+  }
+  if (typeof req.body === "string") {
+    assertBodySize(req.body, limitBytes);
+    return parseJson(req.body || "{}");
+  }
 
   let body = "";
   for await (const chunk of req) {
     body += chunk;
+    assertBodySize(body, limitBytes);
   }
 
   return body ? parseJson(body) : {};
+}
+
+function assertBodySize(body, limitBytes) {
+  if (!limitBytes) return;
+  if (Buffer.byteLength(String(body || ""), "utf8") <= limitBytes) return;
+  const error = new Error("Request body is too large.");
+  error.statusCode = 413;
+  error.exposeMessage = true;
+  throw error;
 }
 
 function parseJson(body) {

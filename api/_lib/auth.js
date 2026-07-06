@@ -10,12 +10,12 @@ import {
 const COOKIE_NAME = "sf_staff_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const STAFF_SELECT =
-  "id, auth_user_id, username, email, display_name, role, active, last_login_at";
+  "id, auth_user_id, username, email, phone, display_name, role, active, last_login_at";
 
-function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET;
+export function getSessionSecret() {
+  const secret = process.env.SESSION_SECRET;
   if (!secret) {
-    const error = new Error("Missing SESSION_SECRET or CRON_SECRET.");
+    const error = new Error("Missing SESSION_SECRET.");
     error.statusCode = 503;
     throw error;
   }
@@ -227,6 +227,7 @@ export function publicStaff(staff) {
     id: staff.id,
     username: staff.username,
     email: staff.email,
+    phone: staff.phone || "",
     display_name: staff.display_name || staff.username,
     role: staff.role,
   };

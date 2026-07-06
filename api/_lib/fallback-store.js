@@ -3,6 +3,7 @@ import { getSupabaseServiceClient, throwIfSupabaseError } from "./supabase.js";
 const RECORD_PREFIX = "__sf_form_platform__";
 
 export async function listFallbackRecords(kind) {
+  assertFallbackStoreAllowed();
   const rows = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("company_profiles")
@@ -14,6 +15,7 @@ export async function listFallbackRecords(kind) {
 }
 
 export async function getFallbackRecord(kind, id) {
+  assertFallbackStoreAllowed();
   const row = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("company_profiles")
@@ -27,6 +29,7 @@ export async function getFallbackRecord(kind, id) {
 }
 
 export async function upsertFallbackRecord(kind, id, record, staffId = null) {
+  assertFallbackStoreAllowed();
   const payload = {
     ...record,
     kind,
@@ -54,6 +57,7 @@ export async function upsertFallbackRecord(kind, id, record, staffId = null) {
 }
 
 export async function deleteFallbackRecord(kind, id) {
+  assertFallbackStoreAllowed();
   throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("company_profiles")
@@ -61,6 +65,16 @@ export async function deleteFallbackRecord(kind, id) {
       .eq("company_name", recordKey(kind, id)),
     "Fallback record could not be deleted.",
   );
+}
+
+export function assertFallbackStoreAllowed() {
+  if (process.env.NODE_ENV !== "production" && process.env.DISABLE_FALLBACK_STORE !== "true") {
+    return;
+  }
+  const error = new Error("Fallback data store is disabled. Run the latest Supabase migrations before using this feature.");
+  error.statusCode = 503;
+  error.exposeMessage = true;
+  throw error;
 }
 
 function recordKey(kind, id) {

@@ -22,6 +22,7 @@ import { getRequiredEnv } from "./http.js";
 import { buildOneDriveFilename, uploadBufferToOneDrive } from "./onedrive.js";
 import { renderSubmittedFormPdf } from "./submission-pdf.js";
 import { isOneDriveBackupEnabled } from "./settings.js";
+import { assertStoredObjectMatches } from "./storage-validation.js";
 import {
   getSupabaseServiceClient,
   isSupabaseMissingRelationError,
@@ -245,7 +246,7 @@ function staffSubmitter(staff) {
     storagePrefix: `staff/${staff.id}`,
     workerId: null,
     name: staff.display_name || staff.username || staff.email || "Appia Staff",
-    phone: "",
+    phone: staff.phone || "",
     username: staff.username || staff.email || "staff",
     user_name: staff.username || staff.email || "staff",
     company: "Appia Staff",
@@ -411,6 +412,7 @@ async function createSubmitterSubmission(submitter, body) {
     submissionMode,
     storagePrefix: submitter.storagePrefix,
   });
+  await verifySubmittedFiles(submittedFiles, submitter.storagePrefix);
   const notes = buildSubmissionNotes(formType, submissionMode, body?.notes, formData);
   const now = new Date();
 
@@ -481,6 +483,21 @@ async function createSubmitterSubmission(submitter, body) {
 
   await backupSubmissionBestEffort(inserted.id);
   return getSubmissionById(inserted.id, { includeDeleted: true });
+}
+
+async function verifySubmittedFiles(files, storagePrefix) {
+  await Promise.all(
+    files.map((file) =>
+      assertStoredObjectMatches({
+        bucket: SUBMISSION_BUCKET,
+        storagePath: file.storagePath,
+        allowedPrefix: `${storagePrefix}/`,
+        expectedSizeBytes: file.sizeBytes,
+        expectedMimeType: file.mimeType,
+        maxSizeBytes: MAX_FILE_SIZE_BYTES,
+      }),
+    ),
+  );
 }
 
 export async function listWorkerSubmissions(worker) {

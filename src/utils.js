@@ -73,11 +73,16 @@ export function toCsv(rows, fields) {
 }
 
 function escapeCsv(value) {
-  const text = String(value);
+  const text = safeCsvCell(value);
   if (/[",\n\r]/.test(text)) {
     return `"${text.replaceAll('"', '""')}"`;
   }
   return text;
+}
+
+export function safeCsvCell(value) {
+  const text = String(value);
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
 }
 
 export function parseCsv(text) {

@@ -107,7 +107,12 @@ import {
   recordJobRun,
   updateSystemAlert,
 } from "./_lib/ops.js";
-import { assertLoginAllowed, recordLoginAttempt } from "./_lib/security.js";
+import {
+  assertLoginAllowed,
+  assertRateLimit,
+  assertTrustedOrigin,
+  recordLoginAttempt,
+} from "./_lib/security.js";
 import {
   getSettingsSystemStatus,
   getStaffReportSettings,
@@ -123,6 +128,7 @@ import {
 } from "./_lib/staff-users.js";
 import {
   clearWorkerSignInCookie,
+  createWorkerSignOutToken,
   getCurrentWorkerSignIn,
   getCurrentWorkerSignInsByIds,
   GROUP_FIELDS,
@@ -151,6 +157,7 @@ export default async function handler(req, res) {
   const parts = apiPathParts(req);
 
   try {
+    assertTrustedOrigin(req);
     if (parts[0] === "auth") return await handleAuth(req, res, parts.slice(1));
     if (parts[0] === "cron") return await handleCron(req, res, parts.slice(1));
     if (parts[0] === "form-links") return await handleFormLinks(req, res, parts.slice(1));
@@ -401,6 +408,12 @@ async function handleFormLinks(req, res, parts) {
   if (!token) return sendJson(res, 404, { error: "Not found" });
 
   if (parts.length === 1 && req.method === "GET") {
+    assertRateLimit({
+      req,
+      scope: "form_link_metadata",
+      identifier: token,
+      limit: 120,
+    });
     const template = await getPublishedFormTemplateByShareToken(token);
     return sendJson(res, 200, {
       template: publicShareLinkTemplate(template),
@@ -409,6 +422,12 @@ async function handleFormLinks(req, res, parts) {
   }
 
   if (parts.length === 2 && parts[1] === "published" && req.method === "GET") {
+    assertRateLimit({
+      req,
+      scope: "form_link_published",
+      identifier: token,
+      limit: 120,
+    });
     await requireFormSubmitter(req, parseQuery(req).get("submitter"));
     const template = await getPublishedFormTemplateByShareToken(token);
     return sendJson(res, 200, {
@@ -420,6 +439,14 @@ async function handleFormLinks(req, res, parts) {
   if (parts[1] !== "submissions") return sendJson(res, 404, { error: "Not found" });
 
   const body = req.method === "POST" ? await readJson(req) : {};
+  if (req.method === "POST") {
+    assertRateLimit({
+      req,
+      scope: parts[2] === "file-upload-url" ? "form_link_upload_url" : "form_link_submission",
+      identifier: token,
+      limit: parts[2] === "file-upload-url" ? 60 : 30,
+    });
+  }
   const submitter = await requireFormSubmitter(req, body?.submitterKind || body?.submitter_kind || parseQuery(req).get("submitter"));
   const template = await getPublishedFormTemplateByShareToken(token);
   const bodyWithFormType = {
@@ -566,6 +593,21 @@ async function handleStaffSignIns(req, res, staff, parts) {
       `attachment; filename="${filenamePrefix}-${date}.${format}"`,
     );
     return res.end(body);
+  }
+
+  if (parts[0] === "sign-out") {
+    if (req.method !== "POST") return sendMethodNotAllowed(res, ["POST"]);
+    const body = await readJson(req);
+    const signIns = await signOutWorkerSignInsByIds(body.signInIds, { skipAuthorization: true });
+    await recordAuditEvent({
+      req,
+      staff,
+      action: "worker_signins_signed_out",
+      targetType: "worker_signins",
+      summary: `${staff.username} signed out ${signIns.length} worker sign-in${signIns.length === 1 ? "" : "s"}.`,
+      metadata: { ids: signIns.map((row) => row.id) },
+    });
+    return sendJson(res, 200, { signIns });
   }
 
   return sendJson(res, 404, { error: "Not found" });
@@ -1523,10 +1565,22 @@ async function handleWorker(req, res, parts) {
     return sendJson(res, 200, { rows: await listWorkerSubmissions(worker) });
   }
   if (!tail.length && req.method === "POST") {
+    assertRateLimit({
+      req,
+      scope: "worker_submission",
+      identifier: worker.id,
+      limit: 60,
+    });
     const submission = await createWorkerSubmission(worker, await readJson(req));
     return sendJson(res, 201, { submission });
   }
   if (tail.length === 1 && tail[0] === "file-upload-url" && req.method === "POST") {
+    assertRateLimit({
+      req,
+      scope: "worker_upload_url",
+      identifier: worker.id,
+      limit: 80,
+    });
     const upload = await createFileUploadTarget(worker, await readJson(req));
     return sendJson(res, 200, { upload });
   }
@@ -1547,20 +1601,39 @@ async function handleWorker(req, res, parts) {
 
 async function handleWorkerSignIns(req, res) {
   if (req.method !== "POST") return sendMethodNotAllowed(res, ["POST"]);
-  const { signIn, created } = await createWorkerSignIn(await readJson(req));
+  const body = await readJson(req);
+  assertRateLimit({
+    req,
+    scope: "worker_signins",
+    identifier: body.phone || body.name || "",
+    limit: 40,
+  });
+  const { signIn, created } = await createWorkerSignIn(body);
+  const signOutToken = createWorkerSignOutToken(signIn.id);
   setWorkerSignInCookie(res, signIn.id);
-  return sendJson(res, created ? 201 : 200, { signIn, created });
+  return sendJson(res, created ? 201 : 200, {
+    signIn: { ...signIn, signOutToken },
+    signOutToken,
+    created,
+  });
 }
 
 async function handleWorkerSignOut(req, res) {
   if (!["GET", "POST"].includes(req.method)) {
     return sendMethodNotAllowed(res, ["GET", "POST"]);
   }
+  assertRateLimit({
+    req,
+    scope: "worker_signout",
+    identifier: parseQuery(req).get("ids") || "",
+    limit: 80,
+  });
 
   if (req.method === "GET") {
     const ids = parseQuery(req).get("ids");
     if (ids) {
-      const signIns = await getCurrentWorkerSignInsByIds(ids);
+      const signOutTokens = parseQuery(req).get("signOutTokens") || parseQuery(req).get("token");
+      const signIns = await getCurrentWorkerSignInsByIds(ids, { signOutTokens });
       return sendJson(res, 200, { signIns });
     }
     const signIn = await getCurrentWorkerSignIn(req);
@@ -1569,7 +1642,9 @@ async function handleWorkerSignOut(req, res) {
 
   const body = await readJson(req);
   if (Array.isArray(body.signInIds) && body.signInIds.length) {
-    const signIns = await signOutWorkerSignInsByIds(body.signInIds);
+    const signIns = await signOutWorkerSignInsByIds(body.signInIds, {
+      signOutTokens: body.signOutTokens || body.signOutToken || body.token,
+    });
     clearWorkerSignInCookie(res);
     return sendJson(res, 200, { signIns, signIn: signIns[0] || null });
   }

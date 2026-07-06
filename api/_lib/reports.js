@@ -466,8 +466,13 @@ export async function updateReportRunStatus(runId, { status, rowCount }) {
 }
 
 function escapeCsv(value) {
-  const text = String(value ?? "");
+  const text = safeCsvCell(value);
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+export function safeCsvCell(value) {
+  const text = String(value ?? "");
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
 }
 
 function escapeXml(value) {

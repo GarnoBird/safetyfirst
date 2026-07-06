@@ -11,13 +11,15 @@ export function assertCronAuthorized(req) {
   }
 
   const authorization = req.headers.authorization || "";
-  const url = new URL(req.url || "/", `https://${req.headers.host || "localhost"}`);
-  const querySecret = url.searchParams.get("secret");
   const bearerSecret = authorization.startsWith("Bearer ")
     ? authorization.slice("Bearer ".length)
     : "";
+  const headerSecret =
+    req.headers["x-cron-secret"] ||
+    req.headers["x-supabase-cron-secret"] ||
+    "";
 
-  if (!acceptedSecrets.includes(bearerSecret) && !acceptedSecrets.includes(querySecret)) {
+  if (!acceptedSecrets.includes(bearerSecret) && !acceptedSecrets.includes(headerSecret)) {
     const error = new Error("Cron request is not authorized.");
     error.statusCode = 401;
     throw error;

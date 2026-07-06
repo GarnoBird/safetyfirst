@@ -8,6 +8,9 @@ import {
 
 const LOGIN_WINDOW_MINUTES = 15;
 const MAX_FAILED_ATTEMPTS = 10;
+const DEFAULT_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const DEFAULT_RATE_LIMIT_MAX = 60;
+const rateLimitBuckets = new Map();
 
 export async function assertLoginAllowed({ scope, identifier, req }) {
   const normalizedScope = cleanScope(scope);
@@ -99,6 +102,60 @@ export async function recordLoginAttempt({
   }
 }
 
+export function assertTrustedOrigin(req) {
+  if (!["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) return;
+
+  const source = req.headers.origin || req.headers.referer || "";
+  if (!source) return;
+
+  let sourceUrl;
+  try {
+    sourceUrl = new URL(source);
+  } catch {
+    throwForbiddenOrigin();
+  }
+
+  const trustedHosts = new Set([
+    req.headers.host,
+    req.headers["x-forwarded-host"],
+    hostFromUrl(process.env.APP_PUBLIC_URL),
+    process.env.VERCEL_URL,
+  ].filter(Boolean).map((host) => String(host).toLowerCase()));
+
+  if (trustedHosts.has(sourceUrl.host.toLowerCase())) return;
+  throwForbiddenOrigin();
+}
+
+export function assertRateLimit({
+  req,
+  scope,
+  identifier = "",
+  limit = DEFAULT_RATE_LIMIT_MAX,
+  windowMs = DEFAULT_RATE_LIMIT_WINDOW_MS,
+} = {}) {
+  const meta = requestMeta(req);
+  const key = [
+    cleanRateLimitPart(scope || "api"),
+    cleanRateLimitPart(identifier || meta.ipAddress || "unknown"),
+  ].join(":");
+  const now = Date.now();
+  pruneRateLimitBuckets(now);
+  const bucket = rateLimitBuckets.get(key);
+
+  if (!bucket || bucket.resetAt <= now) {
+    rateLimitBuckets.set(key, { count: 1, resetAt: now + windowMs });
+    return;
+  }
+
+  bucket.count += 1;
+  if (bucket.count <= limit) return;
+
+  const error = new Error("Too many requests. Try again later.");
+  error.statusCode = 429;
+  error.exposeMessage = true;
+  throw error;
+}
+
 async function countFailedAttempts({ scope, field, value, cutoff }) {
   if (!value) return 0;
   const result = await getSupabaseServiceClient()
@@ -113,6 +170,33 @@ async function countFailedAttempts({ scope, field, value, cutoff }) {
     throwIfSupabaseError(result, "Login attempts could not be checked.");
   }
   return result.count || 0;
+}
+
+function pruneRateLimitBuckets(now) {
+  if (rateLimitBuckets.size < 1000) return;
+  for (const [key, bucket] of rateLimitBuckets.entries()) {
+    if (bucket.resetAt <= now) rateLimitBuckets.delete(key);
+  }
+}
+
+function cleanRateLimitPart(value) {
+  return String(value || "").trim().toLowerCase().slice(0, 200) || "unknown";
+}
+
+function hostFromUrl(value) {
+  if (!value) return "";
+  try {
+    return new URL(value).host;
+  } catch {
+    return "";
+  }
+}
+
+function throwForbiddenOrigin() {
+  const error = new Error("Request origin is not allowed.");
+  error.statusCode = 403;
+  error.exposeMessage = true;
+  throw error;
 }
 
 function cleanScope(value) {

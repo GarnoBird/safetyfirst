@@ -38,6 +38,7 @@
     "verify:wiki-expansion": "node scripts/verify-wiki-expansion.js",
     "seed:staff": "node scripts/seed-staff-user.js",
     "import:salus-certificates": "node scripts/import-salus-certificates.js",
+    "test:security": "node --test tests/security-hardening.test.js",
     "smoke:ops": "node scripts/smoke-security-ops.js",
     "smoke:forms": "playwright test tests/form-builder-smoke.spec.js",
     "smoke:certificates": "playwright test tests/certificates-smoke.spec.js"
