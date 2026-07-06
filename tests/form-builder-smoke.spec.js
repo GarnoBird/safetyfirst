@@ -4092,6 +4092,7 @@ test("mobile form templates hide form duplicate actions", async ({ page }) => {
   await mockApis(page, [toolboxRow, siteRow]);
 
   await page.goto("/staff/form-templates");
+  await expect(page.getByRole("button", { name: "New Form" })).toBeHidden();
   await expect(page.getByRole("button", { name: "Fill Out Forms" })).toHaveCount(0);
   await expect(page.locator(".template-card-list")).toBeVisible();
   await expect(page.getByText("Please use a larger screen to build or edit form templates.")).toBeVisible();

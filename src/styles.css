@@ -8136,6 +8136,16 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .template-new-button,
+  .template-new-form {
+    display: none;
+  }
+
+  .template-list-toolbar {
+    grid-template-columns: 44px;
+    justify-content: end;
+  }
+
   .template-card-list,
   .template-editor-panel,
   .template-schema-editor,
