@@ -339,7 +339,7 @@ export async function deleteArchivedFormTemplates(staff) {
   }
 
   const deletableTemplates = archivedTemplates.filter((template) =>
-    !isLockedDefaultTemplate(template) && canManageTemplate(template, staff)
+    !isLockedDefaultTemplate(template) && canManageTemplateSettings(template, staff)
   );
   if (!deletableTemplates.length) {
     return { deleted: 0, rows: [] };
@@ -416,10 +416,15 @@ export async function updateFormTemplate(formType, body, staff) {
   const updatesDisplayOrderOnly =
     bodyKeys.length > 0 &&
     bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
+  const updatesContentMetaOnly =
+    bodyKeys.length > 0 &&
+    bodyKeys.every((key) => ["label", "name", "title", "description"].includes(key));
   if (updatesDisplayOrderOnly) {
     assertStaffCanReorderTemplates(staff);
+  } else if (updatesContentMetaOnly) {
+    assertTemplateContentEditable(template, staff);
   } else {
-    assertTemplateMutable(template, staff);
+    assertTemplateSettingsMutable(template, staff, { allowArchived: body?.archived === false });
   }
   const patch = {
     updated_by_staff_id: staff.id,
@@ -476,40 +481,40 @@ export async function updateFormTemplate(formType, body, staff) {
 
 export async function saveFormTemplateDraft(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateMutable(template, staff);
+  assertTemplateContentEditable(template, staff);
   const cleanedSchema = cleanTemplateSchema(body?.schema, {
     fallbackTitle: template.label,
     formType: template.form_type,
     allowEmpty: true,
   });
   const notes = cleanString(body?.notes, MAX_TEXT);
+  const now = new Date().toISOString();
   const existingDraft = await getDraftVersion(template.id);
+  let archivedDraft = null;
   if (existingDraft) {
-    const draft = throwIfSupabaseError(
+    archivedDraft = throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("form_template_versions")
         .update({
-          schema: cleanedSchema,
-          notes,
+          status: "archived",
+          notes: existingDraft.notes || "Saved draft state.",
           updated_by_staff_id: staff.id,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
         })
         .eq("id", existingDraft.id)
         .select(VERSION_SELECT)
         .single(),
-      "Form template draft could not be saved.",
+      "Previous form template draft could not be saved as history.",
     );
-    return draft;
   }
 
-  const published = await getPublishedVersion(template.id);
   const draft = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("form_template_versions")
       .insert({
         template_id: template.id,
         form_type: template.form_type,
-        version_number: (published?.version_number || 0) + 1,
+        version_number: await nextTemplateVersionNumber(template.id),
         status: "draft",
         schema: cleanedSchema,
         notes,
@@ -520,12 +525,12 @@ export async function saveFormTemplateDraft(formType, body, staff) {
       .single(),
     "Form template draft could not be created.",
   );
-  return draft;
+  return { draft, archivedDraft };
 }
 
 export async function publishFormTemplateDraft(formType, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateMutable(template, staff);
+  assertTemplateContentEditable(template, staff);
   const draft = await getDraftVersion(template.id);
   if (!draft) throwNotFound("No draft exists for this form.");
   const cleanedSchema = cleanTemplateSchema(draft.schema, {
@@ -568,7 +573,7 @@ export async function publishFormTemplateDraft(formType, staff) {
 
 export async function restoreFormTemplateVersion(formType, body, staff) {
   const template = await getTemplateByType(cleanFormType(formType));
-  assertTemplateMutable(template, staff);
+  assertTemplateContentEditable(template, staff);
   const sourceId = cleanUuid(body?.versionId || body?.version_id, "Version id is not valid.");
   const source = throwIfSupabaseError(
     await getSupabaseServiceClient()
@@ -581,33 +586,33 @@ export async function restoreFormTemplateVersion(formType, body, staff) {
   );
   if (!source) throwNotFound("Form template version was not found.");
 
+  const now = new Date().toISOString();
   const existingDraft = await getDraftVersion(template.id);
+  let archivedDraft = null;
   if (existingDraft) {
-    const draft = throwIfSupabaseError(
+    archivedDraft = throwIfSupabaseError(
       await getSupabaseServiceClient()
         .from("form_template_versions")
         .update({
-          schema: source.schema || {},
-          notes: `Restored from version ${source.version_number}.`,
+          status: "archived",
+          notes: existingDraft.notes || "Saved draft state before restore.",
           updated_by_staff_id: staff.id,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
         })
         .eq("id", existingDraft.id)
         .select(VERSION_SELECT)
         .single(),
-      "Form template draft could not be restored.",
+      "Previous form template draft could not be saved as history.",
     );
-    return draft;
   }
 
-  const published = await getPublishedVersion(template.id);
   const draft = throwIfSupabaseError(
     await getSupabaseServiceClient()
       .from("form_template_versions")
       .insert({
         template_id: template.id,
         form_type: template.form_type,
-        version_number: (published?.version_number || source.version_number || 0) + 1,
+        version_number: await nextTemplateVersionNumber(template.id),
         status: "draft",
         schema: source.schema || {},
         notes: `Restored from version ${source.version_number}.`,
@@ -618,7 +623,7 @@ export async function restoreFormTemplateVersion(formType, body, staff) {
       .single(),
     "Form template draft could not be restored.",
   );
-  return draft;
+  return { draft, archivedDraft };
 }
 
 export async function validateTemplateSubmissionFormData({ formType, rawFormData, worker }) {
@@ -1353,6 +1358,20 @@ async function getDraftVersion(templateId) {
   );
 }
 
+async function nextTemplateVersionNumber(templateId) {
+  const row = throwIfSupabaseError(
+    await getSupabaseServiceClient()
+      .from("form_template_versions")
+      .select("version_number")
+      .eq("template_id", templateId)
+      .order("version_number", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    "Form template version number could not be loaded.",
+  );
+  return Number(row?.version_number || 0) + 1;
+}
+
 function attachTemplateVersions(template, versions) {
   const related = versions.filter((version) => version.template_id === template.id);
   return {
@@ -1459,7 +1478,7 @@ function isAdminOrOwner(staff) {
   return ["owner", "admin"].includes(staff?.role);
 }
 
-function canManageTemplate(template, staff) {
+function canManageTemplateSettings(template, staff) {
   if (isAdminOrOwner(staff)) return true;
   return Boolean(
     staff?.id &&
@@ -1469,12 +1488,12 @@ function canManageTemplate(template, staff) {
 }
 
 function assertStaffCanReorderTemplates(staff) {
-  if (staff?.id) return;
-  throwForbidden("Staff sign-in is required to change form template order.");
+  if (isAdminOrOwner(staff)) return;
+  throwForbidden("Only admin and owner accounts can change form template order.");
 }
 
 function assertTemplateManageable(template, staff) {
-  if (canManageTemplate(template, staff)) return;
+  if (canManageTemplateSettings(template, staff)) return;
   throwForbidden("You can only manage form templates you created.");
 }
 
@@ -1496,9 +1515,25 @@ function assertTemplateUnlocked(template) {
   throwLocked("This form template is locked. Unlock it to edit.");
 }
 
-function assertTemplateMutable(template, staff) {
+function assertTemplateNotArchived(template) {
+  if (!template.archived_at) return;
+  throwBadRequest("Restore this archived form before editing it.");
+}
+
+function assertTemplateContentEditable(template, staff) {
+  if (staff?.id) {
+    assertTemplateEditable(template);
+    assertTemplateNotArchived(template);
+    assertTemplateUnlocked(template);
+    return;
+  }
+  throwForbidden("Staff sign-in is required to edit form templates.");
+}
+
+function assertTemplateSettingsMutable(template, staff, { allowArchived = false } = {}) {
   assertTemplateEditable(template);
   assertTemplateManageable(template, staff);
+  if (!allowArchived) assertTemplateNotArchived(template);
   assertTemplateUnlocked(template);
 }
 

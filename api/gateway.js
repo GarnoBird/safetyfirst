@@ -1442,7 +1442,8 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { template });
   }
   if (parts.length === 2 && parts[1] === "draft" && req.method === "PATCH") {
-    const draft = await saveFormTemplateDraft(parts[0], await readJson(req), staff);
+    const result = await saveFormTemplateDraft(parts[0], await readJson(req), staff);
+    const draft = result.draft;
     await recordAuditEvent({
       req,
       staff,
@@ -1452,7 +1453,7 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
       summary: `${staff.username} saved a form template draft.`,
       metadata: { formType: parts[0], versionNumber: draft.version_number },
     });
-    return sendJson(res, 200, { draft });
+    return sendJson(res, 200, { draft, archivedDraft: result.archivedDraft || null });
   }
   if (parts.length === 2 && parts[1] === "duplicate" && req.method === "POST") {
     const template = await duplicateFormTemplate(parts[0], staff);
@@ -1523,7 +1524,8 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
     return sendJson(res, 200, { published });
   }
   if (parts.length === 2 && parts[1] === "restore" && req.method === "POST") {
-    const draft = await restoreFormTemplateVersion(parts[0], await readJson(req), staff);
+    const result = await restoreFormTemplateVersion(parts[0], await readJson(req), staff);
+    const draft = result.draft;
     await recordAuditEvent({
       req,
       staff,
@@ -1533,7 +1535,7 @@ async function handleStaffFormTemplates(req, res, staff, parts) {
       summary: `${staff.username} restored a form template draft.`,
       metadata: { formType: parts[0], versionNumber: draft.version_number },
     });
-    return sendJson(res, 200, { draft });
+    return sendJson(res, 200, { draft, archivedDraft: result.archivedDraft || null });
   }
   return sendMethodNotAllowed(res, ["GET", "PATCH", "POST"]);
 }

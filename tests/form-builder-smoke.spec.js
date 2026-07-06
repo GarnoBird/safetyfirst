@@ -639,15 +639,31 @@ async function mockApis(page, templates, options = {}) {
   const canManageTemplate = (row) =>
     ["owner", "admin"].includes(currentStaff.role) ||
     Boolean(row?.created_by_staff_id && row.created_by_staff_id === currentStaff.id);
+  const canReorderTemplates = () => ["owner", "admin"].includes(currentStaff.role);
+  const nextTemplateVersionNumber = (row) =>
+    Math.max(0, ...(row?.versions || []).map((item) => Number(item.version_number || 0))) + 1;
+  const mergeMockTemplateVersions = (versions = [], ...incomingVersions) => {
+    const next = new Map((Array.isArray(versions) ? versions : []).filter((item) => item?.id).map((item) => [item.id, item]));
+    incomingVersions.flat().filter((item) => item?.id).forEach((item) => next.set(item.id, item));
+    return [...next.values()].sort((a, b) => (b.version_number || 0) - (a.version_number || 0));
+  };
   const replaceTemplate = (updated) => {
     templateRows = templateRows.map((row) => (row.form_type === updated.form_type ? updated : row));
     return updated;
   };
   const jsonTemplate = (row) => structuredClone(row);
+  const assertTemplateContentMutationAllowed = (row) => {
+    if (!row) return { error: "Not found", status: 404 };
+    if (protectedFormTypes.has(row.form_type)) return { error: "Default forms are protected.", status: 400 };
+    if (row.archived_at) return { error: "Restore this archived form before editing it.", status: 400 };
+    if (row.locked_at) return { error: "This form template is locked. Unlock it to edit.", status: 423 };
+    return null;
+  };
   const assertTemplateMutationAllowed = (row) => {
     if (!row) return { error: "Not found", status: 404 };
     if (protectedFormTypes.has(row.form_type)) return { error: "Default forms are protected.", status: 400 };
     if (!canManageTemplate(row)) return { error: "You can only manage form templates you created.", status: 403 };
+    if (row.archived_at) return { error: "Restore this archived form before editing it.", status: 400 };
     if (row.locked_at) return { error: "This form template is locked. Unlock it to edit.", status: 423 };
     return null;
   };
@@ -895,9 +911,16 @@ async function mockApis(page, templates, options = {}) {
         const updatesDisplayOrderOnly =
           bodyKeys.length > 0 &&
           bodyKeys.every((key) => ["displayOrder", "display_order"].includes(key));
+        const updatesContentMetaOnly =
+          bodyKeys.length > 0 &&
+          bodyKeys.every((key) => ["label", "name", "title", "description"].includes(key));
         if (!updatesDisplayOrderOnly) {
-          const problem = assertTemplateMutationAllowed(row);
+          const problem = updatesContentMetaOnly
+            ? assertTemplateContentMutationAllowed(row)
+            : assertTemplateMutationAllowed(row);
           if (problem) return json({ error: problem.error }, problem.status);
+        } else if (!canReorderTemplates()) {
+          return json({ error: "Only admin and owner accounts can change form template order." }, 403);
         }
         templatePatchRequests.push({
           body,
@@ -921,6 +944,113 @@ async function mockApis(page, templates, options = {}) {
           updated.worker_visible = false;
         }
         return json({ template: jsonTemplate(replaceTemplate(updated)) });
+      }
+      if (action === "draft" && method === "PATCH") {
+        const problem = assertTemplateContentMutationAllowed(row);
+        if (problem) return json({ error: problem.error }, problem.status);
+        const body = JSON.parse(request.postData() || "{}");
+        const now = "2026-07-03T19:00:00.000Z";
+        const existingDraft = row.draftVersion;
+        const archivedDraft = existingDraft
+          ? {
+              ...existingDraft,
+              status: "archived",
+              notes: existingDraft.notes || "Saved draft state.",
+              updated_by_staff_id: currentStaff.id,
+              updated_at: now,
+            }
+          : null;
+        const draftVersion = {
+          id: `${row.form_type}-version-${nextTemplateVersionNumber(row)}`,
+          template_id: row.id,
+          form_type: row.form_type,
+          version_number: nextTemplateVersionNumber(row),
+          status: "draft",
+          schema: structuredClone(body.schema || {}),
+          notes: String(body.notes || ""),
+          created_by_staff_id: currentStaff.id,
+          updated_by_staff_id: currentStaff.id,
+          created_at: now,
+          updated_at: now,
+          published_at: null,
+        };
+        const updated = replaceTemplate({
+          ...row,
+          draftVersion,
+          versions: mergeMockTemplateVersions(row.versions, archivedDraft, draftVersion),
+          updated_by_staff_id: currentStaff.id,
+        });
+        return json({ draft: jsonTemplate(draftVersion), archivedDraft: archivedDraft ? jsonTemplate(archivedDraft) : null });
+      }
+      if (action === "publish" && method === "POST") {
+        const problem = assertTemplateContentMutationAllowed(row);
+        if (problem) return json({ error: problem.error }, problem.status);
+        if (!row.draftVersion) return json({ error: "No draft exists for this form." }, 404);
+        const now = "2026-07-03T19:05:00.000Z";
+        const archivedPublished = row.publishedVersion
+          ? {
+              ...row.publishedVersion,
+              status: "archived",
+              updated_by_staff_id: currentStaff.id,
+              updated_at: now,
+            }
+          : null;
+        const published = {
+          ...row.draftVersion,
+          status: "published",
+          published_by_staff_id: currentStaff.id,
+          published_at: now,
+          updated_by_staff_id: currentStaff.id,
+          updated_at: now,
+        };
+        replaceTemplate({
+          ...row,
+          active: true,
+          draftVersion: null,
+          publishedVersion: published,
+          versions: mergeMockTemplateVersions(row.versions, archivedPublished, published).filter((item) => item.id !== row.draftVersion.id || item.status === "published"),
+          updated_by_staff_id: currentStaff.id,
+        });
+        return json({ published: jsonTemplate(published) });
+      }
+      if (action === "restore" && method === "POST") {
+        const problem = assertTemplateContentMutationAllowed(row);
+        if (problem) return json({ error: problem.error }, problem.status);
+        const body = JSON.parse(request.postData() || "{}");
+        const source = (row.versions || []).find((item) => item.id === (body.versionId || body.version_id));
+        if (!source) return json({ error: "Form template version was not found." }, 404);
+        const now = "2026-07-03T19:10:00.000Z";
+        const existingDraft = row.draftVersion;
+        const archivedDraft = existingDraft
+          ? {
+              ...existingDraft,
+              status: "archived",
+              notes: existingDraft.notes || "Saved draft state before restore.",
+              updated_by_staff_id: currentStaff.id,
+              updated_at: now,
+            }
+          : null;
+        const draftVersion = {
+          id: `${row.form_type}-version-${nextTemplateVersionNumber(row)}`,
+          template_id: row.id,
+          form_type: row.form_type,
+          version_number: nextTemplateVersionNumber(row),
+          status: "draft",
+          schema: structuredClone(source.schema || {}),
+          notes: `Restored from version ${source.version_number}.`,
+          created_by_staff_id: currentStaff.id,
+          updated_by_staff_id: currentStaff.id,
+          created_at: now,
+          updated_at: now,
+          published_at: null,
+        };
+        replaceTemplate({
+          ...row,
+          draftVersion,
+          versions: mergeMockTemplateVersions(row.versions, archivedDraft, draftVersion),
+          updated_by_staff_id: currentStaff.id,
+        });
+        return json({ draft: jsonTemplate(draftVersion), archivedDraft: archivedDraft ? jsonTemplate(archivedDraft) : null });
       }
       if (action === "lock" && method === "POST") {
         if (protectedFormTypes.has(row.form_type)) return json({ error: "Default forms are protected." }, 400);
@@ -3616,6 +3746,62 @@ test("Weekly Sub-Trade Site Inspection worker form submits inspection rows and c
   });
 });
 
+test("regular staff can edit another editable template and restore saved states", async ({ page }) => {
+  const regularStaff = {
+    ...staff,
+    id: "regular-edit-staff",
+    role: "staff",
+    username: "regular-edit",
+    email: "regular-edit@example.com",
+  };
+  const editableSchema = {
+    schemaVersion: 1,
+    formType: "other_staff_editable",
+    title: "Other Staff Editable",
+    description: "Editable by all staff.",
+    sections: [
+      {
+        id: "main",
+        title: "Main",
+        description: "",
+        fields: [
+          {
+            id: "original_question",
+            type: "short_text",
+            label: "Original question",
+            required: false,
+          },
+        ],
+      },
+    ],
+  };
+  const row = draftTemplate("other_staff_editable", "Other Staff Editable", editableSchema, {
+    created_by_staff_id: "other-staff",
+    updated_by_staff_id: "other-staff",
+  });
+  const mockState = await mockApis(page, [row], { staff: regularStaff });
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "Other Staff Editable" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save draft", exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Archive form", exact: true })).toHaveCount(0);
+  await expect(page.locator(".template-v3-template-options-card").getByLabel("Active template")).toBeDisabled();
+
+  await page.locator(".template-v3-field-card").filter({ hasText: "Original question" }).getByRole("button").first().click();
+  await page.locator(".template-v3-selected-block-card").getByLabel("Question label").fill("Updated question");
+  await page.getByRole("button", { name: "Save draft", exact: true }).first().click();
+  await expect(page.getByText("Draft saved.")).toBeVisible();
+  await expect(page.locator(".template-saved-state-select").first()).toContainText("v2 / Draft");
+  await expect(page.locator(".template-saved-state-select").first()).toContainText("v1 / Saved");
+  expect(mockState.templatePatchRequests).toHaveLength(0);
+
+  await page.locator(".template-editor-heading .template-saved-state-select").selectOption("other_staff_editable-version-1");
+  await page.locator(".template-editor-heading").getByRole("button", { name: "Revert", exact: true }).click();
+  await expect(page.getByText("Restored version 1 into draft.")).toBeVisible();
+  await expect(page.locator(".template-v3-field-card").filter({ hasText: "Original question" })).toBeVisible();
+  await expect(page.locator(".template-saved-state-select").first()).toContainText("v3 / Draft");
+});
+
 test("New Worker Orientation worker form visual smoke captures polished states", async ({ page }) => {
   test.slow();
   const row = template(
@@ -3864,7 +4050,63 @@ test("regular staff can archive and purge only templates they created", async ({
   await expect(page.getByRole("button", { name: "Delete archived" })).toBeDisabled();
 });
 
-test("regular staff can reorder all active form templates", async ({ page }) => {
+test("admin can reorder all active form templates", async ({ page }) => {
+  const adminStaff = {
+    ...staff,
+    id: "admin-reorder-staff",
+    role: "admin",
+    username: "admin-reorder",
+    email: "admin-reorder@example.com",
+  };
+  const protectedDefault = template("toolbox_talk", "Toolbox Talk", toolboxSignatureSchema, {
+    created_by_staff_id: null,
+    displayOrder: 10,
+    updated_by_staff_id: null,
+  });
+  const otherOwned = template("other_reorder", "Other Staff Form", {
+    ...toolboxSignatureSchema,
+    formType: "other_reorder",
+    title: "Other Staff Form",
+  }, {
+    created_by_staff_id: "other-staff",
+    displayOrder: 20,
+  });
+  const mockState = await mockApis(page, [protectedDefault, otherOwned], { staff: adminStaff });
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Drag Other Staff Form to reorder forms" })).toBeVisible();
+
+  const firstHandle = page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" });
+  const secondCard = page.locator(".template-card").filter({ hasText: "Other Staff Form" });
+  const handleBox = await firstHandle.boundingBox();
+  const targetBox = await secondCard.boundingBox();
+  expect(handleBox).toBeTruthy();
+  expect(targetBox).toBeTruthy();
+
+  await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height * 0.8, { steps: 8 });
+  await page.mouse.up();
+
+  await expect.poll(() =>
+    mockState.templatePatchRequests
+      .filter((request) => request.body.displayOrder !== undefined || request.body.display_order !== undefined)
+      .length,
+  ).toBe(2);
+  expect(mockState.templatePatchRequests.every((request) => request.staffId === adminStaff.id)).toBe(true);
+  expect(
+    mockState.templatePatchRequests
+      .filter((request) => request.body.displayOrder !== undefined)
+      .map((request) => [request.formType, request.body.displayOrder]),
+  ).toEqual(expect.arrayContaining([
+    ["other_reorder", 10],
+    ["toolbox_talk", 20],
+  ]));
+  await expect(page.getByText("Form order saved.")).toBeVisible();
+});
+
+test("regular staff do not see form template reorder handles", async ({ page }) => {
   const regularStaff = {
     ...staff,
     id: "regular-reorder-staff",
@@ -3888,36 +4130,8 @@ test("regular staff can reorder all active form templates", async ({ page }) => 
   const mockState = await mockApis(page, [protectedDefault, otherOwned], { staff: regularStaff });
 
   await page.goto("/staff/form-templates");
-  await expect(page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Drag Other Staff Form to reorder forms" })).toBeVisible();
-
-  const firstHandle = page.getByRole("button", { name: "Drag Toolbox Talk to reorder forms" });
-  const secondCard = page.locator(".template-card").filter({ hasText: "Other Staff Form" });
-  const handleBox = await firstHandle.boundingBox();
-  const targetBox = await secondCard.boundingBox();
-  expect(handleBox).toBeTruthy();
-  expect(targetBox).toBeTruthy();
-
-  await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height * 0.8, { steps: 8 });
-  await page.mouse.up();
-
-  await expect.poll(() =>
-    mockState.templatePatchRequests
-      .filter((request) => request.body.displayOrder !== undefined || request.body.display_order !== undefined)
-      .length,
-  ).toBe(2);
-  expect(mockState.templatePatchRequests.every((request) => request.staffId === regularStaff.id)).toBe(true);
-  expect(
-    mockState.templatePatchRequests
-      .filter((request) => request.body.displayOrder !== undefined)
-      .map((request) => [request.formType, request.body.displayOrder]),
-  ).toEqual(expect.arrayContaining([
-    ["other_reorder", 10],
-    ["toolbox_talk", 20],
-  ]));
-  await expect(page.getByText("Form order saved.")).toBeVisible();
+  await expect(page.getByRole("button", { name: /to reorder forms/ })).toHaveCount(0);
+  expect(mockState.templatePatchRequests).toHaveLength(0);
 });
 
 test("staff can open fill-out forms from the Forms menu", async ({ page }) => {

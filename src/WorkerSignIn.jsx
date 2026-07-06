@@ -9451,6 +9451,16 @@ function canManageFormTemplate(template, staff) {
   return Boolean(template.created_by_staff_id && template.created_by_staff_id === staff.id);
 }
 
+function canEditFormTemplateContent(template, staff) {
+  return Boolean(
+    staff?.id &&
+    template?.renderer_type === "template" &&
+    !template.archived_at &&
+    !isLockedDefaultFormTemplate(template) &&
+    !isLockedFormTemplate(template),
+  );
+}
+
 function canPurgeFormTemplate(template, staff) {
   return Boolean(
     template?.archived_at &&
@@ -9582,6 +9592,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [qrCopyStatus, setQrCopyStatus] = useState("");
   const [unlockingTemplate, setUnlockingTemplate] = useState(null);
+  const [selectedSavedVersionId, setSelectedSavedVersionId] = useState("");
   const templateCardRefs = useRef(new Map());
   const dragStateRef = useRef({ formType: "", moved: false, latestOrder: null });
 
@@ -9598,13 +9609,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const selectedIsLockedDefault = isLockedDefaultFormTemplate(selectedTemplate);
   const selectedIsLocked = isLockedFormTemplate(selectedTemplate);
   const selectedCanManage = canManageFormTemplate(selectedTemplate, staff);
-  const selectedCanEdit = Boolean(
-    canManageTemplates &&
-    selectedCanManage &&
-    selectedTemplate?.renderer_type === "template" &&
-    !selectedIsLockedDefault &&
-    !selectedIsLocked,
-  );
+  const selectedCanEdit = canEditFormTemplateContent(selectedTemplate, staff);
   const selectedCanArchive = Boolean(
     selectedCanManage &&
     selectedTemplate?.renderer_type === "template" &&
@@ -9614,10 +9619,21 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const selectedSchema = selectedIsLockedDefault
     ? selectedTemplate?.publishedVersion?.schema || selectedTemplate?.draftVersion?.schema || null
     : selectedTemplate?.draftVersion?.schema || selectedTemplate?.publishedVersion?.schema || null;
-  const previousVersions = useMemo(
-    () => selectedIsLockedDefault ? [] : (selectedTemplate?.versions || []).filter((version) => version.status === "archived"),
+  const savedVersions = useMemo(
+    () => {
+      if (selectedIsLockedDefault) return [];
+      return (selectedTemplate?.versions || [])
+        .filter((version) => version?.id && version.schema)
+        .sort((a, b) => {
+          const byNumber = (b.version_number || 0) - (a.version_number || 0);
+          if (byNumber) return byNumber;
+          return String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || ""));
+        });
+    },
     [selectedIsLockedDefault, selectedTemplate],
   );
+  const latestSavedVersion = savedVersions[0] || null;
+  const selectedSavedVersion = savedVersions.find((version) => version.id === selectedSavedVersionId) || null;
   const isTemplateListFocused = Boolean(focusedTemplateType && rows.some((row) => row.form_type === focusedTemplateType));
   const visibleCurrentTemplates = newFormOpen
     ? []
@@ -9625,7 +9641,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       ? currentTemplates.filter((template) => template.form_type === focusedTemplateType)
       : currentTemplates;
   const showArchivedTemplates = !newFormOpen && !isTemplateListFocused && archivedTemplates.length > 0;
-  const canDragTemplateOrder = Boolean(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
+  const canDragTemplateOrder = isAdminOrOwner(staff) && !newFormOpen && !isTemplateListFocused && visibleCurrentTemplates.length > 1;
   const selectedSharePath = selectedTemplate?.shareLink?.urlPath || "";
   const selectedShareUrl = useMemo(
     () => (selectedSharePath ? publicUrl(selectedSharePath) : ""),
@@ -9963,6 +9979,12 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   }, [selectedFormType, selectedSchema]);
 
   useEffect(() => {
+    setSelectedSavedVersionId((current) =>
+      savedVersions.some((version) => version.id === current) ? current : savedVersions[0]?.id || "",
+    );
+  }, [savedVersions]);
+
+  useEffect(() => {
     setQrCopyStatus("");
     setQrDataUrl("");
     if (!selectedShareUrl) return undefined;
@@ -10029,7 +10051,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
           return {
             ...base,
             draftVersion: payload.draft,
-            versions: mergeTemplateVersions(base.versions, payload.draft),
+            versions: mergeTemplateVersions(base.versions, payload.archivedDraft, payload.draft),
           };
         }),
       );
@@ -10048,7 +10070,9 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     setMessage("");
     try {
       const schemaToSave = cloneTemplateSchema(draftSchema);
-      if (draftSchema) {
+      const currentDraftSchema = selectedTemplate.draftVersion?.schema;
+      const currentDraftMatchesEditor = currentDraftSchema && templateSchemasMatch(currentDraftSchema, schemaToSave);
+      if (draftSchema && !currentDraftMatchesEditor) {
         await readApiJson(
           await fetch(`/api/staff/form-templates/${selectedTemplate.form_type}/draft`, {
             method: "PATCH",
@@ -10092,7 +10116,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       setRows((current) =>
         current.map((row) =>
           row.form_type === selectedTemplate.form_type
-            ? { ...row, draftVersion: payload.draft, versions: mergeTemplateVersions(row.versions, payload.draft) }
+            ? { ...row, draftVersion: payload.draft, versions: mergeTemplateVersions(row.versions, payload.archivedDraft, payload.draft) }
             : row,
         ),
       );
@@ -10102,6 +10126,28 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const revertToSavedVersion = async (version) => {
+    if (!selectedTemplate || !version) return;
+    if (!selectedCanEdit) return;
+    const currentDraftId = selectedTemplate.draftVersion?.id || "";
+    const currentPublishedId = selectedTemplate.publishedVersion?.id || "";
+    const canRevertLocally =
+      version.id === currentDraftId ||
+      (!currentDraftId && version.id === currentPublishedId);
+    if (canRevertLocally) {
+      setDraftSchema(cloneTemplateSchema(version.schema));
+      setPreviewAnswers({});
+      setMessage(`Reverted to ${templateSavedStateLabel(version)}.`);
+      return;
+    }
+    await restoreVersion(version);
+  };
+
+  const restoreSelectedSavedVersion = async () => {
+    if (!selectedSavedVersion) return;
+    await revertToSavedVersion(selectedSavedVersion);
   };
 
   const copySelectedShareLink = async () => {
@@ -10374,10 +10420,27 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                     </>
                   ) : selectedCanEdit ? (
                     <>
-                      {previousVersions.length ? (
-                        <button type="button" onClick={() => restoreVersion(previousVersions[0])}>
-                          Restore previous version
-                        </button>
+                      {latestSavedVersion ? (
+                        <>
+                          <button disabled={saving} type="button" onClick={() => revertToSavedVersion(latestSavedVersion)}>
+                            Revert to last edit
+                          </button>
+                          <select
+                            aria-label="Saved states"
+                            className="template-saved-state-select"
+                            value={selectedSavedVersionId}
+                            onChange={(event) => setSelectedSavedVersionId(event.target.value)}
+                          >
+                            {savedVersions.map((version) => (
+                              <option key={version.id} value={version.id}>
+                                {templateSavedStateLabel(version)}
+                              </option>
+                            ))}
+                          </select>
+                          <button disabled={saving || !selectedSavedVersion} type="button" onClick={restoreSelectedSavedVersion}>
+                            Revert
+                          </button>
+                        </>
                       ) : null}
                       <button disabled={saving} type="button" onClick={saveDraft}>
                         {saving ? "Saving..." : "Save draft"}
@@ -10434,8 +10497,10 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 }}
                 onPreviewAnswersChange={setPreviewAnswers}
                 onPublish={publishDraft}
-                onRestorePrevious={previousVersions.length ? () => restoreVersion(previousVersions[0]) : null}
+                onRestoreLast={latestSavedVersion ? () => revertToSavedVersion(latestSavedVersion) : null}
+                onRestoreSavedVersion={restoreSelectedSavedVersion}
                 onSave={saveDraft}
+                onSavedVersionChange={setSelectedSavedVersionId}
                 onTemplateMetaChange={(patch) => updateTemplateMeta(patch)}
                 onToggleWorkerVisible={() =>
                   updateTemplateMeta({ workerVisible: !selectedTemplate.worker_visible })
@@ -10444,9 +10509,13 @@ export function StaffFormTemplatesPage({ navigateTo }) {
                 previewWorker={staffToPreviewWorker(staff)}
                 publishing={publishing}
                 readOnly={!selectedCanEdit}
+                canManageSettings={selectedCanManage}
                 saving={saving}
                 schema={draftSchema}
+                savedVersionId={selectedSavedVersionId}
+                savedVersions={savedVersions}
                 selectedTemplate={selectedTemplate}
+                selectedSavedVersion={selectedSavedVersion}
                 workerVisible={Boolean(selectedTemplate.worker_visible)}
               />
             </>
@@ -11001,6 +11070,7 @@ function TemplateSchemaEditorV3({
   canArchive = false,
   canDuplicate = true,
   canLockToggle = false,
+  canManageSettings = false,
   hasPublishedVersion,
   locked = false,
   lockedDefault = false,
@@ -11010,17 +11080,22 @@ function TemplateSchemaEditorV3({
   onLockToggle,
   onPreviewAnswersChange,
   onPublish,
-  onRestorePrevious,
+  onRestoreLast,
+  onRestoreSavedVersion,
   onSave,
+  onSavedVersionChange,
   onTemplateMetaChange,
   onToggleWorkerVisible,
   previewAnswers = {},
   previewWorker,
   publishing,
   readOnly = false,
+  savedVersionId = "",
+  savedVersions = [],
   saving,
   schema,
   selectedTemplate,
+  selectedSavedVersion = null,
   workerVisible,
 }) {
   const current = normalizeClientTemplateSchema(schema);
@@ -11054,7 +11129,7 @@ function TemplateSchemaEditorV3({
       : Math.max(sections.length - 1, 0);
   const activeFieldGroup =
     TEMPLATE_V3_FIELD_GROUPS.find((group) => group.id === fieldPickerTab) || TEMPLATE_V3_FIELD_GROUPS[0];
-  const canToggleVisibility = canEdit && hasPublishedVersion && active && !archived && !saving;
+  const canToggleVisibility = canEdit && canManageSettings && hasPublishedVersion && active && !archived && !saving;
   const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
   const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
   const hasUnpublishedDraft = Boolean(
@@ -11700,7 +11775,7 @@ function TemplateSchemaEditorV3({
             <label className="settings-checkbox compact">
               <input
                 checked={Boolean(active)}
-                disabled={readOnly || saving || archived}
+                disabled={readOnly || !canManageSettings || saving || archived}
                 type="checkbox"
                 onChange={(event) => onTemplateMetaChange({ active: event.target.checked })}
               />
@@ -11751,7 +11826,28 @@ function TemplateSchemaEditorV3({
                   Duplicate
                 </button>
               ) : null}
-              {canEdit && onRestorePrevious ? <button disabled={saving} type="button" onClick={onRestorePrevious}>Restore previous</button> : null}
+              {canEdit && onRestoreLast ? (
+                <button disabled={saving} type="button" onClick={onRestoreLast}>Revert to last edit</button>
+              ) : null}
+              {canEdit && savedVersions.length ? (
+                <>
+                  <select
+                    aria-label="Saved states"
+                    className="template-saved-state-select"
+                    value={savedVersionId}
+                    onChange={(event) => onSavedVersionChange?.(event.target.value)}
+                  >
+                    {savedVersions.map((version) => (
+                      <option key={version.id} value={version.id}>
+                        {templateSavedStateLabel(version)}
+                      </option>
+                    ))}
+                  </select>
+                  <button disabled={saving || !selectedSavedVersion} type="button" onClick={onRestoreSavedVersion}>
+                    Revert saved state
+                  </button>
+                </>
+              ) : null}
               {canArchive ? (
                 <button
                   className={archived ? "" : "danger-button"}
@@ -18460,10 +18556,30 @@ function moveArrayItem(items, index, direction) {
   return next;
 }
 
-function mergeTemplateVersions(versions = [], version) {
-  if (!version?.id) return versions;
-  const next = versions.filter((item) => item.id !== version.id);
-  return [version, ...next].sort((a, b) => (b.version_number || 0) - (a.version_number || 0));
+function mergeTemplateVersions(versions = [], ...incomingVersions) {
+  const next = new Map((Array.isArray(versions) ? versions : []).filter((version) => version?.id).map((version) => [version.id, version]));
+  incomingVersions.flat().filter((version) => version?.id).forEach((version) => {
+    next.set(version.id, version);
+  });
+  return [...next.values()].sort((a, b) => {
+    const byNumber = (b.version_number || 0) - (a.version_number || 0);
+    if (byNumber) return byNumber;
+    return String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || ""));
+  });
+}
+
+function templateSchemasMatch(left, right) {
+  return JSON.stringify(normalizeClientTemplateSchema(left)) === JSON.stringify(normalizeClientTemplateSchema(right));
+}
+
+function templateSavedStateLabel(version) {
+  const status = version?.status === "published" ? "Published" : version?.status === "draft" ? "Draft" : "Saved";
+  const savedAt = version?.updated_at || version?.created_at || version?.published_at;
+  return [
+    `v${version?.version_number || "-"}`,
+    status,
+    savedAt ? formatDateTime(savedAt) : "",
+  ].filter(Boolean).join(" / ");
 }
 
 function staffToPreviewWorker(staff) {
