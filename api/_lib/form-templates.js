@@ -45,7 +45,6 @@ export const TEMPLATE_FIELD_TYPES = [
 ];
 
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
-  "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
   "toolbox_safety_concerns",

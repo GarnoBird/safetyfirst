@@ -26,7 +26,6 @@ const TEMPLATE_FIELD_TYPES = new Set([
 ]);
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
-  "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
   "toolbox_safety_concerns",
@@ -34,6 +33,13 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_final_confirmation",
   "site_deficiencies",
   "action_item_rows",
+]);
+const TOOLBOX_TALK_SPECIAL_BLOCK_TYPES = new Set([
+  "toolbox_topics",
+  "toolbox_incident_review",
+  "toolbox_safety_concerns",
+  "toolbox_attendance",
+  "toolbox_final_confirmation",
 ]);
 const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["site_deficiencies", "action_item_rows"]);
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
@@ -131,6 +137,10 @@ function templateSubmissionHtml(row, data) {
   const sections = getVisibleTemplateSections(schema, answers, null, { includeHiddenFields: false });
   if (!sections.length) return emptySubmissionHtml("No visible answers were saved with this submission.");
 
+  return templateSectionsHtml(sections, answers, actionItemBlocks);
+}
+
+function templateSectionsHtml(sections, answers = {}, actionItemBlocks = {}) {
   return sections.map((section) => {
     const fields = section.fields || [];
     const renderedFields = fields.map((field) => templateFieldHtml(field, answers[field.id], actionItemBlocks?.[field.id])).join("");
@@ -306,16 +316,26 @@ function toolboxTalkSubmissionHtml(row, data) {
   const concerns = Array.isArray(data?.safetyConcerns) ? data.safetyConcerns : [];
   const attendance = Array.isArray(data?.attendance) ? data.attendance : [];
   const confirmation = data?.confirmation || {};
+  const answers = data?.answers || {};
+  const actionItemBlocks = data?.actionItemBlocks || {};
+  const genericSchema = getToolboxTalkGenericPrintSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
+  const genericSections = getVisibleTemplateSections(genericSchema, answers, null, { includeHiddenFields: false });
+  const hasMeetingInfo = ["projectName", "address", "date", "time", "presenter", "supervisor"].some((key) =>
+    String(header?.[key] || "").trim(),
+  );
 
   return [
-    simpleSectionHtml("Meeting Info", [
-      ["Project", header.projectName],
-      ["Address", header.address],
-      ["Date", header.date ? formatDateString(header.date) : ""],
-      ["Time", header.time],
-      ["Presenter", header.presenter],
-      ["Supervisor", header.supervisor],
-    ]),
+    hasMeetingInfo
+      ? simpleSectionHtml("Meeting Info", [
+          ["Project", header.projectName],
+          ["Address", header.address],
+          ["Date", header.date ? formatDateString(header.date) : ""],
+          ["Time", header.time],
+          ["Presenter", header.presenter],
+          ["Supervisor", header.supervisor],
+        ])
+      : "",
+    genericSections.length ? templateSectionsHtml(genericSections, answers, actionItemBlocks) : "",
     `<section class="document-section">
       <h2>Topics Discussed</h2>
       ${topics.length ? `<table><thead><tr><th>Category</th><th>Topic</th></tr></thead><tbody>${topics.map((topic) => `<tr><td>${escapeHtml(topic.categoryLabel || "-")}</td><td>${escapeHtml(topic.label || "-")}</td></tr>`).join("")}</tbody></table>` : `<p class="empty-copy">No selected topics recorded.</p>`}
@@ -494,6 +514,20 @@ function normalizeClientTemplateSchema(schema) {
         .map((field, fieldIndex) => normalizeTemplateField(field, sectionIndex, fieldIndex))
         .filter(Boolean),
     })),
+  };
+}
+
+function getToolboxTalkGenericPrintSchema(schema) {
+  const normalized = normalizeClientTemplateSchema(schema);
+  return {
+    ...normalized,
+    formType: "toolbox_talk",
+    sections: (normalized.sections || [])
+      .map((section) => ({
+        ...section,
+        fields: (section.fields || []).filter((field) => !TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field.type)),
+      }))
+      .filter((section) => section.fields.length),
   };
 }
 

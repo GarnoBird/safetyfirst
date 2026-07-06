@@ -48,7 +48,6 @@ const STAFF_SIGNATURE_DATA_URL_PATTERN = /^data:image\/png;base64,[A-Za-z0-9+/=]
 const MAX_TOOLBOX_TOPICS = 80;
 const MAX_TOOLBOX_ROWS = 80;
 const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
-  "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
   "toolbox_safety_concerns",
@@ -2215,9 +2214,7 @@ function buildSubmissionNotes(formType, submissionMode, value, formData) {
 
 function createDefaultToolboxTalkConfig() {
   return {
-    enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter(
-      (type) => type !== "toolbox_meeting_info",
-    ),
+    enabledBlocks: [...TOOLBOX_TALK_SPECIAL_BLOCK_ORDER],
     blockSettings: {
       toolbox_incident_review: {},
       toolbox_safety_concerns: {},
@@ -2306,31 +2303,10 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
     const sections = Array.isArray(template?.publishedVersion?.schema?.sections)
       ? template.publishedVersion.schema.sections
       : [];
+    if (!sections.length) return config;
     sections.forEach((section) => {
       const fields = Array.isArray(section?.fields) ? section.fields : [];
       fields.forEach((field) => {
-        if (field?.type === "toolbox_meeting_info") {
-          if (!enabledBlocks.includes(field.type)) enabledBlocks.push(field.type);
-          TOOLBOX_TALK_HEADER_FIELD_CONFIGS.forEach((base) => {
-            if (!headerFields.some((item) => item.key === base.key)) {
-              headerFields.push({ ...base });
-            }
-          });
-          return;
-        }
-        const headerKey = getToolboxTalkHeaderFieldKey(field);
-        if (headerKey) {
-          const base = TOOLBOX_TALK_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
-          if (base && !headerFields.some((item) => item.key === headerKey)) {
-            headerFields.push({
-              ...base,
-              id: cleanText(field?.id || base.id, 160),
-              label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
-              required: Boolean(field?.required),
-            });
-          }
-          return;
-        }
         if (
           TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type) &&
           !enabledBlocks.includes(field.type)
@@ -2346,12 +2322,12 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
       });
     });
     return {
-      enabledBlocks: enabledBlocks.length ? enabledBlocks : config.enabledBlocks,
+      enabledBlocks,
       blockSettings: {
         ...config.blockSettings,
         ...blockSettings,
       },
-      headerFields: headerFields.length ? headerFields : config.headerFields,
+      headerFields,
     };
   } catch {
     return createDefaultToolboxTalkConfig();
@@ -2392,21 +2368,8 @@ function getSiteInspectionObservationFieldKey(field) {
 function isToolboxTalkTemplateSchema(schema, template = {}) {
   const sections = Array.isArray(schema?.sections) ? schema.sections : [];
   if (schema?.formType === "toolbox_talk" || template?.form_type === "toolbox_talk") return true;
-  const signal = slugifyToolboxTemplateId(
-    [
-      schema?.formType,
-      schema?.title,
-      template?.form_type,
-      template?.label,
-    ].filter(Boolean).join(" "),
-  );
-  if (signal.includes("toolbox_talk")) return true;
   const fields = sections.flatMap((section) => Array.isArray(section?.fields) ? section.fields : []);
-  const toolboxBlocks = fields.filter((field) => TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type));
-  const hasCoreBlock = toolboxBlocks.some((field) =>
-    ["toolbox_topics", "toolbox_attendance", "toolbox_final_confirmation"].includes(field.type),
-  );
-  return toolboxBlocks.length >= 2 && hasCoreBlock;
+  return fields.some((field) => TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field?.type));
 }
 
 function isSiteInspectionTemplateSchema(schema, template = {}) {
@@ -2422,9 +2385,7 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
 
 function isToolboxTalkConsumedTemplateField(field) {
   if (!field) return false;
-  if (field.type === "toolbox_meeting_info") return true;
-  if (TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field.type)) return true;
-  return Boolean(getToolboxTalkHeaderFieldKey(field));
+  return TOOLBOX_TALK_SPECIAL_BLOCK_TYPES.has(field.type);
 }
 
 function isSiteInspectionConsumedTemplateField(field) {

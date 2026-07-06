@@ -172,6 +172,7 @@ const TEMPLATE_FIELD_TYPES = [
   { id: "site_deficiencies", label: "Site deficiencies" },
   { id: "action_item_rows", label: "Action item rows" },
 ];
+const RETIRED_TEMPLATE_FIELD_TYPES = new Set(["toolbox_meeting_info"]);
 const TEMPLATE_OPTION_FIELD_TYPES = new Set(["dropdown", "multi_select"]);
 const TEMPLATE_LAYOUT_WIDTH_OPTIONS = [
   { id: "", label: "Default" },
@@ -234,7 +235,6 @@ const TEMPLATE_VISIBILITY_OPERATORS = [
 const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
-  "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
   "toolbox_safety_concerns",
@@ -245,7 +245,6 @@ const TEMPLATE_SPECIAL_BLOCK_TYPES = new Set([
 ]);
 const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["site_deficiencies", "action_item_rows"]);
 const TOOLBOX_TALK_SPECIAL_BLOCK_ORDER = [
-  "toolbox_meeting_info",
   "toolbox_topics",
   "toolbox_incident_review",
   "toolbox_safety_concerns",
@@ -584,7 +583,6 @@ const MEDIA_UPLOAD_ALLOWED_MIME_TYPES = new Set(
   DEFAULT_MEDIA_UPLOAD_KINDS.flatMap((kind) => MEDIA_UPLOAD_KIND_CONFIGS[kind].mimeTypes),
 );
 
-const TOOLBOX_TALK_DEFAULTS_KEY = "sf_toolbox_talk_defaults";
 const SITE_INSPECTION_DEFAULTS_KEY = "sf_site_inspection_defaults";
 const WORKER_SESSION_CACHE_KEY = "sf_worker_session_cache_v1";
 const WORKER_FORM_DRAFTS_KEY = "sf_worker_form_drafts_v1";
@@ -4250,7 +4248,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     [form.topics.selected],
   );
   const recentToolbox = useMemo(readToolboxTalkRecents, []);
-  const savedDefaults = useMemo(readToolboxTalkDefaults, []);
   const [topicSearch, setTopicSearch] = useState("");
   const [attendeeNameInput, setAttendeeNameInput] = useState("");
   const toolboxLayout = useMemo(
@@ -4314,9 +4311,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     [attendeeNameInput, form, submitAttempted, toolboxLayout, worker],
   );
   const missingFieldSet = useMemo(() => new Set(missingFieldKeys), [missingFieldKeys]);
-  const hasSavedDefaults = Boolean(
-    savedDefaults.projectName || savedDefaults.address || savedDefaults.supervisor,
-  );
   const registerValidationTarget = (field) => (element) => {
     if (element) {
       validationTargetsRef.current[field] = element;
@@ -4325,7 +4319,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     delete validationTargetsRef.current[field];
   };
   const isFieldInvalid = (field) => missingFieldSet.has(field);
-  const meetingInfoInvalid = missingFieldKeys.some((field) => field.startsWith("header."));
   const topicsInvalid = isFieldInvalid("topics");
   const attendanceInvalid = isFieldInvalid("attendance");
   const finalCheckInvalid = missingFieldKeys.some((field) => field.startsWith("confirmation."));
@@ -4362,13 +4355,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     }, DRAFT_SAVE_DELAY_MS);
     return () => window.clearTimeout(timeout);
   }, [draftFormType, form, genericSchema, worker]);
-
-  const updateHeader = (field, value) => {
-    setForm((current) => ({
-      ...current,
-      header: { ...current.header, [field]: value },
-    }));
-  };
 
   const updateGenericAnswers = (answers) => {
     setForm((current) => ({
@@ -4456,18 +4442,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     setOptionalOpen((current) => ({ ...current, [section]: !current[section] }));
   };
 
-  const applyLastJobSetup = () => {
-    setForm((current) => ({
-      ...current,
-      header: {
-        ...current.header,
-        projectName: savedDefaults.projectName || current.header.projectName,
-        address: savedDefaults.address || current.header.address,
-        supervisor: savedDefaults.supervisor || current.header.supervisor,
-      },
-    }));
-  };
-
   const addAttendeeNames = (value) => {
     const names = splitToolboxAttendeeNames(value);
     if (!names.length) return;
@@ -4541,7 +4515,7 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
     }
     setError("");
     setSubmitAttempted(false);
-    rememberToolboxTalkDefaults(formForSubmit);
+    rememberTemplateFieldDefaults(draftFormType, genericSchema, formForSubmit.answers || {}, worker);
     rememberToolboxTalkRecents(formForSubmit);
     await onSubmit(cleanToolboxTalkClientForm(formForSubmit, genericSchema, worker, toolboxLayout));
   };
@@ -4562,54 +4536,20 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         </div>
       ) : null}
 
-      <div className="template-runtime-section-grid">
-      {toolboxLayout.headerFields.length ? (
-        <section
-          className={templateRuntimeSectionClassName(
-            "toolbox_meeting_info",
-            toolboxLayout.meetingInfo,
-            meetingInfoInvalid ? "toolbox-section-invalid" : "",
-          )}
-        >
-          <div className="toolbox-section-heading">
-            <h2>{toolboxLayout.meetingInfo.title || "Meeting Info"}</h2>
-            {hasSavedDefaults ? (
-              <button type="button" onClick={applyLastJobSetup}>
-                Use last job
-              </button>
-            ) : (
-              <span>
-                {toolboxLayout.headerFields.some((field) => field.required) ? "Required" : "Optional"}
-              </span>
-            )}
-          </div>
-          {toolboxLayout.meetingInfo.description ? (
-            <p className="toolbox-section-description">{toolboxLayout.meetingInfo.description}</p>
-          ) : null}
-          <div className="toolbox-field-grid">
-            {toolboxLayout.headerFields.map((field) => {
-              const fieldName = `header.${field.key}`;
-              const invalid = isFieldInvalid(fieldName);
-              const inputType = field.type === "date" || field.type === "time" ? field.type : "text";
-              return (
-                <label className={invalid ? "toolbox-field-invalid" : ""} key={field.id || field.key}>
-                  <span>{field.label || field.key}</span>
-                  <input
-                    aria-invalid={invalid ? "true" : undefined}
-                    ref={registerValidationTarget(fieldName)}
-                    required={Boolean(field.required)}
-                    type={inputType}
-                    value={form.header[field.key] || ""}
-                    onChange={(event) => updateHeader(field.key, event.target.value)}
-                  />
-                  {field.helperText ? <small>{field.helperText}</small> : null}
-                </label>
-              );
-            })}
-          </div>
-        </section>
-        ) : null}
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          answers={form.answers || {}}
+          invalidFields={missingFieldSet}
+          registerValidationTarget={registerValidationTarget}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onUploadFile={onUploadFile}
+          onChange={updateGenericAnswers}
+        />
+      ) : null}
 
+      <div className="template-runtime-section-grid">
         {enabledBlockSet.has("toolbox_topics") ? (
       <section
         className={templateRuntimeSectionClassName(
@@ -4908,19 +4848,6 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
       </section>
         ) : null}
       </div>
-
-      {genericSchema.sections.length ? (
-        <TemplateRuntimeSections
-          answers={form.answers || {}}
-          invalidFields={missingFieldSet}
-          registerValidationTarget={registerValidationTarget}
-          schema={genericSchema}
-          sections={genericSchema.sections}
-          worker={worker}
-          onUploadFile={onUploadFile}
-          onChange={updateGenericAnswers}
-        />
-      ) : null}
 
       {error ? <p className="form-message error">{error}</p> : null}
 
@@ -11969,7 +11896,7 @@ function TemplateSchemaEditorV3({
                 <label>
                   <span>Field type</span>
                   <select disabled={readOnly} value={selectedField.type} onChange={(event) => updateSelectedFieldType(event.target.value)}>
-                    {TEMPLATE_FIELD_TYPES.map((type) => (
+                    {templateFieldTypeOptions(selectedField.type).map((type) => (
                       <option key={type.id} value={type.id}>{type.label}</option>
                     ))}
                   </select>
@@ -12773,35 +12700,22 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
   );
   const topicGroups = getEnabledToolboxTopicGroups(topicSettings.enabledCategoryIds);
   const genericSchema = layout.genericSchema || createGenericTemplateSchemaFromSections(current, [], current.formType);
-  const headerSampleValue = (field) => templateFieldDefaultValue(field, worker, current);
 
   return (
     <div className="template-runtime-form toolbox-talk-template-preview">
       {current.description ? <p className="muted">{current.description}</p> : null}
-      <div className="template-runtime-section-grid">
-      {layout.headerFields.length ? (
-        <section className={templateRuntimeSectionClassName("toolbox_meeting_info", layout.meetingInfo)}>
-          <div className="toolbox-section-heading">
-            <h2>{layout.meetingInfo.title || "Meeting Info"}</h2>
-            {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
-          </div>
-          {layout.meetingInfo.description ? <p className="muted">{layout.meetingInfo.description}</p> : null}
-          <div className="toolbox-field-grid">
-            {layout.headerFields.map((field) => (
-              <label key={field.id || field.key}>
-                <span>{field.label}</span>
-                <input
-                  readOnly
-                  placeholder={field.helperText || ""}
-                  type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
-                  value={headerSampleValue(field)}
-                />
-              </label>
-            ))}
-          </div>
-        </section>
+      {genericSchema.sections.length ? (
+        <TemplateRuntimeSections
+          assetSearchEndpoint="/api/staff/assets"
+          answers={answers}
+          schema={genericSchema}
+          sections={genericSchema.sections}
+          worker={worker}
+          onChange={onChange}
+        />
       ) : null}
 
+      <div className="template-runtime-section-grid">
       {enabled.has("toolbox_topics") ? (
         <section
           className={templateRuntimeSectionClassName(
@@ -12930,16 +12844,6 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
         </section>
       ) : null}
       </div>
-      {genericSchema.sections.length ? (
-        <TemplateRuntimeSections
-          assetSearchEndpoint="/api/staff/assets"
-          answers={answers}
-          schema={genericSchema}
-          sections={genericSchema.sections}
-          worker={worker}
-          onChange={onChange}
-        />
-      ) : null}
     </div>
   );
 }
@@ -14942,9 +14846,18 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row, showActio
   );
   const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
   const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
+  const hasMeetingInfo = ["projectName", "address", "date", "time", "presenter", "supervisor"].some((key) =>
+    hasTextValue(header[key]),
+  );
+  const genericDetailSchema = getCustomGenericTemplateSchema(
+    data?.schemaSnapshot || row?.form_schema_snapshot,
+    isToolboxTalkConsumedTemplateField,
+    "toolbox_talk",
+  );
 
   return (
     <div className="toolbox-detail">
+      {hasMeetingInfo ? (
       <section>
         <h3>Meeting Info</h3>
         <dl className="staff-detail-list">
@@ -14956,6 +14869,14 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row, showActio
           <div><dt>Supervisor</dt><dd>{header.supervisor || "-"}</dd></div>
         </dl>
       </section>
+      ) : null}
+
+      <CustomGenericSubmissionDetails
+        actionItemBlocks={data.actionItemBlocks}
+        answers={data.answers}
+        filePreviewContext={filePreviewContext}
+        schema={genericDetailSchema}
+      />
 
       <section>
         <h3>Topics Discussed</h3>
@@ -15031,17 +14952,6 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row, showActio
           <div><dt>Participation confirmed</dt><dd>{confirmation.confirmed ? "Yes" : "No"}</dd></div>
         </dl>
       </section>
-
-      <CustomGenericSubmissionDetails
-        actionItemBlocks={data.actionItemBlocks}
-        answers={data.answers}
-        filePreviewContext={filePreviewContext}
-        schema={getCustomGenericTemplateSchema(
-          data?.schemaSnapshot || row?.form_schema_snapshot,
-          isToolboxTalkConsumedTemplateField,
-          "toolbox_talk",
-        )}
-      />
 
       {showActions ? <DigitalFormActions data={data} row={row} /> : null}
     </div>
@@ -17019,16 +16929,15 @@ function previewReminderMessage(template) {
 }
 
 function initialToolboxTalkForm(worker) {
-  const defaults = readToolboxTalkDefaults();
   const today = todayInVancouver();
   return {
     header: {
-      projectName: defaults.projectName || "",
-      address: defaults.address || "",
-      date: today,
-      time: timeInVancouver(),
-      presenter: worker?.name || "",
-      supervisor: defaults.supervisor || "",
+      projectName: "",
+      address: "",
+      date: "",
+      time: "",
+      presenter: "",
+      supervisor: "",
     },
     topics: {
       selected: [],
@@ -17051,26 +16960,6 @@ function initialToolboxTalkForm(worker) {
     },
     answers: {},
   };
-}
-
-function readToolboxTalkDefaults() {
-  if (typeof window === "undefined") return {};
-  try {
-    const value = JSON.parse(window.localStorage.getItem(TOOLBOX_TALK_DEFAULTS_KEY) || "{}");
-    return value && typeof value === "object" ? value : {};
-  } catch {
-    return {};
-  }
-}
-
-function rememberToolboxTalkDefaults(form) {
-  if (typeof window === "undefined") return;
-  const defaults = {
-    projectName: form.header.projectName.trim(),
-    address: form.header.address.trim(),
-    supervisor: form.header.supervisor.trim(),
-  };
-  window.localStorage.setItem(TOOLBOX_TALK_DEFAULTS_KEY, JSON.stringify(defaults));
 }
 
 function readToolboxTalkRecents() {
@@ -17708,9 +17597,9 @@ function getToolboxTalkHeaderFieldKey(field) {
 
 function createDefaultToolboxTalkLayout() {
   return {
-    headerFields: TOOLBOX_TALK_HEADER_FIELD_CONFIGS.map((field) => ({ ...field })),
+    headerFields: [],
     genericSchema: createGenericTemplateSchemaFromSections({ title: "Toolbox Talk", sections: [] }, [], "toolbox_talk"),
-    enabledBlocks: TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.filter((type) => type !== "toolbox_meeting_info"),
+    enabledBlocks: [...TOOLBOX_TALK_SPECIAL_BLOCK_ORDER],
     blockLabels: {
       toolbox_topics: "Topics Discussed",
       toolbox_incident_review: "Review Notes",
@@ -17780,55 +17669,7 @@ function getToolboxTalkLayout(schema) {
 
   normalized.sections.forEach((section) => {
     (section.fields || []).forEach((field) => {
-      if (field.type === "toolbox_meeting_info") {
-        if (!layout.meetingInfo.title) {
-          layout.meetingInfo = {
-            title: section.title || field.label || "Meeting Info",
-            description: section.description || field.helperText || "",
-            settings: { ...normalizeTemplateSettings(section.settings), ...normalizeTemplateSettings(field.settings) },
-          };
-        }
-        TOOLBOX_TALK_HEADER_FIELD_CONFIGS.forEach((base) => {
-          if (!layout.headerFields.some((item) => item.key === base.key)) {
-            layout.headerFields.push({
-              ...base,
-              sectionTitle: section.title || "Meeting Info",
-              sectionDescription: section.description || "",
-            });
-          }
-        });
-        return;
-      }
-
-      const headerKey = getToolboxTalkHeaderFieldKey(field);
-      if (headerKey) {
-        const base = TOOLBOX_TALK_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
-        if (!base) return;
-        if (!layout.meetingInfo.title) {
-          layout.meetingInfo = {
-            title: section.title || "Meeting Info",
-            description: section.description || "",
-            settings: normalizeTemplateSettings(section.settings),
-          };
-        }
-        layout.headerFields.push({
-          ...base,
-          id: field.id || base.id,
-          type: field.type || base.type,
-          label: field.label || base.label,
-          helperText: field.helperText || "",
-          required: Boolean(field.required),
-          remember: Boolean(field.remember),
-          default: field.default || base.default || "",
-          key: headerKey,
-          sectionTitle: section.title || "Meeting Info",
-          sectionDescription: section.description || "",
-          settings: normalizeTemplateSettings(field.settings),
-        });
-        return;
-      }
-
-      if (TEMPLATE_SPECIAL_BLOCK_TYPES.has(field.type)) {
+      if (TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type)) {
         if (!layout.enabledBlocks.includes(field.type)) layout.enabledBlocks.push(field.type);
         layout.blockLabels[field.type] = field.label || templateFieldTypeLabel(field.type);
         layout.blockSettings[field.type] = {
@@ -17839,9 +17680,6 @@ function getToolboxTalkLayout(schema) {
     });
   });
 
-  layout.headerFields = layout.headerFields.filter(
-    (field, index, fields) => fields.findIndex((item) => item.key === field.key) === index,
-  );
   const topicBlockSettings = layout.blockSettings.toolbox_topics || {};
   layout.blockSettings.toolbox_topics = {
     ...topicBlockSettings,
@@ -17868,23 +17706,9 @@ function isToolboxTalkTemplateSchema(schema, template = {}) {
   const normalized = normalizeClientTemplateSchema(schema);
   if (normalized.formType === "toolbox_talk" || template?.form_type === "toolbox_talk") return true;
 
-  const templateSignal = slugifyTemplateId(
-    [
-      normalized.formType,
-      normalized.title,
-      template?.form_type,
-      template?.label,
-    ].filter(Boolean).join(" "),
-  );
-  if (templateSignal.includes("toolbox_talk")) return true;
-
-  const toolboxBlocks = collectClientTemplateFields(normalized).filter((field) =>
+  return collectClientTemplateFields(normalized).some((field) =>
     TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type),
   );
-  const hasCoreToolboxBlock = toolboxBlocks.some((field) =>
-    ["toolbox_topics", "toolbox_attendance", "toolbox_final_confirmation"].includes(field.type),
-  );
-  return toolboxBlocks.length >= 2 && hasCoreToolboxBlock;
 }
 
 function isSiteInspectionTemplateSchema(schema, template = {}) {
@@ -17901,9 +17725,7 @@ function isSiteInspectionTemplateSchema(schema, template = {}) {
 
 function isToolboxTalkConsumedTemplateField(field) {
   if (!field) return false;
-  if (field.type === "toolbox_meeting_info") return true;
-  if (TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type)) return true;
-  return Boolean(getToolboxTalkHeaderFieldKey(field));
+  return TOOLBOX_TALK_SPECIAL_BLOCK_ORDER.includes(field.type);
 }
 
 function isSiteInspectionConsumedTemplateField(field) {
@@ -18592,6 +18414,12 @@ function staffToPreviewWorker(staff) {
 
 function templateFieldTypeLabel(type) {
   return TEMPLATE_FIELD_TYPES.find((item) => item.id === type)?.label || "Field";
+}
+
+function templateFieldTypeOptions(currentType = "") {
+  return TEMPLATE_FIELD_TYPES.filter((type) =>
+    !RETIRED_TEMPLATE_FIELD_TYPES.has(type.id) || type.id === currentType,
+  );
 }
 
 function templateFieldBuilderHint(type) {
