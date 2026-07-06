@@ -742,7 +742,7 @@ function assetPickerAnswerText(value) {
 
 function normalizeInstructionStyle(field) {
   const value = String(field?.settings?.instructionStyle || "").trim();
-  return ["plain", "heading", "notice", "warning", "policy"].includes(value) ? value : "plain";
+  return ["plain", "question_label", "heading", "notice", "warning", "policy"].includes(value) ? value : "plain";
 }
 
 function cleanSignatureDataUrl(value) {
@@ -1118,6 +1118,19 @@ function printDocumentCss() {
     }
     .instruction-heading p {
       font-size: 12pt;
+      line-height: 1.25;
+    }
+    .instruction-question_label {
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
+      color: #5f716d;
+      font-size: 9.5pt;
+      font-weight: 850;
+    }
+    .instruction-question_label p {
+      font-size: 9.5pt;
       line-height: 1.25;
     }
     .choice-field {

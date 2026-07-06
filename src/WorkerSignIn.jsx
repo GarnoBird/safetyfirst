@@ -182,6 +182,7 @@ const TEMPLATE_LAYOUT_WIDTH_OPTIONS = [
 ];
 const TEMPLATE_INSTRUCTION_STYLE_OPTIONS = [
   { id: "plain", label: "Plain" },
+  { id: "question_label", label: "Question label" },
   { id: "heading", label: "Heading" },
   { id: "notice", label: "Notice" },
   { id: "warning", label: "Warning" },
