@@ -240,17 +240,32 @@ function workerSubmitter(worker) {
 }
 
 function staffSubmitter(staff) {
+  const name = staffSubmitterName(staff);
   return {
     kind: "staff",
     id: staff.id,
     storagePrefix: `staff/${staff.id}`,
     workerId: null,
-    name: staff.display_name || staff.username || staff.email || "Appia Staff",
+    name,
     phone: staff.phone || "",
     username: staff.username || staff.email || "staff",
     user_name: staff.username || staff.email || "staff",
-    company: "Appia Staff",
+    company: staffSubmitterCompany(staff, name),
   };
+}
+
+function staffSubmitterName(staff) {
+  return String(staff?.display_name || staff?.username || staff?.email || "Staff").trim();
+}
+
+function staffSubmitterCompany(staff, name = staffSubmitterName(staff)) {
+  return `Appia ${staffSubmitterRoleLabel(staff?.role)} (${name})`;
+}
+
+function staffSubmitterRoleLabel(role) {
+  if (role === "owner") return "Owner";
+  if (role === "admin") return "Admin";
+  return "Staff";
 }
 
 async function uploadTargetPayload(submitter, formType, file, storagePath, data) {

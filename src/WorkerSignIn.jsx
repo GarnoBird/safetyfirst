@@ -3550,7 +3550,7 @@ export function FormTemplateShareLinkPage({ navigateTo, routePath }) {
               {auth.worker.name} / {auth.worker.company}
             </button>
             <button className="primary-button" type="button" onClick={() => setSubmitterKind("staff")}>
-              {staffSubmitter.name} / Appia Staff
+              {staffSubmitter.name} / {staffSubmitter.company}
             </button>
           </div>
         </section>
@@ -3736,7 +3736,7 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
         <header className="form-platform-header">
           <div>
             <h1>Submit a Safety Form</h1>
-            <p>{staff.display_name || staff.username} / Appia Staff</p>
+            <p>{staffFormSubmitter(staff)?.company}</p>
           </div>
           <div className="form-platform-actions">
             <button type="button" onClick={() => navigateTo("/staff/forms")}>
@@ -16369,14 +16369,29 @@ async function readOptionalSession(path, key) {
 
 function staffFormSubmitter(staff) {
   if (!staff) return null;
+  const name = staffSubmitterName(staff);
   return {
     id: `staff-${staff.id}`,
-    name: staff.display_name || staff.username || staff.email || "Appia Staff",
+    name,
     phone: staff.phone || "",
     username: staff.username || staff.email || "staff",
     user_name: staff.username || staff.email || "staff",
-    company: "Appia Staff",
+    company: staffSubmitterCompany(staff, name),
   };
+}
+
+function staffSubmitterName(staff) {
+  return String(staff?.display_name || staff?.username || staff?.email || "Staff").trim();
+}
+
+function staffSubmitterCompany(staff, name = staffSubmitterName(staff)) {
+  return `Appia ${staffSubmitterRoleLabel(staff?.role)} (${name})`;
+}
+
+function staffSubmitterRoleLabel(role) {
+  if (role === "owner") return "Owner";
+  if (role === "admin") return "Admin";
+  return "Staff";
 }
 
 function isISODate(value) {
