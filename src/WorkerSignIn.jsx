@@ -3731,11 +3731,10 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
   if (!staff) return <StaffLoadingScreen />;
 
   return (
-    <main className="public-page form-platform-page">
+    <StaffShell active="forms-fill" navigateTo={navigateTo} staff={staff}>
       <section className="form-platform-shell">
         <header className="form-platform-header">
           <div>
-            <div className="brand-mark">APPIA</div>
             <h1>Submit a Safety Form</h1>
             <p>{staff.display_name || staff.username} / Appia Staff</p>
           </div>
@@ -3774,7 +3773,7 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
           </div>
         )}
       </section>
-    </main>
+    </StaffShell>
   );
 }
 

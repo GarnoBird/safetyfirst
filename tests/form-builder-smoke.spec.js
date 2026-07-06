@@ -1936,6 +1936,7 @@ test("staff mobile menu nests form destinations under Forms", async ({ page }) =
 
   await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
+  await expect(page.locator(".staff-mobile-menu-trigger")).toContainText("FORMS");
   await expect(page.getByRole("heading", { name: "Submit a Safety Form" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
 });
@@ -3939,6 +3940,7 @@ test("staff can open fill-out forms from the Forms menu", async ({ page }) => {
   await page.getByRole("menuitem", { exact: true, name: "FORMS" }).click();
   await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
+  await expect(page.locator(".staff-mobile-menu-trigger")).toContainText("FORMS");
   await expect(page.getByRole("heading", { name: "Submit a Safety Form" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Submitted Forms" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
