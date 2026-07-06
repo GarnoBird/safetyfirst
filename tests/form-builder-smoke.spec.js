@@ -3859,7 +3859,7 @@ test("regular staff can reorder all active form templates", async ({ page }) => 
   await expect(page.getByText("Form order saved.")).toBeVisible();
 });
 
-test("staff can open fill-out forms from the form templates section", async ({ page }) => {
+test("staff can open fill-out forms from the Forms menu", async ({ page }) => {
   const readyRow = template("daily_safety_inspection", "Daily Safety Inspection", dailySafetyInspectionSchema, {
     shareLink: {
       token: "daily-safety-smoke",
@@ -3874,7 +3874,10 @@ test("staff can open fill-out forms from the form templates section", async ({ p
   await mockApis(page, [readyRow, hiddenDraft]);
 
   await page.goto("/staff/form-templates");
-  await page.getByRole("button", { name: "Fill Out Forms" }).click();
+  await expect(page.getByRole("button", { name: "Fill Out Forms" })).toHaveCount(0);
+  await page.locator(".staff-mobile-menu-trigger").click();
+  await page.getByRole("menuitem", { exact: true, name: "FORMS" }).click();
+  await page.getByRole("menuitem", { name: "Fill A Form" }).click();
   await expect(page).toHaveURL(/\/staff\/forms-to-fill-out$/);
   await expect(page.getByRole("heading", { name: "Forms To Fill Out" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Daily Safety Inspection/ })).toBeVisible();
@@ -4026,7 +4029,7 @@ test("mobile form templates hide form duplicate actions", async ({ page }) => {
   await mockApis(page, [toolboxRow, siteRow]);
 
   await page.goto("/staff/form-templates");
-  await expect(page.getByRole("button", { name: "Fill Out Forms" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Fill Out Forms" })).toHaveCount(0);
   await expect(page.locator(".template-card-list")).toBeVisible();
   await expect(page.getByText("Please use a larger screen to build or edit form templates.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Duplicate", exact: true })).toHaveCount(0);

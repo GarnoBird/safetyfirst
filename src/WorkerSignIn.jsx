@@ -10213,13 +10213,6 @@ export function StaffFormTemplatesPage({ navigateTo }) {
               <span aria-hidden="true" />
             )}
             <button
-              className="secondary-button template-fill-button"
-              type="button"
-              onClick={() => navigateTo("/staff/forms-to-fill-out")}
-            >
-              Fill Out Forms
-            </button>
-            <button
               aria-label="Hide form template list"
               className="template-list-toggle"
               title="Hide template list"

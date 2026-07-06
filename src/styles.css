@@ -4662,14 +4662,9 @@ p {
   align-items: stretch;
 }
 
-.template-new-button,
-.template-fill-button {
+.template-new-button {
   width: 100%;
   min-width: 0;
-}
-
-.template-fill-button {
-  grid-column: 1 / -1;
 }
 
 .template-list-toggle,
