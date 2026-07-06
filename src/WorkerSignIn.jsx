@@ -1743,6 +1743,7 @@ export function StaffHomePage({ navigateTo }) {
   const [loading, setLoading] = useState(true);
   const [emailing, setEmailing] = useState(false);
   const [message, setMessage] = useState("");
+  const [sharingExport, setSharingExport] = useState("");
 
   const counts = useMemo(
     () => ({
@@ -1806,6 +1807,18 @@ export function StaffHomePage({ navigateTo }) {
       setMessage(error.message);
     } finally {
       setEmailing(false);
+    }
+  };
+
+  const shareTodayReport = async (format) => {
+    setSharingExport(format);
+    setMessage("");
+    try {
+      await shareStaffExportFile(today, format);
+    } catch (error) {
+      if (error.name !== "AbortError") setMessage(error.message || "This report could not be exported.");
+    } finally {
+      setSharingExport("");
     }
   };
 
@@ -1929,8 +1942,12 @@ export function StaffHomePage({ navigateTo }) {
           title="Export Reports"
         >
           <div className="staff-card-actions">
-            <a href={staffExportUrl(today, "csv")}>CSV</a>
-            <a href={staffExportUrl(today, "xml")}>XML</a>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareTodayReport("csv")}>
+              {sharingExport === "csv" ? "Opening..." : "CSV"}
+            </button>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareTodayReport("xml")}>
+              {sharingExport === "xml" ? "Opening..." : "XML"}
+            </button>
             <button disabled={emailing} type="button" onClick={emailTodayReport}>
               {emailing ? "Emailing..." : "Email"}
             </button>
@@ -2488,6 +2505,7 @@ export function StaffSignInsPage({ navigateTo }) {
   const [records, setRecords] = useState({ rows: [], groups: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [sharingExport, setSharingExport] = useState("");
 
   const companyOptions = useMemo(
     () => getCheckedInCompanyOptions(records.rows),
@@ -2596,8 +2614,17 @@ export function StaffSignInsPage({ navigateTo }) {
     );
   };
 
-  const exportUrl = (format) =>
-    `/api/staff/signins/export?${new URLSearchParams({ date, format })}`;
+  const shareReport = async (format) => {
+    setSharingExport(format);
+    setMessage("");
+    try {
+      await shareStaffExportFile(date, format);
+    } catch (error) {
+      if (error.name !== "AbortError") setMessage(error.message || "This report could not be exported.");
+    } finally {
+      setSharingExport("");
+    }
+  };
 
   if (!staff) return <StaffLoadingScreen />;
 
@@ -2631,12 +2658,12 @@ export function StaffSignInsPage({ navigateTo }) {
           </label>
         ) : null}
         <div className="staff-actions staff-report-buttons">
-          <a className="staff-report-button" href={exportUrl("csv")}>
-            Export CSV
-          </a>
-          <a className="staff-report-button" href={exportUrl("xml")}>
-            Export XML
-          </a>
+          <button className="staff-report-button" disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("csv")}>
+            {sharingExport === "csv" ? "Opening..." : "Export CSV"}
+          </button>
+          <button className="staff-report-button" disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("xml")}>
+            {sharingExport === "xml" ? "Opening..." : "Export XML"}
+          </button>
           <button className="staff-report-button primary" type="button" onClick={emailReport}>
             Email report
           </button>
@@ -2693,14 +2720,14 @@ export function StaffSignInsPage({ navigateTo }) {
         <details className="staff-export-menu">
           <summary>Export</summary>
           <div className="staff-export-menu-panel">
-            <a href={exportUrl("csv")}>
-              <strong>CSV</strong>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("csv")}>
+              <strong>{sharingExport === "csv" ? "Opening..." : "CSV"}</strong>
               <span>Download spreadsheet</span>
-            </a>
-            <a href={exportUrl("xml")}>
-              <strong>XML</strong>
+            </button>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("xml")}>
+              <strong>{sharingExport === "xml" ? "Opening..." : "XML"}</strong>
               <span>Download XML file</span>
-            </a>
+            </button>
             <button type="button" onClick={emailReport}>
               <strong>Email Report</strong>
               <span>Send this roster</span>
@@ -2819,6 +2846,7 @@ export function StaffCompanySummaryPage({ navigateTo }) {
   const [records, setRecords] = useState({ rows: [] });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [sharingExport, setSharingExport] = useState("");
 
   const companyRows = useMemo(
     () => summarizeCompanies(records.rows),
@@ -2893,6 +2921,18 @@ export function StaffCompanySummaryPage({ navigateTo }) {
     );
   };
 
+  const shareReport = async (format) => {
+    setSharingExport(format);
+    setMessage("");
+    try {
+      await shareStaffExportFile(date, format, "company");
+    } catch (error) {
+      if (error.name !== "AbortError") setMessage(error.message || "This report could not be exported.");
+    } finally {
+      setSharingExport("");
+    }
+  };
+
   if (!staff) return <StaffLoadingScreen />;
 
   return (
@@ -2907,12 +2947,12 @@ export function StaffCompanySummaryPage({ navigateTo }) {
           />
         </label>
         <div className="staff-actions staff-report-buttons">
-          <a className="staff-report-button" href={staffExportUrl(date, "csv", "company")}>
-            Export CSV
-          </a>
-          <a className="staff-report-button" href={staffExportUrl(date, "xml", "company")}>
-            Export XML
-          </a>
+          <button className="staff-report-button" disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("csv")}>
+            {sharingExport === "csv" ? "Opening..." : "Export CSV"}
+          </button>
+          <button className="staff-report-button" disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("xml")}>
+            {sharingExport === "xml" ? "Opening..." : "Export XML"}
+          </button>
           <button className="staff-report-button primary" type="button" onClick={emailReport}>
             Email report
           </button>
@@ -2951,14 +2991,14 @@ export function StaffCompanySummaryPage({ navigateTo }) {
         <details className="staff-export-menu">
           <summary>Export</summary>
           <div className="staff-export-menu-panel">
-            <a href={staffExportUrl(date, "csv", "company")}>
-              <strong>CSV</strong>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("csv")}>
+              <strong>{sharingExport === "csv" ? "Opening..." : "CSV"}</strong>
               <span>Download spreadsheet</span>
-            </a>
-            <a href={staffExportUrl(date, "xml", "company")}>
-              <strong>XML</strong>
+            </button>
+            <button disabled={Boolean(sharingExport)} type="button" onClick={() => shareReport("xml")}>
+              <strong>{sharingExport === "xml" ? "Opening..." : "XML"}</strong>
               <span>Download XML file</span>
-            </a>
+            </button>
             <button type="button" onClick={emailReport}>
               <strong>Email Report</strong>
               <span>Send this roster</span>
@@ -16491,6 +16531,40 @@ function staffExportUrl(date, format, type = "people") {
   return `/api/staff/signins/export?${new URLSearchParams(params)}`;
 }
 
+async function shareStaffExportFile(date, format, type = "people") {
+  const normalizedFormat = format === "xml" ? "xml" : "csv";
+  const normalizedType = type === "company" ? "company" : "people";
+  const response = await fetch(staffExportUrl(date, normalizedFormat, normalizedType), {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw await digitalExportResponseError(response, "This report could not be exported.");
+  }
+  let blob = await response.blob();
+  if (!blob.size) throw new Error("This report was empty.");
+  if (!blob.type) {
+    blob = new Blob([blob], {
+      type: normalizedFormat === "xml" ? "application/xml" : "text/csv",
+    });
+  }
+  const fileName = fileNameFromContentDisposition(response.headers.get("content-disposition")) ||
+    staffExportFileName(date, normalizedFormat, normalizedType);
+  await shareOrDownloadBlob(blob, fileName, staffExportTitle(date, normalizedFormat, normalizedType), {
+    shareTypes: normalizedFormat === "xml" ? ["text/xml", "text/plain"] : ["text/csv", "text/plain"],
+    tryShareWhenCannotShare: normalizedFormat === "xml",
+  });
+}
+
+function staffExportFileName(date, format, type = "people") {
+  const prefix = type === "company" ? "worker-company-summary" : "worker-sign-ins";
+  return `${prefix}-${date}.${format}`;
+}
+
+function staffExportTitle(date, format, type = "people") {
+  const label = type === "company" ? "Worker company summary" : "Worker sign-ins";
+  return `${label} ${date}.${format}`;
+}
+
 function parseReportRecipients(value) {
   const seen = new Set();
   return splitReportRecipientValues(value)
@@ -19754,21 +19828,43 @@ function downloadBlob(blob, fileName) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function shareOrDownloadBlob(blob, fileName, title) {
+function uniqueValues(values) {
+  return [...new Set(values.filter(Boolean).map(String))];
+}
+
+async function shareOrDownloadBlob(blob, fileName, title, options = {}) {
   if (blob && typeof File !== "undefined" && typeof navigator !== "undefined" && navigator.share) {
-    const file = new File([blob], fileName, {
-      type: blob.type || "application/octet-stream",
-    });
-    try {
-      if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+    const types = uniqueValues([
+      blob.type || "application/octet-stream",
+      ...(Array.isArray(options.shareTypes) ? options.shareTypes : []),
+    ]);
+    const candidates = types.map((type) => new File([blob], fileName, { type }));
+    let fallbackCandidate = candidates[0];
+    for (const file of candidates) {
+      const payload = { files: [file] };
+      if (!navigator.canShare || navigator.canShare(payload)) {
+        fallbackCandidate = file;
+        try {
+          await navigator.share({
+            files: [file],
+            title: title || fileName,
+          });
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
+      }
+    }
+    if (options.tryShareWhenCannotShare && fallbackCandidate) {
+      try {
         await navigator.share({
-          files: [file],
+          files: [fallbackCandidate],
           title: title || fileName,
         });
         return;
+      } catch (error) {
+        if (error.name === "AbortError") return;
       }
-    } catch (error) {
-      if (error.name === "AbortError") return;
     }
   }
   downloadBlob(blob, fileName);

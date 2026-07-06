@@ -714,6 +714,24 @@ async function mockApis(page, templates, options = {}) {
         groups: mockSignInGroups(rows, group),
       });
     }
+    if (path === "/api/staff/signins/export" && method === "GET") {
+      const date = url.searchParams.get("date") || "2026-07-03";
+      const format = url.searchParams.get("format") === "xml" ? "xml" : "csv";
+      const isCompanyReport = url.searchParams.get("type") === "company";
+      const filenamePrefix = isCompanyReport ? "worker-company-summary" : "worker-sign-ins";
+      const rows = workerSignIns.filter((row) => row.sign_in_date_vancouver === date);
+      const body = format === "xml"
+        ? `<signIns date="${date}">${rows.map((row) => `<signIn><name>${row.name}</name></signIn>`).join("")}</signIns>`
+        : `name,company\n${rows.map((row) => `${row.name},${row.company}`).join("\n")}`;
+      return route.fulfill({
+        status: 200,
+        contentType: format === "xml" ? "application/xml; charset=utf-8" : "text/csv; charset=utf-8",
+        headers: {
+          "content-disposition": `attachment; filename="${filenamePrefix}-${date}.${format}"`,
+        },
+        body,
+      });
+    }
     if (path.startsWith("/api/mock-upload/") && method === "PUT") {
       return route.fulfill({ status: 200, body: "" });
     }
@@ -1805,6 +1823,70 @@ test("worker group sign-in reuses duplicate open rows after refresh", async ({ p
     .locator(".desktop-signin-group .staff-table tbody tr td:first-child")
     .evaluateAll((cells) => cells.map((cell) => cell.textContent.trim()));
   expect(staffNames).toEqual(["Chris", "Jerry", "David zocks"]);
+});
+
+test("staff home CSV and XML exports open native file share when available", async ({ page }) => {
+  await page.addInitScript(() => {
+    const fixedNow = new Date("2026-07-03T19:00:00.000Z").valueOf();
+    class FixedDate extends Date {
+      constructor(...args) {
+        super(...(args.length ? args : [fixedNow]));
+      }
+      static now() {
+        return fixedNow;
+      }
+    }
+    window.Date = FixedDate;
+    window.__staffExportSharePayloads = [];
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: (payload) => Boolean(payload?.files?.length),
+    });
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (payload) => {
+        window.__staffExportSharePayloads.push({
+          files: (payload.files || []).map((file) => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          })),
+          title: payload.title,
+        });
+      },
+    });
+  });
+  await mockApis(page, [], {
+    workerSignIns: [
+      {
+        id: "worker-signin-share-1",
+        name: "Garnet Bird",
+        phone: "6045550100",
+        trade: "Supervisor",
+        company: "Appia",
+        signed_in_at: "2026-07-03T16:00:00.000Z",
+        signed_out_at: null,
+        sign_in_date_vancouver: "2026-07-03",
+        sign_out_date_vancouver: null,
+      },
+    ],
+  });
+
+  await page.goto("/staff/home");
+  await page.getByRole("button", { name: "CSV" }).click();
+  await expect.poll(() => page.evaluate(() => window.__staffExportSharePayloads.length)).toBe(1);
+  await page.getByRole("button", { name: "XML" }).click();
+  await expect.poll(() => page.evaluate(() => window.__staffExportSharePayloads.length)).toBe(2);
+
+  const shares = await page.evaluate(() => window.__staffExportSharePayloads);
+  expect(shares[0].title).toBe("Worker sign-ins 2026-07-03.csv");
+  expect(shares[0].files[0].name).toBe("worker-sign-ins-2026-07-03.csv");
+  expect(shares[0].files[0].type).toContain("text/csv");
+  expect(shares[0].files[0].size).toBeGreaterThan(0);
+  expect(shares[1].title).toBe("Worker sign-ins 2026-07-03.xml");
+  expect(shares[1].files[0].name).toBe("worker-sign-ins-2026-07-03.xml");
+  expect(shares[1].files[0].type).toContain("application/xml");
+  expect(shares[1].files[0].size).toBeGreaterThan(0);
 });
 
 test("submitted forms open in a routed viewer, sign off, export, email, and print", async ({ page }) => {
