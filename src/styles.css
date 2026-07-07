@@ -4509,6 +4509,11 @@ p {
   grid-template-rows: auto auto;
 }
 
+.template-worker-form-new_worker_orientation .template-section-7_training_and_certifications .template-radio-choice-field > span,
+.template-worker-form-new_worker_orientation .template-section-8_medical_information_optional_kept_confidential_and_only_provided_to_ems_if_nee .template-radio-choice-field > span {
+  min-height: 2.7em;
+}
+
 .template-worker-form-new_worker_orientation .template-checklist-options,
 .template-worker-form-new_worker_orientation .template-media-upload-field,
 .template-worker-form-new_worker_orientation .template-signature-pad {

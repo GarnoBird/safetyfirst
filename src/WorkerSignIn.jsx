@@ -4539,20 +4539,20 @@ function ToolboxTalkDigitalForm({ formTemplate, formType = "toolbox_talk", onSub
         </div>
       ) : null}
 
-      {genericSchema.sections.length ? (
-        <TemplateRuntimeSections
-          answers={form.answers || {}}
-          invalidFields={missingFieldSet}
-          registerValidationTarget={registerValidationTarget}
-          schema={genericSchema}
-          sections={genericSchema.sections}
-          worker={worker}
-          onUploadFile={onUploadFile}
-          onChange={updateGenericAnswers}
-        />
-      ) : null}
-
       <div className="template-runtime-section-grid">
+        {genericSchema.sections.length ? (
+          <TemplateRuntimeSectionItems
+            answers={form.answers || {}}
+            invalidFields={missingFieldSet}
+            registerValidationTarget={registerValidationTarget}
+            schema={genericSchema}
+            sections={genericSchema.sections}
+            worker={worker}
+            onUploadFile={onUploadFile}
+            onChange={updateGenericAnswers}
+          />
+        ) : null}
+
         {enabledBlockSet.has("toolbox_topics") ? (
       <section
         className={templateRuntimeSectionClassName(
@@ -13122,8 +13122,9 @@ function ToolboxTalkTemplatePreview({ answers = {}, editorPreview = null, onChan
   return (
     <div className="template-runtime-form toolbox-talk-template-preview">
       {current.description ? <p className="muted">{current.description}</p> : null}
+      <div className="template-runtime-section-grid">
       {genericSchema.sections.length ? (
-        <TemplateRuntimeSections
+        <TemplateRuntimeSectionItems
           assetSearchEndpoint="/api/staff/assets"
           answers={answers}
           editorPreview={editorPreview}
@@ -13134,7 +13135,6 @@ function ToolboxTalkTemplatePreview({ answers = {}, editorPreview = null, onChan
         />
       ) : null}
 
-      <div className="template-runtime-section-grid">
       {enabled.has("toolbox_topics") ? (
         <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
@@ -13720,6 +13720,36 @@ function TemplateRuntimeSections({
   sections,
   worker,
 }) {
+  return (
+    <div className="template-runtime-section-grid">
+      <TemplateRuntimeSectionItems
+        answers={answers}
+        editorPreview={editorPreview}
+        invalidFields={invalidFields}
+        registerValidationTarget={registerValidationTarget}
+        schema={schema}
+        sections={sections}
+        worker={worker}
+        assetSearchEndpoint={assetSearchEndpoint}
+        onUploadFile={onUploadFile}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
+
+function TemplateRuntimeSectionItems({
+  assetSearchEndpoint = "/api/worker/assets",
+  answers,
+  editorPreview = null,
+  invalidFields = new Set(),
+  onChange,
+  onUploadFile,
+  registerValidationTarget,
+  schema,
+  sections,
+  worker,
+}) {
   const updateAnswer = (fieldId, value) => {
     onChange({ ...answers, [fieldId]: value });
   };
@@ -13741,7 +13771,7 @@ function TemplateRuntimeSections({
     });
   };
   return (
-    <div className="template-runtime-section-grid">
+    <>
       {visibleSections.map((section) => {
         const invalidSection = sectionHasInvalidField(section);
         const sectionIndex = editorPreview?.getSectionIndex?.(section);
@@ -13799,7 +13829,7 @@ function TemplateRuntimeSections({
           </TemplatePreviewSectionFrame>
         );
       })}
-    </div>
+    </>
   );
 }
 

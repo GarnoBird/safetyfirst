@@ -1874,14 +1874,14 @@ test("custom Toolbox Talk section widths render in preview and worker form", asy
   await page.goto("/staff/form-templates");
   await expect(page.getByRole("heading", { name: "Toolbox Width Smoke" })).toBeVisible();
   await openPreview(page);
-  const previewMeeting = page.locator(".template-v3-preview-page .template-section-toolbox_meeting_info");
+  const previewMeeting = page.locator(".template-v3-preview-page .template-section-meeting_info");
   const previewTopics = page.locator(".template-v3-preview-page .template-section-toolbox_topics");
   await expect(previewMeeting).toHaveClass(/template-width-half/);
   await expect(previewTopics).toHaveClass(/template-width-half/);
   await expectSectionsShareRow(previewMeeting, previewTopics);
 
   await page.goto("/forms/toolbox_width_smoke");
-  const workerMeeting = page.locator(".template-section-toolbox_meeting_info");
+  const workerMeeting = page.locator(".template-section-meeting_info");
   const workerTopics = page.locator(".template-section-toolbox_topics");
   await expect(workerMeeting).toHaveClass(/template-width-half/);
   await expect(workerTopics).toHaveClass(/template-width-half/);
@@ -2889,7 +2889,7 @@ test("legacy-style layout, choice displays, instruction styles, and integer numb
   await page.locator(".template-v3-field-card").filter({ hasText: "Years experience" }).getByRole("button").first().click();
   await expect(selectedBlock.getByLabel("Number type")).toHaveValue("integer");
   await page.locator(".template-v3-field-card").filter({ hasText: "Muster Station" }).getByRole("button").first().click();
-  await expect(selectedBlock.getByLabel("Static default")).toHaveValue("Northeast corner of site");
+  await expect(selectedBlock.getByLabel("Default answer")).toHaveValue("Northeast corner of site");
 
   await openPreview(page);
   const preview = page.locator(".template-v3-preview-page");
