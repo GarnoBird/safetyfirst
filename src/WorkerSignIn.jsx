@@ -13551,10 +13551,11 @@ function TemplateRuntimeField({
   }
   if (field.type === "dropdown") {
     if (normalizeTemplateChoiceDisplay(field) === "radio") {
+      const compactYesNoClass = templateOptionsAreYesNo(field.options) ? " compact-yes-no" : "";
       return (
         <div className={`template-radio-choice-field ${labelClass}`} ref={targetRef}>
           <span>{field.label}</span>
-          <div className="template-radio-choice-list" role="radiogroup" aria-label={field.label}>
+          <div className={`template-radio-choice-list${compactYesNoClass}`} role="radiogroup" aria-label={field.label}>
             {(field.options || []).map((option) => (
               <button
                 aria-checked={value === option}
@@ -18442,6 +18443,13 @@ function normalizeTemplateStaticDefaultForField(field, value) {
 function normalizeTemplateOptionPreset(field) {
   const value = String(getTemplateSettingValue(field?.settings, "optionPreset") || "").trim();
   return TEMPLATE_OPTION_PRESETS.some((preset) => preset.id === value) ? value : "";
+}
+
+function templateOptionsAreYesNo(options = []) {
+  const normalized = (Array.isArray(options) ? options : [])
+    .map((option) => String(option || "").trim().toLowerCase())
+    .filter(Boolean);
+  return normalized.length === 2 && normalized.includes("yes") && normalized.includes("no");
 }
 
 function normalizeTemplateVisibilitySettings(settings = {}) {
