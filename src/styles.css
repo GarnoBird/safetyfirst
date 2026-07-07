@@ -3437,10 +3437,13 @@ p {
 .template-runtime-field-shell > .template-signature-field > span,
 .template-runtime-field-shell > .template-media-upload-field .template-media-upload-heading span,
 .template-runtime-field-shell > .template-asset-picker-field .template-media-upload-heading span {
+  min-width: 0;
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 850;
   line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .toolbox-segmented {
@@ -5270,6 +5273,16 @@ p {
   color: inherit;
   text-align: left;
   background: transparent;
+  white-space: normal;
+  overflow: hidden;
+}
+
+.template-v3-section-head > button > *,
+.template-v3-field-card > button > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .template-v3-section-head > div,
@@ -5277,6 +5290,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: max-content;
   justify-content: flex-end;
 }
 
