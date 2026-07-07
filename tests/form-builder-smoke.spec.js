@@ -1866,6 +1866,35 @@ test("custom Toolbox Talk preview and worker form render added drawn signatures"
   await expect(page.getByText("Signature is required.")).toBeVisible();
 });
 
+test("form templates open the last selected template or the first template", async ({ page }) => {
+  const firstRow = template("first_template", "First Template", {
+    ...toolboxSignatureSchema,
+    formType: "first_template",
+    title: "First Template",
+  }, { displayOrder: 10 });
+  const secondRow = template("second_template", "Second Template", {
+    ...toolboxSignatureSchema,
+    formType: "second_template",
+    title: "Second Template",
+  }, { displayOrder: 20 });
+  await mockApis(page, [firstRow, secondRow]);
+
+  await page.goto("/staff/form-templates");
+  await expect(page.getByRole("heading", { name: "First Template" })).toBeVisible();
+
+  await page.locator(".template-card").filter({ hasText: "Second Template" }).getByRole("button").first().click();
+  await expect(page.getByRole("heading", { name: "Second Template" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Second Template" })).toBeVisible();
+
+  await page.evaluate(() => {
+    window.localStorage.removeItem("safetyfirst.staffFormTemplates.selectedFormType");
+  });
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "First Template" })).toBeVisible();
+});
+
 test("custom Toolbox Talk section widths render in preview and worker form", async ({ page }) => {
   const row = template("toolbox_width_smoke", "Toolbox Width Smoke", toolboxHalfWidthSchema);
   await mockApis(page, [row]);

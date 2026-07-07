@@ -8409,6 +8409,10 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .template-editor-heading {
+    display: none;
+  }
+
   .template-new-button,
   .template-new-form {
     display: none;

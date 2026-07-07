@@ -9430,6 +9430,30 @@ function templateAccessLabel(template) {
   return "Editable";
 }
 
+const STAFF_FORM_TEMPLATE_SELECTION_KEY = "safetyfirst.staffFormTemplates.selectedFormType";
+
+function readLastSelectedFormTemplate() {
+  if (typeof window === "undefined") return "";
+  try {
+    return window.localStorage.getItem(STAFF_FORM_TEMPLATE_SELECTION_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function rememberSelectedFormTemplate(formType) {
+  if (typeof window === "undefined") return;
+  try {
+    if (formType) {
+      window.localStorage.setItem(STAFF_FORM_TEMPLATE_SELECTION_KEY, formType);
+    } else {
+      window.localStorage.removeItem(STAFF_FORM_TEMPLATE_SELECTION_KEY);
+    }
+  } catch {
+    // Ignore storage failures so private browsing or locked-down browsers still load the page.
+  }
+}
+
 function TemplateQrLinkPanel({
   copyStatus,
   onCopy,
@@ -9528,7 +9552,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   const { staff } = useStaffSession(navigateTo);
   const canManageTemplates = Boolean(staff);
   const [rows, setRows] = useState([]);
-  const [selectedFormType, setSelectedFormType] = useState("daily_hazard_assessment");
+  const [selectedFormType, setSelectedFormType] = useState(() => readLastSelectedFormTemplate());
   const [draftSchema, setDraftSchema] = useState(null);
   const [previewAnswers, setPreviewAnswers] = useState({});
   const [templateListHidden, setTemplateListHidden] = useState(false);
@@ -9557,10 +9581,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     () => archivedTemplates.filter((template) => canPurgeFormTemplate(template, staff)),
     [archivedTemplates, staff],
   );
-  const selectedTemplate = useMemo(
-    () => rows.find((row) => row.form_type === selectedFormType) || currentTemplates[0] || archivedTemplates[0] || null,
-    [archivedTemplates, currentTemplates, rows, selectedFormType],
-  );
+  const selectedTemplate = useMemo(() => {
+    const selected = rows.find((row) => row.form_type === selectedFormType);
+    if (selected && (!selected.archived_at || archivedOpen)) return selected;
+    return currentTemplates[0] || archivedTemplates[0] || null;
+  }, [archivedOpen, archivedTemplates, currentTemplates, rows, selectedFormType]);
   const selectedIsLockedDefault = isLockedDefaultFormTemplate(selectedTemplate);
   const selectedIsLocked = isLockedFormTemplate(selectedTemplate);
   const selectedCanManage = canManageFormTemplate(selectedTemplate, staff);
@@ -9602,6 +9627,11 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     () => (selectedSharePath ? publicUrl(selectedSharePath) : ""),
     [selectedSharePath],
   );
+
+  const chooseFormTemplate = (formType) => {
+    setSelectedFormType(formType || "");
+    rememberSelectedFormTemplate(formType || "");
+  };
 
   const registerTemplateCard = (formType) => (node) => {
     if (node) {
@@ -9649,7 +9679,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
         }),
       );
       setRows((current) => [payload.template, ...current]);
-      setSelectedFormType(payload.template.form_type);
+      chooseFormTemplate(payload.template.form_type);
       setFocusedTemplateType(payload.template.form_type);
       setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
       setPreviewAnswers({});
@@ -9676,7 +9706,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
         }),
       );
       setRows((current) => [payload.template, ...current]);
-      setSelectedFormType(payload.template.form_type);
+      chooseFormTemplate(payload.template.form_type);
       setFocusedTemplateType(payload.template.form_type);
       setDraftSchema(cloneTemplateSchema(payload.template.draftVersion?.schema));
       setPreviewAnswers({});
@@ -9761,7 +9791,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
       setArchivedOpen(false);
       if (deletedTypes.has(selectedTemplate?.form_type)) {
         const nextTemplate = nextRows.find((row) => !row.archived_at) || nextRows[0] || null;
-        setSelectedFormType(nextTemplate?.form_type || "");
+        chooseFormTemplate(nextTemplate?.form_type || "");
         setFocusedTemplateType("");
         setDraftSchema(cloneTemplateSchema(nextTemplate?.draftVersion?.schema || nextTemplate?.publishedVersion?.schema));
       }
@@ -9793,21 +9823,18 @@ export function StaffFormTemplatesPage({ navigateTo }) {
         }),
       );
       const nextTemplate = syncTemplateSchemaMeta(payload.template, patch);
-      let nextRows = [];
-      setRows((current) => {
-        nextRows = current.map((row) => (row.form_type === nextTemplate.form_type ? nextTemplate : row));
-        return nextRows;
-      });
+      const nextRows = rows.map((row) => (row.form_type === nextTemplate.form_type ? nextTemplate : row));
+      setRows(nextRows);
       if (patchHasKey(patch, "label") || patchHasKey(patch, "description")) {
         setDraftSchema((current) => syncSchemaMeta(current, patch));
       }
       if (patch.archived) {
         setFocusedTemplateType("");
         const nextActiveTemplate = nextRows.find((row) => !row.archived_at && row.form_type !== nextTemplate.form_type);
-        if (nextActiveTemplate) setSelectedFormType(nextActiveTemplate.form_type);
+        if (nextActiveTemplate) chooseFormTemplate(nextActiveTemplate.form_type);
       } else if (patch.archived === false) {
         setArchivedOpen(false);
-        setSelectedFormType(nextTemplate.form_type);
+        chooseFormTemplate(nextTemplate.form_type);
       }
       setMessage(patch.archived ? "Template archived." : "Template settings saved.");
     } catch (error) {
@@ -9927,6 +9954,20 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     if (!staff) return;
     loadTemplates();
   }, [staff]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!rows.length) {
+      if (selectedFormType) chooseFormTemplate("");
+      return;
+    }
+    const selectedRow = rows.find((row) => row.form_type === selectedFormType);
+    if (selectedRow && (!selectedRow.archived_at || archivedOpen)) {
+      rememberSelectedFormTemplate(selectedFormType);
+      return;
+    }
+    chooseFormTemplate(currentTemplates[0]?.form_type || archivedTemplates[0]?.form_type || "");
+  }, [archivedOpen, archivedTemplates, currentTemplates, loading, rows, selectedFormType]);
 
   useEffect(() => {
     setDraftSchema(cloneTemplateSchema(selectedSchema));
@@ -10127,7 +10168,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
   };
 
   const selectTemplateForDetails = (formType) => {
-    setSelectedFormType(formType);
+    chooseFormTemplate(formType);
     if (!isTemplateListFocused) setFocusedTemplateType("");
     if (window.matchMedia?.("(max-width: 820px)").matches) {
       setTemplateListHidden(true);
@@ -11089,6 +11130,7 @@ function TemplateSchemaEditorV3({
   const canToggleVisibility = canEdit && canManageSettings && hasPublishedVersion && active && !archived && !saving;
   const useToolboxTalkPreview = isToolboxTalkTemplateSchema(current, selectedTemplate);
   const useSiteInspectionPreview = isSiteInspectionTemplateSchema(current, selectedTemplate);
+  const mobileTemplateTitle = selectedTemplate?.label || current.title || "Form template";
   const hasUnpublishedDraft = Boolean(
     !lockedDefault &&
     !locked &&
@@ -11670,7 +11712,8 @@ function TemplateSchemaEditorV3({
   return (
     <div className="template-v3-builder">
       <div className="template-v3-mobile-lock">
-        <h2>Form Builder V3 is designed for laptop or desktop editing.</h2>
+        <h2>{mobileTemplateTitle}</h2>
+        <p><strong>Form Builder V3 is designed for laptop or desktop editing.</strong></p>
         <p>Please use a larger screen to build or edit form templates. Worker form filling still works on mobile.</p>
       </div>
 
