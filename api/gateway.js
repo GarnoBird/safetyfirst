@@ -419,6 +419,28 @@ async function handleFormLinks(req, res, parts) {
     return sendJson(res, 200, {
       template: publicShareLinkTemplate(template),
       link: template.shareLink,
+    }, {
+      "cache-control": "public, max-age=30, s-maxage=60, stale-while-revalidate=120",
+    });
+  }
+
+  if (parts.length === 2 && parts[1] === "session") {
+    if (req.method !== "GET") return sendMethodNotAllowed(res, ["GET"]);
+    assertRateLimit({
+      req,
+      scope: "form_link_session",
+      identifier: linkIdentifier,
+      limit: 120,
+    });
+    const [worker, staff] = await Promise.all([
+      getWorkerFromRequest(req),
+      getStaffFromRequest(req),
+    ]);
+    return sendJson(res, 200, {
+      worker: worker || null,
+      staff: publicStaff(staff),
+    }, {
+      "cache-control": "no-store",
     });
   }
 

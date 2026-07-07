@@ -3727,7 +3727,7 @@ export function StaffFormsToFillOutPage({ navigateTo }) {
   );
 }
 
-function FormSubmissionExperience({
+export function FormSubmissionExperience({
   allowOfflineQueue = false,
   formType,
   navigateTo,

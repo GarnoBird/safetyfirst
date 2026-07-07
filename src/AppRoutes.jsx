@@ -1,36 +1,52 @@
-import {
-  StaffHomePage,
-  StaffCompanySummaryPage,
-  StaffAuditPage,
-  StaffBackupsPage,
-  StaffCertificatesPage,
-  StaffFormSubmissionsPage,
-  StaffFormsToFillOutPage,
-  StaffSubmissionViewerPage,
-  StaffFormTemplatesPage,
-  StaffHealthPage,
-  StaffActionItemsPage,
-  StaffAssetsPage,
-  StaffAssetDetailPage,
-  StaffLoginPage,
-  StaffSettingsPage,
-  StaffSignInsPage,
-  StaffTrendsPage,
-  StaffUsersPage,
-  StaffWorkersPage,
-  FormTemplateShareLinkPage,
-  WorkerFormSubmissionPage,
-  WorkerFormsHomePage,
-  WorkerLoginPage,
-  WorkerSignInPage,
-  WorkerSignInQr,
-  WorkerSubmissionDetailPage,
-  WorkerSubmissionHistoryPage,
-  WorkerSignOutPage,
-  WorkerSignOutQr,
-} from "./WorkerSignIn.jsx";
+import { Suspense, lazy } from "react";
+
+const FormTemplateShareLinkPage = lazy(() => import("./FormLinkRoute.jsx"));
+const WorkerSignInQr = lazyWorkerRoute("WorkerSignInQr");
+const WorkerSignOutQr = lazyWorkerRoute("WorkerSignOutQr");
+const WorkerSignInPage = lazyWorkerRoute("WorkerSignInPage");
+const WorkerSignOutPage = lazyWorkerRoute("WorkerSignOutPage");
+const StaffLoginPage = lazyWorkerRoute("StaffLoginPage");
+const StaffHomePage = lazyWorkerRoute("StaffHomePage");
+const StaffSettingsPage = lazyWorkerRoute("StaffSettingsPage");
+const StaffSignInsPage = lazyWorkerRoute("StaffSignInsPage");
+const StaffCompanySummaryPage = lazyWorkerRoute("StaffCompanySummaryPage");
+const StaffTrendsPage = lazyWorkerRoute("StaffTrendsPage");
+const WorkerLoginPage = lazyWorkerRoute("WorkerLoginPage");
+const WorkerFormsHomePage = lazyWorkerRoute("WorkerFormsHomePage");
+const WorkerFormSubmissionPage = lazyWorkerRoute("WorkerFormSubmissionPage");
+const StaffFormsToFillOutPage = lazyWorkerRoute("StaffFormsToFillOutPage");
+const WorkerSubmissionHistoryPage = lazyWorkerRoute("WorkerSubmissionHistoryPage");
+const WorkerSubmissionDetailPage = lazyWorkerRoute("WorkerSubmissionDetailPage");
+const StaffCertificatesPage = lazyWorkerRoute("StaffCertificatesPage");
+const StaffAssetsPage = lazyWorkerRoute("StaffAssetsPage");
+const StaffAssetDetailPage = lazyWorkerRoute("StaffAssetDetailPage");
+const StaffWorkersPage = lazyWorkerRoute("StaffWorkersPage");
+const StaffUsersPage = lazyWorkerRoute("StaffUsersPage");
+const StaffBackupsPage = lazyWorkerRoute("StaffBackupsPage");
+const StaffHealthPage = lazyWorkerRoute("StaffHealthPage");
+const StaffAuditPage = lazyWorkerRoute("StaffAuditPage");
+const StaffFormSubmissionsPage = lazyWorkerRoute("StaffFormSubmissionsPage");
+const StaffSubmissionViewerPage = lazyWorkerRoute("StaffSubmissionViewerPage");
+const StaffFormTemplatesPage = lazyWorkerRoute("StaffFormTemplatesPage");
+const StaffActionItemsPage = lazyWorkerRoute("StaffActionItemsPage");
+
+function lazyWorkerRoute(exportName) {
+  return lazy(() =>
+    import("./WorkerSignIn.jsx").then((module) => ({
+      default: module[exportName],
+    })),
+  );
+}
 
 export default function AppRoutes({ navigateTo, routePath }) {
+  return (
+    <Suspense fallback={<RouteLoadingScreen />}>
+      {renderRoute({ navigateTo, routePath })}
+    </Suspense>
+  );
+}
+
+function renderRoute({ navigateTo, routePath }) {
   if (routePath === "/worker-sign-in-qr") {
     return <WorkerSignInQr navigateTo={navigateTo} />;
   }
@@ -149,4 +165,12 @@ export default function AppRoutes({ navigateTo, routePath }) {
   }
 
   return null;
+}
+
+function RouteLoadingScreen() {
+  return (
+    <main className="public-page">
+      <p className="empty-state">Loading...</p>
+    </main>
+  );
 }

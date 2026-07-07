@@ -39,8 +39,9 @@ test("public form-link chooser stays inside startup budgets", async ({ page }) =
   await reportMetrics("public form-link chooser", metrics, visibleContentMs);
 
   expect(visibleContentMs).toBeLessThan(5_000);
-  expect(metrics.apiCount()).toBeLessThanOrEqual(4);
-  expect(metrics.totalScriptBytes()).toBeLessThan(750_000);
+  expect(metrics.apiCount()).toBeLessThanOrEqual(2);
+  expect(metrics.largestScriptBytes()).toBeLessThan(250_000);
+  expect(metrics.totalScriptBytes()).toBeLessThan(320_000);
 });
 
 test("staff forms list stays inside startup budgets", async ({ page }) => {
