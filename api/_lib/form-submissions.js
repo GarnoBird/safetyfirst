@@ -212,6 +212,10 @@ const FILE_SELECT =
 const SUBMISSION_SELECT =
   "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, notes, form_data, form_template_version_id, form_schema_snapshot, staff_signoffs, staff_reviewed_at, staff_reviewed_by_staff_id, submitted_at, submitted_date_vancouver, deleted_by_worker_at, deleted_by_staff_at, deleted_by_staff_id, app_purged_at, one_drive_backup_status, one_drive_item_id, one_drive_item_name, one_drive_web_url, one_drive_path, backup_attempted_at, backup_error";
 const SUBMISSION_WITH_FILES_SELECT = `${SUBMISSION_SELECT}, submission_files(${FILE_SELECT})`;
+const STAFF_SUBMISSION_LIST_SELECT =
+  "id, worker_id, worker_name, worker_phone, worker_username, company, form_type, submission_mode, submitted_at, submitted_date_vancouver, one_drive_backup_status, backup_attempted_at, backup_error";
+const DEFAULT_STAFF_SUBMISSIONS_LIMIT = 50;
+const MAX_STAFF_SUBMISSIONS_LIMIT = 100;
 
 export function publicSubmission(row) {
   return {
@@ -221,6 +225,25 @@ export function publicSubmission(row) {
     staff_reviewed_by_staff_id: row?.staff_reviewed_by_staff_id || null,
     files: row.submission_files || row.files || [],
     submission_files: undefined,
+  };
+}
+
+export function publicSubmissionSummary(row) {
+  return {
+    id: row?.id || "",
+    worker_id: row?.worker_id || null,
+    worker_name: row?.worker_name || "",
+    worker_phone: row?.worker_phone || "",
+    worker_username: row?.worker_username || "",
+    company: row?.company || "",
+    form_type: row?.form_type || "",
+    form_current_label: row?.form_current_label || null,
+    submission_mode: row?.submission_mode || "",
+    submitted_at: row?.submitted_at || "",
+    submitted_date_vancouver: row?.submitted_date_vancouver || "",
+    one_drive_backup_status: row?.one_drive_backup_status || "pending",
+    backup_attempted_at: row?.backup_attempted_at || null,
+    backup_error: row?.backup_error || null,
   };
 }
 
@@ -779,36 +802,16 @@ export async function listStaffSubmissions(query) {
     ? query.get("sort")
     : "submitted_at";
   const dir = query.get("dir") === "asc" ? "asc" : "desc";
-  let companyOptions = [];
-
-  try {
-    const companyRows = throwIfSupabaseError(
-      await getSupabaseServiceClient()
-        .from("form_submissions")
-        .select("worker_id, worker_name, worker_username, company")
-        .is("deleted_by_worker_at", null)
-        .is("deleted_by_staff_at", null)
-        .is("app_purged_at", null)
-        .order("company", { ascending: true })
-        .limit(1000),
-      "Submission companies could not be loaded.",
-    );
-    companyOptions = submittedCompanyOptions(await withStaffSubmitterLabels(companyRows));
-  } catch (error) {
-    if (!isSupabaseMissingRelationError(error)) throw error;
-    companyOptions = submittedCompanyOptions(
-      await withStaffSubmitterLabels(
-        (await listFallbackSubmissions())
-          .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at),
-      ),
-    );
-  }
+  const limit = clampStaffSubmissionsLimit(query.get("limit"));
+  const offset = clampStaffSubmissionsOffset(query.get("offset"));
 
   const filterCompanyAfterEnrichment = company && /^Appia\s+/i.test(company);
   const filterPhoneAfterEnrichment = Boolean(phone);
+  const paginateAfterEnrichment = Boolean(filterCompanyAfterEnrichment || filterPhoneAfterEnrichment);
+  let paginateLocally = paginateAfterEnrichment;
   let dbQuery = getSupabaseServiceClient()
     .from("form_submissions")
-    .select(SUBMISSION_WITH_FILES_SELECT)
+    .select(STAFF_SUBMISSION_LIST_SELECT, paginateAfterEnrichment ? undefined : { count: "exact" })
     .is("deleted_by_worker_at", null)
     .is("deleted_by_staff_at", null)
     .is("app_purged_at", null);
@@ -823,13 +826,24 @@ export async function listStaffSubmissions(query) {
   }
 
   let rows;
+  let total = 0;
   try {
-    rows = throwIfSupabaseError(
-      await dbQuery.order(sort, { ascending: dir === "asc" }).limit(500),
-      "Submissions could not be loaded.",
-    );
+    const orderedQuery = dbQuery.order(sort, { ascending: dir === "asc" });
+    const result = paginateAfterEnrichment
+      ? await orderedQuery.limit(500)
+      : await orderedQuery.range(offset, offset + limit - 1);
+    if (result.error) {
+      const error = new Error("Submissions could not be loaded.");
+      error.cause = result.error;
+      error.statusCode = isSupabaseMissingRelationError(result.error) ? 503 : 500;
+      error.exposeMessage = isSupabaseMissingRelationError(result.error);
+      throw error;
+    }
+    rows = result.data || [];
+    total = Number(result.count ?? rows.length) || 0;
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
+    paginateLocally = true;
     rows = await listFallbackStaffSubmissions({
       from,
       to,
@@ -841,6 +855,7 @@ export async function listStaffSubmissions(query) {
       sort,
       dir,
     });
+    total = rows.length;
   }
   rows = await withStaffSubmitterLabels(rows);
   rows = await withCurrentFormLabels(rows);
@@ -850,13 +865,32 @@ export async function listStaffSubmissions(query) {
   if (filterPhoneAfterEnrichment) {
     rows = rows.filter((row) => textIncludes(row.worker_phone, phone));
   }
+  if (paginateLocally) {
+    total = rows.length;
+    rows = rows.slice(offset, offset + limit);
+  }
 
   return {
-    companyOptions,
-    rows: rows.map(publicSubmission),
+    rows: rows.map(publicSubmissionSummary),
+    total,
+    limit,
+    offset,
+    hasMore: offset + rows.length < total,
     sort,
     dir,
   };
+}
+
+function clampStaffSubmissionsLimit(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return DEFAULT_STAFF_SUBMISSIONS_LIMIT;
+  return Math.min(MAX_STAFF_SUBMISSIONS_LIMIT, Math.max(1, Math.trunc(parsed)));
+}
+
+function clampStaffSubmissionsOffset(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.trunc(parsed));
 }
 
 export async function getSubmissionById(id, { includeDeleted = false } = {}) {
@@ -1553,8 +1587,7 @@ async function listFallbackStaffSubmissions(filters) {
       !["pending", "backed_up", "failed"].includes(backupStatus) ||
       row.one_drive_backup_status === backupStatus
     )
-    .sort((a, b) => compareFallbackSubmissions(a, b, sort, dir))
-    .slice(0, 500);
+    .sort((a, b) => compareFallbackSubmissions(a, b, sort, dir));
 }
 
 function submittedCompanyOptions(rows) {
