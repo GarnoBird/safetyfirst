@@ -5217,7 +5217,8 @@ p {
 .template-v3-field-card span,
 .template-v3-side-heading span,
 .template-v3-page-header span,
-.template-v3-side-card label > span {
+.template-v3-side-card label > span,
+.template-default-answer > span {
   color: #286f68;
   font-size: 0.74rem;
   font-weight: 950;
@@ -5427,6 +5428,22 @@ p {
 .template-v3-side-card label {
   display: grid;
   gap: 6px;
+}
+
+.template-default-answer,
+.template-default-answer-list {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.template-default-answer.disabled {
+  opacity: 0.72;
+}
+
+.template-default-answer > small {
+  color: var(--muted);
+  font-weight: 750;
 }
 
 .template-v3-topic-textarea-field {

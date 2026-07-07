@@ -12521,15 +12521,11 @@ function TemplateSchemaEditorV3({
                   </label>
                 ) : null}
                 {!selectedFieldIsNonAnswer && templateSupportsStaticDefault(selectedField) ? (
-                  <label>
-                    <span>Static default</span>
-                    <input
-                      disabled={readOnly || Boolean(selectedField.default)}
-                      placeholder={selectedField.default ? "Using selected worker/date default" : "Optional prefilled value"}
-                      value={templateStaticDefaultValue(selectedField)}
-                      onChange={(event) => updateSelectedFieldSettings({ defaultValue: event.target.value })}
-                    />
-                  </label>
+                  <TemplateDefaultAnswerControl
+                    disabled={readOnly || Boolean(selectedField.default)}
+                    field={selectedField}
+                    onChange={(value) => updateSelectedFieldSettings({ defaultValue: value })}
+                  />
                 ) : null}
               </div>
             ) : null}
@@ -12636,6 +12632,131 @@ function TemplateUnlockDialog({ onClose, onUnlock, saving, template }) {
         </form>
       </section>
     </div>
+  );
+}
+
+function TemplateDefaultAnswerControl({ disabled = false, field, onChange }) {
+  const disabledReason = field?.default
+    ? "Worker/date default is selected above. Clear it to use a fixed answer."
+    : "";
+  const helper = disabledReason ? <small>{disabledReason}</small> : null;
+
+  if (field.type === "yes_no") {
+    return (
+      <label>
+        <span>Default answer</span>
+        <select
+          disabled={disabled}
+          value={templateStaticDefaultInputValue(field)}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">Blank</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+        {helper}
+      </label>
+    );
+  }
+
+  if (field.type === "dropdown") {
+    return (
+      <label>
+        <span>Default answer</span>
+        <select
+          disabled={disabled}
+          value={templateStaticDefaultInputValue(field)}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">Blank</option>
+          {(field.options || []).map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+        {helper}
+      </label>
+    );
+  }
+
+  if (field.type === "multi_select") {
+    const selected = templateStaticDefaultArrayValue(field);
+    return (
+      <div className={disabled ? "template-default-answer disabled" : "template-default-answer"}>
+        <span>Default answer</span>
+        {(field.options || []).length ? (
+          <div className="template-default-answer-list">
+            {(field.options || []).map((option) => (
+              <label className="settings-checkbox compact" key={option}>
+                <input
+                  checked={selected.includes(option)}
+                  disabled={disabled}
+                  type="checkbox"
+                  onChange={(event) =>
+                    onChange(event.target.checked
+                      ? [...selected, option]
+                      : selected.filter((item) => item !== option))
+                  }
+                />
+                <span>{option}</span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <small>Add options before choosing default answers.</small>
+        )}
+        {helper}
+      </div>
+    );
+  }
+
+  if (templateFieldUsesBooleanStaticDefault(field)) {
+    return (
+      <label>
+        <span>Default answer</span>
+        <select
+          disabled={disabled}
+          value={templateStaticDefaultInputValue(field)}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">Unchecked</option>
+          <option value="true">Checked</option>
+        </select>
+        {helper}
+      </label>
+    );
+  }
+
+  if (field.type === "long_text") {
+    return (
+      <label>
+        <span>Default answer</span>
+        <textarea
+          disabled={disabled}
+          placeholder={field.default ? "Using selected worker/date default" : "Optional prefilled answer"}
+          rows="3"
+          value={templateStaticDefaultInputValue(field)}
+          onChange={(event) => onChange(event.target.value)}
+        />
+        {helper}
+      </label>
+    );
+  }
+
+  const inputType = field.type === "date" || field.type === "time" || field.type === "number"
+    ? field.type
+    : "text";
+  return (
+    <label>
+      <span>Default answer</span>
+      <input
+        disabled={disabled}
+        placeholder={field.default ? "Using selected worker/date default" : "Optional prefilled answer"}
+        type={inputType}
+        value={templateStaticDefaultInputValue(field)}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      {helper}
+    </label>
   );
 }
 
@@ -18245,16 +18366,67 @@ function isPhoneLikeTemplateField(field) {
 }
 
 function templateSupportsStaticDefault(field) {
-  return ["short_text", "long_text", "number", "date", "time", "yes_no", "dropdown"].includes(field?.type);
+  return [
+    "short_text",
+    "long_text",
+    "number",
+    "date",
+    "time",
+    "yes_no",
+    "boolean",
+    "toggle",
+    "checkbox",
+    "dropdown",
+    "multi_select",
+  ].includes(field?.type);
 }
 
 function templateStaticDefaultValue(field) {
-  const value = getTemplateSettingValue(field?.settings, "defaultValue");
-  if (value === null || value === undefined) return "";
-  return String(value);
+  return normalizeTemplateStaticDefaultForField(
+    field,
+    getTemplateSettingValue(field?.settings, "defaultValue"),
+  );
+}
+
+function templateStaticDefaultInputValue(field) {
+  const value = templateStaticDefaultValue(field);
+  if (Array.isArray(value)) return value.join(",");
+  if (typeof value === "boolean") return value ? "true" : "";
+  return String(value ?? "");
+}
+
+function templateStaticDefaultArrayValue(field) {
+  const value = templateStaticDefaultValue(field);
+  return Array.isArray(value) ? value : [];
+}
+
+function templateFieldUsesBooleanStaticDefault(field) {
+  return ["boolean", "toggle", "checkbox"].includes(field?.type);
+}
+
+function parseTemplateBooleanStaticDefault(value) {
+  if (value === true || value === false) return value;
+  const text = String(value ?? "").trim().toLowerCase();
+  if (!text) return false;
+  return ["true", "yes", "1", "on", "checked"].includes(text);
 }
 
 function normalizeTemplateStaticDefaultForField(field, value) {
+  if (!templateSupportsStaticDefault(field)) return "";
+  if (field?.type === "multi_select") {
+    const allowed = new Set(field.options || []);
+    const values = Array.isArray(value)
+      ? value
+      : String(value ?? "").split(",");
+    return values
+      .map((item) => String(item || "").trim())
+      .filter(Boolean)
+      .filter((item, index, items) => items.indexOf(item) === index)
+      .filter((item) => allowed.has(item));
+  }
+  if (templateFieldUsesBooleanStaticDefault(field)) {
+    return parseTemplateBooleanStaticDefault(value);
+  }
   const text = String(value ?? "").trim();
   if (!text) return "";
   if (field?.type === "yes_no") {

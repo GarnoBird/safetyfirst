@@ -1209,23 +1209,52 @@ function defaultForField(field, worker) {
   if (field.default === "worker_username") return worker?.username || worker?.user_name || "";
   if (field.default === "worker_company") return worker?.company || "";
   if (field.default === "worker_address") return worker?.address || worker?.street_address || "";
-  const staticDefault = cleanString(
-    getSettingValue(field.settings, "defaultValue"),
-    field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT,
-  );
-  if (staticDefault) {
-    if (field.type === "yes_no") {
-      const value = staticDefault.toLowerCase();
-      return ["yes", "no"].includes(value) ? value : "";
-    }
-    if (field.type === "dropdown") {
-      return field.options.includes(staticDefault) ? staticDefault : "";
-    }
-    if (["short_text", "long_text", "number", "date", "time"].includes(field.type)) return staticDefault;
+  const staticDefault = normalizeStaticDefaultForField(field, getSettingValue(field.settings, "defaultValue"));
+  if (field.type === "multi_select") {
+    if (staticDefault.length) return staticDefault;
+  } else if (field.type === "boolean" || field.type === "toggle" || field.type === "checkbox") {
+    if (staticDefault === true) return true;
+  } else if (staticDefault !== "") {
+    return staticDefault;
   }
   if (field.type === "media_upload") return [];
   if (field.type === "asset_picker") return null;
   if (field.type === "boolean" || field.type === "toggle") return false;
+  if (field.type === "checkbox") return false;
+  return "";
+}
+
+function normalizeStaticDefaultForField(field, value) {
+  if (field.type === "multi_select") {
+    const values = Array.isArray(value)
+      ? value
+      : cleanString(value, MAX_LONG_TEXT).split(",");
+    const allowed = new Set(field.options || []);
+    return values
+      .map((item) => cleanString(item, MAX_TEXT))
+      .filter(Boolean)
+      .filter((item, index, items) => items.indexOf(item) === index)
+      .filter((item) => allowed.has(item))
+      .slice(0, MAX_OPTIONS);
+  }
+  if (field.type === "boolean" || field.type === "toggle" || field.type === "checkbox") {
+    if (value === true || value === false) return value;
+    const text = cleanString(value, MAX_TEXT).toLowerCase();
+    return ["true", "yes", "1", "on", "checked"].includes(text);
+  }
+  const staticDefault = cleanString(
+    value,
+    field.type === "long_text" ? MAX_LONG_TEXT : MAX_TEXT,
+  );
+  if (!staticDefault) return "";
+  if (field.type === "yes_no") {
+    const normalized = staticDefault.toLowerCase();
+    return ["yes", "no"].includes(normalized) ? normalized : "";
+  }
+  if (field.type === "dropdown") {
+    return field.options.includes(staticDefault) ? staticDefault : "";
+  }
+  if (["short_text", "long_text", "number", "date", "time"].includes(field.type)) return staticDefault;
   return "";
 }
 
