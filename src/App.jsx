@@ -228,7 +228,7 @@ function RedirectToHome() {
     replaceRoute("/");
   }, []);
 
-  return null;
+  return <PublicLandingPage navigateTo={navigateTo} />;
 }
 
 function useRoutePath() {
