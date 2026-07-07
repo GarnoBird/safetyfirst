@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-The existing safety tracker remains browser-local. The worker sign-in backend endpoints are designed for Vercel Functions and require the environment variables in `.env.example`.
+The worker sign-in backend endpoints are designed for Vercel Functions and require the environment variables in `.env.example`.
 
 ## Backend setup
 
@@ -62,8 +62,6 @@ configured and the checkbox is turned on.
 
 ## Routes
 
-- `/wiki`: public BC Construction Safety Wiki section with plain wiki-style styling.
-- `/wiki/articles/fall-protection`: example wiki article route.
 - `/worker-sign-in-qr`: QR poster page.
 - `/worker-sign-in`: public worker sign-in form.
 - `/worker-sign-out-qr`: QR poster page for worker sign-out.
@@ -77,21 +75,30 @@ configured and the checkbox is turned on.
 - `/staff-login`: staff login.
 - `/staff/home`: staff landing page with roster counts, QR links, reports, and settings access.
 - `/staff/sign-ins`: staff "Who's Here" records, grouping, export, and manual email report.
+- `/staff/sign-ins/company`: company summary view.
 - `/staff/forms`: staff form submission filtering, detail view, and OneDrive backup retry.
+- `/staff/forms-to-fill-out`: staff form picker.
+- `/staff/form-templates`: staff form template and QR code builder.
 - `/staff/action-items`: staff action items created from Site Inspection deficiencies.
+- `/staff/certificates`: staff certificate tracking.
+- `/staff/assets`: asset register and detail pages.
 - `/staff/workers`: staff worker account creation, editing, deactivation, and password reset.
+- `/staff/users`: staff user management.
+- `/staff/backups`: OneDrive backup status tools.
+- `/staff/health`: system health.
+- `/staff/audit`: audit log.
+- `/staff/trends`: trend reporting.
 - `/staff/settings`: staff-only site settings, editable email report settings, reminder placeholder, and privacy notes.
+
+Retired prototype routes such as `/wiki`, `/safety-lab`, `/training-quiz`, `/demo`, and unknown legacy dashboard URLs redirect to `/`.
 
 ## Email Reports
 
 Auto Report sends once daily at 8:00 a.m. when sign-ins exist. Staff can edit the recipient, turn Auto Report on or off, choose CSV, XML, or both, and send a report immediately from Settings or Who's Here.
 
-## Wiki content validation
+## Archived Wiki
 
-```bash
-npm run validate:wiki
-```
-
-The wiki is isolated under `/wiki` and does not use the dashboard styling. The
-current prototype renders structured content from `src/wikiContent.js`; the
-planned long-term editorial structure is documented under `content/`.
+The retired BC Construction Safety Wiki is preserved under `archived/wiki`. It
+is no longer part of the live Vite app or deployed routes, but the old Wiki
+component, generated content, Markdown source, docs, and build/verification
+scripts are kept there for future recovery.
