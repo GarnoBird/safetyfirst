@@ -2260,6 +2260,43 @@ test("copied Toolbox Talk submitted view does not synthesize Meeting Info", asyn
   await expect(page.getByRole("heading", { name: "Attendance" })).toBeVisible();
 });
 
+test("review sign dialog fits a standard laptop viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const row = toolboxSubmissionRow({
+    id: "signoff-fit-submission",
+    formType: "toolbox_talk_copy",
+    projectName: "Dialog Fit Project",
+    company: "Appia Staff (Ibird)",
+    workerName: "Ibird",
+    schemaSnapshot: copiedToolboxSplitMeetingSchema,
+    answers: {
+      is_dinner_delicious: "yes",
+    },
+  });
+  await mockApis(page, [], { staffSubmissions: [row] });
+
+  await page.goto("/staff/forms/signoff-fit-submission");
+  await page.getByRole("button", { name: "Review", exact: true }).click();
+  const signDialog = page.getByRole("dialog", { name: "Review & Sign Form" });
+  await expect(signDialog).toBeVisible();
+  await drawSignatureOnCanvas(page, signDialog.locator("canvas"));
+  await signDialog.getByLabel("Comments").fill("Fits on a standard laptop.");
+
+  const metrics = await signDialog.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      bottom: Math.ceil(rect.bottom),
+      clientHeight: Math.ceil(element.clientHeight),
+      scrollHeight: Math.ceil(element.scrollHeight),
+      top: Math.floor(rect.top),
+      viewportHeight: window.innerHeight,
+    };
+  });
+  expect(metrics.top).toBeGreaterThanOrEqual(0);
+  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight);
+  expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.clientHeight + 1);
+});
+
 test("submitted forms open in a routed viewer, sign off, export, email, and print", async ({ page }) => {
   test.slow();
   const standardSubmission = toolboxSubmissionRow({

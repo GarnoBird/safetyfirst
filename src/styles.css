@@ -7545,14 +7545,48 @@ p {
 
 .signoff-dialog {
   width: min(100%, 760px);
+  gap: 10px;
+  max-height: min(92vh, 880px);
+  max-height: min(92dvh, 880px);
+  padding: 16px;
+}
+
+.signoff-dialog .dialog-heading {
+  gap: 10px;
+  align-items: center;
+}
+
+.signoff-dialog .dialog-heading h2 {
+  font-size: 1.28rem;
+  line-height: 1.08;
+}
+
+.signoff-dialog .dialog-heading p {
+  font-size: 0.9rem;
+  line-height: 1.15;
 }
 
 .signoff-dialog .template-signature-field {
   margin: 0;
+  gap: 5px;
+}
+
+.signoff-dialog .template-signature-pad {
+  gap: 6px;
+  padding: 8px;
 }
 
 .signoff-dialog .template-signature-canvas {
-  min-height: 190px;
+  height: clamp(116px, 18vh, 148px);
+  min-height: 116px;
+}
+
+.signoff-dialog .template-signature-toolbar small {
+  font-size: 0.78rem;
+}
+
+.signoff-dialog .template-signature-toolbar button {
+  min-height: 30px;
 }
 
 .submitted-edit-dialog {
@@ -7606,19 +7640,68 @@ p {
 }
 
 .signoff-summary-list div {
-  grid-template-columns: 140px minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 8px;
+  padding-top: 7px;
+}
+
+.signoff-dialog .staff-signoff-section.compact {
+  gap: 8px;
+  padding: 10px;
+}
+
+.signoff-dialog .staff-signoff-heading {
+  padding-bottom: 6px;
+}
+
+.signoff-dialog .staff-signoff-heading h3 {
+  font-size: 0.95rem;
+}
+
+.signoff-dialog .staff-signoff-section p {
+  font-size: 0.82rem;
 }
 
 .signoff-comment-field textarea {
-  min-height: 96px;
+  min-height: 64px;
   resize: vertical;
 }
 
 .signoff-dialog-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
+}
+
+@media (min-width: 760px) {
+  .signoff-summary-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .signoff-summary-list div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    border-top: 0;
+    padding-top: 0;
+  }
+}
+
+@media (max-height: 780px) {
+  .signoff-dialog {
+    max-height: min(94vh, 720px);
+    max-height: min(94dvh, 720px);
+  }
+
+  .signoff-dialog .template-signature-canvas {
+    height: 108px;
+    min-height: 108px;
+  }
+
+  .signoff-comment-field textarea {
+    min-height: 54px;
+  }
 }
 
 .translate-dialog {
