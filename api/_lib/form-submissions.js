@@ -311,6 +311,36 @@ async function withStaffSubmitterLabels(rows) {
   });
 }
 
+async function withCurrentFormLabels(rows) {
+  if (!Array.isArray(rows) || !rows.length) return rows || [];
+  const formTypes = [...new Set(rows.map((row) => String(row?.form_type || "").trim()).filter(Boolean))];
+  if (!formTypes.length) return rows;
+
+  let templates = [];
+  try {
+    templates = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("form_type, label")
+        .in("form_type", formTypes),
+      "Form template labels could not be loaded.",
+    );
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    return rows;
+  }
+
+  const labelByType = new Map(
+    templates
+      .map((template) => [String(template.form_type || "").trim(), cleanText(template.label || "", MAX_FORM_TEXT_LENGTH)])
+      .filter(([type, label]) => type && label),
+  );
+  return rows.map((row) => ({
+    ...row,
+    form_current_label: labelByType.get(String(row?.form_type || "").trim()) || null,
+  }));
+}
+
 function shouldEnrichStaffSubmitter(row) {
   if (row?.worker_id) return false;
   const company = String(row?.company || "").trim();
@@ -594,7 +624,7 @@ export async function listWorkerSubmissions(worker) {
     if (!isSupabaseMissingRelationError(error)) throw error;
     rows = await listFallbackWorkerSubmissions(worker);
   }
-  return rows.map(publicSubmission);
+  return (await withCurrentFormLabels(rows)).map(publicSubmission);
 }
 
 export async function deleteWorkerSubmission(worker, submissionId) {
@@ -813,6 +843,7 @@ export async function listStaffSubmissions(query) {
     });
   }
   rows = await withStaffSubmitterLabels(rows);
+  rows = await withCurrentFormLabels(rows);
   if (filterCompanyAfterEnrichment) {
     rows = rows.filter((row) => textIncludes(row.company, company));
   }
@@ -853,7 +884,7 @@ export async function getSubmissionById(id, { includeDeleted = false } = {}) {
     error.statusCode = 404;
     throw error;
   }
-  return publicSubmission((await withStaffSubmitterLabels([row]))[0]);
+  return publicSubmission((await withCurrentFormLabels(await withStaffSubmitterLabels([row])))[0]);
 }
 
 export async function createStaffSubmissionFileAccess(submissionId, fileId) {

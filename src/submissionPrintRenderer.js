@@ -54,9 +54,9 @@ export function submittedFormPrintTitle(row) {
   const data = row?.form_data || {};
   if (data?.kind === "template_submission_v1") {
     const schema = normalizeClientTemplateSchema(data.schemaSnapshot || row?.form_schema_snapshot);
-    return schema.title || formTypeLabel(row?.form_type);
+    return row?.form_current_label || schema.title || data.templateTitle || formTypeLabel(row?.form_type);
   }
-  return formTypeLabel(row?.form_type);
+  return row?.form_current_label || row?.form_schema_snapshot?.title || data.templateTitle || formTypeLabel(row?.form_type);
 }
 
 export function buildSubmittedFormPrintHtml(row, options = {}) {

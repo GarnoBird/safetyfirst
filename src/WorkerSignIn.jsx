@@ -5679,13 +5679,13 @@ export function WorkerSubmissionHistoryPage({ navigateTo }) {
           ) : null}
           {rows.map((row) => (
             <article
-              aria-label={`View ${formTypeLabel(row.form_type)} submitted ${formatDateTime(row.submitted_at)}`}
+              aria-label={`View ${submissionFormLabel(row)} submitted ${formatDateTime(row.submitted_at)}`}
               className="submission-history-item clickable"
               key={row.id}
               onClick={() => openSubmission(row.id)}
             >
               <div>
-                <strong>{formTypeLabel(row.form_type)}</strong>
+                <strong>{submissionFormLabel(row)}</strong>
                 <span>{formatDateTime(row.submitted_at)}</span>
                 <small>
                   {submissionModeLabel(row.submission_mode)} / {backupStatusLabel(row.one_drive_backup_status)}
@@ -5753,7 +5753,7 @@ export function WorkerSubmissionDetailPage({ navigateTo, routePath }) {
             <button className="text-button" type="button" onClick={() => navigateTo("/my-submissions")}>
               Back
             </button>
-            <h1>{row ? formTypeLabel(row.form_type) : "Submission"}</h1>
+            <h1>{row ? submissionFormLabel(row) : "Submission"}</h1>
             <p>{worker.name} / {worker.company}</p>
           </div>
           <button type="button" onClick={() => navigateTo("/forms")}>
@@ -5787,7 +5787,7 @@ function WorkerSubmissionReadOnlyView({ row }) {
         <div className="worker-submission-summary">
           <dl className="staff-detail-list">
             <div><dt>Submitted</dt><dd>{formatDateTime(row.submitted_at)}</dd></div>
-            <div><dt>Form type</dt><dd>{formTypeLabel(row.form_type)}</dd></div>
+            <div><dt>Form</dt><dd>{submissionFormLabel(row)}</dd></div>
             <div><dt>Submission</dt><dd>{submissionModeLabel(row.submission_mode)}</dd></div>
             <div><dt>Backup</dt><dd>{backupStatusLabel(row.one_drive_backup_status)}</dd></div>
             {row.notes ? <div><dt>Summary</dt><dd>{row.notes}</dd></div> : null}
@@ -8240,6 +8240,10 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     () => records.rows.map((row) => row.id),
     [records.rows],
   );
+  const formLabelByType = useMemo(
+    () => new Map((formOptions || []).map((form) => [form.id, form.label]).filter(([id, label]) => id && label)),
+    [formOptions],
+  );
   const allVisibleSelected =
     visibleSubmissionIds.length > 0 &&
     visibleSubmissionIds.every((id) => selectedSubmissionIds.includes(id));
@@ -8343,7 +8347,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   };
 
   const deleteSingleSubmission = async (row) => {
-    if (!window.confirm(`Delete this ${formTypeLabel(row.form_type)} submission? This removes the app copy for staff and workers. OneDrive backups are not deleted.`)) {
+    if (!window.confirm(`Delete this ${submissionFormLabel(row, formLabelByType)} submission? This removes the app copy for staff and workers. OneDrive backups are not deleted.`)) {
       return;
     }
     setDeleting(true);
@@ -8520,6 +8524,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
           canDelete={canDeleteSubmissions}
           canRetry={canDeleteSubmissions}
           deleting={deleting}
+          formLabelByType={formLabelByType}
           loading={loading}
           retryingId={retryingId}
           rows={records.rows}
@@ -8670,7 +8675,7 @@ export function StaffSubmissionViewerPage({ navigateTo, routePath }) {
               <span>Forms</span>
             </button>
             <div>
-              <h1>{row ? formTypeLabel(row.form_type) : "Submitted Form"}</h1>
+              <h1>{row ? submissionFormLabel(row) : "Submitted Form"}</h1>
               <p>{row ? `${row.worker_name || "Worker"} / ${row.company || "Company"}` : "Loading..."}</p>
             </div>
             {row ? <span className="submitted-viewer-status">{submissionReviewStatus(row)}</span> : null}
@@ -8819,7 +8824,7 @@ function SubmittedFormDocument({ exportRef, filePreviewContext, filePreviewMessa
     >
       <div className="submission-export-heading">
         <p>APPIA</p>
-        <h2>{formTypeLabel(row.form_type)}</h2>
+        <h2>{submissionFormLabel(row)}</h2>
         <strong>{row.worker_name} / {row.company}</strong>
       </div>
       <dl className="staff-detail-list">
@@ -8918,7 +8923,7 @@ function SubmittedFilePackage({ filePreviewContext, filePreviewMessage = "", fil
         <div>
           <p>Submitted file package</p>
           <h3>{files.length ? `${files.length} uploaded ${files.length === 1 ? "file" : "files"}` : "No files uploaded"}</h3>
-          <span>{formTypeLabel(row.form_type)} was submitted as an uploaded attachment package.</span>
+          <span>{submissionFormLabel(row)} was submitted as an uploaded attachment package.</span>
         </div>
         <div className="submitted-file-package-badges" aria-label="File package summary">
           <span>{formatFileSize(totalSize)} total</span>
@@ -9097,7 +9102,7 @@ function SubmissionEditDialog({ onClose, onSaved, row }) {
         <div className="dialog-heading">
           <div>
             <h2>Edit Submitted Form</h2>
-            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+            <p>{submissionFormLabel(row)} / {row.worker_name} / {row.company}</p>
           </div>
           <button aria-label="Close" disabled={saving} type="button" onClick={onClose}>X</button>
         </div>
@@ -9189,7 +9194,7 @@ function SubmissionReviewSignDialog({ onClose, onSaved, row, staff }) {
         <div className="dialog-heading">
           <div>
             <h2>Review &amp; Sign Form</h2>
-            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+            <p>{submissionFormLabel(row)} / {row.worker_name} / {row.company}</p>
           </div>
           <button aria-label="Close" type="button" onClick={onClose}>X</button>
         </div>
@@ -9285,7 +9290,7 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
         <div className="dialog-heading">
           <div>
             <h2>Translation: Select Output Language</h2>
-            <p>{formTypeLabel(row.form_type)} / {row.worker_name} / {row.company}</p>
+            <p>{submissionFormLabel(row)} / {row.worker_name} / {row.company}</p>
           </div>
           <button aria-label="Close" type="button" onClick={onClose}>X</button>
         </div>
@@ -14505,7 +14510,7 @@ function BackupQueueTable({ loading, rows }) {
               <td>{formatDateTime(row.submitted_at)}</td>
               <td>{row.company}</td>
               <td>{row.worker_name}</td>
-              <td>{formTypeLabel(row.form_type)}</td>
+              <td>{submissionFormLabel(row)}</td>
               <td><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
               <td>{row.backup_error || (row.deleted_by_worker_at ? "Worker deleted; waiting for backup." : "")}</td>
             </tr>
@@ -14642,6 +14647,7 @@ function FormSubmissionsTable({
   canDelete,
   canRetry,
   deleting,
+  formLabelByType = new Map(),
   loading,
   retryingId,
   rows,
@@ -14681,61 +14687,64 @@ function FormSubmissionsTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr
-              key={row.id}
-              aria-label={`Open ${formTypeLabel(row.form_type)} submitted by ${row.worker_name} from ${row.company}`}
-              tabIndex={0}
-              onClick={(event) => {
-                if (isInteractiveTableTarget(event)) return;
-                onDetails(row);
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== "Enter" && event.key !== " ") return;
-                if (isInteractiveTableTarget(event)) return;
-                event.preventDefault();
-                onDetails(row);
-              }}
-            >
-              {canDelete ? (
-                <td className="select-column">
-                  <input
-                    aria-label={`Select ${formTypeLabel(row.form_type)} submitted by ${row.worker_name}`}
-                    checked={selectedIds.includes(row.id)}
-                    type="checkbox"
-                    onChange={(event) => onSelectRow(row.id, event.target.checked)}
-                  />
+          {rows.map((row) => {
+            const formLabel = submissionFormLabel(row, formLabelByType);
+            return (
+              <tr
+                key={row.id}
+                aria-label={`Open ${formLabel} submitted by ${row.worker_name} from ${row.company}`}
+                tabIndex={0}
+                onClick={(event) => {
+                  if (isInteractiveTableTarget(event)) return;
+                  onDetails(row);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " ") return;
+                  if (isInteractiveTableTarget(event)) return;
+                  event.preventDefault();
+                  onDetails(row);
+                }}
+              >
+                {canDelete ? (
+                  <td className="select-column">
+                    <input
+                      aria-label={`Select ${formLabel} submitted by ${row.worker_name}`}
+                      checked={selectedIds.includes(row.id)}
+                      type="checkbox"
+                      onChange={(event) => onSelectRow(row.id, event.target.checked)}
+                    />
+                  </td>
+                ) : null}
+                <td className="submitted-column">{formatDateTime(row.submitted_at)}</td>
+                <td className="company-column">{row.company}</td>
+                <td className="staff-mobile-hidden">{row.worker_name}</td>
+                <td className="staff-mobile-hidden"><a href={`tel:${phoneHref(row.worker_phone)}`}>{row.worker_phone}</a></td>
+                <td className="form-column">{formLabel}</td>
+                <td className="staff-mobile-hidden">{submissionModeLabel(row.submission_mode)}</td>
+                <td className="staff-mobile-hidden"><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
+                <td className="actions-column">
+                  <div className="table-action-row">
+                    <button type="button" onClick={() => onDetails(row)}>Details</button>
+                    {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
+                      <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
+                        {retryingId === row.id ? "Retrying" : "Retry"}
+                      </button>
+                    ) : null}
+                    {canDelete ? (
+                      <button
+                        className="danger-button"
+                        disabled={deleting}
+                        type="button"
+                        onClick={() => onDelete(row)}
+                      >
+                        Delete
+                      </button>
+                    ) : null}
+                  </div>
                 </td>
-              ) : null}
-              <td className="submitted-column">{formatDateTime(row.submitted_at)}</td>
-              <td className="company-column">{row.company}</td>
-              <td className="staff-mobile-hidden">{row.worker_name}</td>
-              <td className="staff-mobile-hidden"><a href={`tel:${phoneHref(row.worker_phone)}`}>{row.worker_phone}</a></td>
-              <td className="form-column">{formTypeLabel(row.form_type)}</td>
-              <td className="staff-mobile-hidden">{submissionModeLabel(row.submission_mode)}</td>
-              <td className="staff-mobile-hidden"><StatusPill value={backupStatusLabel(row.one_drive_backup_status)} /></td>
-              <td className="actions-column">
-                <div className="table-action-row">
-                  <button type="button" onClick={() => onDetails(row)}>Details</button>
-                  {canRetry && canRetryBackup(row.one_drive_backup_status) ? (
-                    <button disabled={retryingId === row.id} type="button" onClick={() => onRetry(row.id)}>
-                      {retryingId === row.id ? "Retrying" : "Retry"}
-                    </button>
-                  ) : null}
-                  {canDelete ? (
-                    <button
-                      className="danger-button"
-                      disabled={deleting}
-                      type="button"
-                      onClick={() => onDelete(row)}
-                    >
-                      Delete
-                    </button>
-                  ) : null}
-                </div>
-              </td>
-            </tr>
-          ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -14784,7 +14793,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
       >
         <div className="dialog-heading">
           <div>
-            <h2>{formTypeLabel(row.form_type)}</h2>
+            <h2>{submissionFormLabel(row)}</h2>
             <p>{row.worker_name} / {row.company}</p>
           </div>
           <div className="dialog-heading-actions">
@@ -14800,7 +14809,7 @@ function SubmissionDetailsDialog({ canRetry = false, onClose, onRetry, retryingI
         <div className="submission-export-surface" ref={exportSurfaceRef}>
           <div className="submission-export-heading">
             <p>APPIA</p>
-            <h2>{formTypeLabel(row.form_type)}</h2>
+            <h2>{submissionFormLabel(row)}</h2>
             <strong>{row.worker_name} / {row.company}</strong>
           </div>
           <dl className="staff-detail-list">
@@ -18186,7 +18195,7 @@ function normalizeTemplateLayoutWidth(settings = {}) {
 
 function templateLayoutWidthClass(block) {
   const width = normalizeTemplateLayoutWidth(block?.settings);
-  return width ? `template-width-${width}` : "";
+  return `template-width-${width || "full"}`;
 }
 
 function templateRuntimeSectionClassName(sectionId, block, ...classes) {
@@ -19121,6 +19130,19 @@ function formTypeLabel(value) {
   return SAFETY_FORM_TYPES.find((form) => form.id === value)?.label || humanizeFormType(value);
 }
 
+function submissionFormLabel(row, labelByType = null) {
+  const formType = row?.form_type || row?.formType || "";
+  const currentLabel = labelByType?.get?.(formType);
+  if (currentLabel) return currentLabel;
+  return (
+    row?.form_current_label ||
+    row?.form_schema_snapshot?.title ||
+    row?.form_data?.schemaSnapshot?.title ||
+    row?.form_data?.templateTitle ||
+    formTypeLabel(formType)
+  );
+}
+
 function humanizeFormType(value) {
   return String(value || "Form")
     .replace(/[-_]+/g, " ")
@@ -19217,7 +19239,7 @@ function staffSubmissionEditSchema(row) {
   return normalizeClientTemplateSchema({
     ...source,
     formType: source?.formType || row?.form_type || "",
-    title: source?.title || formTypeLabel(row?.form_type),
+    title: source?.title || submissionFormLabel(row),
   });
 }
 
@@ -19859,18 +19881,18 @@ function genericSubmissionTitle(row) {
   const date = row?.submitted_date_vancouver
     ? formatDateString(row.submitted_date_vancouver)
     : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
-  return `${formTypeLabel(row?.form_type)} - ${row?.company || "Company"} - ${date}`;
+  return `${submissionFormLabel(row)} - ${row?.company || "Company"} - ${date}`;
 }
 
 function genericSubmissionFileName(row) {
   const rawDate = row?.submitted_date_vancouver || todayInVancouver();
-  return `${slugifyFilePart(row?.company || "company")}-${slugifyFilePart(formTypeLabel(row?.form_type))}-${slugifyFilePart(rawDate)}.html`;
+  return `${slugifyFilePart(row?.company || "company")}-${slugifyFilePart(submissionFormLabel(row))}-${slugifyFilePart(rawDate)}.html`;
 }
 
 function buildGenericSubmissionHtml(row, options = {}) {
   const submitted = row?.submitted_at ? formatDateTime(row.submitted_at) : "";
   const title = genericSubmissionTitle(row);
-  const formLabel = formTypeLabel(row?.form_type);
+  const formLabel = submissionFormLabel(row);
   const files = Array.isArray(row?.files) ? row.files : [];
   const totalSize = files.reduce((sum, file) => sum + Number(file?.size_bytes || 0), 0);
   const fileCards = files.length
@@ -20049,7 +20071,7 @@ function digitalTemplateFormTitle(row, data) {
   const date = row?.submitted_date_vancouver
     ? formatDateString(row.submitted_date_vancouver)
     : formatShortDate(row || {}, "submitted_date_vancouver", "submitted_at");
-  return `${schema.title || formTypeLabel(row?.form_type)} - ${row?.company || "Company"} - ${date}`;
+  return `${schema.title || submissionFormLabel(row)} - ${row?.company || "Company"} - ${date}`;
 }
 
 function digitalTemplateFormFileName(row, data) {
