@@ -61,6 +61,30 @@ test("staff forms list stays inside startup budgets", async ({ page }) => {
   expect(metrics.totalScriptBytes()).toBeLessThan(850_000);
 });
 
+test("login routes stay in lightweight route chunks", async ({ page }) => {
+  await mockPerformanceApis(page, { workerAuthenticated: false });
+
+  const staffMetrics = collectRouteMetrics(page);
+  let startedAt = Date.now();
+  await page.goto("/staff-login");
+  await expect(page.getByRole("heading", { name: "Staff Login" })).toBeVisible();
+  await reportMetrics("staff login", staffMetrics, Date.now() - startedAt);
+  expect(staffMetrics.totalScriptBytes()).toBeLessThan(240_000);
+  expect(staffMetrics.largestScriptBytes()).toBeLessThan(250_000);
+
+  const workerPage = await page.context().newPage();
+  await mockPerformanceApis(workerPage, { workerAuthenticated: false });
+  const workerMetrics = collectRouteMetrics(workerPage);
+  startedAt = Date.now();
+  await workerPage.goto("/worker-login");
+  await expect(workerPage.getByRole("heading", { name: "Worker Forms" })).toBeVisible();
+  await reportMetrics("worker login", workerMetrics, Date.now() - startedAt);
+  expect(workerMetrics.apiCount()).toBeLessThanOrEqual(1);
+  expect(workerMetrics.totalScriptBytes()).toBeLessThan(240_000);
+  expect(workerMetrics.largestScriptBytes()).toBeLessThan(250_000);
+  await workerPage.close();
+});
+
 function collectRouteMetrics(page) {
   const apiResponses = [];
   const scriptResponses = [];
@@ -126,7 +150,9 @@ async function reportMetrics(routeName, metrics, visibleContentMs) {
   );
 }
 
-async function mockPerformanceApis(page) {
+async function mockPerformanceApis(page, options = {}) {
+  const workerAuthenticated = options.workerAuthenticated !== false;
+  const staffAuthenticated = options.staffAuthenticated !== false;
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -140,10 +166,12 @@ async function mockPerformanceApis(page) {
       });
 
     if (method === "GET" && path === "/api/auth/me") {
+      if (!staffAuthenticated) return json({ staff: null }, 401);
       return json({ staff });
     }
 
     if (method === "GET" && path === "/api/auth/worker-me") {
+      if (!workerAuthenticated) return json({ worker: null }, 401);
       return json({ worker });
     }
 

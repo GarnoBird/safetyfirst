@@ -1,17 +1,17 @@
 import { Suspense, lazy } from "react";
 
 const FormTemplateShareLinkPage = lazy(() => import("./FormLinkRoute.jsx"));
+const StaffLoginPage = lazyAuthRoute("StaffLoginPage");
+const WorkerLoginPage = lazyAuthRoute("WorkerLoginPage");
 const WorkerSignInQr = lazyWorkerRoute("WorkerSignInQr");
 const WorkerSignOutQr = lazyWorkerRoute("WorkerSignOutQr");
 const WorkerSignInPage = lazyWorkerRoute("WorkerSignInPage");
 const WorkerSignOutPage = lazyWorkerRoute("WorkerSignOutPage");
-const StaffLoginPage = lazyWorkerRoute("StaffLoginPage");
 const StaffHomePage = lazyWorkerRoute("StaffHomePage");
 const StaffSettingsPage = lazyWorkerRoute("StaffSettingsPage");
 const StaffSignInsPage = lazyWorkerRoute("StaffSignInsPage");
 const StaffCompanySummaryPage = lazyWorkerRoute("StaffCompanySummaryPage");
 const StaffTrendsPage = lazyWorkerRoute("StaffTrendsPage");
-const WorkerLoginPage = lazyWorkerRoute("WorkerLoginPage");
 const WorkerFormsHomePage = lazyWorkerRoute("WorkerFormsHomePage");
 const WorkerFormSubmissionPage = lazyWorkerRoute("WorkerFormSubmissionPage");
 const StaffFormsToFillOutPage = lazyWorkerRoute("StaffFormsToFillOutPage");
@@ -33,6 +33,14 @@ const StaffActionItemsPage = lazyWorkerRoute("StaffActionItemsPage");
 function lazyWorkerRoute(exportName) {
   return lazy(() =>
     import("./WorkerSignIn.jsx").then((module) => ({
+      default: module[exportName],
+    })),
+  );
+}
+
+function lazyAuthRoute(exportName) {
+  return lazy(() =>
+    import("./AuthRoutes.jsx").then((module) => ({
       default: module[exportName],
     })),
   );
