@@ -61,6 +61,64 @@ test("staff forms list stays inside startup budgets", async ({ page }) => {
   expect(metrics.totalScriptBytes()).toBeLessThan(850_000);
 });
 
+test("staff forms paints cached rows before auth revalidation finishes", async ({ page }) => {
+  const cachedRecords = {
+    rows: [
+      {
+        ...staffSubmissionRows()[0],
+        id: "cached-staff-form-row",
+        form_current_label: "Cached Questionnaire",
+      },
+    ],
+    total: 1,
+    limit: 50,
+    offset: 0,
+    hasMore: false,
+    sort: "submitted_at",
+    dir: "desc",
+  };
+  await page.addInitScript(
+    ({ cachedRecords: seededRecords, queryKey, seededStaff }) => {
+      window.sessionStorage.setItem(
+        "sf_staff_session_cache_v1",
+        JSON.stringify({
+          staff: seededStaff,
+          cachedAtMs: Date.now(),
+        }),
+      );
+      window.sessionStorage.setItem(
+        "safety-first:staff-form-submissions:v1",
+        JSON.stringify({
+          version: 2,
+          queries: {
+            [queryKey]: {
+              records: seededRecords,
+              savedAt: Date.now(),
+            },
+          },
+        }),
+      );
+    },
+    {
+      cachedRecords,
+      queryKey: staffFormsDefaultCacheKey(),
+      seededStaff: staff,
+    },
+  );
+  await mockPerformanceApis(page, { staffAuthDelayMs: 450, staffSubmissionsDelayMs: 450 });
+  const metrics = collectRouteMetrics(page);
+  const startedAt = Date.now();
+
+  await page.goto("/staff/forms");
+  await expect(page.getByRole("cell", { name: "Cached Questionnaire", exact: true })).toBeVisible({ timeout: 800 });
+  const cachedVisibleMs = Date.now() - startedAt;
+  await expect(page.getByRole("cell", { name: "The Garno Questionnaire" }).first()).toBeVisible({ timeout: 2_500 });
+  await reportMetrics("staff forms cached first paint", metrics, cachedVisibleMs);
+
+  expect(cachedVisibleMs).toBeLessThan(1_000);
+  expect(metrics.totalScriptBytes()).toBeLessThan(850_000);
+});
+
 test("login routes stay in lightweight route chunks", async ({ page }) => {
   await mockPerformanceApis(page, { workerAuthenticated: false });
 
@@ -153,6 +211,8 @@ async function reportMetrics(routeName, metrics, visibleContentMs) {
 async function mockPerformanceApis(page, options = {}) {
   const workerAuthenticated = options.workerAuthenticated !== false;
   const staffAuthenticated = options.staffAuthenticated !== false;
+  const staffAuthDelayMs = Number(options.staffAuthDelayMs || 0);
+  const staffSubmissionsDelayMs = Number(options.staffSubmissionsDelayMs || 0);
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -166,6 +226,7 @@ async function mockPerformanceApis(page, options = {}) {
       });
 
     if (method === "GET" && path === "/api/auth/me") {
+      if (staffAuthDelayMs) await delay(staffAuthDelayMs);
       if (!staffAuthenticated) return json({ staff: null }, 401);
       return json({ staff });
     }
@@ -193,6 +254,7 @@ async function mockPerformanceApis(page, options = {}) {
     }
 
     if (method === "GET" && path === "/api/staff/submissions") {
+      if (staffSubmissionsDelayMs) await delay(staffSubmissionsDelayMs);
       const offset = Math.max(0, Number(url.searchParams.get("offset") || 0) || 0);
       const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 50) || 50));
       const rows = staffSubmissionRows().slice(offset, offset + limit);
@@ -220,6 +282,10 @@ async function mockPerformanceApis(page, options = {}) {
 
     return json({ error: `Unhandled performance smoke API route: ${method} ${path}` }, 404);
   });
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function staffSubmissionRows() {
@@ -253,4 +319,35 @@ function staffSubmissionRows() {
     submission_mode: "fill_form",
     one_drive_backup_status: "pending",
   }));
+}
+
+function staffFormsDefaultCacheKey() {
+  const today = isoDateInVancouver(new Date());
+  const params = new URLSearchParams({
+    from: addDaysIsoDate(today, -29),
+    to: today,
+    sort: "submitted_at",
+    dir: "desc",
+  });
+  params.set("limit", "50");
+  params.set("offset", "0");
+  return params.toString();
+}
+
+function isoDateInVancouver(date) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Vancouver",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(date).map((part) => [part.type, part.value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function addDaysIsoDate(isoDate, days) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return date.toISOString().slice(0, 10);
 }

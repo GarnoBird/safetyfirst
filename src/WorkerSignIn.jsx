@@ -68,6 +68,9 @@ const DEFAULT_SYSTEM_STATUS = {
 const STAFF_FORM_SUBMISSIONS_PAGE_SIZE = 50;
 const STAFF_FORM_SUBMISSIONS_CACHE_KEY = "safety-first:staff-form-submissions:v1";
 const STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS = 60 * 1000;
+const STAFF_FORM_SUBMISSIONS_MAX_CACHE_ENTRIES = 8;
+const STAFF_SESSION_CACHE_KEY = "sf_staff_session_cache_v1";
+const STAFF_SESSION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const TREND_PRESETS = [
   { id: "30", label: "30 days" },
@@ -8296,6 +8299,9 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
       setRecords(nextRecords);
       writeStaffFormSubmissionCache(cacheKey, nextRecords);
       setSelectedSubmissionIds([]);
+      if (nextRecords.hasMore) {
+        prefetchStaffFormSubmissions(filters, nextRecords.offset + nextRecords.limit);
+      }
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -8653,9 +8659,10 @@ function readStaffFormSubmissionCache(queryKey) {
     const raw = window.sessionStorage.getItem(STAFF_FORM_SUBMISSIONS_CACHE_KEY);
     if (!raw) return null;
     const cached = JSON.parse(raw);
-    if (cached?.queryKey !== queryKey) return null;
-    if (Date.now() - Number(cached.savedAt || 0) > STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS) return null;
-    return normalizeStaffFormSubmissionRecords(cached.records);
+    const entry = cached?.queries?.[queryKey] || (cached?.queryKey === queryKey ? cached : null);
+    if (!entry) return null;
+    if (Date.now() - Number(entry.savedAt || 0) > STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS) return null;
+    return normalizeStaffFormSubmissionRecords(entry.records);
   } catch {
     return null;
   }
@@ -8664,12 +8671,22 @@ function readStaffFormSubmissionCache(queryKey) {
 function writeStaffFormSubmissionCache(queryKey, records) {
   if (typeof window === "undefined" || !queryKey) return;
   try {
+    const raw = window.sessionStorage.getItem(STAFF_FORM_SUBMISSIONS_CACHE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const queries = parsed?.queries && typeof parsed.queries === "object" ? parsed.queries : {};
+    queries[queryKey] = {
+      records,
+      savedAt: Date.now(),
+    };
+    const freshEntries = Object.entries(queries)
+      .filter(([, entry]) => Date.now() - Number(entry?.savedAt || 0) <= STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS)
+      .sort(([, a], [, b]) => Number(b?.savedAt || 0) - Number(a?.savedAt || 0))
+      .slice(0, STAFF_FORM_SUBMISSIONS_MAX_CACHE_ENTRIES);
     window.sessionStorage.setItem(
       STAFF_FORM_SUBMISSIONS_CACHE_KEY,
       JSON.stringify({
-        queryKey,
-        records,
-        savedAt: Date.now(),
+        version: 2,
+        queries: Object.fromEntries(freshEntries),
       }),
     );
   } catch {
@@ -8683,6 +8700,22 @@ function clearStaffFormSubmissionCache() {
     window.sessionStorage.removeItem(STAFF_FORM_SUBMISSIONS_CACHE_KEY);
   } catch {
     // Ignore cache removal failures.
+  }
+}
+
+async function prefetchStaffFormSubmissions(filters, offset) {
+  const params = staffFormSubmissionListParams(filters, offset);
+  const cacheKey = staffFormSubmissionCacheKey(params);
+  if (readStaffFormSubmissionCache(cacheKey)) return;
+  try {
+    const payload = await readApiJson(
+      await fetch(`/api/staff/submissions?${params}`, {
+        credentials: "include",
+      }),
+    );
+    writeStaffFormSubmissionCache(cacheKey, normalizeStaffFormSubmissionRecords(payload));
+  } catch {
+    // Prefetch is opportunistic; the visible page load remains authoritative.
   }
 }
 
@@ -16338,6 +16371,8 @@ function StaffShell({ active, children, contentWide = false, navigateTo, staff =
       method: "POST",
       credentials: "include",
     });
+    clearCachedStaffSession();
+    clearStaffFormSubmissionCache();
     navigateTo("/staff-login");
   };
 
@@ -17165,16 +17200,18 @@ function useWorkerSession(navigateTo) {
 }
 
 function useStaffSession(navigateTo) {
-  const [staff, setStaff] = useState(null);
+  const [staff, setStaff] = useState(() => readCachedStaffSession()?.staff || null);
 
   useEffect(() => {
     let active = true;
     fetch("/api/auth/me", { credentials: "include" })
       .then(readApiJson)
       .then((payload) => {
+        if (payload.staff) writeCachedStaffSession(payload.staff);
         if (active) setStaff(payload.staff);
       })
       .catch(() => {
+        clearCachedStaffSession();
         if (active) navigateTo("/staff-login");
       });
 
@@ -17352,6 +17389,44 @@ function writeCachedWorkerSession(worker) {
 function clearCachedWorkerSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(WORKER_SESSION_CACHE_KEY);
+}
+
+function readCachedStaffSession() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(STAFF_SESSION_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached?.staff?.id) return null;
+    if (Date.now() - Number(cached.cachedAtMs || 0) > STAFF_SESSION_CACHE_TTL_MS) return null;
+    return cached;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedStaffSession(staff) {
+  if (!staff?.id || typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      STAFF_SESSION_CACHE_KEY,
+      JSON.stringify({
+        staff,
+        cachedAtMs: Date.now(),
+      }),
+    );
+  } catch {
+    // Session revalidation still works if browser storage is unavailable.
+  }
+}
+
+function clearCachedStaffSession() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(STAFF_SESSION_CACHE_KEY);
+  } catch {
+    // Ignore cache removal failures.
+  }
 }
 
 function workerDraftKey(worker, formType, submissionMode) {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const WORKER_SESSION_CACHE_KEY = "sf_worker_session_cache_v1";
+const STAFF_SESSION_CACHE_KEY = "sf_staff_session_cache_v1";
 
 export function StaffLoginPage({ navigateTo }) {
   const [username, setUsername] = useState("lbird");
@@ -23,8 +24,9 @@ export function StaffLoginPage({ navigateTo }) {
           body: JSON.stringify({ username, password }),
         }),
       );
-      if (payload.staff) navigateTo(returnTo);
-      else throw new Error("Login failed.");
+      if (!payload.staff) throw new Error("Login failed.");
+      writeCachedStaffSession(payload.staff);
+      navigateTo(returnTo);
     } catch (loginError) {
       setError(loginError.message);
     } finally {
@@ -199,5 +201,20 @@ function writeCachedWorkerSession(worker) {
     );
   } catch {
     // Login still succeeds if the browser refuses local storage.
+  }
+}
+
+function writeCachedStaffSession(staff) {
+  if (!staff?.id || typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      STAFF_SESSION_CACHE_KEY,
+      JSON.stringify({
+        staff,
+        cachedAtMs: Date.now(),
+      }),
+    );
+  } catch {
+    // Login still succeeds if the browser refuses session storage.
   }
 }
