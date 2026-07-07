@@ -881,6 +881,56 @@ export async function listStaffSubmissions(query) {
   };
 }
 
+export async function listStaffSubmissionFilters() {
+  let companyOptions = [];
+  let formOptions = [];
+
+  try {
+    const companyRows = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_submissions")
+        .select("worker_id, worker_name, worker_username, company")
+        .is("deleted_by_worker_at", null)
+        .is("deleted_by_staff_at", null)
+        .is("app_purged_at", null)
+        .order("company", { ascending: true })
+        .limit(1000),
+      "Submission companies could not be loaded.",
+    );
+    companyOptions = submittedCompanyOptions(await withStaffSubmitterLabels(companyRows));
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    companyOptions = submittedCompanyOptions(
+      await withStaffSubmitterLabels(
+        (await listFallbackSubmissions())
+          .filter((row) => !row.deleted_by_worker_at && !row.deleted_by_staff_at && !row.app_purged_at),
+      ),
+    );
+  }
+
+  try {
+    formOptions = throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("form_type, label")
+        .is("archived_at", null)
+        .order("display_order", { ascending: true })
+        .order("label", { ascending: true }),
+      "Form template filters could not be loaded.",
+    )
+      .map((row) => ({
+        id: row.form_type,
+        label: row.label,
+      }))
+      .filter((row) => row.id && row.label);
+  } catch (error) {
+    if (!isSupabaseMissingRelationError(error)) throw error;
+    formOptions = [];
+  }
+
+  return { companyOptions, formOptions };
+}
+
 function clampStaffSubmissionsLimit(value) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return DEFAULT_STAFF_SUBMISSIONS_LIMIT;

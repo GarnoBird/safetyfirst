@@ -68,6 +68,7 @@ import {
   deleteWorkerSubmission,
   emailStaffSubmissionPdf,
   getSubmissionById,
+  listStaffSubmissionFilters,
   listStaffSubmissions,
   listWorkerSubmissions,
   retryFailedSubmissionBackups,
@@ -883,6 +884,9 @@ async function handleStaffBackups(req, res, staff, parts) {
 async function handleStaffSubmissions(req, res, staff, parts) {
   if (!parts.length && req.method === "GET") {
     return sendJson(res, 200, await listStaffSubmissions(parseQuery(req)));
+  }
+  if (parts.length === 1 && parts[0] === "filters" && req.method === "GET") {
+    return sendJson(res, 200, await listStaffSubmissionFilters());
   }
   if (parts.length === 1 && parts[0] === "bulk-delete" && req.method === "POST") {
     requireStaffRole(staff, ["owner", "admin"]);

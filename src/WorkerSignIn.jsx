@@ -69,6 +69,9 @@ const DEFAULT_SYSTEM_STATUS = {
   sms: "not connected",
   oneDrive: "checking",
 };
+const STAFF_FORM_SUBMISSIONS_PAGE_SIZE = 50;
+const STAFF_FORM_SUBMISSIONS_CACHE_KEY = "safety-first:staff-form-submissions:v1";
+const STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS = 60 * 1000;
 
 const TREND_PRESETS = [
   { id: "30", label: "30 days" },
@@ -8248,14 +8251,21 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     dir: "desc",
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [records, setRecords] = useState({ rows: [] });
+  const [records, setRecords] = useState(staffFormSubmissionEmptyRecords);
   const [companyOptions, setCompanyOptions] = useState([]);
   const [formOptions, setFormOptions] = useState(SAFETY_FORM_TYPES);
+  const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
+  const [filterOptionsLoading, setFilterOptionsLoading] = useState(false);
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingId, setRetryingId] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState("");
+  const currentOffset = Number(records.offset || 0);
+  const currentLimit = Number(records.limit || STAFF_FORM_SUBMISSIONS_PAGE_SIZE);
+  const totalSubmissions = Number(records.total ?? records.rows.length) || 0;
+  const firstVisibleSubmission = records.rows.length ? currentOffset + 1 : 0;
+  const lastVisibleSubmission = currentOffset + records.rows.length;
   const visibleSubmissionIds = useMemo(
     () => records.rows.map((row) => row.id),
     [records.rows],
@@ -8268,20 +8278,27 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     visibleSubmissionIds.length > 0 &&
     visibleSubmissionIds.every((id) => selectedSubmissionIds.includes(id));
 
-  const loadSubmissions = async () => {
-    setLoading(true);
+  const loadSubmissions = async ({ offset = 0, useCache = true } = {}) => {
+    const params = staffFormSubmissionListParams(filters, offset);
+    const cacheKey = staffFormSubmissionCacheKey(params);
+    const cachedRecords = useCache ? readStaffFormSubmissionCache(cacheKey) : null;
+    if (cachedRecords) {
+      setRecords(cachedRecords);
+      setSelectedSubmissionIds([]);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setMessage("");
     try {
-      const params = new URLSearchParams(
-        Object.entries(filters).filter(([, value]) => value),
-      );
       const payload = await readApiJson(
         await fetch(`/api/staff/submissions?${params}`, {
           credentials: "include",
         }),
       );
-      setRecords(payload);
-      setCompanyOptions(submittedCompanyOptions(payload.companyOptions || payload.rows || []));
+      const nextRecords = normalizeStaffFormSubmissionRecords(payload);
+      setRecords(nextRecords);
+      writeStaffFormSubmissionCache(cacheKey, nextRecords);
       setSelectedSubmissionIds([]);
     } catch (error) {
       setMessage(error.message);
@@ -8291,33 +8308,35 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
   };
 
   useEffect(() => {
-    if (staff) loadSubmissions();
+    if (staff) loadSubmissions({ offset: 0 });
   }, [staff]);
 
-  useEffect(() => {
-    let active = true;
-    const loadFormOptions = async () => {
-      if (!staff) return;
-      try {
-        const payload = await readApiJson(
-          await fetch("/api/staff/form-templates", { credentials: "include" }),
-        );
-        const options = (payload.rows || []).map((row) => ({
-          id: row.form_type,
-          label: row.label,
-        }));
-        if (active && options.length) setFormOptions(options);
-      } catch {
-        if (active) setFormOptions(SAFETY_FORM_TYPES);
-      }
-    };
-    loadFormOptions();
-    return () => {
-      active = false;
-    };
-  }, [staff]);
+  const loadFilterOptions = async () => {
+    if (!staff || filterOptionsLoaded || filterOptionsLoading) return;
+    setFilterOptionsLoading(true);
+    try {
+      const payload = await readApiJson(
+        await fetch("/api/staff/submissions/filters", { credentials: "include" }),
+      );
+      setCompanyOptions(submittedCompanyOptions(payload.companyOptions || []));
+      setFormOptions(payload.formOptions?.length ? payload.formOptions : SAFETY_FORM_TYPES);
+      setFilterOptionsLoaded(true);
+    } catch (error) {
+      setMessage(error.message);
+      setFormOptions(SAFETY_FORM_TYPES);
+    } finally {
+      setFilterOptionsLoading(false);
+    }
+  };
+
+  const toggleFilters = () => {
+    const nextOpen = !filtersOpen;
+    setFiltersOpen(nextOpen);
+    if (nextOpen) loadFilterOptions();
+  };
 
   const updateFilter = (field, value) => {
+    clearStaffFormSubmissionCache();
     setFilters((current) => ({ ...current, [field]: value }));
   };
 
@@ -8328,6 +8347,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
 
   const changeSort = (value) => {
     const [sort, dir] = value.split(":");
+    clearStaffFormSubmissionCache();
     setFilters((current) => ({ ...current, sort, dir }));
   };
 
@@ -8335,6 +8355,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     setRetryingId(id);
     setMessage("");
     try {
+      clearStaffFormSubmissionCache();
       const payload = await readApiJson(
         await fetch(`/api/staff/submissions/${id}/backup-retry`, {
           method: "POST",
@@ -8373,6 +8394,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     setDeleting(true);
     setMessage("");
     try {
+      clearStaffFormSubmissionCache();
       const payload = await readApiJson(
         await fetch(`/api/staff/submissions/${row.id}`, {
           method: "DELETE",
@@ -8382,6 +8404,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
       setRecords((current) => ({
         ...current,
         rows: current.rows.filter((record) => record.id !== payload.id),
+        total: Math.max(0, Number(current.total || current.rows.length) - 1),
       }));
       setSelectedSubmissionIds((current) => current.filter((id) => id !== payload.id));
       setMessage("Form submission deleted.");
@@ -8401,6 +8424,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
     setDeleting(true);
     setMessage("");
     try {
+      clearStaffFormSubmissionCache();
       const payload = await readApiJson(
         await fetch("/api/staff/submissions/bulk-delete", {
           method: "POST",
@@ -8417,6 +8441,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
       setRecords((current) => ({
         ...current,
         rows: current.rows.filter((row) => !deletedIds.has(row.id)),
+        total: Math.max(0, Number(current.total || current.rows.length) - deletedIds.size),
       }));
       setSelectedSubmissionIds([]);
       setMessage(
@@ -8446,7 +8471,7 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
           aria-label={filtersOpen ? "Hide filters" : "Show filters"}
           className={filtersOpen ? "staff-filter-icon-button active" : "staff-filter-icon-button"}
           type="button"
-          onClick={() => setFiltersOpen((current) => !current)}
+          onClick={toggleFilters}
         >
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M4 5h16l-6 7v5l-4 2v-7L4 5z" />
@@ -8511,8 +8536,8 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
               <option value="one_drive_backup_status:asc">Backup</option>
             </select>
           </label>
-          <button className="primary-button" type="button" onClick={loadSubmissions}>
-            Apply
+          <button className="primary-button" type="button" onClick={() => loadSubmissions({ offset: 0, useCache: false })}>
+            {filterOptionsLoading ? "Loading..." : "Apply"}
           </button>
         </section>
       ) : null}
@@ -8522,8 +8547,11 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
       <section className="staff-table-panel">
         <div className="staff-table-heading">
           <div className="staff-table-heading-main">
-            <strong>{records.rows.length} form submissions</strong>
+            <strong>{totalSubmissions} form submissions</strong>
             <span>{describeStaffFormSort(filters.sort, filters.dir)}</span>
+            {totalSubmissions > records.rows.length ? (
+              <span>Showing {firstVisibleSubmission}-{lastVisibleSubmission}</span>
+            ) : null}
           </div>
           {canDeleteSubmissions ? (
             <div className="staff-bulk-actions">
@@ -8555,10 +8583,111 @@ export function StaffFormSubmissionsPage({ navigateTo }) {
           onSelectAll={toggleAllSubmissionSelection}
           onSelectRow={toggleSubmissionSelection}
         />
+        {totalSubmissions > currentLimit ? (
+          <div className="staff-pagination-row" aria-label="Form submissions pages">
+            <button
+              disabled={loading || currentOffset <= 0}
+              type="button"
+              onClick={() => loadSubmissions({ offset: Math.max(0, currentOffset - currentLimit), useCache: true })}
+            >
+              Previous
+            </button>
+            <span>
+              {firstVisibleSubmission}-{lastVisibleSubmission} of {totalSubmissions}
+            </span>
+            <button
+              disabled={loading || !records.hasMore}
+              type="button"
+              onClick={() => loadSubmissions({ offset: currentOffset + currentLimit, useCache: true })}
+            >
+              Next
+            </button>
+          </div>
+        ) : null}
       </section>
 
     </StaffShell>
   );
+}
+
+function staffFormSubmissionEmptyRecords() {
+  return {
+    rows: [],
+    total: 0,
+    limit: STAFF_FORM_SUBMISSIONS_PAGE_SIZE,
+    offset: 0,
+    hasMore: false,
+    sort: "submitted_at",
+    dir: "desc",
+  };
+}
+
+function staffFormSubmissionListParams(filters, offset) {
+  const params = new URLSearchParams(
+    Object.entries(filters || {}).filter(([, value]) => value),
+  );
+  params.set("limit", String(STAFF_FORM_SUBMISSIONS_PAGE_SIZE));
+  params.set("offset", String(Math.max(0, Number(offset) || 0)));
+  return params;
+}
+
+function staffFormSubmissionCacheKey(params) {
+  return params.toString();
+}
+
+function normalizeStaffFormSubmissionRecords(payload) {
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+  const limit = Number(payload?.limit || STAFF_FORM_SUBMISSIONS_PAGE_SIZE) || STAFF_FORM_SUBMISSIONS_PAGE_SIZE;
+  const offset = Math.max(0, Number(payload?.offset || 0) || 0);
+  const total = Math.max(0, Number(payload?.total ?? rows.length) || 0);
+  return {
+    rows,
+    total,
+    limit,
+    offset,
+    hasMore: Boolean(payload?.hasMore ?? offset + rows.length < total),
+    sort: payload?.sort || "submitted_at",
+    dir: payload?.dir || "desc",
+  };
+}
+
+function readStaffFormSubmissionCache(queryKey) {
+  if (typeof window === "undefined" || !queryKey) return null;
+  try {
+    const raw = window.sessionStorage.getItem(STAFF_FORM_SUBMISSIONS_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (cached?.queryKey !== queryKey) return null;
+    if (Date.now() - Number(cached.savedAt || 0) > STAFF_FORM_SUBMISSIONS_CACHE_TTL_MS) return null;
+    return normalizeStaffFormSubmissionRecords(cached.records);
+  } catch {
+    return null;
+  }
+}
+
+function writeStaffFormSubmissionCache(queryKey, records) {
+  if (typeof window === "undefined" || !queryKey) return;
+  try {
+    window.sessionStorage.setItem(
+      STAFF_FORM_SUBMISSIONS_CACHE_KEY,
+      JSON.stringify({
+        queryKey,
+        records,
+        savedAt: Date.now(),
+      }),
+    );
+  } catch {
+    // Ignore cache write failures; the network load path remains authoritative.
+  }
+}
+
+function clearStaffFormSubmissionCache() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(STAFF_FORM_SUBMISSIONS_CACHE_KEY);
+  } catch {
+    // Ignore cache removal failures.
+  }
 }
 
 export function StaffSubmissionViewerPage({ navigateTo, routePath }) {

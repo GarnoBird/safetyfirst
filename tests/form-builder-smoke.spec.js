@@ -1116,21 +1116,36 @@ async function mockApis(page, templates, options = {}) {
         return json({ template: jsonTemplate(copy) }, 201);
       }
     }
+    if (path === "/api/staff/submissions/filters" && method === "GET") {
+      return json({
+        companyOptions: mockSubmittedCompanyOptions(staffSubmissions),
+        formOptions: templateRows.map((row) => ({
+          id: row.form_type,
+          label: row.label,
+        })),
+      });
+    }
     if (path === "/api/staff/submissions" && method === "GET") {
       const company = String(url.searchParams.get("company") || "").trim();
       const phone = String(url.searchParams.get("phone") || "").trim();
       const name = String(url.searchParams.get("name") || "").trim();
       const formType = String(url.searchParams.get("formType") || url.searchParams.get("form_type") || "").trim();
       const backupStatus = String(url.searchParams.get("backupStatus") || url.searchParams.get("backup_status") || "").trim();
+      const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 50) || 50));
+      const offset = Math.max(0, Number(url.searchParams.get("offset") || 0) || 0);
       const rows = staffSubmissions
         .filter((row) => !company || normalizeMockSignInIdentity(row.company) === normalizeMockSignInIdentity(company))
         .filter((row) => !phone || normalizeMockSignInIdentity(row.worker_phone).includes(normalizeMockSignInIdentity(phone)))
         .filter((row) => !name || normalizeMockSignInIdentity(row.worker_name).includes(normalizeMockSignInIdentity(name)))
         .filter((row) => !formType || row.form_type === formType)
         .filter((row) => !backupStatus || row.one_drive_backup_status === backupStatus);
+      const pageRows = rows.slice(offset, offset + limit);
       return json({
-        companyOptions: mockSubmittedCompanyOptions(staffSubmissions),
-        rows,
+        rows: pageRows,
+        total: rows.length,
+        limit,
+        offset,
+        hasMore: offset + pageRows.length < rows.length,
         sort: url.searchParams.get("sort") || "submitted_at",
         dir: url.searchParams.get("dir") || "desc",
       });

@@ -2471,6 +2471,21 @@ p {
   white-space: nowrap;
 }
 
+.staff-pagination-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px solid #e4ebe7;
+  padding: 12px 16px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.staff-pagination-row span {
+  white-space: nowrap;
+}
+
 .staff-mobile-sort {
   display: none;
 }
@@ -9023,6 +9038,12 @@ p {
     padding: 13px 12px;
   }
 
+  .staff-pagination-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 12px;
+  }
+
   .staff-shell {
     padding: 18px 12px 44px;
   }
@@ -9226,4 +9247,3 @@ p {
     box-shadow: none;
   }
 }
-
