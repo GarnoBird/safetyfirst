@@ -1,14 +1,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import html2canvas from "html2canvas";
-import QRCode from "qrcode";
 import {
-  buildSubmittedFormPrintHtml,
-  submittedFormPdfFileName,
-} from "./submissionPrintRenderer.js";
-import {
-  SUBMITTED_FORM_TRANSLATION_LANGUAGES,
-  translateSubmittedFormTexts,
-} from "./submittedFormPhrasebook.js";
+  loadSubmittedFormPhrasebook,
+  loadSubmissionPrintRenderer,
+  qrCodeToDataUrl,
+  renderHtmlToCanvas,
+} from "./lazyClientModules.js";
 
 const STAFF_SORT_LABELS = {
   company: "Company",
@@ -1094,7 +1090,7 @@ export function WorkerSignInQr({ navigateTo }) {
   }, []);
 
   useEffect(() => {
-    QRCode.toDataURL(formUrl, {
+    qrCodeToDataUrl(formUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
       scale: 8,
@@ -1103,7 +1099,7 @@ export function WorkerSignInQr({ navigateTo }) {
         dark: "#111111",
         light: "#ffffff",
       },
-    }).then(setQrDataUrl);
+    }).then(setQrDataUrl).catch(() => setQrDataUrl(""));
   }, [formUrl]);
 
   return (
@@ -1127,7 +1123,7 @@ export function WorkerSignOutQr({ navigateTo }) {
   }, []);
 
   useEffect(() => {
-    QRCode.toDataURL(formUrl, {
+    qrCodeToDataUrl(formUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
       scale: 8,
@@ -1136,7 +1132,7 @@ export function WorkerSignOutQr({ navigateTo }) {
         dark: "#111111",
         light: "#ffffff",
       },
-    }).then(setQrDataUrl);
+    }).then(setQrDataUrl).catch(() => setQrDataUrl(""));
   }, [formUrl]);
 
   return (
@@ -9386,8 +9382,23 @@ function SubmissionReviewSignDialog({ onClose, onSaved, row, staff }) {
 
 function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, row }) {
   const [targetLanguage, setTargetLanguage] = useState("");
+  const [languages, setLanguages] = useState([]);
   const [translating, setTranslating] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    loadSubmittedFormPhrasebook()
+      .then((module) => {
+        if (active) setLanguages(module.SUBMITTED_FORM_TRANSLATION_LANGUAGES || []);
+      })
+      .catch(() => {
+        if (active) setMessage("Translation languages could not be loaded.");
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const translate = async (event) => {
     event.preventDefault();
@@ -9405,7 +9416,9 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
     setTranslating(true);
     setMessage("");
     try {
-      const payload = translateSubmittedFormTexts(targetLanguage, texts);
+      const phrasebook = await loadSubmittedFormPhrasebook();
+      const languageOptions = phrasebook.SUBMITTED_FORM_TRANSLATION_LANGUAGES || languages;
+      const payload = phrasebook.translateSubmittedFormTexts(targetLanguage, texts);
       const translations = normalizeSubmittedFormTranslations(payload.translations);
       if (!translations.size) {
         setMessage("No phrasebook matches found for this form.");
@@ -9416,7 +9429,7 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
         language: payload.language || targetLanguage,
         languageLabel:
           payload.languageLabel ||
-          SUBMITTED_FORM_TRANSLATION_LANGUAGES.find((item) => item.code === targetLanguage)?.label ||
+          languageOptions.find((item) => item.code === targetLanguage)?.label ||
           targetLanguage,
         translatedCount: translations.size,
       });
@@ -9450,8 +9463,8 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
           <label className="field">
             <span>Translate To</span>
             <select value={targetLanguage} onChange={(event) => setTargetLanguage(event.target.value)}>
-              <option value="">Select language</option>
-              {SUBMITTED_FORM_TRANSLATION_LANGUAGES.map((language) => (
+              <option value="">{languages.length ? "Select language" : "Loading languages..."}</option>
+              {languages.map((language) => (
                 <option key={language.code} value={language.code}>{language.label}</option>
               ))}
             </select>
@@ -9459,7 +9472,7 @@ function SubmissionTranslateDialog({ exportSurfaceRef, onClose, onTranslated, ro
           {message ? <p className="form-message error">{message}</p> : null}
           <div className="translate-dialog-actions">
             <button disabled={translating} type="button" onClick={onClose}>Cancel</button>
-            <button className="primary-button" disabled={!targetLanguage || translating} type="submit">
+            <button className="primary-button" disabled={!targetLanguage || translating || !languages.length} type="submit">
               {translating ? "Translating..." : "Translate Form"}
             </button>
           </div>
@@ -10115,7 +10128,7 @@ export function StaffFormTemplatesPage({ navigateTo }) {
     if (!selectedShareUrl) return undefined;
     let cancelled = false;
     const qrLabel = selectedTemplate?.label || "Form";
-    QRCode.toDataURL(selectedShareUrl, {
+    qrCodeToDataUrl(selectedShareUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
       scale: 8,
@@ -20536,12 +20549,14 @@ async function downloadDigitalFormPdf(row, data, exportTarget, options = {}) {
   if (!response.ok) throw await digitalExportResponseError(response, "This form PDF could not be downloaded.");
   const blob = await response.blob();
   if (!blob.size) throw new Error("This form PDF was empty.");
+  const { submittedFormPdfFileName } = await loadSubmissionPrintRenderer();
   const fileName = fileNameFromContentDisposition(response.headers.get("content-disposition")) ||
     submittedFormPdfFileName(row);
   downloadBlob(blob, fileName);
 }
 
 async function emailDigitalFormPdf(row, data, exportTarget) {
+  const { submittedFormPdfFileName } = await loadSubmissionPrintRenderer();
   return await readApiJson(
     await fetch(`/api/staff/submissions/${row.id}/email`, {
       method: "POST",
@@ -20553,6 +20568,7 @@ async function emailDigitalFormPdf(row, data, exportTarget) {
 }
 
 async function printDigitalForm(row, data, exportTarget) {
+  const { buildSubmittedFormPrintHtml } = await loadSubmissionPrintRenderer();
   await printHtmlInHiddenFrame(buildSubmittedFormPrintHtml(row, { includePrintButton: false }));
 }
 
@@ -20606,7 +20622,7 @@ async function captureDigitalFormElement(element, options = {}) {
     ? requestedScale
     : Math.min(2, window.devicePixelRatio || 1.5);
   try {
-    return await html2canvas(element, {
+    return await renderHtmlToCanvas(element, {
       backgroundColor: "#ffffff",
       logging: false,
       scale,

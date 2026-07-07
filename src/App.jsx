@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import QRCode from "qrcode";
+import { qrCodeToDataUrl } from "./lazyClientModules.js";
 import {
   StaffHomePage,
   StaffCompanySummaryPage,
@@ -195,7 +195,7 @@ function LandingQrCard({ label, navigateTo, path }) {
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(formUrl, {
+    qrCodeToDataUrl(formUrl, {
       errorCorrectionLevel: "M",
       margin: 2,
       scale: 8,
@@ -206,6 +206,8 @@ function LandingQrCard({ label, navigateTo, path }) {
       },
     }).then((dataUrl) => {
       if (!cancelled) setQrDataUrl(dataUrl);
+    }).catch(() => {
+      if (!cancelled) setQrDataUrl("");
     });
     return () => {
       cancelled = true;
