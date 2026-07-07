@@ -5215,10 +5215,12 @@ function SiteInspectionDigitalForm({ formTemplate, formType = "site_inspection",
 function ActionItemRowsBlock({
   blockInvalid = false,
   blockType = "action_item_rows",
+  editorPreview = null,
   invalidFields = new Set(),
   layoutSettings = {},
   noItems = false,
   preview = false,
+  previewFieldLocation = null,
   registerValidationTarget,
   rows = [],
   sectionId = "",
@@ -5245,9 +5247,8 @@ function ActionItemRowsBlock({
     blockIsInvalid ? "toolbox-section-invalid" : "",
   );
   const statusLabel = noItems ? "None" : `${listedCount} listed`;
-
-  return (
-    <section className={sectionClass} ref={targetRef}>
+  const content = (
+    <>
       <div className="toolbox-section-heading">
         <h2>{title || (blockType === "site_deficiencies" ? "Deficiencies" : "Action item rows")}</h2>
         <span>{preview ? "Special block" : statusLabel}</span>
@@ -5291,6 +5292,25 @@ function ActionItemRowsBlock({
           <button disabled={preview} type="button" onClick={onAddRow}>{currentSettings.addButtonLabel}</button>
         </>
       ) : null}
+    </>
+  );
+
+  if (editorPreview && validTemplatePreviewFieldLocation(previewFieldLocation)) {
+    return (
+      <TemplatePreviewSectionFrame
+        className={sectionClass}
+        editorPreview={editorPreview}
+        fieldLocation={previewFieldLocation}
+        sectionRef={targetRef}
+      >
+        {content}
+      </TemplatePreviewSectionFrame>
+    );
+  }
+
+  return (
+    <section className={sectionClass} ref={targetRef}>
+      {content}
     </section>
   );
 }
@@ -11097,6 +11117,37 @@ function TemplateSchemaEditorV3({
   const changeView = (nextView) => {
     setView(nextView);
   };
+  const fieldLocationById = (fieldId) => {
+    const normalizedId = String(fieldId || "");
+    if (!normalizedId) return null;
+    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+      const fieldIndex = (sections[sectionIndex].fields || []).findIndex((field) => field.id === normalizedId);
+      if (fieldIndex >= 0) return { sectionIndex, fieldIndex };
+    }
+    return null;
+  };
+  const fieldLocationByType = (fieldType) => {
+    const normalizedType = String(fieldType || "");
+    if (!normalizedType) return null;
+    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+      const fieldIndex = (sections[sectionIndex].fields || []).findIndex((field) => field.type === normalizedType);
+      if (fieldIndex >= 0) return { sectionIndex, fieldIndex };
+    }
+    return null;
+  };
+  const sectionIndexById = (sectionId) => {
+    const normalizedId = String(sectionId || "");
+    if (!normalizedId) return -1;
+    return sections.findIndex((section) => section.id === normalizedId);
+  };
+  const fieldLocationForPreviewField = (section, field) => {
+    const sectionIndex = sectionIndexById(section?.id);
+    if (sectionIndex >= 0) {
+      const fieldIndex = (sections[sectionIndex].fields || []).findIndex((item) => item.id === field?.id);
+      if (fieldIndex >= 0) return { sectionIndex, fieldIndex };
+    }
+    return fieldLocationById(field?.id);
+  };
   const updateSection = (sectionIndex, patch) => {
     if (!canEdit) return;
     onChange({
@@ -11242,7 +11293,6 @@ function TemplateSchemaEditorV3({
   };
   const selectBlock = (nextSelection) => {
     setSelected(nextSelection);
-    changeView("editor");
   };
   const openFieldPicker = (sectionIndex = null) => {
     if (!canEdit) return;
@@ -11311,7 +11361,6 @@ function TemplateSchemaEditorV3({
       ),
     });
     setSelected({ kind: "field", sectionIndex: safeSectionIndex, fieldIndex });
-    changeView("editor");
     closeFieldPicker();
   };
   const duplicateField = (sectionIndex, fieldIndex) => {
@@ -11358,19 +11407,40 @@ function TemplateSchemaEditorV3({
     setSelected({ kind: "field", sectionIndex, fieldIndex: fieldIndex + direction });
   };
   const moveFieldTo = (sectionIndex, fromIndex, toIndex) => {
-    if (!canEdit || fromIndex === toIndex) return;
-    onChange({
-      ...current,
-      sections: current.sections.map((section, index) =>
-        index === sectionIndex
-          ? { ...section, fields: moveArrayItemTo(section.fields, fromIndex, toIndex) }
-          : section,
-      ),
-    });
-    setSelected((previous) => {
-      if (previous.kind !== "field" || previous.sectionIndex !== sectionIndex) return previous;
-      return { ...previous, fieldIndex: remapMovedIndex(previous.fieldIndex, fromIndex, toIndex) };
-    });
+    if (!canEdit) return null;
+    return moveFieldBetweenSections(sectionIndex, fromIndex, sectionIndex, toIndex);
+  };
+  const moveFieldBetweenSections = (fromSectionIndex, fromIndex, toSectionIndex, toIndex) => {
+    if (!canEdit) return null;
+    const fromSection = current.sections[fromSectionIndex];
+    const toSection = current.sections[toSectionIndex];
+    if (!fromSection || !toSection) return null;
+    const toFieldsLength = (toSection.fields || []).length;
+    if (
+      fromIndex < 0 ||
+      fromIndex >= (fromSection.fields || []).length ||
+      toIndex < 0 ||
+      toIndex > toFieldsLength ||
+      (fromSectionIndex === toSectionIndex && fromIndex === toIndex)
+    ) {
+      return null;
+    }
+    const nextSections = current.sections.map((section) => ({
+      ...section,
+      fields: [...(section.fields || [])],
+    }));
+    const [movedField] = nextSections[fromSectionIndex].fields.splice(fromIndex, 1);
+    let insertIndex = toIndex;
+    if (fromSectionIndex === toSectionIndex && fromIndex < toIndex) {
+      insertIndex = Math.min(toIndex, nextSections[toSectionIndex].fields.length);
+    }
+    nextSections[toSectionIndex].fields.splice(insertIndex, 0, movedField);
+    onChange({ ...current, sections: nextSections });
+    return { sectionIndex: toSectionIndex, fieldIndex: insertIndex };
+  };
+  const moveFieldToSectionEnd = (fromSectionIndex, fromIndex, toSectionIndex) => {
+    const targetLength = current.sections[toSectionIndex]?.fields?.length || 0;
+    return moveFieldBetweenSections(fromSectionIndex, fromIndex, toSectionIndex, targetLength);
   };
   const startSectionDrag = (event, sectionIndex) => {
     if (!canEdit || sections.length < 2) return;
@@ -11404,26 +11474,52 @@ function TemplateSchemaEditorV3({
   };
   const startFieldDrag = (event, sectionIndex, fieldIndex) => {
     const section = sections[sectionIndex];
-    if (!canEdit || !section || section.fields.length < 2) return;
+    if (!canEdit || !section || fieldCount < 2) return;
     event.stopPropagation();
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("text/plain", `field:${sectionIndex}:${fieldIndex}`);
-    setDragState({ kind: "field", sectionIndex, fromIndex: fieldIndex, overIndex: fieldIndex });
+    setSelected({ kind: "field", sectionIndex, fieldIndex });
+    setDragState({
+      kind: "field",
+      sectionIndex,
+      fromSectionIndex: sectionIndex,
+      fromIndex: fieldIndex,
+      overSectionIndex: sectionIndex,
+      overIndex: fieldIndex,
+    });
   };
   const handleFieldDragOver = (event, sectionIndex, fieldIndex) => {
-    if (dragState?.kind !== "field" || dragState.sectionIndex !== sectionIndex) return;
+    if (dragState?.kind !== "field") return;
     event.preventDefault();
     event.stopPropagation();
     event.dataTransfer.dropEffect = "move";
-    if (dragState.overIndex !== fieldIndex) {
-      setDragState({ ...dragState, overIndex: fieldIndex });
+    if (dragState.overSectionIndex !== sectionIndex || dragState.overIndex !== fieldIndex) {
+      setDragState({ ...dragState, overSectionIndex: sectionIndex, overIndex: fieldIndex });
     }
   };
   const handleFieldDrop = (event, sectionIndex, fieldIndex) => {
-    if (dragState?.kind !== "field" || dragState.sectionIndex !== sectionIndex) return;
+    if (dragState?.kind !== "field") return;
     event.preventDefault();
     event.stopPropagation();
-    moveFieldTo(sectionIndex, dragState.fromIndex, fieldIndex);
+    const nextLocation = moveFieldBetweenSections(
+      dragState.fromSectionIndex ?? dragState.sectionIndex,
+      dragState.fromIndex,
+      sectionIndex,
+      fieldIndex,
+    );
+    if (nextLocation) setSelected({ kind: "field", ...nextLocation });
+    setDragState(null);
+  };
+  const handleFieldDropOnSection = (event, sectionIndex) => {
+    if (dragState?.kind !== "field") return;
+    event.preventDefault();
+    event.stopPropagation();
+    const nextLocation = moveFieldToSectionEnd(
+      dragState.fromSectionIndex ?? dragState.sectionIndex,
+      dragState.fromIndex,
+      sectionIndex,
+    );
+    if (nextLocation) setSelected({ kind: "field", ...nextLocation });
     setDragState(null);
   };
   const handleFieldDragKeyDown = (event, sectionIndex, fieldIndex) => {
@@ -11545,6 +11641,32 @@ function TemplateSchemaEditorV3({
   const handleSidebarCardFocus = (card) => {
     if (sidebarPointerFocusRef.current !== card) setSidebarFocus(card);
   };
+  const previewEditor = {
+    activeSelection,
+    canDragField: () => fieldCount > 1,
+    canDragSection: () => sections.length > 1,
+    canEdit,
+    dragState,
+    getFieldLocation: fieldLocationForPreviewField,
+    getFieldLocationById: fieldLocationById,
+    getFieldLocationByType: fieldLocationByType,
+    getSectionIndex: (section) => sectionIndexById(section?.id),
+    getSectionFieldCount: (sectionIndex) => sections[sectionIndex]?.fields?.length || 0,
+    openFieldPicker,
+    selectField: (sectionIndex, fieldIndex) => selectBlock({ kind: "field", sectionIndex, fieldIndex }),
+    selectHeader: () => selectBlock({ kind: "header" }),
+    selectSection: (sectionIndex) => selectBlock({ kind: "section", sectionIndex }),
+    startFieldDrag,
+    startSectionDrag,
+    handleFieldDragKeyDown,
+    handleFieldDragOver,
+    handleFieldDrop,
+    handleFieldDropOnSection,
+    handleSectionDragKeyDown,
+    handleSectionDragOver,
+    handleSectionDrop,
+    endDrag: () => setDragState(null),
+  };
   return (
     <div className="template-v3-builder">
       <div className="template-v3-mobile-lock">
@@ -11590,15 +11712,25 @@ function TemplateSchemaEditorV3({
 
           {view === "preview" ? (
             <section className="template-v3-preview-page">
-              <div className="template-v3-page-header">
+              <button
+                className={[
+                  "template-v3-page-header",
+                  "template-v3-preview-header-control",
+                  activeSelection.kind === "header" ? "template-v3-preview-selected" : "",
+                ].filter(Boolean).join(" ")}
+                disabled={!canEdit}
+                type="button"
+                onClick={previewEditor.selectHeader}
+              >
                 <span>Preview</span>
                 <h2>{current.title || selectedTemplate.label}</h2>
                 {current.description ? <p>{current.description}</p> : null}
-              </div>
+              </button>
               {fieldCount ? (
                 useToolboxTalkPreview ? (
                   <ToolboxTalkTemplatePreview
                     answers={previewAnswers}
+                    editorPreview={previewEditor}
                     schema={current}
                     worker={previewWorker}
                     onChange={onPreviewAnswersChange}
@@ -11606,6 +11738,7 @@ function TemplateSchemaEditorV3({
                 ) : useSiteInspectionPreview ? (
                   <SiteInspectionTemplatePreview
                     answers={previewAnswers}
+                    editorPreview={previewEditor}
                     schema={current}
                     worker={previewWorker}
                     onChange={onPreviewAnswersChange}
@@ -11614,6 +11747,7 @@ function TemplateSchemaEditorV3({
                   <TemplateFormFields
                     assetSearchEndpoint="/api/staff/assets"
                     answers={previewAnswers}
+                    editorPreview={previewEditor}
                     schema={current}
                     worker={previewWorker}
                     onChange={onPreviewAnswersChange}
@@ -11623,9 +11757,23 @@ function TemplateSchemaEditorV3({
                 <div className="template-v3-empty-page">
                   <h2>No fields yet</h2>
                   <p>Add fields before previewing the worker form.</p>
-                  {canEdit ? <button type="button" onClick={() => openFieldPicker()}>New Field +</button> : null}
+                  {canEdit ? (
+                    <div className="template-v3-empty-actions">
+                      <button type="button" onClick={addSection}>
+                        New Section +
+                      </button>
+                      <button type="button" onClick={() => openFieldPicker()}>
+                        New Field +
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               )}
+              {fieldCount && canEdit ? (
+                <button className="template-v3-preview-add-section" type="button" onClick={addSection}>
+                  New Section +
+                </button>
+              ) : null}
             </section>
           ) : (
             <section className="template-v3-canvas" aria-label="Builder V3 canvas">
@@ -11707,14 +11855,15 @@ function TemplateSchemaEditorV3({
                             ? "selected"
                             : "",
                           dragState?.kind === "field" &&
-                          dragState.sectionIndex === sectionIndex &&
+                          (dragState.fromSectionIndex ?? dragState.sectionIndex) === sectionIndex &&
                           dragState.fromIndex === fieldIndex
                             ? "dragging"
                             : "",
                           dragState?.kind === "field" &&
-                          dragState.sectionIndex === sectionIndex &&
+                          (dragState.overSectionIndex ?? dragState.sectionIndex) === sectionIndex &&
                           dragState.overIndex === fieldIndex &&
-                          dragState.fromIndex !== fieldIndex
+                          ((dragState.fromSectionIndex ?? dragState.sectionIndex) !== sectionIndex ||
+                            dragState.fromIndex !== fieldIndex)
                             ? "drag-over"
                             : "",
                         ].filter(Boolean).join(" ")}
@@ -11744,8 +11893,8 @@ function TemplateSchemaEditorV3({
                             <button
                               aria-label={`Reorder ${field.label || `Field ${fieldIndex + 1}`}`}
                               className="template-v3-drag-handle"
-                              disabled={section.fields.length < 2}
-                              draggable={section.fields.length > 1}
+                              disabled={fieldCount < 2}
+                              draggable={fieldCount > 1}
                               title="Drag to reorder. Arrow keys move this field."
                               type="button"
                               onDragEnd={() => setDragState(null)}
@@ -12954,7 +13103,7 @@ function TemplateAssetPickerSettingsEditor({ disabled = false, field, onChange }
   );
 }
 
-function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
+function ToolboxTalkTemplatePreview({ answers = {}, editorPreview = null, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getToolboxTalkLayout(current);
   const enabled = new Set(layout.enabledBlocks);
@@ -12977,6 +13126,7 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
         <TemplateRuntimeSections
           assetSearchEndpoint="/api/staff/assets"
           answers={answers}
+          editorPreview={editorPreview}
           schema={genericSchema}
           sections={genericSchema.sections}
           worker={worker}
@@ -12986,11 +13136,13 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
 
       <div className="template-runtime-section-grid">
       {enabled.has("toolbox_topics") ? (
-        <section
+        <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
             "toolbox_topics",
             { settings: layout.blockSettings.toolbox_topics },
           )}
+          editorPreview={editorPreview}
+          fieldLocation={editorPreview?.getFieldLocationByType?.("toolbox_topics")}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_topics || "Topics Discussed"}</h2>
@@ -13024,16 +13176,18 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
               </details>
             ))}
           </div>
-        </section>
+        </TemplatePreviewSectionFrame>
       ) : null}
 
       {enabled.has("toolbox_incident_review") ? (
-        <section
+        <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
             "toolbox_incident_review",
             { settings: layout.blockSettings.toolbox_incident_review },
             layout.blockSettings.toolbox_incident_review?.defaultCollapsed === false ? "" : "collapsed",
           )}
+          editorPreview={editorPreview}
+          fieldLocation={editorPreview?.getFieldLocationByType?.("toolbox_incident_review")}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_incident_review || "Review Notes"}</h2>
@@ -13048,16 +13202,18 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
                 ))}
             </div>
           ) : null}
-        </section>
+        </TemplatePreviewSectionFrame>
       ) : null}
 
       {enabled.has("toolbox_safety_concerns") ? (
-        <section
+        <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
             "toolbox_safety_concerns",
             { settings: layout.blockSettings.toolbox_safety_concerns },
             layout.blockSettings.toolbox_safety_concerns?.defaultCollapsed === false ? "" : "collapsed",
           )}
+          editorPreview={editorPreview}
+          fieldLocation={editorPreview?.getFieldLocationByType?.("toolbox_safety_concerns")}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_safety_concerns || "Safety Concerns"}</h2>
@@ -13071,15 +13227,17 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
               <button type="button">Remove</button>
             </div>
           ) : null}
-        </section>
+        </TemplatePreviewSectionFrame>
       ) : null}
 
       {enabled.has("toolbox_attendance") ? (
-        <section
+        <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
             "toolbox_attendance",
             { settings: layout.blockSettings.toolbox_attendance },
           )}
+          editorPreview={editorPreview}
+          fieldLocation={editorPreview?.getFieldLocationByType?.("toolbox_attendance")}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_attendance || "Attendance"}</h2>
@@ -13092,15 +13250,17 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
           <div className="toolbox-attendee-chip-row">
             <span className="toolbox-attendee-chip">Garnet Bird <strong>x</strong></span>
           </div>
-        </section>
+        </TemplatePreviewSectionFrame>
       ) : null}
 
       {enabled.has("toolbox_final_confirmation") ? (
-        <section
+        <TemplatePreviewSectionFrame
           className={templateRuntimeSectionClassName(
             "toolbox_final_confirmation",
             { settings: layout.blockSettings.toolbox_final_confirmation },
           )}
+          editorPreview={editorPreview}
+          fieldLocation={editorPreview?.getFieldLocationByType?.("toolbox_final_confirmation")}
         >
           <div className="toolbox-section-heading">
             <h2>{layout.blockLabels.toolbox_final_confirmation || "Final Check"}</h2>
@@ -13110,14 +13270,14 @@ function ToolboxTalkTemplatePreview({ answers = {}, onChange = () => {}, schema,
             <input readOnly checked type="checkbox" />
             <span>I confirm the listed workers participated in this toolbox talk.</span>
           </label>
-        </section>
+        </TemplatePreviewSectionFrame>
       ) : null}
       </div>
     </div>
   );
 }
 
-function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, schema, worker }) {
+function SiteInspectionTemplatePreview({ answers = {}, editorPreview = null, onChange = () => {}, schema, worker }) {
   const current = normalizeClientTemplateSchema(schema);
   const layout = getSiteInspectionLayout(current);
   const enabled = new Set(layout.enabledBlocks);
@@ -13126,8 +13286,14 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
 
   const renderHeaderPreview = () => {
     if (!layout.headerFields.length) return null;
+    const firstHeaderLocation = editorPreview?.getFieldLocationById?.(layout.headerFields[0]?.id);
+    const sectionIndex = firstHeaderLocation?.sectionIndex ?? null;
     return (
-      <section className={templateRuntimeSectionClassName("site_inspection_header", layout.inspectionInfo)}>
+      <TemplatePreviewSectionFrame
+        className={templateRuntimeSectionClassName("site_inspection_header", layout.inspectionInfo)}
+        editorPreview={editorPreview}
+        sectionIndex={sectionIndex}
+      >
         <div className="toolbox-section-heading">
           <h2>{layout.inspectionInfo.title || "Inspection Info"}</h2>
           {layout.headerFields.some((field) => field.required) ? <span>Required fields</span> : null}
@@ -13135,27 +13301,42 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
         {layout.inspectionInfo.description ? <p className="muted">{layout.inspectionInfo.description}</p> : null}
         <div className="toolbox-field-grid">
           {layout.headerFields.map((field) => (
-            <label key={field.id || field.key}>
-              <span>{field.label}</span>
-              <input
-                readOnly
-                placeholder={field.helperText || ""}
-                type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
-                value={headerSampleValue(field)}
-              />
-            </label>
+            <TemplatePreviewFieldFrame
+              className={[
+                "template-runtime-field-shell",
+                field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
+                templateLayoutWidthClass(field),
+              ].filter(Boolean).join(" ")}
+              dataTemplateFieldId={field.id || undefined}
+              editorPreview={editorPreview}
+              fieldLocation={editorPreview?.getFieldLocationById?.(field.id)}
+              key={field.id || field.key}
+            >
+              <label>
+                <span>{field.label}</span>
+                <input
+                  readOnly
+                  placeholder={field.helperText || ""}
+                  type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
+                  value={headerSampleValue(field)}
+                />
+              </label>
+            </TemplatePreviewFieldFrame>
           ))}
         </div>
-      </section>
+      </TemplatePreviewSectionFrame>
     );
   };
 
   const renderObservationPreview = (section) => {
     const collapsed = section.defaultCollapsed !== false && !(section.fields || []).some((field) => field.required);
+    const sectionIndex = editorPreview?.getSectionIndex?.(section);
     return (
-      <section
+      <TemplatePreviewSectionFrame
         className={templateRuntimeSectionClassName(section.id, section, collapsed ? "collapsed" : "")}
+        editorPreview={editorPreview}
         key={section.id}
+        sectionIndex={sectionIndex}
       >
         <div className="toolbox-section-heading">
           <h2>{section.title || "Observations"}</h2>
@@ -13164,21 +13345,33 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
         {section.description ? <p className="muted">{section.description}</p> : null}
         {!collapsed ? (
           (section.fields || []).map((field) => (
-            <label key={field.id || field.key}>
-              <span>{field.label}</span>
-              {field.type === "long_text" ? (
-                <textarea readOnly rows="3" value="" />
-              ) : (
-                <input
-                  readOnly
-                  type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
-                  value=""
-                />
-              )}
-            </label>
+            <TemplatePreviewFieldFrame
+              className={[
+                "template-runtime-field-shell",
+                field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
+                templateLayoutWidthClass(field),
+              ].filter(Boolean).join(" ")}
+              dataTemplateFieldId={field.id || undefined}
+              editorPreview={editorPreview}
+              fieldLocation={editorPreview?.getFieldLocationById?.(field.id)}
+              key={field.id || field.key}
+            >
+              <label>
+                <span>{field.label}</span>
+                {field.type === "long_text" ? (
+                  <textarea readOnly rows="3" value="" />
+                ) : (
+                  <input
+                    readOnly
+                    type={field.type === "date" ? "date" : field.type === "time" ? "time" : "text"}
+                    value=""
+                  />
+                )}
+              </label>
+            </TemplatePreviewFieldFrame>
           ))
         ) : null}
-      </section>
+      </TemplatePreviewSectionFrame>
     );
   };
 
@@ -13192,8 +13385,10 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
       <ActionItemRowsBlock
         blockType="site_deficiencies"
         layoutSettings={layout.blockSettings.site_deficiencies}
+        editorPreview={editorPreview}
         noItems={false}
         preview
+        previewFieldLocation={editorPreview?.getFieldLocationByType?.("site_deficiencies")}
         rows={[createEmptyActionItemRow()]}
         sectionId="site_deficiencies"
         settings={settings}
@@ -13222,6 +13417,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
         <TemplateRuntimeSections
           assetSearchEndpoint="/api/staff/assets"
           answers={answers}
+          editorPreview={editorPreview}
           schema={genericSchema}
           sections={genericSchema.sections}
           worker={worker}
@@ -13235,6 +13431,7 @@ function SiteInspectionTemplatePreview({ answers = {}, onChange = () => {}, sche
 function TemplateFormFields({
   assetSearchEndpoint = "/api/worker/assets",
   answers,
+  editorPreview = null,
   invalidFields = new Set(),
   onChange,
   onUploadFile,
@@ -13248,6 +13445,7 @@ function TemplateFormFields({
       {current.description ? <p className="muted">{current.description}</p> : null}
       <TemplateRuntimeSections
         answers={answers}
+        editorPreview={editorPreview}
         invalidFields={invalidFields}
         registerValidationTarget={registerValidationTarget}
         schema={current}
@@ -13261,6 +13459,251 @@ function TemplateFormFields({
   );
 }
 
+const TEMPLATE_PREVIEW_INTERACTIVE_SELECTOR =
+  "a, button, input, label, select, textarea, summary, [contenteditable='true'], [role='button'], [role='checkbox'], [role='radio'], [role='switch']";
+
+function templatePreviewClickWasInteractive(event) {
+  const target = event.target;
+  if (!target || typeof target.closest !== "function") return false;
+  const interactive = target.closest(TEMPLATE_PREVIEW_INTERACTIVE_SELECTOR);
+  return Boolean(interactive && event.currentTarget.contains(interactive));
+}
+
+function validTemplatePreviewFieldLocation(location) {
+  return Boolean(
+    location &&
+    Number.isInteger(location.sectionIndex) &&
+    Number.isInteger(location.fieldIndex),
+  );
+}
+
+function TemplatePreviewSectionFrame({
+  addTargetSectionIndex = null,
+  children,
+  className = "",
+  dataTemplateSectionId,
+  editorPreview = null,
+  fieldLocation = null,
+  sectionIndex = null,
+  sectionRef = null,
+}) {
+  const canEdit = Boolean(editorPreview?.canEdit);
+  const hasFieldLocation = validTemplatePreviewFieldLocation(fieldLocation);
+  const hasSectionLocation = Number.isInteger(sectionIndex) && sectionIndex >= 0;
+  const mapsToField = hasFieldLocation;
+  const mapsToSection = !mapsToField && hasSectionLocation;
+  const activeSelection = editorPreview?.activeSelection || {};
+  const dragState = editorPreview?.dragState || {};
+  const targetSectionIndex = Number.isInteger(addTargetSectionIndex)
+    ? addTargetSectionIndex
+    : mapsToField
+      ? fieldLocation.sectionIndex
+      : hasSectionLocation
+        ? sectionIndex
+        : null;
+
+  if (!canEdit || (!mapsToField && !mapsToSection)) {
+    return (
+      <section className={className} data-template-section-id={dataTemplateSectionId} ref={sectionRef}>
+        {children}
+      </section>
+    );
+  }
+
+  const selected = mapsToField
+    ? activeSelection.kind === "field" &&
+      activeSelection.sectionIndex === fieldLocation.sectionIndex &&
+      activeSelection.fieldIndex === fieldLocation.fieldIndex
+    : activeSelection.kind === "section" && activeSelection.sectionIndex === sectionIndex;
+  const dragging = mapsToField
+    ? dragState.kind === "field" &&
+      (dragState.fromSectionIndex ?? dragState.sectionIndex) === fieldLocation.sectionIndex &&
+      dragState.fromIndex === fieldLocation.fieldIndex
+    : dragState.kind === "section" && dragState.fromIndex === sectionIndex;
+  const dragOver = mapsToField
+    ? dragState.kind === "field" &&
+      (dragState.overSectionIndex ?? dragState.sectionIndex) === fieldLocation.sectionIndex &&
+      dragState.overIndex === fieldLocation.fieldIndex &&
+      ((dragState.fromSectionIndex ?? dragState.sectionIndex) !== fieldLocation.sectionIndex ||
+        dragState.fromIndex !== fieldLocation.fieldIndex)
+    : dragState.kind === "section"
+      ? dragState.overIndex === sectionIndex && dragState.fromIndex !== sectionIndex
+      : dragState.kind === "field" &&
+        dragState.overSectionIndex === sectionIndex &&
+        dragState.overIndex === editorPreview.getSectionFieldCount?.(sectionIndex);
+  const dragDisabled = mapsToField
+    ? !editorPreview.canDragField?.(fieldLocation)
+    : !editorPreview.canDragSection?.(sectionIndex);
+  const selectTarget = () => {
+    if (mapsToField) {
+      editorPreview.selectField?.(fieldLocation.sectionIndex, fieldLocation.fieldIndex);
+    } else {
+      editorPreview.selectSection?.(sectionIndex);
+    }
+  };
+  const handleClick = (event) => {
+    if (templatePreviewClickWasInteractive(event)) return;
+    selectTarget();
+  };
+  const dragProps = mapsToField
+    ? {
+        onDragOver: (event) =>
+          editorPreview.handleFieldDragOver?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex),
+        onDrop: (event) =>
+          editorPreview.handleFieldDrop?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex),
+      }
+    : {
+        onDragOver: (event) => {
+          if (dragState.kind === "field") {
+            editorPreview.handleFieldDragOver?.(
+              event,
+              sectionIndex,
+              editorPreview.getSectionFieldCount?.(sectionIndex) || 0,
+            );
+          } else {
+            editorPreview.handleSectionDragOver?.(event, sectionIndex);
+          }
+        },
+        onDrop: (event) => {
+          if (dragState.kind === "field") {
+            editorPreview.handleFieldDropOnSection?.(event, sectionIndex);
+          } else {
+            editorPreview.handleSectionDrop?.(event, sectionIndex);
+          }
+        },
+      };
+
+  return (
+    <section
+      className={[
+        className,
+        "template-v3-preview-edit-shell",
+        selected ? "template-v3-preview-selected" : "",
+        dragging ? "dragging" : "",
+        dragOver ? "drag-over" : "",
+      ].filter(Boolean).join(" ")}
+      data-template-section-id={dataTemplateSectionId}
+      ref={sectionRef}
+      onClick={handleClick}
+      {...dragProps}
+    >
+      <div className="template-v3-preview-edit-tools" onClick={(event) => event.stopPropagation()}>
+        <button
+          aria-label={mapsToField ? "Select and reorder this field" : "Select and reorder this section"}
+          className="template-v3-drag-handle"
+          disabled={dragDisabled}
+          draggable={!dragDisabled}
+          title={mapsToField ? "Drag to reorder this field." : "Drag to reorder this section."}
+          type="button"
+          onClick={selectTarget}
+          onDragEnd={editorPreview.endDrag}
+          onDragStart={(event) =>
+            mapsToField
+              ? editorPreview.startFieldDrag?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+              : editorPreview.startSectionDrag?.(event, sectionIndex)
+          }
+          onKeyDown={(event) =>
+            mapsToField
+              ? editorPreview.handleFieldDragKeyDown?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+              : editorPreview.handleSectionDragKeyDown?.(event, sectionIndex)
+          }
+        />
+      </div>
+      {children}
+      {Number.isInteger(targetSectionIndex) ? (
+        <button
+          className="template-v3-preview-add-field"
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            editorPreview.openFieldPicker?.(targetSectionIndex);
+          }}
+        >
+          New Field +
+        </button>
+      ) : null}
+    </section>
+  );
+}
+
+function TemplatePreviewFieldFrame({
+  children,
+  className = "",
+  dataTemplateFieldId,
+  editorPreview = null,
+  fieldLocation = null,
+}) {
+  const canEdit = Boolean(editorPreview?.canEdit);
+  if (!canEdit || !validTemplatePreviewFieldLocation(fieldLocation)) {
+    return (
+      <div className={className} data-template-field-id={dataTemplateFieldId}>
+        {children}
+      </div>
+    );
+  }
+  const activeSelection = editorPreview.activeSelection || {};
+  const dragState = editorPreview.dragState || {};
+  const selected =
+    activeSelection.kind === "field" &&
+    activeSelection.sectionIndex === fieldLocation.sectionIndex &&
+    activeSelection.fieldIndex === fieldLocation.fieldIndex;
+  const dragging =
+    dragState.kind === "field" &&
+    (dragState.fromSectionIndex ?? dragState.sectionIndex) === fieldLocation.sectionIndex &&
+    dragState.fromIndex === fieldLocation.fieldIndex;
+  const dragOver =
+    dragState.kind === "field" &&
+    (dragState.overSectionIndex ?? dragState.sectionIndex) === fieldLocation.sectionIndex &&
+    dragState.overIndex === fieldLocation.fieldIndex &&
+    ((dragState.fromSectionIndex ?? dragState.sectionIndex) !== fieldLocation.sectionIndex ||
+      dragState.fromIndex !== fieldLocation.fieldIndex);
+  const dragDisabled = !editorPreview.canDragField?.(fieldLocation);
+  const selectField = () => editorPreview.selectField?.(fieldLocation.sectionIndex, fieldLocation.fieldIndex);
+  return (
+    <div
+      className={[
+        className,
+        "template-v3-preview-field-shell",
+        selected ? "template-v3-preview-selected" : "",
+        dragging ? "dragging" : "",
+        dragOver ? "drag-over" : "",
+      ].filter(Boolean).join(" ")}
+      data-template-field-id={dataTemplateFieldId}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (templatePreviewClickWasInteractive(event)) return;
+        selectField();
+      }}
+      onDragOver={(event) =>
+        editorPreview.handleFieldDragOver?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+      }
+      onDrop={(event) =>
+        editorPreview.handleFieldDrop?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+      }
+    >
+      <div className="template-v3-preview-field-tools" onClick={(event) => event.stopPropagation()}>
+        <button
+          aria-label="Select and reorder this field"
+          className="template-v3-drag-handle"
+          disabled={dragDisabled}
+          draggable={!dragDisabled}
+          title="Drag to reorder this field."
+          type="button"
+          onClick={selectField}
+          onDragEnd={editorPreview.endDrag}
+          onDragStart={(event) =>
+            editorPreview.startFieldDrag?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+          }
+          onKeyDown={(event) =>
+            editorPreview.handleFieldDragKeyDown?.(event, fieldLocation.sectionIndex, fieldLocation.fieldIndex)
+          }
+        />
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function normalizeComparableText(value) {
   return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -13268,6 +13711,7 @@ function normalizeComparableText(value) {
 function TemplateRuntimeSections({
   assetSearchEndpoint = "/api/worker/assets",
   answers,
+  editorPreview = null,
   invalidFields = new Set(),
   onChange,
   onUploadFile,
@@ -13300,51 +13744,59 @@ function TemplateRuntimeSections({
     <div className="template-runtime-section-grid">
       {visibleSections.map((section) => {
         const invalidSection = sectionHasInvalidField(section);
+        const sectionIndex = editorPreview?.getSectionIndex?.(section);
         return (
-          <section
+          <TemplatePreviewSectionFrame
             className={[
               "toolbox-section",
               invalidSection ? "toolbox-section-invalid" : "",
               section.id ? `template-section-${slugifyTemplateId(section.id)}` : "",
               templateLayoutWidthClass(section),
             ].filter(Boolean).join(" ")}
-            data-template-section-id={section.id || undefined}
+            dataTemplateSectionId={section.id || undefined}
+            editorPreview={editorPreview}
             key={section.id}
-            ref={registerSectionValidationTarget(section)}
+            sectionIndex={sectionIndex}
+            sectionRef={registerSectionValidationTarget(section)}
           >
-	            <div className="toolbox-section-heading">
-	              <h2>{section.title}</h2>
-	              {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
-	            </div>
+            <div className="toolbox-section-heading">
+              <h2>{section.title}</h2>
+              {section.fields.some((field) => field.required) ? <span>Required fields</span> : null}
+            </div>
             {section.description ? <p className="muted">{section.description}</p> : null}
             <div className="toolbox-field-grid">
-              {section.fields.map((field) => (
-                <div
-                  className={[
-                    "template-runtime-field-shell",
-                    field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
-                    field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
-                    templateLayoutWidthClass(field),
-                  ].filter(Boolean).join(" ")}
-                  data-template-field-id={field.id || undefined}
-                  key={field.id}
-                >
-                  <TemplateRuntimeField
-                    answers={answers}
-                    field={field}
-                    invalid={invalidFields.has(field.id)}
-                    invalidFields={invalidFields}
-                    registerValidationTarget={registerValidationTarget}
-                    targetRef={registerValidationTarget?.(field.id)}
-                    value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
-                    assetSearchEndpoint={assetSearchEndpoint}
-                    onUploadFile={onUploadFile}
-                    onChange={(value) => updateAnswer(field.id, value)}
-                  />
-                </div>
-              ))}
+              {section.fields.map((field) => {
+                const fieldLocation = editorPreview?.getFieldLocation?.(section, field);
+                return (
+                  <TemplatePreviewFieldFrame
+                    className={[
+                      "template-runtime-field-shell",
+                      field.id ? `template-field-${slugifyTemplateId(field.id)}` : "",
+                      field.type ? `template-field-type-${slugifyTemplateId(field.type)}` : "",
+                      templateLayoutWidthClass(field),
+                    ].filter(Boolean).join(" ")}
+                    dataTemplateFieldId={field.id || undefined}
+                    editorPreview={editorPreview}
+                    fieldLocation={fieldLocation}
+                    key={field.id}
+                  >
+                    <TemplateRuntimeField
+                      answers={answers}
+                      field={field}
+                      invalid={invalidFields.has(field.id)}
+                      invalidFields={invalidFields}
+                      registerValidationTarget={registerValidationTarget}
+                      targetRef={registerValidationTarget?.(field.id)}
+                      value={answers[field.id] ?? templateFieldDefaultValue(field, worker, schema)}
+                      assetSearchEndpoint={assetSearchEndpoint}
+                      onUploadFile={onUploadFile}
+                      onChange={(value) => updateAnswer(field.id, value)}
+                    />
+                  </TemplatePreviewFieldFrame>
+                );
+              })}
             </div>
-          </section>
+          </TemplatePreviewSectionFrame>
         );
       })}
     </div>

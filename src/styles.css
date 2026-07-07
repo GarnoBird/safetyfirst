@@ -5119,6 +5119,18 @@ p {
   overscroll-behavior: contain;
 }
 
+@media (max-width: 1350px) {
+  .template-v3-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .template-v3-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 .template-v3-template-options-card {
   order: 1;
 }
@@ -5400,6 +5412,93 @@ p {
 .template-v3-preview-page {
   align-content: start;
   min-height: 520px;
+  overflow: clip;
+}
+
+.template-v3-preview-header-control {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  border-color: #d9e3de;
+  padding: 14px;
+  color: inherit;
+  text-align: left;
+  background: #fff;
+}
+
+.template-v3-preview-header-control:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.template-v3-preview-edit-shell,
+.template-v3-preview-field-shell {
+  position: relative;
+}
+
+.template-v3-preview-edit-shell {
+  padding-right: 58px;
+}
+
+.template-v3-preview-field-shell {
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  padding: 8px 46px 8px 8px;
+}
+
+.template-v3-preview-edit-shell.template-v3-preview-selected,
+.template-v3-preview-field-shell.template-v3-preview-selected,
+.template-v3-preview-header-control.template-v3-preview-selected {
+  border-color: #245f5b;
+  box-shadow: 0 0 0 3px rgba(36, 95, 91, 0.12);
+}
+
+.template-v3-preview-edit-shell.dragging,
+.template-v3-preview-field-shell.dragging {
+  opacity: 0.48;
+}
+
+.template-v3-preview-edit-shell.drag-over,
+.template-v3-preview-field-shell.drag-over {
+  outline: 2px solid #245f5b;
+  outline-offset: 2px;
+}
+
+.template-v3-preview-edit-tools,
+.template-v3-preview-field-tools {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.template-v3-preview-edit-tools {
+  top: 10px;
+  right: 10px;
+}
+
+.template-v3-preview-field-tools {
+  top: 8px;
+  right: 8px;
+}
+
+.template-v3-preview-edit-tools .template-v3-drag-handle,
+.template-v3-preview-field-tools .template-v3-drag-handle {
+  min-height: 34px;
+}
+
+.template-v3-preview-add-field,
+.template-v3-preview-add-section {
+  min-height: 44px;
+  border-style: dashed;
+  color: #245f5b;
+  font-weight: 950;
+  background: #fff;
+}
+
+.template-v3-preview-add-section {
+  width: 100%;
 }
 
 .template-v3-status-grid {
