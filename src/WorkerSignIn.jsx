@@ -15790,34 +15790,22 @@ function ToolboxTalkSubmissionDetails({ data, filePreviewContext, row, showActio
   );
   const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
   const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
-  const hasMeetingInfo = ["projectName", "address", "date", "time", "presenter", "supervisor"].some((key) =>
-    hasTextValue(header[key]),
-  );
   const genericDetailSchema = getCustomGenericTemplateSchema(
     data?.schemaSnapshot || row?.form_schema_snapshot,
     isToolboxTalkConsumedTemplateField,
     "toolbox_talk",
   );
+  const genericAnswers = mergeToolboxHeaderAnswers(
+    genericDetailSchema,
+    data.answers || {},
+    header,
+  );
 
   return (
     <div className="toolbox-detail">
-      {hasMeetingInfo ? (
-      <section>
-        <h3>Meeting Info</h3>
-        <dl className="staff-detail-list">
-          <div><dt>Project</dt><dd>{header.projectName || "-"}</dd></div>
-          <div><dt>Address</dt><dd>{header.address || "-"}</dd></div>
-          <div><dt>Date</dt><dd>{header.date ? formatDateString(header.date) : "-"}</dd></div>
-          <div><dt>Time</dt><dd>{header.time || "-"}</dd></div>
-          <div><dt>Presenter</dt><dd>{header.presenter || "-"}</dd></div>
-          <div><dt>Supervisor</dt><dd>{header.supervisor || "-"}</dd></div>
-        </dl>
-      </section>
-      ) : null}
-
       <CustomGenericSubmissionDetails
         actionItemBlocks={data.actionItemBlocks}
-        answers={data.answers}
+        answers={genericAnswers}
         filePreviewContext={filePreviewContext}
         schema={genericDetailSchema}
       />
@@ -18698,6 +18686,24 @@ function getCustomGenericTemplateSchema(schema, consumedFieldPredicate, formType
   return createGenericTemplateSchemaFromSections(normalized, sections, formType || normalized.formType);
 }
 
+function mergeToolboxHeaderAnswers(schema, answers = {}, header = {}) {
+  const merged = { ...(answers || {}) };
+  collectClientTemplateFields(normalizeClientTemplateSchema(schema)).forEach((field) => {
+    const headerKey = getToolboxTalkHeaderFieldKey(field);
+    if (!headerKey || hasTemplateAnswerValue(merged[field.id])) return;
+    const value = header?.[headerKey];
+    if (value === undefined || value === null || value === "") return;
+    merged[field.id] = value;
+  });
+  return merged;
+}
+
+function hasTemplateAnswerValue(value) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.keys(value).length > 0;
+  return value !== undefined && value !== null && String(value).trim() !== "";
+}
+
 function getToolboxTalkMissingFields(
   form,
   pendingAttendeeName = "",
@@ -21092,9 +21098,11 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
   );
   const visibleIncidentFields = visibleToolboxCompositeFields(incidentReviewSettings);
   const visibleSafetyConcernFields = visibleToolboxCompositeFields(safetyConcernSettings);
+  const genericSchema = getCustomGenericTemplateSchema(toolboxSchema, isToolboxTalkConsumedTemplateField, "toolbox_talk");
+  const genericAnswers = mergeToolboxHeaderAnswers(genericSchema, data?.answers || {}, header);
   const genericSectionHtml = templateAnswerSectionsHtml(
-    getCustomGenericTemplateSchema(toolboxSchema, isToolboxTalkConsumedTemplateField, "toolbox_talk"),
-    data?.answers || {},
+    genericSchema,
+    genericAnswers,
     data?.actionItemBlocks || {},
   );
   const topicRows = topics.length
@@ -21248,18 +21256,6 @@ function buildDigitalToolboxTalkHtml(row, data, options = {}) {
         <p>${escapeHtml([row?.worker_name, row?.company].filter(Boolean).join(" / "))}</p>
         ${submitted ? `<p>Submitted: ${escapeHtml(submitted)}</p>` : ""}
       </header>
-
-      <section>
-        <h2>Meeting Info</h2>
-        <dl>
-          ${definitionHtml("Project", header.projectName)}
-          ${definitionHtml("Address", header.address)}
-          ${definitionHtml("Date", header.date ? formatDateString(header.date) : "")}
-          ${definitionHtml("Time", header.time)}
-          ${definitionHtml("Presenter", header.presenter)}
-          ${definitionHtml("Supervisor", header.supervisor)}
-        </dl>
-      </section>
 
       <section>
         <h2>Topics Discussed</h2>

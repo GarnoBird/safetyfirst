@@ -42,6 +42,22 @@ const TOOLBOX_TALK_SPECIAL_BLOCK_TYPES = new Set([
   "toolbox_attendance",
   "toolbox_final_confirmation",
 ]);
+const TOOLBOX_TALK_HEADER_FIELD_ALIASES = {
+  address: "address",
+  project: "projectName",
+  project_name: "projectName",
+  projectname: "projectName",
+  supervisor: "supervisor",
+  presenter: "presenter",
+  date: "date",
+  time: "time",
+  toolbox_address: "address",
+  toolbox_project_name: "projectName",
+  toolbox_supervisor: "supervisor",
+  toolbox_presenter: "presenter",
+  toolbox_date: "date",
+  toolbox_time: "time",
+};
 const ACTION_ITEM_ROW_BLOCK_TYPES = new Set(["site_deficiencies", "action_item_rows"]);
 const SIGNATURE_DATA_URL_PATTERN = /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/;
 const MAX_SIGNATURE_DATA_URL_LENGTH = 750000;
@@ -321,23 +337,16 @@ function toolboxTalkSubmissionHtml(row, data) {
   const answers = data?.answers || {};
   const actionItemBlocks = data?.actionItemBlocks || {};
   const genericSchema = getToolboxTalkGenericPrintSchema(data?.schemaSnapshot || row?.form_schema_snapshot);
-  const genericSections = getVisibleTemplateSections(genericSchema, answers, null, { includeHiddenFields: false });
-  const hasMeetingInfo = ["projectName", "address", "date", "time", "presenter", "supervisor"].some((key) =>
-    String(header?.[key] || "").trim(),
+  const genericAnswers = mergeToolboxHeaderAnswers(genericSchema, answers, header);
+  const genericSections = getVisibleTemplateSections(
+    genericSchema,
+    genericAnswers,
+    null,
+    { includeHiddenFields: false },
   );
 
   return [
-    hasMeetingInfo
-      ? simpleSectionHtml("Meeting Info", [
-          ["Project", header.projectName],
-          ["Address", header.address],
-          ["Date", header.date ? formatDateString(header.date) : ""],
-          ["Time", header.time],
-          ["Presenter", header.presenter],
-          ["Supervisor", header.supervisor],
-        ])
-      : "",
-    genericSections.length ? templateSectionsHtml(genericSections, answers, actionItemBlocks) : "",
+    genericSections.length ? templateSectionsHtml(genericSections, genericAnswers, actionItemBlocks) : "",
     `<section class="document-section">
       <h2>Topics Discussed</h2>
       ${topics.length ? `<table><thead><tr><th>Category</th><th>Topic</th></tr></thead><tbody>${topics.map((topic) => `<tr><td>${escapeHtml(topic.categoryLabel || "-")}</td><td>${escapeHtml(topic.label || "-")}</td></tr>`).join("")}</tbody></table>` : `<p class="empty-copy">No selected topics recorded.</p>`}
@@ -531,6 +540,32 @@ function getToolboxTalkGenericPrintSchema(schema) {
       }))
       .filter((section) => section.fields.length),
   };
+}
+
+function mergeToolboxHeaderAnswers(schema, answers = {}, header = {}) {
+  const merged = { ...(answers || {}) };
+  collectTemplateFields(normalizeClientTemplateSchema(schema)).forEach((field) => {
+    const headerKey = getToolboxTalkHeaderFieldKey(field);
+    if (!headerKey || hasTemplateAnswerValue(merged[field.id])) return;
+    const value = header?.[headerKey];
+    if (value === undefined || value === null || value === "") return;
+    merged[field.id] = value;
+  });
+  return merged;
+}
+
+function getToolboxTalkHeaderFieldKey(field) {
+  const explicit = String(field?.settings?.toolboxHeaderField || "").trim();
+  if (explicit) return explicit;
+  const idKey = TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.id || "")];
+  if (idKey) return idKey;
+  return TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyTemplateId(field?.label || "")] || "";
+}
+
+function hasTemplateAnswerValue(value) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.keys(value).length > 0;
+  return value !== undefined && value !== null && String(value).trim() !== "";
 }
 
 function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {

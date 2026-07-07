@@ -189,6 +189,59 @@ const toolboxAttendanceSchema = {
   ],
 };
 
+const copiedToolboxSplitMeetingSchema = {
+  schemaVersion: 1,
+  formType: "toolbox_talk_copy",
+  title: "The Garno Questionnaire",
+  description: "Copied Toolbox Talk with split normal fields.",
+  sections: [
+    {
+      id: "general_info",
+      title: "General Info",
+      description: "",
+      fields: [
+        {
+          id: "presenter_name",
+          type: "short_text",
+          label: "Presenter",
+          required: false,
+          settings: { toolboxHeaderField: "presenter" },
+        },
+        {
+          id: "is_dinner_delicious",
+          type: "yes_no",
+          label: "Is dinner delicious?",
+          required: false,
+        },
+      ],
+    },
+    {
+      id: "topics",
+      title: "Topics",
+      description: "",
+      fields: [
+        {
+          id: "topics_block",
+          type: "toolbox_topics",
+          label: "Topics",
+        },
+      ],
+    },
+    {
+      id: "attendance",
+      title: "Attendance",
+      description: "",
+      fields: [
+        {
+          id: "attendance_block",
+          type: "toolbox_attendance",
+          label: "Attendance",
+        },
+      ],
+    },
+  ],
+};
+
 const toolboxHalfWidthSchema = {
   schemaVersion: 1,
   formType: "toolbox_talk",
@@ -2154,6 +2207,37 @@ test("submitted form company filter uses submitted company dropdown", async ({ p
   ]);
 });
 
+test("copied Toolbox Talk submitted view does not synthesize Meeting Info", async ({ page }) => {
+  const row = toolboxSubmissionRow({
+    id: "garno-questionnaire-submission",
+    formType: "toolbox_talk_copy",
+    projectName: "Garno Project",
+    company: "Appia Staff (Ibird)",
+    workerName: "Ibird",
+    schemaSnapshot: copiedToolboxSplitMeetingSchema,
+    answers: {
+      is_dinner_delicious: "yes",
+    },
+  });
+  await mockApis(
+    page,
+    [
+      template("toolbox_talk_copy", "The Garno Questionnaire", copiedToolboxSplitMeetingSchema),
+    ],
+    { staffSubmissions: [row] },
+  );
+
+  await page.goto("/staff/forms/garno-questionnaire-submission");
+
+  await expect(page.getByRole("heading", { level: 1, name: "The Garno Questionnaire" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Meeting Info" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "General Info" })).toBeVisible();
+  await expect(page.locator(".template-detail-answer-list").filter({ hasText: "Presenter" })).toContainText("Garnet Bird");
+  await expect(page.locator(".template-detail-answer-list").filter({ hasText: "Is dinner delicious?" })).toContainText("Yes");
+  await expect(page.getByRole("heading", { name: "Topics Discussed" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Attendance" })).toBeVisible();
+});
+
 test("submitted forms open in a routed viewer, sign off, export, email, and print", async ({ page }) => {
   test.slow();
   const standardSubmission = toolboxSubmissionRow({
@@ -2162,6 +2246,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
     projectName: "Standard Toolbox Project",
     company: "StandardCo",
     workerName: "Standard Worker",
+    schemaSnapshot: toolboxHalfWidthSchema,
   });
   const customSubmission = toolboxSubmissionRow({
     id: "custom-toolbox-submission",
@@ -2208,7 +2293,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
   const viewerCases = [
     { company: "EditCo", edit: true, expectedText: "Original Project", id: editableSubmission.id },
     { company: "Birding Scopes", expectedText: "Dinner-Photo-3.png", id: fileSubmission.id },
-    { company: "CustomCo", expectedText: "Custom Toolbox Project", id: customSubmission.id, sign: true },
+    { company: "CustomCo", expectedText: "custom-photo.jpg", id: customSubmission.id, sign: true },
     { company: "StandardCo", expectedText: "Standard Toolbox Project", id: standardSubmission.id },
   ];
 
@@ -2270,7 +2355,7 @@ test("submitted forms open in a routed viewer, sign off, export, email, and prin
       await translateDialog.getByRole("button", { name: "Translate Form" }).click();
       await expect(translateDialog).toHaveCount(0);
       await expect(page.getByText("Temas discutidos", { exact: true })).toBeVisible();
-      await expect(page.getByText("Custom Toolbox Project", { exact: true })).toBeVisible();
+      await expect(page.getByText("custom-photo.jpg", { exact: true })).toBeVisible();
       await expect(page.locator(".submitted-viewer-status-message")).toHaveText("Translated to Spanish.");
       expect(mockState.translateApiCalls).toEqual([]);
       await page.getByRole("button", { name: "Show original" }).click();

@@ -2432,6 +2432,20 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
             ...cleanPlainSettings(section?.settings),
             ...cleanPlainSettings(field?.settings),
           };
+          return;
+        }
+
+        const headerKey = getToolboxTalkHeaderFieldKey(field);
+        if (headerKey) {
+          const base = TOOLBOX_TALK_HEADER_FIELD_CONFIGS.find((item) => item.key === headerKey);
+          if (base && !headerFields.some((item) => item.key === headerKey)) {
+            headerFields.push({
+              ...base,
+              id: cleanText(field?.id || base.id, 160),
+              label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
+              required: Boolean(field?.required),
+            });
+          }
         }
       });
     });
