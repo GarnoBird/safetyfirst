@@ -61,6 +61,10 @@ const VERSION_SELECT =
   "id, template_id, form_type, version_number, status, schema, notes, created_by_staff_id, updated_by_staff_id, published_by_staff_id, created_at, updated_at, published_at";
 const SHARE_LINK_SELECT =
   "id, template_id, form_type, token, slug, active, created_at, updated_at";
+const FORM_TEMPLATE_METADATA_CACHE_TTL_MS = 60 * 1000;
+const FORM_TEMPLATE_LABEL_CACHE_TTL_MS = 60 * 1000;
+const publishedShareTemplateCache = new Map();
+const formTemplateLabelRowsCache = new Map();
 const MAX_SECTIONS = 20;
 const MAX_FIELDS = 100;
 const MAX_OPTIONS = 80;
@@ -196,6 +200,55 @@ export async function getPublishedWorkerFormTemplate(formType) {
 export async function getPublishedFormTemplateByShareIdentifier(identifier) {
   await ensureSeedTemplates();
   const cleanIdentifier = cleanShareIdentifier(identifier);
+  return readCache(publishedShareTemplateCache, `share:${cleanIdentifier}`, FORM_TEMPLATE_METADATA_CACHE_TTL_MS, async () => {
+    return loadPublishedFormTemplateByShareIdentifier(cleanIdentifier);
+  });
+}
+
+export async function getFormTemplateLabelMap(formTypes) {
+  const wantedTypes = new Set(
+    (formTypes || [])
+      .map((formType) => cleanFormType(formType))
+      .filter(Boolean),
+  );
+  if (!wantedTypes.size) return new Map();
+  const rows = await readCache(formTemplateLabelRowsCache, "all-labels", FORM_TEMPLATE_LABEL_CACHE_TTL_MS, async () => {
+    return throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("form_type, label"),
+      "Form template labels could not be loaded.",
+    );
+  });
+  return new Map(
+    rows
+      .filter((row) => wantedTypes.has(cleanFormType(row.form_type)))
+      .map((row) => [cleanFormType(row.form_type), cleanString(row.label || "", MAX_TEXT)])
+      .filter(([formType, label]) => formType && label),
+  );
+}
+
+export async function listActiveFormTemplateOptions() {
+  const rows = await readCache(formTemplateLabelRowsCache, "active-options", FORM_TEMPLATE_LABEL_CACHE_TTL_MS, async () => {
+    return throwIfSupabaseError(
+      await getSupabaseServiceClient()
+        .from("form_templates")
+        .select("form_type, label")
+        .is("archived_at", null)
+        .order("display_order", { ascending: true })
+        .order("label", { ascending: true }),
+      "Form template filters could not be loaded.",
+    );
+  });
+  return rows
+    .map((row) => ({
+      id: cleanFormType(row.form_type),
+      label: cleanString(row.label || "", MAX_TEXT),
+    }))
+    .filter((row) => row.id && row.label);
+}
+
+async function loadPublishedFormTemplateByShareIdentifier(cleanIdentifier) {
   const identifierColumn = isShareToken(cleanIdentifier) ? "token" : "slug";
   const link = throwIfSupabaseError(
     await getSupabaseServiceClient()
@@ -1277,6 +1330,24 @@ function isTemplateNonAnswerType(type) {
 
 function isTemplateNonAnswerField(field) {
   return isTemplateNonAnswerType(field?.type);
+}
+
+async function readCache(cache, key, ttlMs, loader) {
+  const now = Date.now();
+  const hit = cache.get(key);
+  if (hit && hit.expiresAt > now) return cloneCacheValue(hit.value);
+  const value = await loader();
+  cache.set(key, {
+    expiresAt: now + ttlMs,
+    value: cloneCacheValue(value),
+  });
+  return cloneCacheValue(value);
+}
+
+function cloneCacheValue(value) {
+  if (value === null || value === undefined) return value;
+  if (typeof structuredClone === "function") return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
 }
 
 async function ensureSeedTemplates() {

@@ -15,7 +15,9 @@ import {
   buildTemplateSubmissionNotes,
   cleanTemplateSubmissionFieldsForSchema,
   collectTemplateMediaUploadFiles,
+  getFormTemplateLabelMap,
   getPublishedWorkerFormTemplate,
+  listActiveFormTemplateOptions,
   validateTemplateSubmissionFormData,
 } from "./form-templates.js";
 import { getRequiredEnv } from "./http.js";
@@ -339,25 +341,14 @@ async function withCurrentFormLabels(rows) {
   const formTypes = [...new Set(rows.map((row) => String(row?.form_type || "").trim()).filter(Boolean))];
   if (!formTypes.length) return rows;
 
-  let templates = [];
+  let labelByType;
   try {
-    templates = throwIfSupabaseError(
-      await getSupabaseServiceClient()
-        .from("form_templates")
-        .select("form_type, label")
-        .in("form_type", formTypes),
-      "Form template labels could not be loaded.",
-    );
+    labelByType = await getFormTemplateLabelMap(formTypes);
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
     return rows;
   }
 
-  const labelByType = new Map(
-    templates
-      .map((template) => [String(template.form_type || "").trim(), cleanText(template.label || "", MAX_FORM_TEXT_LENGTH)])
-      .filter(([type, label]) => type && label),
-  );
   return rows.map((row) => ({
     ...row,
     form_current_label: labelByType.get(String(row?.form_type || "").trim()) || null,
@@ -909,20 +900,7 @@ export async function listStaffSubmissionFilters() {
   }
 
   try {
-    formOptions = throwIfSupabaseError(
-      await getSupabaseServiceClient()
-        .from("form_templates")
-        .select("form_type, label")
-        .is("archived_at", null)
-        .order("display_order", { ascending: true })
-        .order("label", { ascending: true }),
-      "Form template filters could not be loaded.",
-    )
-      .map((row) => ({
-        id: row.form_type,
-        label: row.label,
-      }))
-      .filter((row) => row.id && row.label);
+    formOptions = await listActiveFormTemplateOptions();
   } catch (error) {
     if (!isSupabaseMissingRelationError(error)) throw error;
     formOptions = [];
