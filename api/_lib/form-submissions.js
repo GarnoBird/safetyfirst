@@ -2113,7 +2113,8 @@ async function cleanSubmissionFormData(formType, submissionMode, value, worker) 
           formType: "toolbox_talk",
         })
       : { answers: {}, actionItemBlocks: {}, schema: {} };
-    const formData = cleanToolboxTalkFormData(value, worker, toolboxConfig);
+    const rawToolboxFormData = mergeToolboxHeaderFieldAnswers(value, toolboxConfig, generic.answers);
+    const formData = cleanToolboxTalkFormData(rawToolboxFormData, worker, toolboxConfig);
     return {
       formData: {
         ...formData,
@@ -2407,6 +2408,33 @@ function getToolboxTalkHeaderFieldKey(field) {
   return TOOLBOX_TALK_HEADER_FIELD_ALIASES[slugifyToolboxTemplateId(field?.label || "")] || "";
 }
 
+function templateFieldIsHidden(field) {
+  return getTemplateSettingRaw(field?.settings, "hidden") === true;
+}
+
+function hasToolboxHeaderAnswerValue(value) {
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.keys(value).length > 0;
+  return value !== undefined && value !== null && cleanText(value, MAX_FORM_TEXT_LENGTH) !== "";
+}
+
+function mergeToolboxHeaderFieldAnswers(value, toolboxConfig, answers = {}) {
+  const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const header = {
+    ...(source.header && typeof source.header === "object" && !Array.isArray(source.header)
+      ? source.header
+      : {}),
+  };
+  (Array.isArray(toolboxConfig?.headerFields) ? toolboxConfig.headerFields : []).forEach((field) => {
+    if (!field?.key || !field?.id || !hasToolboxHeaderAnswerValue(answers[field.id])) return;
+    header[field.key] = answers[field.id];
+  });
+  return {
+    ...source,
+    header,
+  };
+}
+
 async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride = null) {
   try {
     const template = templateOverride || await getPublishedWorkerFormTemplate(formType);
@@ -2443,7 +2471,7 @@ async function getToolboxTalkConfig(formType = "toolbox_talk", templateOverride 
               ...base,
               id: cleanText(field?.id || base.id, 160),
               label: cleanText(field?.label || base.label, MAX_FORM_TEXT_LENGTH),
-              required: Boolean(field?.required),
+              required: !templateFieldIsHidden(field) && Boolean(field?.required),
             });
           }
         }
@@ -2565,7 +2593,8 @@ async function validateToolboxTalkTemplateSubmissionFormData({ formType, rawForm
     consumedFieldPredicate: isToolboxTalkConsumedTemplateField,
     formType,
   });
-  const formData = cleanToolboxTalkFormData(rawFormData, worker, config);
+  const rawToolboxFormData = mergeToolboxHeaderFieldAnswers(rawFormData, config, generic.answers);
+  const formData = cleanToolboxTalkFormData(rawToolboxFormData, worker, config);
   return {
     formData: {
       ...formData,

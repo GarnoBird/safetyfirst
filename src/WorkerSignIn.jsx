@@ -18698,6 +18698,16 @@ function mergeToolboxHeaderAnswers(schema, answers = {}, header = {}) {
   return merged;
 }
 
+function mergeToolboxHeaderForSubmit(header = {}, schema, answers = {}) {
+  const merged = { ...(header || {}) };
+  collectClientTemplateFields(normalizeClientTemplateSchema(schema)).forEach((field) => {
+    const headerKey = getToolboxTalkHeaderFieldKey(field);
+    if (!headerKey || !hasTemplateAnswerValue(answers[field.id])) return;
+    merged[headerKey] = answers[field.id];
+  });
+  return merged;
+}
+
 function hasTemplateAnswerValue(value) {
   if (Array.isArray(value)) return value.length > 0;
   if (value && typeof value === "object") return Object.keys(value).length > 0;
@@ -18849,6 +18859,7 @@ function cleanToolboxTalkClientForm(
   worker = null,
   layout = createDefaultToolboxTalkLayout(),
 ) {
+  const answers = cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker);
   const incidentReviewSettings = normalizeToolboxCompositeSettings(
     layout.blockSettings?.toolbox_incident_review,
     "toolbox_incident_review",
@@ -18860,7 +18871,7 @@ function cleanToolboxTalkClientForm(
   return {
     kind: "toolbox_talk_v1",
     version: 1,
-    header: cleanObjectStrings(form.header),
+    header: mergeToolboxHeaderForSubmit(cleanObjectStrings(form.header), genericSchema, answers),
     topics: {
       selected: form.topics.selected,
       other: form.topics.other.trim(),
@@ -18876,7 +18887,7 @@ function cleanToolboxTalkClientForm(
       date: form.confirmation.date,
       confirmed: Boolean(form.confirmation.confirmed),
     },
-    answers: cleanTemplateAnswersForSubmit(genericSchema, form.answers || {}, worker),
+    answers,
     actionItemBlocks: cleanActionItemBlocksForSubmit(genericSchema, form.answers || {}, worker),
   };
 }

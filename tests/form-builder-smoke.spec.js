@@ -1985,6 +1985,28 @@ test("custom Toolbox Talk section widths render in preview and worker form", asy
   await expectSectionsShareRow(workerMeeting, workerTopics);
 });
 
+test("Toolbox Talk split meeting fields submit into legacy header", async ({ page }) => {
+  const row = template("toolbox_width_smoke", "Toolbox Width Smoke", toolboxHalfWidthSchema);
+  const submissions = await mockApis(page, [row]);
+
+  await page.goto("/forms/toolbox_width_smoke");
+  const meetingInfo = page.locator(".template-section-meeting_info");
+  await meetingInfo.getByLabel("Project Name").fill("Visible Project");
+  await meetingInfo.getByLabel("Date").fill("2026-07-07");
+  await page.getByLabel("Additional topics / procedures reviewed").fill("Housekeeping");
+  const attendanceInput = page.getByPlaceholder("Worker name or comma-separated names");
+  await attendanceInput.fill("Alan");
+  await attendanceInput.press("Enter");
+  await page.getByLabel("I confirm the listed workers participated in this toolbox talk.").check();
+  await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
+
+  await expect.poll(() => submissions.length).toBe(1);
+  expect(submissions[0].formData.header.projectName).toBe("Visible Project");
+  expect(submissions[0].formData.header.date).toBe("2026-07-07");
+  expect(submissions[0].formData.answers.project).toBe("Visible Project");
+  expect(submissions[0].formData.answers.date).toBe("2026-07-07");
+});
+
 test("Toolbox Talk attendance splits comma-separated names", async ({ page }) => {
   const row = template("toolbox_attendance_smoke", "Toolbox Attendance", toolboxAttendanceSchema);
   const submissions = await mockApis(page, [row]);
