@@ -12,7 +12,8 @@
     "test:security": "node --test tests/security-hardening.test.js",
     "smoke:ops": "node scripts/smoke-security-ops.js",
     "smoke:forms": "playwright test tests/form-builder-smoke.spec.js",
-    "smoke:certificates": "playwright test tests/certificates-smoke.spec.js"
+    "smoke:certificates": "playwright test tests/certificates-smoke.spec.js",
+    "smoke:performance": "playwright test tests/performance-smoke.spec.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "^149.0.0",
