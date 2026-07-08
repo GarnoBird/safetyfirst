@@ -3212,12 +3212,15 @@ test("Salus Toolbox Talk migration opens as hidden draft and runs as a Toolbox f
   await expect(preview.getByText("Basic Personal Protective Equipment")).toBeVisible();
   await expect(preview.getByText("Specialized Personal Protective Equipment")).toBeVisible();
   await expect(preview.getByText("Attach Documents or Photos")).toBeVisible();
+  await expect(preview.getByLabel(/Presenter\/Supervisor Signature/)).toBeVisible();
   await expect(preview.getByText(/JPG, PNG, WEBP, HEIC, PDF/)).toBeVisible();
 
   const liveRow = template("salus_toolbox_talk", "Salus Toolbox Talk", salusToolboxTalkSchema);
   const submissions = await mockApis(page, [liveRow]);
   await page.goto("/forms/salus_toolbox_talk");
   await expect(page.getByRole("heading", { name: "Salus Toolbox Talk" })).toBeVisible();
+  const presenterSignature = page.getByLabel(/Presenter\/Supervisor Signature/);
+  await expect(presenterSignature).toBeVisible();
   await page.getByRole("textbox", { name: "Supervisor", exact: true }).fill("Bob");
   await page.getByRole("button", { name: "Housekeeping / clean-up" }).first().click();
   const attendanceInput = page.getByPlaceholder("Worker name or comma-separated names");
@@ -3235,6 +3238,9 @@ test("Salus Toolbox Talk migration opens as hidden draft and runs as a Toolbox f
     buffer: Buffer.from("jpg"),
   });
   await expect(page.getByText("talk-photo.jpg")).toBeVisible();
+  await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
+  await expect(page.getByText(/Presenter\/Supervisor Signature .* is required\./)).toBeVisible();
+  await drawSignatureOnCanvas(page, presenterSignature);
   await page.getByRole("button", { name: "Submit Toolbox Talk" }).click();
   await expect.poll(() => submissions.length).toBe(1);
   expect(submissions[0].formData.kind).toBe("toolbox_talk_v1");
@@ -3254,6 +3260,7 @@ test("Salus Toolbox Talk migration opens as hidden draft and runs as a Toolbox f
       mimeType: "image/jpeg",
     }),
   ]);
+  expect(submissions[0].formData.answers.salus_presenter_signature_instruction).toMatch(/^data:image\/png;base64,/);
 });
 
 test("Speed Fan Inspection migration opens as a hidden editable draft", async ({ page }) => {

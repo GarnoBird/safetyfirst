@@ -819,7 +819,9 @@ export function cleanTemplateSchema(value, { fallbackTitle = "Form", formType = 
 }
 
 function cleanTemplateField(field, sectionIndex, fieldIndex) {
-  const type = TEMPLATE_FIELD_TYPES.includes(field?.type) ? field.type : "short_text";
+  const legacySalusFinalSignature = isLegacySalusFinalSignatureInstruction(field);
+  const rawType = legacySalusFinalSignature ? "signature" : field?.type;
+  const type = TEMPLATE_FIELD_TYPES.includes(rawType) ? rawType : "short_text";
   const labelMax = type === "instructions" ? MAX_LONG_TEXT : MAX_TEXT;
   const label = cleanString(field?.label, labelMax) || `Field ${fieldIndex + 1}`;
   const options = ["dropdown", "multi_select"].includes(type)
@@ -833,12 +835,20 @@ function cleanTemplateField(field, sectionIndex, fieldIndex) {
     type,
     label,
     helperText: cleanString(field?.helperText || field?.helper_text, MAX_TEXT),
-    required: isTemplateNonAnswerType(type) ? false : Boolean(field?.required),
+    required: isTemplateNonAnswerType(type) ? false : legacySalusFinalSignature || Boolean(field?.required),
     default: isTemplateNonAnswerType(type) ? "" : cleanDefaultValue(field?.default),
     remember: isTemplateNonAnswerType(type) ? false : Boolean(field?.remember),
     options,
     settings: cleanSettingsObject(field?.settings),
   };
+}
+
+function isLegacySalusFinalSignatureInstruction(field) {
+  return (
+    cleanId(field?.id) === "salus_presenter_signature_instruction" &&
+    field?.type === "instructions" &&
+    /presenter\/supervisor signature/i.test(String(field?.label || ""))
+  );
 }
 
 function cleanSettingsObject(value, depth = 0) {

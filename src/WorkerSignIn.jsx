@@ -19437,8 +19437,10 @@ function normalizeClientTemplateSchema(schema) {
 }
 
 function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
-  const type = TEMPLATE_FIELD_TYPES.some((item) => item.id === field?.type)
-    ? field.type
+  const legacySalusFinalSignature = isLegacySalusFinalSignatureInstruction(field);
+  const rawType = legacySalusFinalSignature ? "signature" : field?.type;
+  const type = TEMPLATE_FIELD_TYPES.some((item) => item.id === rawType)
+    ? rawType
     : "short_text";
   const hasLabel = field && Object.prototype.hasOwnProperty.call(field, "label");
   const label = hasLabel
@@ -19456,12 +19458,20 @@ function normalizeTemplateField(field, sectionIndex = 0, fieldIndex = 0) {
     type,
     label,
     helperText: String(field?.helperText || field?.helper_text || ""),
-    required: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.required),
+    required: isTemplateNonAnswerField({ type }) ? false : legacySalusFinalSignature || Boolean(field?.required),
     default: isTemplateNonAnswerField({ type }) ? "" : TEMPLATE_DEFAULT_VALUES.has(field?.default) ? field.default : "",
     remember: isTemplateNonAnswerField({ type }) ? false : Boolean(field?.remember),
     options,
     settings: normalizeTemplateSettings(field?.settings),
   };
+}
+
+function isLegacySalusFinalSignatureInstruction(field) {
+  return (
+    slugifyTemplateId(field?.id || "") === "salus_presenter_signature_instruction" &&
+    field?.type === "instructions" &&
+    /presenter\/supervisor signature/i.test(String(field?.label || ""))
+  );
 }
 
 function moveArrayItem(items, index, direction) {

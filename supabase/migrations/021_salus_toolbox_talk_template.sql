@@ -273,10 +273,10 @@ declare
       "fields": [
         {
           "id": "salus_presenter_signature_instruction",
-          "type": "instructions",
+          "type": "signature",
           "label": "Presenter/Supervisor Signature - by signing you confirm that these workers participated in this toolbox talk.",
           "helperText": "",
-          "required": false,
+          "required": true,
           "default": "",
           "remember": false,
           "options": [],
